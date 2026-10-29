@@ -1,0 +1,84 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/gallery/webhook-export-pipeline"
+  },
+  "response": {
+    "body": {
+      "category": "outbound",
+      "description": "Enrich each row with a verified email and firmographics, then POST the finished row to any endpoint you own \u2014 Zapier, n8n, your own API.",
+      "icon": "webhook",
+      "name": "Enrich & push via webhook",
+      "slug": "webhook-export-pipeline",
+      "workbook": {
+        "columns": [
+          {
+            "id": "company",
+            "lead_field": "company",
+            "name": "Company",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "website",
+            "lead_field": "website",
+            "name": "Website",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "condition": "{email} == \"\"",
+            "id": "email",
+            "name": "Email (verified)",
+            "target_field": "email",
+            "type": "waterfall",
+            "verify": true,
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "website_scraper",
+              "email_harvester",
+              "ddg_email"
+            ],
+            "width": 220
+          },
+          {
+            "condition": "{description} == \"\"",
+            "id": "about",
+            "name": "Description",
+            "target_field": "description",
+            "type": "waterfall",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "website_scraper",
+              "ddg_company"
+            ],
+            "width": 280
+          },
+          {
+            "formula": "{email}.split(\"@\")[1]",
+            "id": "email_domain",
+            "name": "Domain",
+            "type": "formula",
+            "width": 180
+          },
+          {
+            "destination": "webhook",
+            "id": "push_webhook",
+            "name": "Send to webhook",
+            "type": "output",
+            "width": 160
+          }
+        ],
+        "description": "The webhook output column sends each completed row to a URL you configure (destination_config is left empty on purpose \u2014 set your endpoint after import). Great for wiring Yupcha into an existing stack."
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

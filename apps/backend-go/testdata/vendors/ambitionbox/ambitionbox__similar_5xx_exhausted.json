@@ -1,0 +1,84 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "similar_5xx_exhausted",
+ "call": {
+  "function": "get_similar_companies",
+  "args": {
+   "company_id": 500
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/insights-services/v0/company/500/similar-companies-v3",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 503,
+    "body": "upstream unavailable"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/insights-services/v0/company/500/similar-companies-v3",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 503,
+    "body": "upstream unavailable"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/insights-services/v0/company/500/similar-companies-v3",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 503,
+    "body": "upstream unavailable"
+   }
+  }
+ ],
+ "sleeps": [
+  0.5,
+  1.0
+ ],
+ "raises": {
+  "type": "RuntimeError",
+  "message": "AmbitionBox request failed after 3 attempts: AmbitionBox API 503: upstream unavailable"
+ }
+}

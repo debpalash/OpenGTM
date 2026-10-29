@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?before=2030-13-45"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": "month value is outside expected range of 1-12"
+          },
+          "input": "2030-13-45",
+          "loc": [
+            "query",
+            "before"
+          ],
+          "msg": "Input should be a valid datetime or date, month value is outside expected range of 1-12",
+          "type": "datetime_from_date_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,17 @@
+From: mailer-daemon@mx.example.net
+Subject: Delivery failure
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="B"
+
+--B
+Content-Type: message/delivery-status
+
+Final-Recipient: rfc822; a@example.org
+Action: failed
+Status: 5.1.1
+
+--B
+Content-Type: message/rfc822
+
+
+--B--

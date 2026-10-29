@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/gallery/hiring-signals-radar"
+  },
+  "response": {
+    "body": {
+      "category": "signals",
+      "description": "Detect open roles across your accounts from public ATS boards, then turn each hiring signal into a concrete outreach angle \u2014 pushed to your webhook.",
+      "icon": "radar",
+      "name": "Hiring-signals radar",
+      "slug": "hiring-signals-radar",
+      "workbook": {
+        "columns": [
+          {
+            "id": "company",
+            "lead_field": "company",
+            "name": "Company",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "website",
+            "lead_field": "website",
+            "name": "Website",
+            "type": "lead_field",
+            "width": 200
+          },
+          {
+            "id": "hiring",
+            "name": "Open roles",
+            "target_field": "hiring_signals",
+            "type": "waterfall",
+            "waterfall": [
+              "ats_hiring",
+              "jobspy"
+            ],
+            "width": 240
+          },
+          {
+            "id": "angle",
+            "name": "Outreach angle",
+            "output_format": "text",
+            "prompt": "ROLE: You are a B2B sales strategist.\nCONTEXT: Company: {company}. Open roles / hiring signals: {hiring_signals}.\nTASK: From these hiring signals, infer ONE concrete business initiative the company is likely running, and phrase it as an outreach angle (why now).\nFORMAT: One sentence, max 25 words.\nFALLBACK: If there are no hiring signals, output INSUFFICIENT_DATA.",
+            "type": "ai_formula",
+            "width": 300
+          },
+          {
+            "destination": "webhook",
+            "id": "notify",
+            "name": "Notify webhook",
+            "type": "output",
+            "width": 160
+          }
+        ],
+        "description": "ats_hiring reads public ATS boards (zero-key); jobspy aggregates job portals as fallback. The AI column converts raw postings into an angle you can open with, and the webhook column notifies your own systems."
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

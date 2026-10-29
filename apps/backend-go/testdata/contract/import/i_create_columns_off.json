@@ -1,0 +1,64 @@
+{
+  "request": {
+    "body": {
+      "create_columns": false,
+      "rows": [
+        {
+          "Company": "No Cols Co",
+          "Other": "o",
+          "Whatever": "w"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/import"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [],
+        "custom_columns": [
+          "Other",
+          "Whatever"
+        ],
+        "detection_reason": "none",
+        "headers": [
+          "Company",
+          "Whatever",
+          "Other"
+        ],
+        "importable_rows": 1,
+        "input_rows": 1,
+        "mapped_standard": [
+          "Company"
+        ],
+        "mapping": {
+          "Company": "company",
+          "Other": "other",
+          "Whatever": "whatever"
+        },
+        "skipped_columns": [],
+        "source_system": "generic"
+      },
+      "columns_added": [],
+      "created": 1,
+      "mapping": {
+        "Company": "company",
+        "Other": "other",
+        "Whatever": "whatever"
+      },
+      "skipped_duplicates": 0,
+      "total_rows": 31
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

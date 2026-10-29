@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/jobs/a1000000000000000000000000000002/cancel"
+  },
+  "response": {
+    "body": {
+      "message": "Job a1000000000000000000000000000002 cancelled",
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

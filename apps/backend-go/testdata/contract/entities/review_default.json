@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/entities/review-queue"
+  },
+  "response": {
+    "body": {
+      "pairs": [
+        {
+          "candidate": {
+            "canonical_name": "Acme Corp",
+            "id": "ent-alpha-2"
+          },
+          "entity_id": "ent-alpha-1",
+          "id": 1,
+          "reason": "similar name",
+          "score": 0.87,
+          "status": "pending"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

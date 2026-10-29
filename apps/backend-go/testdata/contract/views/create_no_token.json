@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "name": "V"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "base_id": "b",
+        "idempotency_field": "",
+        "table": "t"
+      },
+      "destination_type": "airtable",
+      "name": "at empty idem ok"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "base_id": "b",
+        "idempotency_field": "",
+        "table": "t"
+      },
+      "created_at": "2026-10-26T17:05:49.749976",
+      "destination_type": "airtable",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002112",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "at empty idem ok",
+      "updated_at": "2026-10-26T17:05:49.749976"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

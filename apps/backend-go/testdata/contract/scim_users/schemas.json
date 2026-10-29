@@ -1,0 +1,141 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Schemas"
+  },
+  "response": {
+    "body": {
+      "Resources": [
+        {
+          "attributes": [
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "userName",
+              "required": true,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "server"
+            },
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "displayName",
+              "required": false,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "none"
+            },
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "externalId",
+              "required": false,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "none"
+            },
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "active",
+              "required": false,
+              "returned": "default",
+              "type": "boolean",
+              "uniqueness": "none"
+            }
+          ],
+          "description": "OpenGTM workspace user",
+          "id": "urn:ietf:params:scim:schemas:core:2.0:User",
+          "name": "User",
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:Schema"
+          ]
+        },
+        {
+          "attributes": [
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "displayName",
+              "required": true,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "server"
+            },
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "readWrite",
+              "name": "externalId",
+              "required": false,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "none"
+            },
+            {
+              "caseExact": false,
+              "multiValued": true,
+              "mutability": "readWrite",
+              "name": "members",
+              "required": false,
+              "returned": "default",
+              "subAttributes": [
+                {
+                  "caseExact": false,
+                  "multiValued": false,
+                  "mutability": "immutable",
+                  "name": "value",
+                  "required": false,
+                  "returned": "default",
+                  "type": "string",
+                  "uniqueness": "none"
+                },
+                {
+                  "caseExact": false,
+                  "multiValued": false,
+                  "mutability": "immutable",
+                  "name": "$ref",
+                  "referenceTypes": [
+                    "User"
+                  ],
+                  "required": false,
+                  "returned": "default",
+                  "type": "reference",
+                  "uniqueness": "none"
+                }
+              ],
+              "type": "complex",
+              "uniqueness": "none"
+            }
+          ],
+          "description": "OpenGTM workspace group",
+          "id": "urn:ietf:params:scim:schemas:core:2.0:Group",
+          "name": "Group",
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:Schema"
+          ]
+        }
+      ],
+      "itemsPerPage": 2,
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      ],
+      "startIndex": 1,
+      "totalResults": 2
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

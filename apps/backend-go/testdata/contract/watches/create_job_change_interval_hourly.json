@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "lead_id": 1
+          }
+        ]
+      },
+      "interval": "hourly",
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "job_change watches poll at most weekly (interval='weekly')"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

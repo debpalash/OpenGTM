@@ -1,0 +1,61 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/memories"
+  },
+  "response": {
+    "body": {
+      "available": true,
+      "memories": [
+        {
+          "created_at": "2026-08-25T09:00:00+00:00",
+          "memory": "the and for with",
+          "metadata": {}
+        },
+        {
+          "created_at": "2026-08-24T09:00:00+00:00",
+          "memory": "Caf\u00e9 partnership notes: \u00c9COLE Berlin, STRIPE contact 42",
+          "metadata": {
+            "type": "note"
+          }
+        },
+        {
+          "created_at": "2026-08-23T09:00:00+00:00",
+          "memory": "Pipeline review every Monday for Pune staffing accounts",
+          "metadata": {}
+        },
+        {
+          "created_at": "2026-08-22T09:00:00+00:00",
+          "memory": "User asked: show stripe partnership team\nAssistant answered about: Stripe people table",
+          "metadata": {
+            "conversation_id": "conv-ed-1",
+            "type": "episodic"
+          }
+        },
+        {
+          "created_at": "2026-08-21T09:00:00+00:00",
+          "memory": "User prefers weekly signal tracking for partnership hiring",
+          "metadata": {
+            "type": "preference"
+          }
+        },
+        {
+          "created_at": "2026-08-20T09:00:00+00:00",
+          "memory": "User asked: find hiring partnership leads in Pune\nAssistant answered about: five leads",
+          "metadata": {
+            "conversation_id": "conv-ed-3",
+            "type": "episodic"
+          }
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

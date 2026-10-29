@@ -1,0 +1,94 @@
+[
+ {
+  "in": "",
+  "out": ""
+ },
+ {
+  "in": "stripe.com",
+  "out": "stripe.com"
+ },
+ {
+  "in": "https://www.Stripe.com/jobs",
+  "out": "stripe.com"
+ },
+ {
+  "in": "http://shop.stripe.com:8080/x?y#z",
+  "out": "stripe.com"
+ },
+ {
+  "in": "www.acme.co.uk",
+  "out": "acme.co.uk"
+ },
+ {
+  "in": "mail.acme.co.uk",
+  "out": "acme.co.uk"
+ },
+ {
+  "in": "acme.example.org/home",
+  "out": "example.org"
+ },
+ {
+  "in": "user@mail.example.com",
+  "out": "example.com"
+ },
+ {
+  "in": "Café.Münch.de",
+  "out": "munch.de"
+ },
+ {
+  "in": "https://éxample.com",
+  "out": "example.com"
+ },
+ {
+  "in": "localhost",
+  "out": "localhost"
+ },
+ {
+  "in": "a.b.c.d.com",
+  "out": "d.com"
+ },
+ {
+  "in": "WWW.Foo.COM.",
+  "out": "foo.com"
+ },
+ {
+  "in": "foo..bar.com",
+  "out": "bar.com"
+ },
+ {
+  "in": "  spaced.io  ",
+  "out": "spaced.io"
+ },
+ {
+  "in": "x.com.au",
+  "out": "x.com.au"
+ },
+ {
+  "in": "sub.x.com.au",
+  "out": "x.com.au"
+ },
+ {
+  "in": "https://www.www.foo.io",
+  "out": "foo.io"
+ },
+ {
+  "in": "http://",
+  "out": ""
+ },
+ {
+  "in": "co.uk",
+  "out": "co.uk"
+ },
+ {
+  "in": "https://sub.example.com.br/path",
+  "out": "example.com.br"
+ },
+ {
+  "in": "1.2.3.4",
+  "out": "3.4"
+ },
+ {
+  "in": "foo.io:99",
+  "out": "foo.io"
+ }
+]

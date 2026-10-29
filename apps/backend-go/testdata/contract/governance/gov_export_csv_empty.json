@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events/export.csv?actor_user_id=999"
+  },
+  "response": {
+    "body": "\ufeffid,created_at,actor_user_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json\r\n",
+    "headers": {
+      "content-disposition": "attachment; filename=opengtm-audit-events.csv",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

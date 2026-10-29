@@ -1,0 +1,63 @@
+{
+  "request": {
+    "body": {
+      "file_name": "e.csv",
+      "rows": [
+        {
+          "Company": "Editor Imported",
+          "Notes": "n"
+        }
+      ],
+      "source_system": "clay"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/import"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [
+          "Notes"
+        ],
+        "custom_columns": [],
+        "detection_reason": "explicit",
+        "headers": [
+          "Company",
+          "Notes"
+        ],
+        "importable_rows": 1,
+        "input_rows": 1,
+        "mapped_standard": [
+          "Company",
+          "Notes"
+        ],
+        "mapping": {
+          "Company": "company",
+          "Notes": "notes"
+        },
+        "skipped_columns": [],
+        "source_system": "clay"
+      },
+      "columns_added": [
+        "Notes"
+      ],
+      "created": 1,
+      "mapping": {
+        "Company": "company",
+        "Notes": "notes"
+      },
+      "skipped_duplicates": 0,
+      "total_rows": 33
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

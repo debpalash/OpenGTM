@@ -1,0 +1,3956 @@
+{
+ "reliability_swing": 8.0,
+ "cases": [
+  {
+   "lead": {
+    "company": "Empty"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "website": "https://x.example.com"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "email": "x@example.com"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "phone": "+1 555 0100"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "linkedin_url": "https://linkedin.com/company/x"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "contact_person": "Jo Doe"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "founded_year": "1999"
+   },
+   "reliability": null,
+   "base_score": 3,
+   "score": 3,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "revenue_range": "$5M"
+   },
+   "reliability": null,
+   "base_score": 3,
+   "score": 3,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "One",
+    "glassdoor_rating": "3.9"
+   },
+   "reliability": null,
+   "base_score": 2,
+   "score": 2,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "nan"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "NaN"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "n/a"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": " "
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "None"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "website": "null"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "nan"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "NaN"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "n/a"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": " "
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "None"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "email": "null"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "nan"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "NaN"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "n/a"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": " "
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "None"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "phone": "null"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "nan"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "NaN"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "n/a"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": " "
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "None"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "linkedin_url": "null"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "nan"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "NaN"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "n/a"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": " "
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "None"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Junk",
+    "contact_person": "null"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "noat.example.com"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "@"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "a@"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "a b@c"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "x@y"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Mail",
+    "email": "ünï@exämple.com"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "1-50"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "51-200"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "201-500"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "500+"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": null
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 10
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 51
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 200
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 201
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 500
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 501
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 120
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "120"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "10-50"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "10 - 50"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "51-200 employees"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "5,000"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "501-1000"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "1000+"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "unknown"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "-5"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 0
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "0"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "~300"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "1,234-5,678"
+   },
+   "reliability": null,
+   "base_score": 15,
+   "score": 15,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": 50.5
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Size",
+    "company_size": "N/A"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "IT Staffing"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "IT STAFFING"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "Workforce Management"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "WORKFORCE MANAGEMENT"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "Recruitment Process Outsourcing"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "RECRUITMENT PROCESS OUTSOURCING"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "HR SaaS"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "HR SAAS"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "Staffing & Payroll"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "STAFFING & PAYROLL"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "Talent Acquisition"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "TALENT ACQUISITION"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "Leadership Hiring"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Spec",
+    "specialization": "LEADERSHIP HIRING"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "HR Services"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "IT Staffing"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Recruitment"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Workforce Solutions"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Payroll"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Recruitment Process Outsourcing"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Contract Staffing"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Executive Search"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Talent Acquisition"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "HR Consultancy"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Manpower Services"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "Staffing & Payroll"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Ind",
+    "specialization": "HR Outsourcing"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "staffing"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "IT"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "it staffing solutions"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "HR"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "hr saas platform"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "payroll services"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "Staffing & Payroll"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "software"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "Recruit"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "recruitment"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "x"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": " "
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "Talent"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Partial",
+    "specialization": "talent acquisition and executive search"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "IT Staffing"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "IT Staffing, Talent Acquisition"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "it staffing, talent acquisition, hr saas"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "Workforce Management, HR SaaS, IT Staffing, Talent Acquisition"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "none of these"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Tags",
+    "industry_tags": "talent acquisition|leadership hiring"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Bangalore"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Mumbai"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Delhi"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Hyderabad"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Pune"
+   },
+   "reliability": null,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Chennai"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Noida"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Gurgaon"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Kolkata"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Ahmedabad"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Jaipur"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "bangalore"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "MUMBAI"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": " Pune"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Pune "
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "Bengaluru"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": null
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "City",
+    "city": "東京"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[]"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[{\"name\":\"a\"}]"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[1,2,3]"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "{}"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "{\"a\":1,\"b\":2}"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "\"abc\""
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "5"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "null"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "not json"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[1,"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[\"a\",\"b\"]"
+   },
+   "reliability": null,
+   "base_score": 5,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "DM",
+    "decision_makers": "[{\"n\":1}] "
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Contacts2",
+    "email": "a@b.c",
+    "phone": "1",
+    "twitter_url": ""
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Contacts3",
+    "email": "a@b.c",
+    "phone": "1",
+    "twitter_url": "https://t"
+   },
+   "reliability": null,
+   "base_score": 25,
+   "score": 25,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Contacts3b",
+    "linkedin_url": "https://l",
+    "phone": "1",
+    "twitter_url": "https://t"
+   },
+   "reliability": null,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Contacts4",
+    "email": "a@b.c",
+    "phone": "1",
+    "linkedin_url": "https://l",
+    "twitter_url": "https://t"
+   },
+   "reliability": null,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": null,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot",
+   "note": "raw score above 100 is capped before the nudge"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": null,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": null,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0,
+   "base_score": 30,
+   "score": 26,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0,
+   "base_score": 100,
+   "score": 96,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0,
+   "base_score": 30,
+   "score": 26,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0,
+   "base_score": 100,
+   "score": 96,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.5,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.5,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.5,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.49,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.49,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.49,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.51,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.51,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.51,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 1,
+   "base_score": 30,
+   "score": 34,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 1,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 1,
+   "base_score": 0,
+   "score": 4,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 1.0,
+   "base_score": 30,
+   "score": 34,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 1.0,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 1.0,
+   "base_score": 0,
+   "score": 4,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.25,
+   "base_score": 30,
+   "score": 28,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.25,
+   "base_score": 100,
+   "score": 98,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.25,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.75,
+   "base_score": 30,
+   "score": 32,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.75,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.75,
+   "base_score": 0,
+   "score": 2,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.125,
+   "base_score": 30,
+   "score": 27,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.125,
+   "base_score": 100,
+   "score": 97,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.125,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.375,
+   "base_score": 30,
+   "score": 29,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.375,
+   "base_score": 100,
+   "score": 99,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.375,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.5625,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.5625,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.5625,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.4375,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.4375,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.4375,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.6875,
+   "base_score": 30,
+   "score": 32,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.6875,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.6875,
+   "base_score": 0,
+   "score": 2,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.3125,
+   "base_score": 30,
+   "score": 28,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.3125,
+   "base_score": 100,
+   "score": 98,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.3125,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.9,
+   "base_score": 30,
+   "score": 33,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.9,
+   "base_score": 100,
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.9,
+   "base_score": 0,
+   "score": 3,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rel",
+    "website": "w",
+    "email": "a@b.c",
+    "phone": "1"
+   },
+   "reliability": 0.1,
+   "base_score": 30,
+   "score": 27,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Full Fit",
+    "website": "https://f.example.com",
+    "email": "a@f.example.com",
+    "phone": "+91 1",
+    "linkedin_url": "https://l",
+    "company_size": "201-500",
+    "specialization": "IT Staffing",
+    "industry_tags": "IT Staffing, Talent Acquisition, Leadership Hiring",
+    "city": "Pune",
+    "contact_person": "A B",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"}]",
+    "twitter_url": "https://t",
+    "founded_year": "2001",
+    "revenue_range": "$1M",
+    "glassdoor_rating": "4.2"
+   },
+   "reliability": 0.1,
+   "base_score": 100,
+   "score": 97,
+   "tier": "hot"
+  },
+  {
+   "lead": {
+    "company": "RelZero"
+   },
+   "reliability": 0.1,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.5625,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.4375,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.6875,
+   "base_score": 10,
+   "score": 12,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.3125,
+   "base_score": 10,
+   "score": 8,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.8125,
+   "base_score": 10,
+   "score": 12,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w"
+   },
+   "reliability": 0.1875,
+   "base_score": 10,
+   "score": 8,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.5625,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.4375,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.6875,
+   "base_score": 20,
+   "score": 22,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.3125,
+   "base_score": 20,
+   "score": 18,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.8125,
+   "base_score": 20,
+   "score": 22,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "email": "a@b.c"
+   },
+   "reliability": 0.1875,
+   "base_score": 20,
+   "score": 18,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.5625,
+   "base_score": 15,
+   "score": 16,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.4375,
+   "base_score": 15,
+   "score": 14,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.6875,
+   "base_score": 15,
+   "score": 16,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.3125,
+   "base_score": 15,
+   "score": 14,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.8125,
+   "base_score": 15,
+   "score": 18,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "website": "w",
+    "linkedin_url": "l"
+   },
+   "reliability": 0.1875,
+   "base_score": 15,
+   "score": 12,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.5625,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.4375,
+   "base_score": 10,
+   "score": 10,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.6875,
+   "base_score": 10,
+   "score": 12,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.3125,
+   "base_score": 10,
+   "score": 8,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.8125,
+   "base_score": 10,
+   "score": 12,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Pune"
+   },
+   "reliability": 0.1875,
+   "base_score": 10,
+   "score": 8,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.5625,
+   "base_score": 5,
+   "score": 6,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.4375,
+   "base_score": 5,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.6875,
+   "base_score": 5,
+   "score": 6,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.3125,
+   "base_score": 5,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.8125,
+   "base_score": 5,
+   "score": 8,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "city": "Kolkata"
+   },
+   "reliability": 0.1875,
+   "base_score": 5,
+   "score": 2,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.5625,
+   "base_score": 3,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.4375,
+   "base_score": 3,
+   "score": 2,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.6875,
+   "base_score": 3,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.3125,
+   "base_score": 3,
+   "score": 2,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.8125,
+   "base_score": 3,
+   "score": 6,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "founded_year": "1999"
+   },
+   "reliability": 0.1875,
+   "base_score": 3,
+   "score": 0,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.5625,
+   "base_score": 2,
+   "score": 2,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.4375,
+   "base_score": 2,
+   "score": 2,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.6875,
+   "base_score": 2,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.3125,
+   "base_score": 2,
+   "score": 0,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.8125,
+   "base_score": 2,
+   "score": 4,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Half",
+    "glassdoor_rating": "4"
+   },
+   "reliability": 0.1875,
+   "base_score": 2,
+   "score": 0,
+   "tier": "unqualified",
+   "note": "x.5 after the nudge: banker's rounding"
+  },
+  {
+   "lead": {
+    "company": "Rand 265",
+    "phone": "",
+    "contact_person": "nan",
+    "company_size": "1-50",
+    "industry_tags": "",
+    "decision_makers": "",
+    "founded_year": "2010",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.8,
+   "base_score": 3,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 266",
+    "website": "",
+    "phone": "+1 5",
+    "linkedin_url": "",
+    "contact_person": "",
+    "company_size": "",
+    "decision_makers": "",
+    "founded_year": "",
+    "revenue_range": "$2M"
+   },
+   "reliability": null,
+   "base_score": 13,
+   "score": 13,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 267",
+    "email": "bad",
+    "linkedin_url": "",
+    "contact_person": "",
+    "industry_tags": "IT Staffing, Workforce Management, HR SaaS",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "founded_year": "2010"
+   },
+   "reliability": 0.5625,
+   "base_score": 13,
+   "score": 14,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 268",
+    "website": "",
+    "phone": "+1 5",
+    "twitter_url": "",
+    "contact_person": "",
+    "company_size": "201-500",
+    "industry_tags": "Talent Acquisition",
+    "city": "Pune",
+    "revenue_range": "",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.4375,
+   "base_score": 35,
+   "score": 34,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 269",
+    "email": "bad",
+    "phone": "+1 5",
+    "specialization": "",
+    "industry_tags": "IT Staffing, Workforce Management, HR SaaS",
+    "city": "pune",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "founded_year": "2010",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.5,
+   "base_score": 26,
+   "score": 26,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 270",
+    "email": "q@r.example.com",
+    "phone": "",
+    "linkedin_url": "https://l",
+    "twitter_url": "",
+    "specialization": "HR SaaS platform",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.8,
+   "base_score": 38,
+   "score": 40,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 271",
+    "website": "https://r.example.com",
+    "email": "nan",
+    "phone": "N/A",
+    "linkedin_url": "https://l",
+    "twitter_url": "https://t",
+    "company_size": "10-20",
+    "city": "",
+    "decision_makers": "",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.2,
+   "base_score": 18,
+   "score": 16,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 272",
+    "email": "",
+    "phone": "+1 5",
+    "linkedin_url": "https://l",
+    "contact_person": "",
+    "company_size": "500+",
+    "city": "pune",
+    "founded_year": ""
+   },
+   "reliability": 1,
+   "base_score": 30,
+   "score": 34,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 273",
+    "website": "https://r.example.com",
+    "phone": "N/A",
+    "linkedin_url": "",
+    "contact_person": "Q R",
+    "specialization": "IT Staffing",
+    "industry_tags": "",
+    "city": "Delhi",
+    "decision_makers": "",
+    "glassdoor_rating": "4.5"
+   },
+   "reliability": 1,
+   "base_score": 57,
+   "score": 61,
+   "tier": "warm"
+  },
+  {
+   "lead": {
+    "company": "Rand 274",
+    "website": "",
+    "email": "",
+    "linkedin_url": "",
+    "contact_person": "Q R",
+    "company_size": "",
+    "decision_makers": "",
+    "glassdoor_rating": "4.5"
+   },
+   "reliability": 0.5625,
+   "base_score": 17,
+   "score": 18,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 275",
+    "contact_person": "",
+    "specialization": "",
+    "industry_tags": "Talent Acquisition",
+    "decision_makers": "[]",
+    "founded_year": "2010",
+    "revenue_range": ""
+   },
+   "reliability": 0.49,
+   "base_score": 3,
+   "score": 3,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 276",
+    "phone": "",
+    "linkedin_url": "",
+    "contact_person": "nan",
+    "company_size": "500+",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0,
+   "base_score": 20,
+   "score": 16,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 277",
+    "email": "nan",
+    "contact_person": "nan",
+    "company_size": 80,
+    "industry_tags": "",
+    "city": "Berlin",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "founded_year": "",
+    "revenue_range": "$2M",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.5,
+   "base_score": 23,
+   "score": 23,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 278",
+    "website": "https://r.example.com",
+    "email": "nan",
+    "phone": "+1 5",
+    "linkedin_url": "https://l",
+    "contact_person": "nan",
+    "company_size": 80,
+    "specialization": "Recruitment Process Outsourcing",
+    "industry_tags": "Talent Acquisition",
+    "decision_makers": "[]"
+   },
+   "reliability": 0.8,
+   "base_score": 60,
+   "score": 62,
+   "tier": "warm"
+  },
+  {
+   "lead": {
+    "company": "Rand 279",
+    "email": "bad",
+    "phone": "",
+    "twitter_url": "https://t",
+    "contact_person": "nan",
+    "specialization": "robotics",
+    "industry_tags": "",
+    "decision_makers": "[]",
+    "glassdoor_rating": "4.5"
+   },
+   "reliability": null,
+   "base_score": 2,
+   "score": 2,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 280",
+    "website": "",
+    "phone": "+1 5",
+    "linkedin_url": "",
+    "twitter_url": "",
+    "contact_person": "nan",
+    "company_size": 80,
+    "decision_makers": "",
+    "revenue_range": "$2M",
+    "glassdoor_rating": ""
+   },
+   "reliability": null,
+   "base_score": 28,
+   "score": 28,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 281",
+    "website": "",
+    "email": "nan",
+    "twitter_url": "",
+    "company_size": "",
+    "specialization": "HR SaaS platform",
+    "city": "Pune",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "founded_year": "2010"
+   },
+   "reliability": null,
+   "base_score": 38,
+   "score": 38,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 282",
+    "website": "",
+    "company_size": "500+",
+    "specialization": "robotics",
+    "city": "pune",
+    "founded_year": "2010",
+    "glassdoor_rating": "4.5"
+   },
+   "reliability": 0.49,
+   "base_score": 20,
+   "score": 20,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 283",
+    "linkedin_url": "https://l"
+   },
+   "reliability": 0.4375,
+   "base_score": 5,
+   "score": 4,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 284",
+    "twitter_url": "https://t",
+    "contact_person": "Q R",
+    "industry_tags": "",
+    "city": "",
+    "founded_year": ""
+   },
+   "reliability": 0.4375,
+   "base_score": 15,
+   "score": 14,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 285",
+    "website": "",
+    "email": "nan",
+    "phone": "",
+    "twitter_url": "",
+    "contact_person": "Q R",
+    "specialization": "HR SaaS platform",
+    "city": "Chennai",
+    "glassdoor_rating": "4.5"
+   },
+   "reliability": 0.2,
+   "base_score": 42,
+   "score": 40,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 286",
+    "linkedin_url": "",
+    "twitter_url": "https://t",
+    "contact_person": "Q R",
+    "company_size": 80,
+    "industry_tags": "IT Staffing, Workforce Management, HR SaaS",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0,
+   "base_score": 35,
+   "score": 31,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 287",
+    "phone": "+1 5",
+    "company_size": 80,
+    "specialization": "Recruitment Process Outsourcing",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "revenue_range": "$2M"
+   },
+   "reliability": null,
+   "base_score": 53,
+   "score": 53,
+   "tier": "warm"
+  },
+  {
+   "lead": {
+    "company": "Rand 288",
+    "website": "https://r.example.com",
+    "email": "q@r.example.com",
+    "phone": "+1 5",
+    "company_size": 80,
+    "decision_makers": "",
+    "founded_year": ""
+   },
+   "reliability": null,
+   "base_score": 45,
+   "score": 45,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 289",
+    "website": "",
+    "linkedin_url": "https://l",
+    "twitter_url": "https://t",
+    "company_size": "700",
+    "specialization": "Recruitment Process Outsourcing",
+    "industry_tags": "Talent Acquisition",
+    "city": "Chennai",
+    "decision_makers": "[]",
+    "founded_year": "",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.5625,
+   "base_score": 48,
+   "score": 48,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 290",
+    "phone": "+1 5",
+    "linkedin_url": "https://l",
+    "contact_person": "",
+    "company_size": "500+",
+    "city": "Berlin",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "founded_year": "2010",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.4375,
+   "base_score": 41,
+   "score": 40,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 291",
+    "email": "",
+    "linkedin_url": "https://l",
+    "twitter_url": "https://t",
+    "specialization": "",
+    "founded_year": "2010",
+    "revenue_range": ""
+   },
+   "reliability": 0.5625,
+   "base_score": 8,
+   "score": 8,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 292",
+    "twitter_url": "https://t",
+    "contact_person": "nan",
+    "industry_tags": "",
+    "founded_year": ""
+   },
+   "reliability": 0.2,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 293",
+    "website": "N/A",
+    "email": "bad",
+    "linkedin_url": "",
+    "twitter_url": "",
+    "industry_tags": "Talent Acquisition",
+    "city": "Berlin",
+    "founded_year": ""
+   },
+   "reliability": 0.49,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 294",
+    "website": "N/A",
+    "email": "bad",
+    "linkedin_url": "",
+    "twitter_url": "https://t",
+    "company_size": "",
+    "revenue_range": "$2M"
+   },
+   "reliability": 0.8,
+   "base_score": 3,
+   "score": 5,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 295",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.5625,
+   "base_score": 5,
+   "score": 6,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 296",
+    "phone": "+1 5",
+    "twitter_url": "",
+    "industry_tags": "Talent Acquisition",
+    "decision_makers": "[{\"a\":1},{\"b\":2}]",
+    "revenue_range": "$2M"
+   },
+   "reliability": 1,
+   "base_score": 18,
+   "score": 22,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 297",
+    "website": "https://r.example.com",
+    "email": "",
+    "phone": "N/A",
+    "twitter_url": "",
+    "contact_person": "",
+    "specialization": "IT Staffing",
+    "founded_year": "",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.5,
+   "base_score": 30,
+   "score": 30,
+   "tier": "cold"
+  },
+  {
+   "lead": {
+    "company": "Rand 298",
+    "website": "https://r.example.com",
+    "phone": "N/A",
+    "twitter_url": "",
+    "decision_makers": "[]",
+    "founded_year": "",
+    "glassdoor_rating": ""
+   },
+   "reliability": 0.2,
+   "base_score": 10,
+   "score": 8,
+   "tier": "unqualified"
+  },
+  {
+   "lead": {
+    "company": "Rand 299",
+    "linkedin_url": "",
+    "twitter_url": "https://t",
+    "contact_person": "",
+    "city": "",
+    "founded_year": ""
+   },
+   "reliability": null,
+   "base_score": 0,
+   "score": 0,
+   "tier": "unqualified"
+  }
+ ],
+ "normalize_band": [
+  {
+   "in": "1-50",
+   "out": "1-50"
+  },
+  {
+   "in": "51-200",
+   "out": "51-200"
+  },
+  {
+   "in": "201-500",
+   "out": "201-500"
+  },
+  {
+   "in": "500+",
+   "out": "500+"
+  },
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": " ",
+   "out": ""
+  },
+  {
+   "in": null,
+   "out": ""
+  },
+  {
+   "in": 0,
+   "out": ""
+  },
+  {
+   "in": 1,
+   "out": "1-50"
+  },
+  {
+   "in": 50,
+   "out": "1-50"
+  },
+  {
+   "in": 51,
+   "out": "51-200"
+  },
+  {
+   "in": 200,
+   "out": "51-200"
+  },
+  {
+   "in": 201,
+   "out": "201-500"
+  },
+  {
+   "in": 500,
+   "out": "201-500"
+  },
+  {
+   "in": 501,
+   "out": "500+"
+  },
+  {
+   "in": 1000,
+   "out": "500+"
+  },
+  {
+   "in": 120,
+   "out": "51-200"
+  },
+  {
+   "in": "120",
+   "out": "51-200"
+  },
+  {
+   "in": "  120  ",
+   "out": "51-200"
+  },
+  {
+   "in": "10-50",
+   "out": "1-50"
+  },
+  {
+   "in": "10 - 50",
+   "out": "1-50"
+  },
+  {
+   "in": "10–50",
+   "out": "1-50"
+  },
+  {
+   "in": "51–200",
+   "out": "51-200"
+  },
+  {
+   "in": "501-1000",
+   "out": "500+"
+  },
+  {
+   "in": "1000+",
+   "out": "500+"
+  },
+  {
+   "in": "5,000",
+   "out": "500+"
+  },
+  {
+   "in": "1,234-5,678",
+   "out": "500+"
+  },
+  {
+   "in": "~300",
+   "out": "201-500"
+  },
+  {
+   "in": "300+",
+   "out": "201-500"
+  },
+  {
+   "in": "approx. 75 people",
+   "out": "51-200"
+  },
+  {
+   "in": "unknown",
+   "out": ""
+  },
+  {
+   "in": "N/A",
+   "out": ""
+  },
+  {
+   "in": "-5",
+   "out": ""
+  },
+  {
+   "in": "- 5",
+   "out": ""
+  },
+  {
+   "in": "-5-10",
+   "out": "1-50"
+  },
+  {
+   "in": "5-",
+   "out": "1-50"
+  },
+  {
+   "in": "-",
+   "out": ""
+  },
+  {
+   "in": "--",
+   "out": ""
+  },
+  {
+   "in": "0",
+   "out": ""
+  },
+  {
+   "in": "00",
+   "out": ""
+  },
+  {
+   "in": "007",
+   "out": "1-50"
+  },
+  {
+   "in": "1e3",
+   "out": "1-50"
+  },
+  {
+   "in": 120.5,
+   "out": "1-50"
+  },
+  {
+   "in": 50.0,
+   "out": ""
+  },
+  {
+   "in": 12.0,
+   "out": ""
+  },
+  {
+   "in": true,
+   "out": ""
+  },
+  {
+   "in": false,
+   "out": ""
+  },
+  {
+   "in": "True",
+   "out": ""
+  },
+  {
+   "in": "２５",
+   "out": "1-50"
+  },
+  {
+   "in": "99999999999999999999",
+   "out": "500+"
+  },
+  {
+   "in": "1-1",
+   "out": "1-50"
+  },
+  {
+   "in": "20-10",
+   "out": "1-50"
+  },
+  {
+   "in": "100-50-25",
+   "out": "1-50"
+  },
+  {
+   "in": "$5M",
+   "out": "1-50"
+  },
+  {
+   "in": "10 to 20",
+   "out": "1-50"
+  },
+  {
+   "in": "11-50",
+   "out": "1-50"
+  },
+  {
+   "in": "1-10",
+   "out": "1-50"
+  },
+  {
+   "in": "50 - 100 employees",
+   "out": "1-50"
+  },
+  {
+   "in": "2,000,000",
+   "out": "500+"
+  },
+  {
+   "in": "1,",
+   "out": "1-50"
+  },
+  {
+   "in": ",5",
+   "out": "1-50"
+  },
+  {
+   "in": "5,,5",
+   "out": "51-200"
+  }
+ ],
+ "tiers": [
+  {
+   "score": -1,
+   "tier": "unqualified"
+  },
+  {
+   "score": 0,
+   "tier": "unqualified"
+  },
+  {
+   "score": 1,
+   "tier": "unqualified"
+  },
+  {
+   "score": 24,
+   "tier": "unqualified"
+  },
+  {
+   "score": 25,
+   "tier": "cold"
+  },
+  {
+   "score": 49,
+   "tier": "cold"
+  },
+  {
+   "score": 50,
+   "tier": "warm"
+  },
+  {
+   "score": 74,
+   "tier": "warm"
+  },
+  {
+   "score": 75,
+   "tier": "hot"
+  },
+  {
+   "score": 99,
+   "tier": "hot"
+  },
+  {
+   "score": 100,
+   "tier": "hot"
+  },
+  {
+   "score": 101,
+   "tier": "unqualified"
+  },
+  {
+   "score": 1000,
+   "tier": "unqualified"
+  },
+  {
+   "score": 24.5,
+   "tier": "unqualified"
+  },
+  {
+   "score": 49.5,
+   "tier": "unqualified"
+  },
+  {
+   "score": 74.5,
+   "tier": "unqualified"
+  },
+  {
+   "score": 100.5,
+   "tier": "unqualified"
+  },
+  {
+   "score": -0.5,
+   "tier": "unqualified"
+  }
+ ],
+ "crashes": [
+  {
+   "lead": {
+    "company": "Crash",
+    "email": 5
+   },
+   "score": null,
+   "error": "TypeError"
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "email": [
+     "a@b"
+    ]
+   },
+   "score": 0,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "specialization": 5
+   },
+   "score": null,
+   "error": "AttributeError"
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "industry_tags": 5
+   },
+   "score": null,
+   "error": "AttributeError"
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "city": [
+     "Pune"
+    ]
+   },
+   "score": 0,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "website": 5
+   },
+   "score": 10,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "phone": 0
+   },
+   "score": 0,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "company_size": [
+     1
+    ]
+   },
+   "score": 0,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "decision_makers": [
+     "a",
+     "b"
+    ]
+   },
+   "score": 0,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "founded_year": 1999
+   },
+   "score": 3,
+   "error": null
+  },
+  {
+   "lead": {
+    "company": "Crash",
+    "contact_person": 7
+   },
+   "score": 15,
+   "error": null
+  }
+ ]
+}

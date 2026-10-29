@@ -4,7 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Satellite } from "lucide-react"
 import { ChannelIcon } from "@/components/semantic-icons"
 import { fetchJobs, fetchSystemStats, type Job, type SystemStats } from "@/lib/api"
-import { authQuery } from "@/lib/auth"
+import { openEventStream } from "@/lib/events"
 
 interface SSEEvent {
   type: string
@@ -35,21 +35,22 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
 
   // SSE connection
   useEffect(() => {
-    const es = new EventSource(`/api/events${authQuery()}`)
-    es.onopen = () => setConnected(true)
-    es.onerror = () => setConnected(false)
-    es.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data) as SSEEvent
-        if (data.type === "heartbeat") return
-        setEvents((prev) => [...prev.slice(-149), data])
-        if (data.type === "job_completed") {
-          onRefresh?.()
-          loadJobs()
-        }
-      } catch { /* ignore */ }
-    }
-    return () => es.close()
+    return openEventStream({
+      onOpen: () => setConnected(true),
+      onError: () => setConnected(false),
+      reconnectMs: 3000,
+      onMessage: (e) => {
+        try {
+          const data = JSON.parse(e.data) as SSEEvent
+          if (data.type === "heartbeat") return
+          setEvents((prev) => [...prev.slice(-149), data])
+          if (data.type === "job_completed") {
+            onRefresh?.()
+            loadJobs()
+          }
+        } catch { /* ignore */ }
+      },
+    })
   }, [onRefresh])
 
   useEffect(() => {

@@ -1,0 +1,833 @@
+{
+ "vectors": [
+  {
+   "name": "sequencer_new",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "$SEQ",
+     "_trigger_id": "t-1"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "enrolled",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "trigger:t-1",
+     "consent_at_set": true,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_already_enrolled",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "$SEQ",
+     "_trigger_id": "t-1"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": "enrolled",
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "already enrolled",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "x",
+     "consent_at_set": false,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_suppressed",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "$SEQ",
+     "_trigger_id": "t-1"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": "suppressed",
+   "outcomes": [
+    {
+     "result": {
+      "status": "skipped",
+      "summary": "suppressed",
+      "error": null,
+      "skip_reason": "suppressed"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_no_email",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "$SEQ",
+     "_trigger_id": "t-1"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "skipped",
+      "summary": "lead has no email",
+      "error": null,
+      "skip_reason": "no_email"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_blank_seq",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "  "
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "failed",
+      "summary": "",
+      "error": "sequence_id not configured",
+      "skip_reason": "not_connected"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_unknown_seq",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "nope"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "failed",
+      "summary": "",
+      "error": "sequence not found in workspace",
+      "skip_reason": "not_connected"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "sequencer_lead_none",
+   "action": {
+    "type": "sequencer",
+    "config": {
+     "sequence_id": "$SEQ",
+     "_trigger_id": "t-1"
+    }
+   },
+   "lead_id": null,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "enrolled",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 0,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "trigger:t-1",
+     "consent_at_set": true,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "send_email_standalone",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "trig:ws-1:r:1:0",
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": null,
+      "enrollment_id": null,
+      "lead_id": 7,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "trig:ws-1:r:1:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_standalone_default_idem",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "step_number": 2
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": null,
+      "enrollment_id": null,
+      "lead_id": 7,
+      "step_number": 2,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "trig:ws-1:adhoc:7:2"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_standalone_lead_none",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>"
+    }
+   },
+   "lead_id": null,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": null,
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": null,
+      "enrollment_id": null,
+      "lead_id": null,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "trig:ws-1:adhoc:None:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_replay_same_idem",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "trig:ws-1:r:1:0",
+   "repeat": 2,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    },
+    {
+     "result": {
+      "status": "success",
+      "summary": "already queued/sent",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": null,
+      "enrollment_id": null,
+      "lead_id": 7,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "trig:ws-1:r:1:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_no_email",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>"
+    }
+   },
+   "lead_id": 7,
+   "lead": {},
+   "idem": "k",
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "skipped",
+      "summary": "lead has no email",
+      "error": null,
+      "skip_reason": "no_email"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "send_email_seq_new_enrollment",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "sequence_id": "$SEQ",
+     "step_number": 0
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "trig:ignored",
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "trigger_send",
+     "consent_at_set": false,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": "$SEQ",
+      "enrollment_id": 1,
+      "lead_id": 7,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "seq:ws-1:$SEQ:1:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_seq_already_enrolled",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "sequence_id": "$SEQ",
+     "step_number": 1
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "trig:ignored",
+   "repeat": 1,
+   "preset": "enrolled",
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "x",
+     "consent_at_set": false,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": "$SEQ",
+      "enrollment_id": 1,
+      "lead_id": 7,
+      "step_number": 1,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "seq:ws-1:$SEQ:1:1"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_seq_replay",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "sequence_id": "$SEQ"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "trig:ignored",
+   "repeat": 2,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    },
+    {
+     "result": {
+      "status": "success",
+      "summary": "already queued/sent",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "trigger_send",
+     "consent_at_set": false,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": "$SEQ",
+      "enrollment_id": 1,
+      "lead_id": 7,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "seq:ws-1:$SEQ:1:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  },
+  {
+   "name": "send_email_unknown_seq",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "sequence_id": "nope"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "k",
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": {
+      "status": "failed",
+      "summary": "",
+      "error": "sequence not found in workspace",
+      "skip_reason": "not_connected"
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "send_email_bad_step",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "step_number": "x"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "k",
+   "repeat": 1,
+   "preset": null,
+   "outcomes": [
+    {
+     "result": null,
+     "raised": "ValueError: invalid literal for int() with base 10: 'x'"
+    }
+   ],
+   "enrollments": [],
+   "jobs": [],
+   "sends": 0
+  },
+  {
+   "name": "send_email_seq_suppressed",
+   "action": {
+    "type": "send_email",
+    "config": {
+     "subject": "Hi",
+     "body_html": "<p>x</p>",
+     "sequence_id": "$SEQ"
+    }
+   },
+   "lead_id": 7,
+   "lead": {
+    "email": " A@X.com ",
+    "name": "A"
+   },
+   "idem": "k",
+   "repeat": 1,
+   "preset": "suppressed",
+   "outcomes": [
+    {
+     "result": {
+      "status": "success",
+      "summary": "send enqueued",
+      "error": null,
+      "skip_reason": null
+     },
+     "raised": null
+    }
+   ],
+   "enrollments": [
+    {
+     "id": 1,
+     "sequence_id": "$SEQ",
+     "lead_id": 7,
+     "to_email_snapshot": "a@x.com",
+     "consent_source": "trigger_send",
+     "consent_at_set": false,
+     "status": "pending",
+     "current_step": 0
+    }
+   ],
+   "jobs": [
+    {
+     "type": "send",
+     "payload": {
+      "workspace_id": "ws-1",
+      "sequence_id": "$SEQ",
+      "enrollment_id": 1,
+      "lead_id": 7,
+      "step_number": 0,
+      "to_email": "a@x.com",
+      "subject": "Hi",
+      "body_html": "<p>x</p>",
+      "variables": {
+       "email": " A@X.com ",
+       "name": "A"
+      },
+      "idempotency_key": "seq:ws-1:$SEQ:1:0"
+     },
+     "executor": "python"
+    }
+   ],
+   "sends": 0
+  }
+ ]
+}

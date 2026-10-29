@@ -1,0 +1,15 @@
+{
+ "area": "pricing",
+ "scenario": "blocked_localhost",
+ "description": "localhost host -> pricing_url_blocked",
+ "input": {
+  "url": "http://localhost/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "ok": false,
+  "error_class": "pricing_url_blocked"
+ }
+}

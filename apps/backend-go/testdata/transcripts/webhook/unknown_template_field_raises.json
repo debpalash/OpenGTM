@@ -1,0 +1,37 @@
+{
+ "area": "webhook",
+ "scenario": "unknown_template_field_raises",
+ "description": "an unknown {field} raises out of the sender (the engine records the action as failed)",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/{nope}"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "raised": {
+   "type": "ValueError",
+   "message": "Unknown column reference: nope. Fix the template before sending."
+  }
+ }
+}

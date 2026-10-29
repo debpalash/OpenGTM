@@ -1,0 +1,15 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": null,
+    "headers": {},
+    "status": 204
+  }
+}

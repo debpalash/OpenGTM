@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-04/signals"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787999760.0,
+          "description": "Poller company_funded event #7",
+          "id": "sig-p-07",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "company_funded",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/7",
+          "title": "company_funded 7",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787999700.0,
+          "description": "Poller hiring_surge event #8",
+          "id": "sig-p-08",
+          "lead_id": 6,
+          "read": 1,
+          "signal_type": "hiring_surge",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/p/8",
+          "title": "hiring_surge 8",
+          "weight": 7,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

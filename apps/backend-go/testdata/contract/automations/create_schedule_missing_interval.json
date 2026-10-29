@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "name": "x",
+      "trigger_type": "on_schedule"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid schedule interval 'None'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

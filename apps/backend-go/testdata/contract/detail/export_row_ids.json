@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/export.csv?row_ids=5&row_ids=3&row_ids=3&row_ids=9999"
+  },
+  "response": {
+    "body": "\ufeffCompany,Website,Email,City,Phone,Email Finder,Summary\r\nAcme 03,https://acme03.example.com,info@acme03.example.com,Lyon,'+1-555-0103,found03@acme03.example.com,\r\nAcme 05,https://acme05.example.com,info@acme05.example.com,Berlin,'+1-555-0105,found05@acme05.example.com,Acme 05 sells widgets.\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,17 @@
+{
+ "provider": "wikidata",
+ "input_name": "no_company",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "wikidata",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_company"
+ }
+}

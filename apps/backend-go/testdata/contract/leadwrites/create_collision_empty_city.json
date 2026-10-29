@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "city": "",
+      "company": "Nordlicht GmbH"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "lead_id": 5,
+        "message": "A lead already exists for this company and city. Update the existing lead instead."
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

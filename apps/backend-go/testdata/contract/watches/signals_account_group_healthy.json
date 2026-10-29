@@ -1,0 +1,94 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-11/signals"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787999220.0,
+          "description": "Poller funding event #16",
+          "id": "sig-p-16",
+          "lead_id": 6,
+          "read": 1,
+          "signal_type": "funding",
+          "source": "sec_edgar",
+          "source_url": "https://signals.example.com/p/16",
+          "title": "funding 16",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "unlinked co",
+          "created_at": 1787999160.0,
+          "description": "Poller pricing_page_change event #17",
+          "id": "sig-p-17",
+          "lead_id": 0,
+          "read": 0,
+          "signal_type": "pricing_page_change",
+          "source": "company_website",
+          "source_url": "https://signals.example.com/p/17",
+          "title": "pricing_page_change 17",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787999100.0,
+          "description": "Poller pricing_page_change event #18",
+          "id": "sig-p-18",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "pricing_page_change",
+          "source": "company_website",
+          "source_url": "https://signals.example.com/p/18",
+          "title": "pricing_page_change 18",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787992800.0,
+          "description": "Seeded funding event #11 for contract fixtures",
+          "id": "sig-a-11",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/11",
+          "title": "funding signal 11",
+          "weight": 12,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787827200.0,
+          "description": "Seeded funding event #16 for contract fixtures",
+          "id": "sig-a-16",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/16",
+          "title": "funding signal 16",
+          "weight": 11,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

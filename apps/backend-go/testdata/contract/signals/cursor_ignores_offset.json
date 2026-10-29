@@ -1,0 +1,85 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?limit=3&offset=5&cursor=WzE3ODgwMTA4MDAuMCwic2lnLWEtMDciXQ"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": true,
+      "limit": 3,
+      "next_cursor": "WzE3ODgwMDAwMDMuNSwic2lnLWEtMjYiXQ",
+      "offset": null,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788010800.0,
+          "description": "Seeded funding event #6 for contract fixtures",
+          "id": "sig-a-06",
+          "lead_id": 14,
+          "read": 1,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/6",
+          "title": "funding signal 6",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "",
+          "created_at": 1788000007.25,
+          "description": "Seeded tech_change event #27 for contract fixtures",
+          "id": "sig-a-27",
+          "lead_id": 0,
+          "read": 1,
+          "signal_type": "tech_change",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/27",
+          "title": "tech_change signal 27",
+          "weight": 6,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "\u00c9co Solutions Pvt Ltd",
+          "created_at": 1788000003.5,
+          "description": "Seeded funding event #26 for contract fixtures",
+          "id": "sig-a-26",
+          "lead_id": 4,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/26",
+          "title": "funding signal 26",
+          "weight": 12,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

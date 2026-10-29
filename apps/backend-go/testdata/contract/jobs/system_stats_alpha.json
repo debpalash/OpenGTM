@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/system-stats"
+  },
+  "response": {
+    "body": {
+      "jobs": {
+        "done": 2,
+        "failed": 1,
+        "pending": 1,
+        "running": 2,
+        "total": 7
+      },
+      "proxy_pool": {
+        "blocked": 0,
+        "domain_assignments": 0,
+        "http": 0,
+        "socks4": 0,
+        "socks5": 0,
+        "total": 0
+      },
+      "rate_limiter": {
+        "tracked_domains": 0,
+        "tripped_domains": []
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

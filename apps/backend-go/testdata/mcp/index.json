@@ -1,0 +1,433 @@
+{
+  "profiles": {
+    "read": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": false,
+        "AUTOMATIONS_ENABLED": false,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 50,
+        "MCP_MAX_WRITES_PER_DAY": 0,
+        "MCP_WRITE_ENABLED": false
+      },
+      "cases": [
+        "rpc/read__initialize.json",
+        "rpc/read__initialize_string_id.json",
+        "rpc/read__initialize_no_id.json",
+        "rpc/read__notifications_initialized.json",
+        "rpc/read__ping.json",
+        "rpc/read__unknown_method.json",
+        "rpc/read__empty_method.json",
+        "rpc/read__tools_list_read.json",
+        "rpc/read__tools_list_write_flag_off.json",
+        "rpc/read__tools_list_admin_flag_off.json",
+        "rpc/read__tools_list_nocaps.json",
+        "tools/read__find_leads_query.json",
+        "tools/read__find_leads_all.json",
+        "tools/read__find_leads_city_tier.json",
+        "tools/read__find_leads_limit_1.json",
+        "tools/read__find_leads_unicode.json",
+        "tools/read__find_leads_no_match.json",
+        "tools/read__find_leads_no_arguments.json",
+        "tools/read__find_leads_null_arguments.json",
+        "tools/read__find_leads_workspace_b.json",
+        "tools/read__find_leads_smuggled_workspace.json",
+        "tools/read__get_lead_detail.json",
+        "tools/read__get_lead_detail_no_decision_makers.json",
+        "tools/read__get_lead_detail_unicode.json",
+        "tools/read__get_lead_detail_not_found.json",
+        "tools/read__get_lead_detail_cross_tenant.json",
+        "tools/read__get_lead_detail_workspace_b.json",
+        "tools/read__get_lead_detail_missing_lead_id.json",
+        "tools/read__get_pipeline_stats.json",
+        "tools/read__get_pipeline_stats_workspace_b.json",
+        "tools/read__score_lead.json",
+        "tools/read__score_lead_sparse.json",
+        "tools/read__score_lead_not_found.json",
+        "tools/read__score_lead_cross_tenant.json",
+        "tools/read__enrich_company.json",
+        "tools/read__enrich_company_not_found.json",
+        "tools/read__enrich_company_cross_tenant.json",
+        "tools/read__enrich_company_provider_error.json",
+        "tools/read__verify_email.json",
+        "tools/read__verify_email_catch_all.json",
+        "tools/read__verify_email_error.json",
+        "tools/read__verify_email_workspace_b.json",
+        "tools/read__get_hiring_signals.json",
+        "tools/read__get_hiring_signals_with_lead.json",
+        "tools/read__get_hiring_signals_none.json",
+        "tools/read__get_hiring_signals_error.json",
+        "tools/read__unknown_tool.json",
+        "tools/read__empty_tool_name.json",
+        "tools/read__capability_not_granted_read.json",
+        "tools/read__capability_not_granted_write.json",
+        "tools/read__capability_not_granted_admin.json",
+        "tools/read__writes_disabled.json",
+        "tools/read__writes_disabled_admin.json",
+        "tools/read__read_after_denials_state_unchanged.json",
+        "auth/read__missing_header.json",
+        "auth/read__basic_scheme.json",
+        "auth/read__bearer_empty.json",
+        "auth/read__invalid_token.json",
+        "auth/read__expired_token.json",
+        "auth/read__revoked_token.json",
+        "auth/read__removed_member.json",
+        "auth/read__no_such_route_unauth.json",
+        "sse/read__get_sse.json",
+        "sse/read__initialize.json",
+        "sse/read__initialize_lowercase_scheme.json",
+        "sse/read__notification_null.json",
+        "sse/read__ping.json",
+        "sse/read__unknown_method.json",
+        "sse/read__tools_list_read.json",
+        "sse/read__tools_list_workspace_b.json",
+        "sse/read__tools_call_find_leads.json",
+        "sse/read__tools_call_find_leads_workspace_b.json",
+        "sse/read__tools_call_unknown.json",
+        "sse/read__tools_call_capability_denied.json",
+        "stdio/read__initialize_ping_list.json",
+        "stdio/read__find_leads.json",
+        "stdio/read__unicode_result.json",
+        "stdio/read__capability_denied.json",
+        "stdio/read__invalid_token_exits.json",
+        "stdio/read__no_token_exits.json"
+      ]
+    },
+    "writes": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": true,
+        "AUTOMATIONS_ENABLED": true,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 50,
+        "MCP_MAX_WRITES_PER_DAY": 0,
+        "MCP_WRITE_ENABLED": true
+      },
+      "cases": [
+        "rpc/writes__tools_list_write_flag_on.json",
+        "rpc/writes__tools_list_admin_flag_on.json",
+        "rpc/writes__tools_list_all_flag_on.json",
+        "rpc/writes__tools_list_read_flag_on.json",
+        "tools/writes__create_lead.json",
+        "tools/writes__create_lead_failed_write_with_key.json",
+        "tools/writes__create_lead_retry_after_failed_write_same_key.json",
+        "tools/writes__create_lead_replay_duplicate.json",
+        "tools/writes__create_lead_company_required.json",
+        "tools/writes__create_lead_company_missing.json",
+        "tools/writes__create_lead_same_company_city_overwrites.json",
+        "tools/writes__create_lead_differing_case_is_new.json",
+        "tools/writes__create_lead_non_allowlisted_fields_dropped.json",
+        "tools/writes__create_lead_long_unicode.json",
+        "tools/writes__update_lead_fields_and_status_company_is_allowlisted.json",
+        "tools/writes__update_lead_status_only.json",
+        "tools/writes__update_lead_no_fields.json",
+        "tools/writes__update_lead_null_values_dropped.json",
+        "tools/writes__update_lead_not_found.json",
+        "tools/writes__update_lead_cross_tenant.json",
+        "tools/writes__update_lead_missing_lead_id.json",
+        "tools/writes__enroll_leads.json",
+        "tools/writes__enroll_leads_again_already_enrolled.json",
+        "tools/writes__enroll_leads_sequence_not_found.json",
+        "tools/writes__enroll_leads_cross_tenant_sequence.json",
+        "tools/writes__enroll_leads_empty.json",
+        "tools/writes__enroll_leads_missing_sequence.json",
+        "tools/writes__enroll_leads_idempotent_first.json",
+        "tools/writes__enroll_leads_idempotent_replay.json",
+        "tools/writes__create_workbook.json",
+        "tools/writes__create_workbook_named.json",
+        "tools/writes__create_workbook_long_description_name_truncated.json",
+        "tools/writes__create_workbook_unicode.json",
+        "tools/writes__create_workbook_minimal.json",
+        "tools/writes__create_workbook_missing_description.json",
+        "tools/writes__create_workbook_idempotent_replay.json",
+        "tools/writes__create_workbook_idempotent_replay_2.json",
+        "tools/writes__delete_workbook.json",
+        "tools/writes__delete_workbook_again_not_found.json",
+        "tools/writes__delete_workbook_cross_tenant.json",
+        "tools/writes__delete_workbook_missing_id.json",
+        "tools/writes__delete_lead.json",
+        "tools/writes__delete_lead_again_not_found.json",
+        "tools/writes__delete_lead_cross_tenant.json",
+        "tools/writes__delete_lead_admin_role.json",
+        "tools/writes__delete_lead_missing_id.json",
+        "tools/writes__role_editor_cannot_delete_lead.json",
+        "tools/writes__role_editor_cannot_send_email.json",
+        "tools/writes__role_editor_cannot_create_automation.json",
+        "tools/writes__role_editor_cannot_delete_workbook.json",
+        "tools/writes__role_editor_can_create_lead.json",
+        "tools/writes__role_viewer_downgraded_create_lead.json",
+        "tools/writes__role_viewer_downgraded_update_lead.json",
+        "tools/writes__role_viewer_downgraded_enroll.json",
+        "tools/writes__role_viewer_downgraded_create_workbook.json",
+        "tools/writes__workspace_b_create_lead.json",
+        "tools/writes__workspace_b_update_alpha_lead_is_miss.json",
+        "tools/writes__workspace_b_delete_alpha_workbook_is_miss.json",
+        "tools/writes__workspace_b_enroll_alpha_sequence_is_miss.json",
+        "tools/writes__create_automation_on_signal.json",
+        "tools/writes__create_automation_replay_duplicate.json",
+        "tools/writes__create_automation_on_schedule.json",
+        "tools/writes__create_automation_name_required.json",
+        "tools/writes__create_automation_invalid_trigger_type.json",
+        "tools/writes__create_automation_invalid_interval.json",
+        "tools/writes__create_automation_invalid_action.json",
+        "tools/writes__create_automation_webhook_url_required.json",
+        "tools/writes__create_automation_invalid_condition.json",
+        "tools/writes__create_automation_sequencer_sequence_not_found.json",
+        "tools/writes__create_automation_send_email_smtp_not_configured.json",
+        "tools/writes__create_automation_workspace_b.json",
+        "tools/writes__send_email.json",
+        "tools/writes__send_email_replay_duplicate.json",
+        "tools/writes__send_email_no_email_skipped.json",
+        "tools/writes__send_email_cross_tenant_lead.json",
+        "tools/writes__send_email_unknown_lead.json",
+        "tools/writes__send_email_with_sequence_step.json",
+        "tools/writes__send_email_sequence_not_found.json",
+        "tools/writes__send_email_cross_tenant_sequence.json",
+        "tools/writes__send_email_missing_lead_id.json",
+        "tools/writes__send_email_adminrole.json",
+        "tools/writes__audit_redaction_top_level.json"
+      ]
+    },
+    "capped": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": true,
+        "AUTOMATIONS_ENABLED": true,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 50,
+        "MCP_MAX_WRITES_PER_DAY": 2,
+        "MCP_WRITE_ENABLED": true
+      },
+      "cases": [
+        "tools/capped__cap_first_write_ok.json",
+        "tools/capped__cap_failed_write_frees_slot.json",
+        "tools/capped__cap_second_write_ok.json",
+        "tools/capped__cap_exceeded_create_lead.json",
+        "tools/capped__cap_exceeded_update_lead.json",
+        "tools/capped__cap_replay_is_duplicate_not_capped.json",
+        "tools/capped__cap_reads_not_counted.json",
+        "tools/capped__cap_denial_by_role_does_not_consume.json",
+        "tools/capped__cap_exceeded_with_key.json",
+        "tools/capped__cap_exceeded_with_key_retry_still_capped.json"
+      ]
+    },
+    "outreach_off": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": false,
+        "AUTOMATIONS_ENABLED": true,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 50,
+        "MCP_MAX_WRITES_PER_DAY": 0,
+        "MCP_WRITE_ENABLED": true
+      },
+      "cases": [
+        "tools/outreach_off__outreach_off_send_email.json",
+        "tools/outreach_off__outreach_off_send_email_before_role.json",
+        "tools/outreach_off__outreach_off_automation_sequencer_action.json",
+        "tools/outreach_off__outreach_off_automation_webhook_ok.json",
+        "tools/outreach_off__outreach_off_create_lead_still_works.json"
+      ]
+    },
+    "automations_off": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": false,
+        "AUTOMATIONS_ENABLED": false,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 50,
+        "MCP_MAX_WRITES_PER_DAY": 0,
+        "MCP_WRITE_ENABLED": true
+      },
+      "cases": [
+        "tools/automations_off__automations_off_create_automation.json",
+        "tools/automations_off__automations_off_create_automation_role_checked_after_gate.json",
+        "tools/automations_off__automations_off_send_email.json"
+      ]
+    },
+    "rules_cap": {
+      "flags": {
+        "AUTOMATIONS_ALLOW_LEGACY_OUTREACH": true,
+        "AUTOMATIONS_ENABLED": true,
+        "AUTOMATIONS_MAX_RULES_PER_WS": 1,
+        "MCP_MAX_WRITES_PER_DAY": 0,
+        "MCP_WRITE_ENABLED": true
+      },
+      "cases": [
+        "tools/rules_cap__rules_cap_first.json",
+        "tools/rules_cap__rules_cap_reached.json",
+        "tools/rules_cap__rules_cap_other_workspace_independent.json"
+      ]
+    }
+  },
+  "tokens": {
+    "read": {
+      "id": "mcpt-read",
+      "sha256": "e1a29dd4c798eba0360fc7264fb5d2004e333cbcccaf577899d1008ac305c461",
+      "user_id": 2,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "write": {
+      "id": "mcpt-write",
+      "sha256": "d708be7fbe85f965043063c170ce988919972fa3a5e66d142827258fb9cb5e53",
+      "user_id": 2,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "admin": {
+      "id": "mcpt-admin",
+      "sha256": "898f7f948b5ad1c0b8836f6e120e6342e77402682981340363fac8b1059377bf",
+      "user_id": 1,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "adminrole": {
+      "id": "mcpt-adminrole",
+      "sha256": "430e70b6dffd4e4ce226a2add68fd301e5a1cfb447fe3706daee9d04622c71c3",
+      "user_id": 6,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "all": {
+      "id": "mcpt-all",
+      "sha256": "13d6386d8a7aa1d8ce6caab9fc70e3fc7313bf0d4ca631f41fe51380910818db",
+      "user_id": 2,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "viewer": {
+      "id": "mcpt-viewer",
+      "sha256": "a2be32be77f9064d332d7164786d458fff6b207d4f74abed60ddeba357794909",
+      "user_id": 3,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "expired": {
+      "id": "mcpt-expired",
+      "sha256": "ba4b40f322c851272583899b44775fd0e0a647929f5b30f80011382ac5874481",
+      "user_id": 1,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": "2026-01-01 00:00:00+00",
+      "revoked_at": null
+    },
+    "revoked": {
+      "id": "mcpt-revoked",
+      "sha256": "ed92fe4fa660e82689892bbe6a1d47adeba9394e0e19f73a8ad92ab6843e2f28",
+      "user_id": 1,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": "2026-08-30 00:00:00+00"
+    },
+    "removed_member": {
+      "id": "mcpt-removed",
+      "sha256": "636750917b9aa4c92212c369e7dd6e22e44ddd27c2b8db4c16b3cb3a5ac8a0fc",
+      "user_id": 5,
+      "workspace_id": "ws-alpha",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "workspace_b": {
+      "id": "mcpt-wsb",
+      "sha256": "b5b29e47c760a2dfb46d2c6c4387c3f6f1a4b47dda6672e3dfb0160f253ac3c9",
+      "user_id": 4,
+      "workspace_id": "ws-beta",
+      "capabilities": [
+        "leads:read",
+        "leads:write",
+        "sequences:enroll",
+        "workbooks:write",
+        "automations:write",
+        "outreach:send",
+        "leads:delete",
+        "workbooks:delete"
+      ],
+      "expires_at": null,
+      "revoked_at": null
+    },
+    "nocaps": {
+      "id": "mcpt-nocaps",
+      "sha256": "cee0ea477e3e4b92165db2d6f17afcf7b846e769c29cc06ac0cbaa6094b162ac",
+      "user_id": 2,
+      "workspace_id": "ws-alpha",
+      "capabilities": [],
+      "expires_at": null,
+      "revoked_at": null
+    }
+  }
+}

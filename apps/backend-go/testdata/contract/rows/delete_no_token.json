@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        1
+      ]
+    },
+    "headers": {},
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

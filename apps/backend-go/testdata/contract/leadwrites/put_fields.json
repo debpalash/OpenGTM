@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "notes": "updated via PUT",
+      "phone": "+91 11 5550 9999",
+      "score": 77
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/lead/10"
+  },
+  "response": {
+    "body": {
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?actor_user_id=x"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "x",
+          "loc": [
+            "query",
+            "actor_user_id"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

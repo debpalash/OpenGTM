@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {},
+    "headers": {},
+    "method": "POST",
+    "path": "/auth/refresh"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "refresh_token"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

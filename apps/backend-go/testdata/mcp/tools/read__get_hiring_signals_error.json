@@ -1,0 +1,43 @@
+{
+  "seq": 46,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 45,
+    "method": "tools/call",
+    "params": {
+      "name": "get_hiring_signals",
+      "arguments": {
+        "company": "Acme"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 45,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"company\": \"Acme\", \"error\": \"job board timeout\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "get_hiring_signals": {
+      "raises": "job board timeout"
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "get_hiring_signals",
+      "lead_id": 0,
+      "company": "Acme"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "seq": 49,
+  "profile": "read",
+  "token": "nocaps",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 48,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "x"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 48,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"capability not granted\", \"required\": \"leads:read\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/counts"
+  },
+  "response": {
+    "body": {
+      "funding": 2,
+      "growth": 1,
+      "hiring": 1,
+      "news": 1,
+      "tech_change": 1,
+      "total": 6,
+      "unread": 6
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

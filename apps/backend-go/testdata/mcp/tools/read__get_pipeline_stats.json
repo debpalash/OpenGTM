@@ -1,0 +1,28 @@
+{
+  "seq": 29,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 28,
+    "method": "tools/call",
+    "params": {
+      "name": "get_pipeline_stats"
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 28,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"total\": 6,\n  \"by_status\": {\n    \"qualified\": 1,\n    \"contacted\": 1,\n    \"new\": 4\n  },\n  \"by_tier\": {\n    \"unqualified\": 1,\n    \"cold\": 2,\n    \"warm\": 2,\n    \"hot\": 1\n  },\n  \"by_city\": {\n    \"\\u6771\\u4eac\": 1,\n    \"Lyon\": 1,\n    \"Austin\": 1,\n    \"Pune\": 1,\n    \"Oslo\": 1,\n    \"Berlin\": 1\n  },\n  \"by_source\": {\n    \"mcp-seed\": 6\n  },\n  \"enrichment\": {\n    \"total\": 6,\n    \"with_email\": 5,\n    \"with_phone\": 2,\n    \"with_website\": 5,\n    \"with_linkedin\": 0,\n    \"with_contact\": 3,\n    \"avg_score\": 46.7\n  }\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,80 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/models/github_models"
+  },
+  "response": {
+    "body": {
+      "models": [
+        {
+          "context": 128000,
+          "free": true,
+          "id": "gpt-4o",
+          "name": "GPT-4o"
+        },
+        {
+          "context": 128000,
+          "free": true,
+          "id": "gpt-4o-mini",
+          "name": "GPT-4o Mini"
+        },
+        {
+          "context": 1047576,
+          "free": true,
+          "id": "gpt-4.1",
+          "name": "GPT-4.1"
+        },
+        {
+          "context": 1047576,
+          "free": true,
+          "id": "gpt-4.1-mini",
+          "name": "GPT-4.1 Mini"
+        },
+        {
+          "context": 1047576,
+          "free": true,
+          "id": "gpt-4.1-nano",
+          "name": "GPT-4.1 Nano"
+        },
+        {
+          "context": 200000,
+          "free": true,
+          "id": "o4-mini",
+          "name": "o4-mini"
+        },
+        {
+          "context": 200000,
+          "free": true,
+          "id": "o3-mini",
+          "name": "o3-mini"
+        },
+        {
+          "context": 131072,
+          "free": true,
+          "id": "DeepSeek-R1",
+          "name": "DeepSeek R1"
+        },
+        {
+          "context": 131072,
+          "free": true,
+          "id": "Llama-3.3-70B-Instruct",
+          "name": "Llama 3.3 70B"
+        },
+        {
+          "context": 131072,
+          "free": true,
+          "id": "Mistral-Small-3.1",
+          "name": "Mistral Small 3.1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

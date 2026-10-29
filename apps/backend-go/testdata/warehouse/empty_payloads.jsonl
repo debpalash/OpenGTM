@@ -1,0 +1,3 @@
+{"_manifest":{"audience_id":"aud-1","dataset":"opengtm_audience","destination_id":"dest-1","mode":"snapshot","records_sha256":"39b918d210f1da2fda7fbcccfd1a4f74f32f9fe685378ae1f4a681db5a83ecc6","row_count":2,"run_id":"run-1","type":"opengtm.audience.export","version":1,"workspace_id":"ws-vec"}}
+{"_opengtm_lead_id":1}
+{"_opengtm_lead_id":2}

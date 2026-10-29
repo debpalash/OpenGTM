@@ -1,0 +1,53 @@
+{
+ "vendor": "salesforce",
+ "scenario": "fetch_where_field_map",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 1,
+   "where": "Email != null AND LastName = 'O\\'Brien'",
+   "field_map": {
+    "Email": "email",
+    "Account.Name": "company",
+    "Id": "x"
+   }
+  }
+ },
+ "secrets": {
+  "SALESFORCE_INSTANCE_URL": "https://contract.my.salesforce.com",
+  "SALESFORCE_ACCESS_TOKEN": "ctk_salesforce_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "{{secret:SALESFORCE_INSTANCE_URL}}/services/data/v59.0/query?q=SELECT+Id%2C+Email%2C+Account.Name+FROM+Contact+WHERE+Email+%21%3D+null+AND+LastName+%3D+%27O%5C%27Brien%27+LIMIT+1",
+    "headers": {
+     "authorization": "Bearer {{secret:SALESFORCE_ACCESS_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"totalSize\":2,\"done\":true,\"records\":[{\"attributes\":{\"type\":\"Contact\"},\"Id\":\"003A\",\"Email\":\"a@x.com\",\"FirstName\":\"Ada\",\"LastName\":\"L\",\"Account\":{\"Name\":\"AccA\"},\"Phone\":\"1\",\"Title\":\"CTO\"},{\"attributes\":{\"type\":\"Contact\"},\"Id\":\"003B\",\"Email\":null,\"FirstName\":null,\"LastName\":\"Only\",\"Account\":null,\"Phone\":\"\",\"Title\":\"VP\"}]}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "contacts": [
+   {
+    "email": "a@x.com",
+    "company": "AccA",
+    "x": "003A",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce",
+    "crm_object": "contact"
+   }
+  ]
+ }
+}

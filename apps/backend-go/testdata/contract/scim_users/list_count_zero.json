@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Users?count=0"
+  },
+  "response": {
+    "body": {
+      "Resources": [],
+      "itemsPerPage": 0,
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      ],
+      "startIndex": 1,
+      "totalResults": 2
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,180 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/analytics"
+  },
+  "response": {
+    "body": {
+      "by_source": [],
+      "by_type": [],
+      "period_days": 30,
+      "summary": {
+        "active_accounts": 0,
+        "momentum_pct": -100.0,
+        "total": 0,
+        "weighted_score": 0
+      },
+      "top_accounts": [],
+      "trend": [
+        {
+          "count": 0,
+          "date": "2026-09-27",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-09-28",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-09-29",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-09-30",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-01",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-02",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-03",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-04",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-05",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-06",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-07",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-08",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-09",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-10",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-11",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-12",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-13",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-14",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-15",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-16",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-17",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-18",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-19",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-20",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-21",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-22",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-23",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-24",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-25",
+          "weight": 0
+        },
+        {
+          "count": 0,
+          "date": "2026-10-26",
+          "weight": 0
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

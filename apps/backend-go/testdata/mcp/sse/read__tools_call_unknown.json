@@ -1,0 +1,42 @@
+{
+  "seq": 73,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 70,
+      "method": "tools/call",
+      "params": {
+        "name": "no_such_tool",
+        "arguments": {}
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 70,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"error\": \"Unknown tool: no_such_tool\"}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

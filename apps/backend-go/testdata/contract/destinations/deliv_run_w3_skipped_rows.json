@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-act-w3/deliveries"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 0,
+        "created_at": "2026-08-27T10:00:05",
+        "delivered_at": null,
+        "destination_id": "dst-act-webhook",
+        "error": null,
+        "external_id": null,
+        "id": 11,
+        "lead_id": 14,
+        "operation": "upsert",
+        "run_id": "run-act-w3",
+        "status": "skipped",
+        "summary": "No valid email or phone identifier"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

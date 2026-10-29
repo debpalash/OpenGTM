@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "max_usd": "abc"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-alpha-1/budget"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "max_usd"
+          ],
+          "msg": "Input should be a valid number, unable to parse string as a number",
+          "type": "float_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

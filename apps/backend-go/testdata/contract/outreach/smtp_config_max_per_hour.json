@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "smtp_max_per_hour": 77
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/smtp/config"
+  },
+  "response": {
+    "body": {
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

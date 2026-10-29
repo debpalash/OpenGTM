@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "PURGE EXPIRED DATA"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/retention/enforce"
+  },
+  "response": {
+    "body": {
+      "detail": "Configure a retention policy first"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

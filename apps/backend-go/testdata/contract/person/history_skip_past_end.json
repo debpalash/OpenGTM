@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/person/history?skip=10"
+  },
+  "response": {
+    "body": [],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

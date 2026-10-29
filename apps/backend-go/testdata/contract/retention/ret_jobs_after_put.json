@@ -1,0 +1,124 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/__contract/jobs"
+  },
+  "response": {
+    "body": [
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "retention:ws-alpha:<ts>",
+        "max_retries": 3,
+        "next_run_offset_minutes": 7320,
+        "payload": {
+          "fire_key": "retention:ws-alpha:<ts>",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "retention_enforce",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "playbook_schedule:pb-gov-sched:<ts>",
+        "max_retries": 3,
+        "next_run_offset_minutes": 1760640,
+        "payload": {
+          "fire_key": "playbook_schedule:pb-gov-sched:<ts>",
+          "playbook_id": "pb-gov-sched",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "research_playbook_schedule",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "playbook:run-gov-r5",
+        "max_retries": 3,
+        "next_run_offset_minutes": 60,
+        "payload": {
+          "fire_key": "playbook:run-gov-r5",
+          "run_id": "run-gov-r5",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "research_playbook_run",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "playbook:run-gov-r6",
+        "max_retries": 3,
+        "next_run_offset_minutes": 120,
+        "payload": {
+          "fire_key": "playbook:run-gov-r6",
+          "run_id": "run-gov-r6",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "processing",
+        "type": "research_playbook_run",
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "retention:ws-alpha:<ts>",
+        "max_retries": 3,
+        "next_run_offset_minutes": 1440,
+        "payload": {
+          "fire_key": "retention:ws-alpha:<ts>",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "retention_enforce",
+        "workspace_id": null
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "retention:ws-alpha:<ts>",
+        "max_retries": 3,
+        "next_run_offset_minutes": 1440,
+        "payload": {
+          "fire_key": "retention:ws-alpha:<ts>",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "retention_enforce",
+        "workspace_id": null
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "retention:ws-alpha:<ts>",
+        "max_retries": 3,
+        "next_run_offset_minutes": 1440,
+        "payload": {
+          "fire_key": "retention:ws-alpha:<ts>",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "retention_enforce",
+        "workspace_id": null
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

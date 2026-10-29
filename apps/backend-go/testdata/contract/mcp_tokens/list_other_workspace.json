@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/mcp/tokens"
+  },
+  "response": {
+    "body": [],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

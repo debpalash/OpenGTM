@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "notes": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/lead/9999"
+  },
+  "response": {
+    "body": {
+      "detail": "Lead not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

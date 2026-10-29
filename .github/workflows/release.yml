@@ -1,8 +1,9 @@
 name: Release
 
 # Runs only when a version tag is pushed (e.g. `git tag v3.0.0 && git push
-# opengtm v3.0.0`). Builds the multi-arch image, publishes it to GHCR, and
-# drafts a GitHub release with generated notes for a maintainer to review.
+# opengtm v3.0.0`). Builds the multi-arch Go images (api with UI, worker, mcp, migrate, scheduler) and the
+# internal browser-service image, publishes them to GHCR, and drafts a GitHub release with generated notes
+# for a maintainer to review. There is no Python API image.
 on:
   push:
     tags: ["v*.*.*"]
@@ -12,7 +13,51 @@ permissions:
   packages: write
 
 jobs:
-  image:
+  # Go services: api (web UI embedded; its Dockerfile builds apps/web with Bun), worker, mcp, migrate (one-shot
+  # schema runner) and scheduler (also carries the demo seed binary).
+  go-images:
+    name: Go image (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [api, worker, mcp, migrate, scheduler]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}-${{ matrix.target }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=ref,event=tag
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+      - uses: docker/build-push-action@v6
+        with:
+          context: apps/backend-go
+          file: apps/backend-go/Dockerfile
+          target: ${{ matrix.target }}
+          build-contexts: |
+            web=apps/web
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=go-${{ matrix.target }}
+          cache-to: type=gha,mode=max,scope=go-${{ matrix.target }}
+
+  # Internal browser service (apps/browser-service): Playwright Chromium + scraper libraries, called only by
+  # the Go services. No database access, no secrets besides its bearer token.
+  browser-service-image:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -27,7 +72,7 @@ jobs:
       - id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: ghcr.io/${{ github.repository }}-browser
           tags: |
             type=semver,pattern={{version}}
             type=ref,event=tag
@@ -35,16 +80,16 @@ jobs:
             type=raw,value=latest
       - uses: docker/build-push-action@v6
         with:
-          context: .
+          context: apps/browser-service
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=browser-service
+          cache-to: type=gha,mode=max,scope=browser-service
 
   github-release:
-    needs: image
+    needs: [go-images, browser-service-image]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -54,5 +99,8 @@ jobs:
           draft: true
           generate_release_notes: true
           body: |
-            Container image: `ghcr.io/debpalash/opengtm:${{ github.ref_name }}`
+            Go images: `ghcr.io/debpalash/opengtm-api:${{ github.ref_name }}` (UI embedded),
+            `ghcr.io/debpalash/opengtm-worker:${{ github.ref_name }}`, `ghcr.io/debpalash/opengtm-mcp:${{ github.ref_name }}`,
+            `ghcr.io/debpalash/opengtm-migrate:${{ github.ref_name }}`, `ghcr.io/debpalash/opengtm-scheduler:${{ github.ref_name }}`
+            Internal browser service: `ghcr.io/debpalash/opengtm-browser:${{ github.ref_name }}`
             Docs: https://opengtm.palash.dev

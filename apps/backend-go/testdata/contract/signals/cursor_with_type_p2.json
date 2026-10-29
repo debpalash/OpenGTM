@@ -1,0 +1,85 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?signal_type=funding&limit=3&cursor=WzE3ODgwMDAwMDMuNSwic2lnLWEtMjYiXQ"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": false,
+      "limit": 3,
+      "next_cursor": null,
+      "offset": null,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded funding event #1 for contract fixtures",
+          "id": "sig-a-01",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/1",
+          "title": "funding signal 1",
+          "weight": 11,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787992800.0,
+          "description": "Seeded funding event #11 for contract fixtures",
+          "id": "sig-a-11",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/11",
+          "title": "funding signal 11",
+          "weight": 12,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787827200.0,
+          "description": "Seeded funding event #16 for contract fixtures",
+          "id": "sig-a-16",
+          "lead_id": 6,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/16",
+          "title": "funding signal 16",
+          "weight": 11,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

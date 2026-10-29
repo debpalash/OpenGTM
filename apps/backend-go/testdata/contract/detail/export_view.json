@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/export.csv?view_id=view-alpha-1"
+  },
+  "response": {
+    "body": "\ufeffCompany,Website,Email,City,Phone,Email Finder,Summary\r\nAcme 05,https://acme05.example.com,info@acme05.example.com,Berlin,'+1-555-0105,found05@acme05.example.com,Acme 05 sells widgets.\r\nAcme 10,https://acme10.example.com,info@acme10.example.com,Berlin,'+1-555-0110,found10@acme10.example.com,Acme 10 sells widgets.\r\nAcme 15,https://acme15.example.com,info@acme15.example.com,Berlin,'+1-555-0115,found15@acme15.example.com,\r\nAcme 20,https://acme20.example.com,info@acme20.example.com,Berlin,'+1-555-0120,,Acme 20 sells widgets.\r\nAcme 25,https://acme25.example.com,info@acme25.example.com,Berlin,'+1-555-0125,found25@acme25.example.com,Acme 25 sells widgets.\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

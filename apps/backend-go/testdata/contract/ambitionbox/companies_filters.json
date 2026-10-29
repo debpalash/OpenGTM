@@ -1,0 +1,243 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/ambitionbox/companies?page=2&limit=7&sort_by=rating&industry=IT%20Services%20%26%20Consulting,Banking&rating=4.5"
+  },
+  "response": {
+    "body": {
+      "companies": [
+        {
+          "company_id": 10000,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "10k-50k Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 0,
+          "is_verified": true,
+          "jobs_count": 4,
+          "logo_url": "https://static.ambitionbox.com/logos/10000.png",
+          "name": "Contract Company 020",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-020-overview",
+          "rating": 4.5,
+          "review_count": 360,
+          "salaries_count": 1,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-020"
+        },
+        {
+          "company_id": 10021,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "10k-50k Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 1,
+          "is_verified": false,
+          "jobs_count": 4,
+          "logo_url": "https://static.ambitionbox.com/logos/10021.png",
+          "name": "Contract Company 021",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-021-overview",
+          "rating": 4.6,
+          "review_count": 373,
+          "salaries_count": 0,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-021"
+        },
+        {
+          "company_id": 10022,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "10k-50k Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 2,
+          "is_verified": true,
+          "jobs_count": 5,
+          "logo_url": "https://static.ambitionbox.com/logos/10022.png",
+          "name": "Contract Company 022",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-022-overview",
+          "rating": null,
+          "review_count": null,
+          "salaries_count": 1,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-022"
+        },
+        {
+          "company_id": 10023,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "1L+ Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 3,
+          "is_verified": false,
+          "jobs_count": 6,
+          "logo_url": "https://static.ambitionbox.com/logos/10023.png",
+          "name": "Contract Company 023",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-023-overview",
+          "rating": 4.8,
+          "review_count": 399,
+          "salaries_count": 2,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-023"
+        },
+        {
+          "company_id": 10024,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "10k-50k Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 4,
+          "is_verified": true,
+          "jobs_count": 0,
+          "logo_url": "https://static.ambitionbox.com/logos/10024.png",
+          "name": "Contract Company 024",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-024-overview",
+          "rating": 4.9,
+          "review_count": 412,
+          "salaries_count": 3,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-024"
+        },
+        {
+          "company_id": 10025,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "10k-50k Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 0,
+          "is_verified": false,
+          "jobs_count": 1,
+          "logo_url": "https://static.ambitionbox.com/logos/10025.png",
+          "name": "Contract Company 025",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-025-overview",
+          "rating": 2.5,
+          "review_count": 425,
+          "salaries_count": 4,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-025"
+        },
+        {
+          "company_id": 10026,
+          "company_type": "Private",
+          "critically_rated_for": [
+            {
+              "name": "Work Satisfaction",
+              "rating": 2.9
+            }
+          ],
+          "employee_count": "1L+ Employees",
+          "highly_rated_for": [
+            {
+              "name": "Job Security",
+              "rating": 4.2
+            }
+          ],
+          "industry": "It Services And Consulting",
+          "interviews_count": 1,
+          "is_verified": true,
+          "jobs_count": 2,
+          "logo_url": "https://static.ambitionbox.com/logos/10026.png",
+          "name": "Contract Company 026",
+          "profile_url": "https://www.ambitionbox.com/overview/contract-company-026-overview",
+          "rating": 2.6,
+          "review_count": 438,
+          "salaries_count": 5,
+          "short_name": "Contract",
+          "top_location": "Pune",
+          "total_locations": 4,
+          "url_name": "contract-company-026"
+        }
+      ],
+      "has_more": false,
+      "page": 2,
+      "source_total": 31,
+      "total": 7,
+      "total_pages": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

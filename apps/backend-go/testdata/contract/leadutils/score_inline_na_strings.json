@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "company": "NA Co",
+        "contact_person": "nan",
+        "email": "nan",
+        "linkedin_url": "N/A",
+        "phone": "",
+        "website": "N/A"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "NA Co",
+      "lead_id": null,
+      "score": 0,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

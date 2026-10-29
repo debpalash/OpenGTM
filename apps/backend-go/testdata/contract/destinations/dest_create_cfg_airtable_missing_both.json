@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {},
+      "destination_type": "airtable",
+      "name": "cfg 52"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "missing airtable config: base_id, table"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

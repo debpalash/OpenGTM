@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/retention/preview"
+  },
+  "response": {
+    "body": {
+      "expired_counts": {
+        "activation": 2,
+        "agent_results": 1,
+        "audience_history": 1,
+        "audit": 1,
+        "llm_usage": 1,
+        "outreach_history": 1,
+        "signals": 1
+      },
+      "legal_hold": false,
+      "retention_days": {
+        "activation": 180,
+        "agent_results": 180,
+        "audience_history": 365,
+        "audit": 120,
+        "llm_usage": 365,
+        "outreach_history": 365,
+        "signals": 45
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

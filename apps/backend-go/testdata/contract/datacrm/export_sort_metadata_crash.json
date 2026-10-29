@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data/export?sort_by=metadata"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "status": 500
+  }
+}

@@ -1,0 +1,1923 @@
+{
+ "setting_key": "SOURCE_<ID UPPERCASE>_ENABLED",
+ "rule": "stored value ('' = unset) else environment else default_enabled; enabled iff the value is exactly '1'",
+ "cases": [
+  {
+   "source_id": "duckduckgo",
+   "stored": null,
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": null,
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": null,
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1",
+   "env": "0",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "0",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "0",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "0",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "yes",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "yes",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "yes",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "true",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "true",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "true",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "True",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "True",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "True",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": " 1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": " 1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": " 1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1 ",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1 ",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1 ",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "01",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "01",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "01",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "2",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "2",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "2",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "-1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "-1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "-1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": null,
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": null,
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": null,
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1",
+   "env": "0",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "0",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "0",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "0",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "yes",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "yes",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "yes",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "true",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "true",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "true",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "True",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "True",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "True",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": " 1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": " 1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": " 1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1 ",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1 ",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "1 ",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "01",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "01",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "01",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "2",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "2",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "2",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "-1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "-1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "google_maps",
+   "stored": "-1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": null,
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": null,
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": null,
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1",
+   "env": null,
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1",
+   "env": "1",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1",
+   "env": "0",
+   "default": true,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "0",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "0",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "0",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "yes",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "yes",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "yes",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "true",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "true",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "true",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "True",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "True",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "True",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": " 1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": " 1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": " 1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1 ",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1 ",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "1 ",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "01",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "01",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "01",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "2",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "2",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "2",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "-1",
+   "env": null,
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "-1",
+   "env": "1",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "indiamart",
+   "stored": "-1",
+   "env": "0",
+   "default": true,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": null,
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": null,
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": null,
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1",
+   "env": null,
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1",
+   "env": "0",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "0",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "0",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "0",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "yes",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "yes",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "yes",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "true",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "true",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "true",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "True",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "True",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "True",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": " 1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": " 1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": " 1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1 ",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1 ",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "1 ",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "01",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "01",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "01",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "2",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "2",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "2",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "-1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "-1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "bbb",
+   "stored": "-1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": null,
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": null,
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": null,
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1",
+   "env": null,
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1",
+   "env": "0",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "0",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "0",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "0",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "yes",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "yes",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "yes",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "true",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "true",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "true",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "True",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "True",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "True",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": " 1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": " 1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": " 1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1 ",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1 ",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "1 ",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "01",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "01",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "01",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "2",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "2",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "2",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "-1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "-1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "thomasnet",
+   "stored": "-1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": null,
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": null,
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": null,
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1",
+   "env": null,
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1",
+   "env": "1",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1",
+   "env": "0",
+   "default": false,
+   "enabled": true,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "0",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "0",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "0",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "yes",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "yes",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "yes",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "true",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "true",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "true",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "True",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "True",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "True",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": " 1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": " 1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": " 1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1 ",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1 ",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "1 ",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "01",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "01",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "01",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "2",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "2",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "2",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "-1",
+   "env": null,
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "-1",
+   "env": "1",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "europages",
+   "stored": "-1",
+   "env": "0",
+   "default": false,
+   "enabled": false,
+   "error": null
+  },
+  {
+   "source_id": "nope",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "nope",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "nope",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "Duck Duck",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "Duck Duck",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "Duck Duck",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": false
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": false
+  },
+  {
+   "source_id": "duckduckgo",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": false
+  },
+  {
+   "source_id": "DuckDuckGo",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "DuckDuckGo",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "DuckDuckGo",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "google-maps",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "google-maps",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "google-maps",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "a.b",
+   "stored": null,
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "a.b",
+   "stored": "1",
+   "env": null,
+   "default": null,
+   "enabled": true,
+   "error": null,
+   "unknown_source": true
+  },
+  {
+   "source_id": "a.b",
+   "stored": "0",
+   "env": null,
+   "default": null,
+   "enabled": false,
+   "error": null,
+   "unknown_source": true
+  }
+ ]
+}

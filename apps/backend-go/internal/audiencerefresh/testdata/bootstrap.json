@@ -1,0 +1,707 @@
+{
+  "note": "bootstrap_audience_schedules() at the frozen clock 2026-08-29T10:40:00Z: enabled schedule rows with next_refresh_at NULL or <= now, keyset paged by audience_id; a missing/disabled audience removes its schedule; an active (pending/processing) 'audience_refresh:<id>:%' job skips; otherwise one job with fire_key 'audience_refresh:<id>:<due isoformat (aware UTC) or the word bootstrap>' and next_run_at = now is enqueued. Returns the number of jobs enqueued. Jobs created here have workspace_id NULL.",
+  "cases": [
+    {
+      "name": "due_and_future",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        },
+        {
+          "id": "a2"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "a2",
+          "next_refresh_at": "2026-08-29T12:40:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 1,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "a2",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T12:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "null_next_uses_bootstrap_occurrence",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": null
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 1,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:bootstrap"
+          },
+          "fire_key": "audience_refresh:a1:bootstrap",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": null,
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "exactly_now_is_due",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:40:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 1,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:40:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:40:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "disabled_schedule_ignored",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1",
+          "enabled": false
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00",
+          "enabled": false
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "name": "disabled_audience_removes_schedule",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1",
+          "enabled": false
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": []
+    },
+    {
+      "name": "missing_audience_removes_schedule",
+      "page_size": 500,
+      "audiences": [],
+      "schedules": [
+        {
+          "audience_id": "gone",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": []
+    },
+    {
+      "name": "active_job_skips",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [
+        {
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "pending"
+        }
+      ],
+      "enqueued": 0,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "processing_job_skips",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [
+        {
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "processing"
+        }
+      ],
+      "enqueued": 0,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "processing",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "completed_job_does_not_skip",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [
+        {
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "completed"
+        }
+      ],
+      "enqueued": 1,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:a1:2026-01-01T00:00:00+00:00",
+          "status": "completed",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "prefix_does_not_overmatch",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [
+        {
+          "fire_key": "audience_refresh:a10:2026-01-01T00:00:00+00:00",
+          "status": "pending"
+        }
+      ],
+      "enqueued": 1,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {},
+          "fire_key": "audience_refresh:a10:2026-01-01T00:00:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-01-01T00:00:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "paging_page_size_2_five_due",
+      "page_size": 2,
+      "audiences": [
+        {
+          "id": "a1"
+        },
+        {
+          "id": "a2"
+        },
+        {
+          "id": "a3"
+        },
+        {
+          "id": "a4"
+        },
+        {
+          "id": "a5"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "a2",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "a3",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "a4",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "a5",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 5,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a2",
+            "fire_key": "audience_refresh:a2:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a2:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        },
+        {
+          "id": 3,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a3",
+            "fire_key": "audience_refresh:a3:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a3:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        },
+        {
+          "id": 4,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a4",
+            "fire_key": "audience_refresh:a4:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a4:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        },
+        {
+          "id": 5,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a5",
+            "fire_key": "audience_refresh:a5:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a5:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "a2",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "a3",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "a4",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "a5",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "two_workspaces",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        },
+        {
+          "id": "b1",
+          "workspace_id": "ws-b"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        },
+        {
+          "audience_id": "b1",
+          "workspace_id": "ws-b",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 2,
+      "jobs_after": [
+        {
+          "id": 1,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-vec",
+            "audience_id": "a1",
+            "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:a1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        },
+        {
+          "id": 2,
+          "type": "audience_refresh",
+          "payload": {
+            "workspace_id": "ws-b",
+            "audience_id": "b1",
+            "fire_key": "audience_refresh:b1:2026-08-29T10:35:00+00:00"
+          },
+          "fire_key": "audience_refresh:b1:2026-08-29T10:35:00+00:00",
+          "status": "pending",
+          "executor": "python",
+          "priority": 1,
+          "max_retries": 3,
+          "next_run_at": "2026-08-29T10:40:00",
+          "workspace_id": null
+        }
+      ],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        },
+        {
+          "audience_id": "b1",
+          "workspace_id": "ws-b",
+          "next_refresh_at": "2026-08-29T10:35:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "schedule_workspace_mismatch_audience_missing",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-wrong",
+          "next_refresh_at": "2026-08-29T10:35:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": []
+    },
+    {
+      "name": "nothing_due",
+      "page_size": 500,
+      "audiences": [
+        {
+          "id": "a1"
+        }
+      ],
+      "schedules": [
+        {
+          "audience_id": "a1",
+          "next_refresh_at": "2026-08-29T12:40:00+00:00"
+        }
+      ],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": [
+        {
+          "audience_id": "a1",
+          "workspace_id": "ws-vec",
+          "next_refresh_at": "2026-08-29T12:40:00",
+          "enabled": true
+        }
+      ]
+    },
+    {
+      "name": "empty",
+      "page_size": 500,
+      "audiences": [],
+      "schedules": [],
+      "jobs_before": [],
+      "enqueued": 0,
+      "jobs_after": [],
+      "schedule_after": []
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+ "provider": "apollo_io",
+ "input_name": "default",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://acme.com"
+ },
+ "secrets": {
+  "APOLLO_API_KEY": "ctk_apollo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.apollo.io/api/v1/organizations/enrich",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:APOLLO_API_KEY}}"
+    },
+    "body": "{\"domain\":\"acme.com\"}",
+    "json": {
+     "domain": "acme.com"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"organization\":{}}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.apollo.io/api/v1/mixed_people/search",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:APOLLO_API_KEY}}"
+    },
+    "body": "{\"q_organization_domains\":\"acme.com\",\"page\":1,\"per_page\":3,\"person_seniorities\":[\"owner\",\"c_suite\",\"vp\",\"director\"]}",
+    "json": {
+     "q_organization_domains": "acme.com",
+     "page": 1,
+     "per_page": 3,
+     "person_seniorities": [
+      "owner",
+      "c_suite",
+      "vp",
+      "director"
+     ]
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"people\":[]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "apollo_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No data found"
+ }
+}

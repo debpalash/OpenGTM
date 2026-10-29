@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-enrich-1/refresh-policy"
+  },
+  "response": {
+    "body": {
+      "next_in_minutes": null,
+      "refresh_policy": {
+        "enabled": true,
+        "interval": null,
+        "on_signal": [],
+        "staleness_ttl_days": {}
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,21 @@
+{
+ "description": "pool deadline -> status timeout",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:ddgs_timeout:0",
+  "input": {
+   "max_results": 8,
+   "query": "q"
+  },
+  "provider": "ddgs_search",
+  "timeout_s": 1,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": "provider timed out",
+  "output": null,
+  "status": "timeout"
+ },
+ "scenario": "ddgs_timeout"
+}

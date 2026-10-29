@@ -1,0 +1,15 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/outreach/unsubscribe"
+  },
+  "response": {
+    "body": "<h2>Invalid unsubscribe link</h2>",
+    "headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "status": 400
+  }
+}

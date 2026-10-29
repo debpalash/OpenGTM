@@ -1,0 +1,1412 @@
+[
+ {
+  "name": "indiamart",
+  "label": "IndiaMart",
+  "region": [
+   "india"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "indiamart.com",
+  "query_templates": [
+   "site:indiamart.com {q}",
+   "site:indiamart.com {industry} {city} manufacturers suppliers",
+   "site:indiamart.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 10,
+  "enabled": true
+ },
+ {
+  "name": "justdial",
+  "label": "JustDial",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "justdial.com",
+  "query_templates": [
+   "site:justdial.com {q}",
+   "site:justdial.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 11,
+  "enabled": true
+ },
+ {
+  "name": "tradeindia",
+  "label": "TradeIndia",
+  "region": [
+   "india"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "tradeindia.com",
+  "query_templates": [
+   "site:tradeindia.com {industry} {city} manufacturers exporters"
+  ],
+  "extract_from_listing": false,
+  "priority": 12,
+  "enabled": true
+ },
+ {
+  "name": "sulekha",
+  "label": "Sulekha",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "sulekha.com",
+  "query_templates": [
+   "site:sulekha.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 13,
+  "enabled": true
+ },
+ {
+  "name": "exportersindia",
+  "label": "ExportersIndia",
+  "region": [
+   "india"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "exportersindia.com",
+  "query_templates": [
+   "site:exportersindia.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 14,
+  "enabled": true
+ },
+ {
+  "name": "ambitionbox",
+  "label": "AmbitionBox",
+  "region": [
+   "india"
+  ],
+  "category": "review",
+  "site_domain": "ambitionbox.com",
+  "query_templates": [
+   "site:ambitionbox.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 20,
+  "enabled": true
+ },
+ {
+  "name": "glassdoor_in",
+  "label": "Glassdoor India",
+  "region": [
+   "india"
+  ],
+  "category": "review",
+  "site_domain": "glassdoor.co.in",
+  "query_templates": [
+   "site:glassdoor.co.in {industry} {city} company reviews"
+  ],
+  "extract_from_listing": false,
+  "priority": 21,
+  "enabled": true
+ },
+ {
+  "name": "naukri",
+  "label": "Naukri",
+  "region": [
+   "india"
+  ],
+  "category": "jobs",
+  "site_domain": "naukri.com",
+  "query_templates": [
+   "site:naukri.com {industry} companies {city} jobs"
+  ],
+  "extract_from_listing": false,
+  "priority": 30,
+  "enabled": true
+ },
+ {
+  "name": "zaubacorp",
+  "label": "Zauba Corp (MCA)",
+  "region": [
+   "india"
+  ],
+  "category": "government",
+  "site_domain": "zaubacorp.com",
+  "query_templates": [
+   "site:zaubacorp.com {industry} {city} active company"
+  ],
+  "extract_from_listing": false,
+  "priority": 40,
+  "enabled": true
+ },
+ {
+  "name": "tofler",
+  "label": "Tofler (Company Data)",
+  "region": [
+   "india"
+  ],
+  "category": "government",
+  "site_domain": "tofler.in",
+  "query_templates": [
+   "site:tofler.in {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 41,
+  "enabled": true
+ },
+ {
+  "name": "clutch",
+  "label": "Clutch",
+  "region": [
+   "global",
+   "india",
+   "us",
+   "eu"
+  ],
+  "category": "directory",
+  "site_domain": "clutch.co",
+  "query_templates": [
+   "site:clutch.co {industry} companies {city}",
+   "site:clutch.co {q}"
+  ],
+  "extract_from_listing": true,
+  "priority": 50,
+  "enabled": true
+ },
+ {
+  "name": "goodfirms",
+  "label": "GoodFirms",
+  "region": [
+   "global",
+   "india",
+   "us"
+  ],
+  "category": "directory",
+  "site_domain": "goodfirms.co",
+  "query_templates": [
+   "site:goodfirms.co {industry} companies {city}",
+   "site:goodfirms.co {q}"
+  ],
+  "extract_from_listing": true,
+  "priority": 51,
+  "enabled": true
+ },
+ {
+  "name": "g2",
+  "label": "G2",
+  "region": [
+   "global"
+  ],
+  "category": "review",
+  "site_domain": "g2.com",
+  "query_templates": [
+   "site:g2.com {industry} software companies"
+  ],
+  "extract_from_listing": true,
+  "priority": 52,
+  "enabled": true
+ },
+ {
+  "name": "softwaresuggest",
+  "label": "SoftwareSuggest",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "softwaresuggest.com",
+  "query_templates": [
+   "site:softwaresuggest.com {industry} {city}"
+  ],
+  "extract_from_listing": true,
+  "priority": 53,
+  "enabled": true
+ },
+ {
+  "name": "techbehemoths",
+  "label": "TechBehemoths",
+  "region": [
+   "global",
+   "india",
+   "eu"
+  ],
+  "category": "directory",
+  "site_domain": "techbehemoths.com",
+  "query_templates": [
+   "site:techbehemoths.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 54,
+  "enabled": true
+ },
+ {
+  "name": "yellowpages",
+  "label": "Yellow Pages",
+  "region": [
+   "us",
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": "yellowpages.com",
+  "query_templates": [
+   "site:yellowpages.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 60,
+  "enabled": true
+ },
+ {
+  "name": "yelp",
+  "label": "Yelp",
+  "region": [
+   "us",
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": "yelp.com",
+  "query_templates": [
+   "site:yelp.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 61,
+  "enabled": true
+ },
+ {
+  "name": "bbb",
+  "label": "Better Business Bureau",
+  "region": [
+   "us"
+  ],
+  "category": "directory",
+  "site_domain": "bbb.org",
+  "query_templates": [
+   "site:bbb.org {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 62,
+  "enabled": true
+ },
+ {
+  "name": "thomasnet",
+  "label": "ThomasNet",
+  "region": [
+   "us"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "thomasnet.com",
+  "query_templates": [
+   "site:thomasnet.com {industry} suppliers manufacturers"
+  ],
+  "extract_from_listing": false,
+  "priority": 63,
+  "enabled": true
+ },
+ {
+  "name": "crunchbase",
+  "label": "Crunchbase",
+  "region": [
+   "global"
+  ],
+  "category": "startup",
+  "site_domain": "crunchbase.com",
+  "query_templates": [
+   "site:crunchbase.com/organization {industry} {city}",
+   "site:crunchbase.com {q} funding"
+  ],
+  "extract_from_listing": false,
+  "priority": 70,
+  "enabled": true
+ },
+ {
+  "name": "tracxn",
+  "label": "Tracxn",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "startup",
+  "site_domain": "tracxn.com",
+  "query_templates": [
+   "site:tracxn.com {industry} {city} startups"
+  ],
+  "extract_from_listing": false,
+  "priority": 71,
+  "enabled": true
+ },
+ {
+  "name": "angellist",
+  "label": "AngelList / Wellfound",
+  "region": [
+   "global"
+  ],
+  "category": "startup",
+  "site_domain": "wellfound.com",
+  "query_templates": [
+   "site:wellfound.com {industry} {city} startups"
+  ],
+  "extract_from_listing": false,
+  "priority": 72,
+  "enabled": true
+ },
+ {
+  "name": "yourstory",
+  "label": "YourStory",
+  "region": [
+   "india"
+  ],
+  "category": "startup",
+  "site_domain": "yourstory.com",
+  "query_templates": [
+   "site:yourstory.com {industry} {city} startup"
+  ],
+  "extract_from_listing": false,
+  "priority": 73,
+  "enabled": true
+ },
+ {
+  "name": "inc42",
+  "label": "Inc42",
+  "region": [
+   "india"
+  ],
+  "category": "startup",
+  "site_domain": "inc42.com",
+  "query_templates": [
+   "site:inc42.com {industry} startups {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 74,
+  "enabled": true
+ },
+ {
+  "name": "linkedin_companies",
+  "label": "LinkedIn Companies",
+  "region": [
+   "global"
+  ],
+  "category": "social",
+  "site_domain": "linkedin.com/company",
+  "query_templates": [
+   "site:linkedin.com/company {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 80,
+  "enabled": true
+ },
+ {
+  "name": "facebook_pages",
+  "label": "Facebook Business Pages",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "social",
+  "site_domain": null,
+  "query_templates": [
+   "site:facebook.com {industry} {city} company"
+  ],
+  "extract_from_listing": false,
+  "priority": 81,
+  "enabled": true
+ },
+ {
+  "name": "indeed",
+  "label": "Indeed",
+  "region": [
+   "global",
+   "india",
+   "us"
+  ],
+  "category": "jobs",
+  "site_domain": null,
+  "query_templates": [
+   "site:indeed.com {industry} {city} company hiring"
+  ],
+  "extract_from_listing": false,
+  "priority": 90,
+  "enabled": true
+ },
+ {
+  "name": "glassdoor",
+  "label": "Glassdoor",
+  "region": [
+   "global",
+   "us"
+  ],
+  "category": "review",
+  "site_domain": "glassdoor.com",
+  "query_templates": [
+   "site:glassdoor.com {industry} companies {city} reviews"
+  ],
+  "extract_from_listing": false,
+  "priority": 91,
+  "enabled": true
+ },
+ {
+  "name": "europages",
+  "label": "Europages",
+  "region": [
+   "eu"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "europages.co.uk",
+  "query_templates": [
+   "site:europages.co.uk {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 100,
+  "enabled": true
+ },
+ {
+  "name": "kompass",
+  "label": "Kompass",
+  "region": [
+   "eu",
+   "global"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "kompass.com",
+  "query_templates": [
+   "site:kompass.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 101,
+  "enabled": true
+ },
+ {
+  "name": "generic_companies_list",
+  "label": "Company Lists",
+  "region": [
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": null,
+  "query_templates": [
+   "\"{industry}\" companies {city} list email contact",
+   "\"top {industry} companies\" {city} 2024 2025"
+  ],
+  "extract_from_listing": false,
+  "priority": 200,
+  "enabled": true
+ },
+ {
+  "name": "generic_association",
+  "label": "Industry Associations",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} association members {city} directory",
+   "{industry} chamber of commerce {city} members list"
+  ],
+  "extract_from_listing": false,
+  "priority": 201,
+  "enabled": true
+ },
+ {
+  "name": "generic_awards",
+  "label": "Award Winners",
+  "region": [
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": null,
+  "query_templates": [
+   "best {industry} companies {city} awards 2024 2025",
+   "\"fastest growing\" {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 202,
+  "enabled": true
+ },
+ {
+  "name": "capterra",
+  "label": "Capterra",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "capterra.com",
+  "query_templates": [
+   "site:capterra.com {industry} software"
+  ],
+  "extract_from_listing": true,
+  "priority": 110,
+  "enabled": true
+ },
+ {
+  "name": "getapp",
+  "label": "GetApp",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "getapp.com",
+  "query_templates": [
+   "site:getapp.com {industry} software"
+  ],
+  "extract_from_listing": true,
+  "priority": 111,
+  "enabled": true
+ },
+ {
+  "name": "producthunt",
+  "label": "Product Hunt",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "producthunt.com",
+  "query_templates": [
+   "site:producthunt.com/products {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 112,
+  "enabled": true
+ },
+ {
+  "name": "sourceforge",
+  "label": "SourceForge",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "sourceforge.net",
+  "query_templates": [
+   "site:sourceforge.net {industry} software"
+  ],
+  "extract_from_listing": false,
+  "priority": 113,
+  "enabled": true
+ },
+ {
+  "name": "alternativeto",
+  "label": "AlternativeTo",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "alternativeto.net",
+  "query_templates": [
+   "site:alternativeto.net {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 114,
+  "enabled": true
+ },
+ {
+  "name": "saashub",
+  "label": "SaaSHub",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "saashub.com",
+  "query_templates": [
+   "site:saashub.com {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 115,
+  "enabled": true
+ },
+ {
+  "name": "stackshare",
+  "label": "StackShare",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "stackshare.io",
+  "query_templates": [
+   "site:stackshare.io {industry} companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 116,
+  "enabled": true
+ },
+ {
+  "name": "appsumo",
+  "label": "AppSumo",
+  "region": [
+   "global"
+  ],
+  "category": "saas_directory",
+  "site_domain": "appsumo.com",
+  "query_templates": [
+   "site:appsumo.com {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 117,
+  "enabled": true
+ },
+ {
+  "name": "trustpilot",
+  "label": "Trustpilot",
+  "region": [
+   "global",
+   "us",
+   "eu"
+  ],
+  "category": "review",
+  "site_domain": "trustpilot.com",
+  "query_templates": [
+   "site:trustpilot.com/review {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 120,
+  "enabled": true
+ },
+ {
+  "name": "tripadvisor",
+  "label": "TripAdvisor",
+  "region": [
+   "global"
+  ],
+  "category": "review",
+  "site_domain": "tripadvisor.com",
+  "query_templates": [
+   "site:tripadvisor.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 121,
+  "enabled": false
+ },
+ {
+  "name": "google_reviews",
+  "label": "Google Reviews",
+  "region": [
+   "global"
+  ],
+  "category": "review",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} {city} \"google reviews\" company"
+  ],
+  "extract_from_listing": false,
+  "priority": 122,
+  "enabled": true
+ },
+ {
+  "name": "mouthshut",
+  "label": "MouthShut",
+  "region": [
+   "india"
+  ],
+  "category": "review",
+  "site_domain": "mouthshut.com",
+  "query_templates": [
+   "site:mouthshut.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 123,
+  "enabled": true
+ },
+ {
+  "name": "upwork",
+  "label": "Upwork",
+  "region": [
+   "global"
+  ],
+  "category": "freelance",
+  "site_domain": "upwork.com",
+  "query_templates": [
+   "site:upwork.com/agencies {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 130,
+  "enabled": true
+ },
+ {
+  "name": "fiverr",
+  "label": "Fiverr Business",
+  "region": [
+   "global"
+  ],
+  "category": "freelance",
+  "site_domain": "fiverr.com",
+  "query_templates": [
+   "site:fiverr.com {industry} agency {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 131,
+  "enabled": false
+ },
+ {
+  "name": "toptal",
+  "label": "Toptal",
+  "region": [
+   "global"
+  ],
+  "category": "freelance",
+  "site_domain": "toptal.com",
+  "query_templates": [
+   "site:toptal.com {industry} companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 132,
+  "enabled": false
+ },
+ {
+  "name": "freelancer",
+  "label": "Freelancer",
+  "region": [
+   "global"
+  ],
+  "category": "freelance",
+  "site_domain": "freelancer.com",
+  "query_templates": [
+   "site:freelancer.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 133,
+  "enabled": false
+ },
+ {
+  "name": "bark",
+  "label": "Bark",
+  "region": [
+   "global",
+   "us"
+  ],
+  "category": "freelance",
+  "site_domain": "bark.com",
+  "query_templates": [
+   "site:bark.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 134,
+  "enabled": true
+ },
+ {
+  "name": "github_orgs",
+  "label": "GitHub Organizations",
+  "region": [
+   "global"
+  ],
+  "category": "developer",
+  "site_domain": "github.com",
+  "query_templates": [
+   "site:github.com {industry} company organization {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 140,
+  "enabled": true
+ },
+ {
+  "name": "stackoverflow_jobs",
+  "label": "StackOverflow Companies",
+  "region": [
+   "global"
+  ],
+  "category": "developer",
+  "site_domain": "stackoverflow.com",
+  "query_templates": [
+   "site:stackoverflow.com/jobs/companies {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 141,
+  "enabled": true
+ },
+ {
+  "name": "hackernews",
+  "label": "Hacker News",
+  "region": [
+   "global"
+  ],
+  "category": "developer",
+  "site_domain": "news.ycombinator.com",
+  "query_templates": [
+   "site:news.ycombinator.com \"Show HN\" {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 142,
+  "enabled": true
+ },
+ {
+  "name": "devto",
+  "label": "Dev.to",
+  "region": [
+   "global"
+  ],
+  "category": "developer",
+  "site_domain": "dev.to",
+  "query_templates": [
+   "site:dev.to {industry} company {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 143,
+  "enabled": false
+ },
+ {
+  "name": "google_news",
+  "label": "Google News",
+  "region": [
+   "global"
+  ],
+  "category": "news",
+  "site_domain": null,
+  "query_templates": [
+   "\"{industry}\" company {city} site:news.google.com"
+  ],
+  "extract_from_listing": false,
+  "priority": 150,
+  "enabled": true
+ },
+ {
+  "name": "economic_times",
+  "label": "Economic Times",
+  "region": [
+   "india"
+  ],
+  "category": "news",
+  "site_domain": "economictimes.com",
+  "query_templates": [
+   "site:economictimes.indiatimes.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 151,
+  "enabled": true
+ },
+ {
+  "name": "business_standard",
+  "label": "Business Standard",
+  "region": [
+   "india"
+  ],
+  "category": "news",
+  "site_domain": "business-standard.com",
+  "query_templates": [
+   "site:business-standard.com {industry} {city} company"
+  ],
+  "extract_from_listing": false,
+  "priority": 152,
+  "enabled": true
+ },
+ {
+  "name": "livemint",
+  "label": "Livemint",
+  "region": [
+   "india"
+  ],
+  "category": "news",
+  "site_domain": "livemint.com",
+  "query_templates": [
+   "site:livemint.com {industry} {city} company startup"
+  ],
+  "extract_from_listing": false,
+  "priority": 153,
+  "enabled": true
+ },
+ {
+  "name": "techcrunch",
+  "label": "TechCrunch",
+  "region": [
+   "global"
+  ],
+  "category": "news",
+  "site_domain": "techcrunch.com",
+  "query_templates": [
+   "site:techcrunch.com {industry} {city} startup funding"
+  ],
+  "extract_from_listing": false,
+  "priority": 154,
+  "enabled": true
+ },
+ {
+  "name": "forbes",
+  "label": "Forbes",
+  "region": [
+   "global"
+  ],
+  "category": "news",
+  "site_domain": "forbes.com",
+  "query_templates": [
+   "site:forbes.com {industry} companies {city}",
+   "site:forbes.com top {industry} companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 155,
+  "enabled": true
+ },
+ {
+  "name": "yellowpages_in",
+  "label": "India Yellow Pages",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "yellowpages.in",
+  "query_templates": [
+   "site:yellowpages.in {industry} {city}",
+   "site:yellowpages.in {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 15,
+  "enabled": true
+ },
+ {
+  "name": "grotal",
+  "label": "Grotal",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "grotal.com",
+  "query_templates": [
+   "site:grotal.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 16,
+  "enabled": true
+ },
+ {
+  "name": "urbanpro",
+  "label": "UrbanPro",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "urbanpro.com",
+  "query_templates": [
+   "site:urbanpro.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 17,
+  "enabled": true
+ },
+ {
+  "name": "dial4trade",
+  "label": "Dial4Trade",
+  "region": [
+   "india"
+  ],
+  "category": "b2b_marketplace",
+  "site_domain": "dial4trade.com",
+  "query_templates": [
+   "site:dial4trade.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 18,
+  "enabled": true
+ },
+ {
+  "name": "fundoodata",
+  "label": "FundooData",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "fundoodata.com",
+  "query_templates": [
+   "site:fundoodata.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 19,
+  "enabled": true
+ },
+ {
+  "name": "startup_india",
+  "label": "Startup India",
+  "region": [
+   "india"
+  ],
+  "category": "startup",
+  "site_domain": "startupindia.gov.in",
+  "query_templates": [
+   "site:startupindia.gov.in {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 75,
+  "enabled": true
+ },
+ {
+  "name": "nasscom",
+  "label": "NASSCOM",
+  "region": [
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": "nasscom.in",
+  "query_templates": [
+   "site:nasscom.in {industry} member companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 42,
+  "enabled": true
+ },
+ {
+  "name": "shine",
+  "label": "Shine Jobs",
+  "region": [
+   "india"
+  ],
+  "category": "jobs",
+  "site_domain": "shine.com",
+  "query_templates": [
+   "site:shine.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 31,
+  "enabled": true
+ },
+ {
+  "name": "monsterindia",
+  "label": "Monster India",
+  "region": [
+   "india"
+  ],
+  "category": "jobs",
+  "site_domain": "monsterindia.com",
+  "query_templates": [
+   "site:monsterindia.com {industry} companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 32,
+  "enabled": true
+ },
+ {
+  "name": "manta",
+  "label": "Manta",
+  "region": [
+   "us"
+  ],
+  "category": "directory",
+  "site_domain": "manta.com",
+  "query_templates": [
+   "site:manta.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 64,
+  "enabled": true
+ },
+ {
+  "name": "dnb",
+  "label": "D&B (Dun & Bradstreet)",
+  "region": [
+   "global",
+   "us"
+  ],
+  "category": "directory",
+  "site_domain": "dnb.com",
+  "query_templates": [
+   "site:dnb.com {industry} company profile"
+  ],
+  "extract_from_listing": false,
+  "priority": 65,
+  "enabled": false
+ },
+ {
+  "name": "opencorporates",
+  "label": "OpenCorporates",
+  "region": [
+   "global",
+   "eu"
+  ],
+  "category": "government",
+  "site_domain": "opencorporates.com",
+  "query_templates": [
+   "site:opencorporates.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 102,
+  "enabled": true
+ },
+ {
+  "name": "companieshouse",
+  "label": "Companies House UK",
+  "region": [
+   "eu"
+  ],
+  "category": "government",
+  "site_domain": "companieshouse.gov.uk",
+  "query_templates": [
+   "site:find-and-update.company-information.service.gov.uk {industry}"
+  ],
+  "extract_from_listing": false,
+  "priority": 103,
+  "enabled": false
+ },
+ {
+  "name": "dealroom",
+  "label": "Dealroom",
+  "region": [
+   "global",
+   "eu"
+  ],
+  "category": "startup",
+  "site_domain": "dealroom.co",
+  "query_templates": [
+   "site:dealroom.co {industry} {city} companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 76,
+  "enabled": true
+ },
+ {
+  "name": "cbinsights",
+  "label": "CB Insights",
+  "region": [
+   "global"
+  ],
+  "category": "startup",
+  "site_domain": "cbinsights.com",
+  "query_templates": [
+   "site:cbinsights.com {industry} companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 77,
+  "enabled": true
+ },
+ {
+  "name": "foursquare",
+  "label": "Foursquare",
+  "region": [
+   "global",
+   "us"
+  ],
+  "category": "directory",
+  "site_domain": "foursquare.com",
+  "query_templates": [
+   "site:foursquare.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 66,
+  "enabled": false
+ },
+ {
+  "name": "hotfrog",
+  "label": "Hotfrog",
+  "region": [
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": "hotfrog.com",
+  "query_templates": [
+   "site:hotfrog.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 67,
+  "enabled": true
+ },
+ {
+  "name": "brownbook",
+  "label": "BrownBook",
+  "region": [
+   "global"
+  ],
+  "category": "directory",
+  "site_domain": "brownbook.net",
+  "query_templates": [
+   "site:brownbook.net {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 68,
+  "enabled": true
+ },
+ {
+  "name": "cylex",
+  "label": "Cylex",
+  "region": [
+   "global",
+   "eu"
+  ],
+  "category": "directory",
+  "site_domain": "cylex.us.com",
+  "query_templates": [
+   "site:cylex.us.com {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 69,
+  "enabled": true
+ },
+ {
+  "name": "twitter_companies",
+  "label": "Twitter/X Companies",
+  "region": [
+   "global"
+  ],
+  "category": "social",
+  "site_domain": null,
+  "query_templates": [
+   "site:twitter.com {industry} {city} company official"
+  ],
+  "extract_from_listing": false,
+  "priority": 82,
+  "enabled": true
+ },
+ {
+  "name": "instagram_business",
+  "label": "Instagram Business",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "social",
+  "site_domain": null,
+  "query_templates": [
+   "site:instagram.com {industry} {city} company"
+  ],
+  "extract_from_listing": false,
+  "priority": 83,
+  "enabled": true
+ },
+ {
+  "name": "reddit_companies",
+  "label": "Reddit Mentions",
+  "region": [
+   "global"
+  ],
+  "category": "social",
+  "site_domain": "reddit.com",
+  "query_templates": [
+   "site:reddit.com {industry} companies {city}",
+   "site:reddit.com {industry} {city} recommendations"
+  ],
+  "extract_from_listing": false,
+  "priority": 84,
+  "enabled": true
+ },
+ {
+  "name": "quora_companies",
+  "label": "Quora Mentions",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "social",
+  "site_domain": "quora.com",
+  "query_templates": [
+   "site:quora.com {industry} companies {city}",
+   "site:quora.com best {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 85,
+  "enabled": true
+ },
+ {
+  "name": "amazon_sellers",
+  "label": "Amazon Sellers",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "ecommerce",
+  "site_domain": null,
+  "query_templates": [
+   "site:amazon.in {industry} seller {city}",
+   "site:amazon.com {industry} seller brand"
+  ],
+  "extract_from_listing": false,
+  "priority": 160,
+  "enabled": true
+ },
+ {
+  "name": "flipkart_sellers",
+  "label": "Flipkart Sellers",
+  "region": [
+   "india"
+  ],
+  "category": "ecommerce",
+  "site_domain": "flipkart.com",
+  "query_templates": [
+   "site:flipkart.com {industry} seller {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 161,
+  "enabled": true
+ },
+ {
+  "name": "shopify_stores",
+  "label": "Shopify Stores",
+  "region": [
+   "global"
+  ],
+  "category": "ecommerce",
+  "site_domain": null,
+  "query_templates": [
+   "\"powered by shopify\" {industry} {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 162,
+  "enabled": true
+ },
+ {
+  "name": "generic_expo",
+  "label": "Trade Shows & Expos",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} expo exhibitors {city} 2024 2025 list"
+  ],
+  "extract_from_listing": false,
+  "priority": 203,
+  "enabled": true
+ },
+ {
+  "name": "generic_incubator",
+  "label": "Incubator/Accelerator",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "startup",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} startup incubator accelerator {city} portfolio companies"
+  ],
+  "extract_from_listing": false,
+  "priority": 204,
+  "enabled": true
+ },
+ {
+  "name": "generic_govt_tender",
+  "label": "Government Tenders",
+  "region": [
+   "india"
+  ],
+  "category": "government",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} government tender {city} vendor supplier list"
+  ],
+  "extract_from_listing": false,
+  "priority": 205,
+  "enabled": true
+ },
+ {
+  "name": "generic_iso_certified",
+  "label": "ISO Certified Companies",
+  "region": [
+   "global",
+   "india"
+  ],
+  "category": "directory",
+  "site_domain": null,
+  "query_templates": [
+   "\"{industry}\" \"ISO certified\" companies {city}"
+  ],
+  "extract_from_listing": false,
+  "priority": 206,
+  "enabled": true
+ },
+ {
+  "name": "generic_hiring_surge",
+  "label": "Hiring Surge Detection",
+  "region": [
+   "global"
+  ],
+  "category": "jobs",
+  "site_domain": null,
+  "query_templates": [
+   "{industry} {city} \"we are hiring\""
+  ],
+  "extract_from_listing": false,
+  "priority": 207,
+  "enabled": true
+ }
+]

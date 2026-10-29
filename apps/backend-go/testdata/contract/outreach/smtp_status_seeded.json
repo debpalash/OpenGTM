@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/smtp/status"
+  },
+  "response": {
+    "body": {
+      "configured": true,
+      "email": "sender@contract.example.com",
+      "from_name": "Contract Sender",
+      "host": "127.0.0.1",
+      "max_per_hour": 77
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,2046 @@
+{
+ "sources": [
+  {
+   "name": "arxiv_ok",
+   "source": "arxiv",
+   "query": "attention is all you need",
+   "limit": 5,
+   "env": {},
+   "responses": [
+    {
+     "path": "/arxiv",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<feed xmlns=\"http://www.w3.org/2005/Atom\">\n <entry>\n  <id>http://arxiv.org/abs/2101.00001v1</id>\n  <title>Attention  Is\n All You Need</title>\n  <summary>  We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks show these models to be superior in quality.  </summary>\n  <published>2021-01-02T10:00:00Z</published>\n  <author><name>Ashish Vaswani</name></author><author><name>Noam Shazeer</name></author><author><name>Niki Parmar</name></author><author><name>Jakob Uszkoreit</name></author>\n  <link href=\"http://arxiv.org/abs/2101.00001v1\" rel=\"alternate\" type=\"text/html\"/>\n  <link title=\"pdf\" href=\"http://arxiv.org/pdf/2101.00001v1\" rel=\"related\" type=\"application/pdf\"/>\n </entry>\n <entry>\n  <id>http://arxiv.org/abs/hep-th/9901001v2</id>\n  <title>Second paper</title>\n  <published>junk</published>\n  <author><name>Solo Author</name></author>\n </entry>\n <entry>\n  <summary>no title no id</summary>\n </entry>\n</feed>"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/arxiv",
+     "raw_path": "/arxiv",
+     "query": "search_query=all:attention+is+all+you+need&start=0&max_results=5&sortBy=relevance&sortOrder=descending",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "arxiv_2101.00001v1",
+     "title": "Attention  Is  All You Need",
+     "url": "http://arxiv.org/abs/2101.00001v1",
+     "source": "arxiv",
+     "download_url": "http://arxiv.org/pdf/2101.00001v1",
+     "thumbnail": null,
+     "author": "Ashish Vaswani, Noam Shazeer, Niki Parmar et al.",
+     "year": 2021,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely. Experiments on two machine translation tasks "
+    },
+    {
+     "id": "arxiv_9901001v2",
+     "title": "Second paper",
+     "url": "http://arxiv.org/abs/hep-th/9901001v2",
+     "source": "arxiv",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "Solo Author",
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": null
+    },
+    {
+     "id": "arxiv_",
+     "title": "Untitled",
+     "url": "",
+     "source": "arxiv",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "no title no id"
+    }
+   ]
+  },
+  {
+   "name": "arxiv_500",
+   "source": "arxiv",
+   "query": "x",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/arxiv",
+     "status": 500,
+     "ctype": "application/xml",
+     "body": "boom"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/arxiv",
+     "raw_path": "/arxiv",
+     "query": "search_query=all:x&start=0&max_results=3&sortBy=relevance&sortOrder=descending",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "arxiv_bad_xml",
+   "source": "arxiv",
+   "query": "x",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/arxiv",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<feed"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/arxiv",
+     "raw_path": "/arxiv",
+     "query": "search_query=all:x&start=0&max_results=3&sortBy=relevance&sortOrder=descending",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "crossref_ok",
+   "source": "crossref",
+   "query": "graph neural networks",
+   "limit": 10,
+   "env": {},
+   "responses": [
+    {
+     "path": "/crossref",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"message\": {\"items\": [{\"DOI\": \"10.1000/xyz123\", \"title\": [\"A study of things\"], \"URL\": \"http://dx.doi.org/10.1000/xyz123\", \"author\": [{\"given\": \"Ada\", \"family\": \"Lovelace\"}, {\"family\": \"Babbage\"}, {\"given\": \"NoFamily\"}, {\"given\": \"Grace\", \"family\": \"Hopper\"}], \"published-print\": {\"date-parts\": [[2019, 5]]}, \"abstract\": \"<jats:p>This is   the <b>abstract</b> text.</jats:p>\", \"link\": [{\"URL\": \"https://x.org/a.xml\", \"content-type\": \"text/xml\"}, {\"URL\": \"https://x.org/a.pdf\", \"content-type\": \"application/pdf\"}]}, {\"DOI\": \"10.1000/no-title\", \"title\": []}, {\"DOI\": \"10.5555/abc\", \"title\": [\"Online only\"], \"published-online\": {\"date-parts\": [[2020]]}}, {\"title\": [\"No DOI no URL\"], \"published-print\": {\"date-parts\": [[null]]}}, {\"DOI\": \"10.1/bad-year\", \"title\": [\"Bad year\"], \"published-print\": {\"date-parts\": [[\"x\"]]}}]}}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/crossref",
+     "raw_path": "/crossref",
+     "query": "query=graph+neural+networks&rows=10&select=DOI,title,author,URL,published-print,published-online,abstract,link",
+     "ua": "OpenGTM/3.0 (mailto:admin@yupcha.com)"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "crossref_10.1000_xyz123",
+     "title": "A study of things",
+     "url": "http://dx.doi.org/10.1000/xyz123",
+     "source": "crossref",
+     "download_url": "https://x.org/a.pdf",
+     "thumbnail": null,
+     "author": "Ada Lovelace, Babbage, Grace Hopper",
+     "year": 2019,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "This is   the abstract text...."
+    },
+    {
+     "id": "crossref_10.5555_abc",
+     "title": "Online only",
+     "url": "https://doi.org/10.5555/abc",
+     "source": "crossref",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": 2020,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": null
+    },
+    {
+     "id": "crossref_",
+     "title": "No DOI no URL",
+     "url": "https://doi.org/",
+     "source": "crossref",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": null
+    }
+   ]
+  },
+  {
+   "name": "crossref_404",
+   "source": "crossref",
+   "query": "q",
+   "limit": 10,
+   "env": {},
+   "responses": [
+    {
+     "path": "/crossref",
+     "status": 404,
+     "ctype": "application/json",
+     "body": "{}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/crossref",
+     "raw_path": "/crossref",
+     "query": "query=q&rows=10&select=DOI,title,author,URL,published-print,published-online,abstract,link",
+     "ua": "OpenGTM/3.0 (mailto:admin@yupcha.com)"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "doaj_ok",
+   "source": "doaj",
+   "query": "open access/?&",
+   "limit": 7,
+   "env": {},
+   "responses": [
+    {
+     "path": "/doaj",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"results\": [{\"id\": \"abc123\", \"bibjson\": {\"title\": \"Open access paper\", \"year\": \"2018\", \"abstract\": \"An abstract about open access that is somewhat long.\", \"journal\": {\"title\": \"Journal of Openness\"}, \"author\": [{\"name\": \"A One\"}, {\"name\": \"B Two\"}, {\"name\": \"C Three\"}, {\"name\": \"D Four\"}], \"link\": [{\"url\": \"https://doaj.example/landing\", \"type\": \"other\"}, {\"url\": \"https://doaj.example/full.pdf\", \"type\": \"Fulltext\"}]}}, {\"bibjson\": {\"title\": \"No id\", \"year\": \"notayear\", \"abstract\": \"short\", \"link\": []}}, {\"id\": \"n3\", \"bibjson\": {\"journal\": {\"title\": \"J\"}}}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/doaj/open access/?&",
+     "raw_path": "/doaj/open%20access/%3F&",
+     "query": "pageSize=7",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "doaj_abc123",
+     "title": "Open access paper",
+     "url": "https://doaj.example/landing",
+     "source": "doaj",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "A One, B Two, C Three et al.",
+     "year": 2018,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Journal of Openness: An abstract about open access that is somewhat long."
+    },
+    {
+     "id": "doaj_1",
+     "title": "No id",
+     "url": "",
+     "source": "doaj",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "short"
+    },
+    {
+     "id": "doaj_n3",
+     "title": "Untitled",
+     "url": "",
+     "source": "doaj",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "J: "
+    }
+   ]
+  },
+  {
+   "name": "doaj_500",
+   "source": "doaj",
+   "query": "q",
+   "limit": 7,
+   "env": {},
+   "responses": [
+    {
+     "path": "/doaj",
+     "status": 500,
+     "ctype": "application/json",
+     "body": "{}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/doaj/q",
+     "raw_path": "/doaj/q",
+     "query": "pageSize=7",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "gutenberg_ok",
+   "source": "gutenberg",
+   "query": "pride & prejudice",
+   "limit": 20,
+   "env": {},
+   "responses": [
+    {
+     "path": "/gutenberg",
+     "status": 200,
+     "ctype": "text/html; charset=utf-8",
+     "body": "<html><body><ul class=\"results\">\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/1342\"><span class=\"cell content\"><span class=\"title\">Pride and Prejudice</span><span class=\"subtitle\">Austen, Jane</span></span></a></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/84/\"><span class=\"title\"> Frankenstein;\n Or, The Modern Prometheus </span></a></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/\"><span class=\"title\">Empty id</span></a></li>\n<li class=\"booklink\"><span class=\"title\">No link</span></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/5\"></a></li>\n<li class=\"other\"><span class=\"title\">Not a booklink</span></li>\n<li class=\"booklink x\"><a class=\"link\" href=\"https://elsewhere.example/ebooks/77\"><span class=\"title\">Absolute</span></a></li>\n</ul></body></html>"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/gutenberg/ebooks/search/",
+     "raw_path": "/gutenberg/ebooks/search/",
+     "query": "query=pride%20%26%20prejudice",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "gutenberg_1342",
+     "title": "Pride and Prejudice",
+     "url": "{{BASE}}/gutenberg/ebooks/1342",
+     "source": "gutenberg",
+     "download_url": "https://www.gutenberg.org/files/1342/1342-pdf.pdf",
+     "thumbnail": null,
+     "author": "Austen, Jane",
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    },
+    {
+     "id": "gutenberg_84",
+     "title": "Frankenstein;\n Or, The Modern Prometheus",
+     "url": "{{BASE}}/gutenberg/ebooks/84/",
+     "source": "gutenberg",
+     "download_url": "https://www.gutenberg.org/files/84/84-pdf.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    },
+    {
+     "id": "gutenberg_2",
+     "title": "Empty id",
+     "url": "{{BASE}}/gutenberg/ebooks/",
+     "source": "gutenberg",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    },
+    {
+     "id": "gutenberg_77",
+     "title": "Absolute",
+     "url": "https://elsewhere.example/ebooks/77",
+     "source": "gutenberg",
+     "download_url": "https://www.gutenberg.org/files/77/77-pdf.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    }
+   ]
+  },
+  {
+   "name": "gutenberg_limit2",
+   "source": "gutenberg",
+   "query": "x",
+   "limit": 2,
+   "env": {},
+   "responses": [
+    {
+     "path": "/gutenberg",
+     "status": 200,
+     "ctype": "text/html; charset=utf-8",
+     "body": "<html><body><ul class=\"results\">\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/1342\"><span class=\"cell content\"><span class=\"title\">Pride and Prejudice</span><span class=\"subtitle\">Austen, Jane</span></span></a></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/84/\"><span class=\"title\"> Frankenstein;\n Or, The Modern Prometheus </span></a></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/\"><span class=\"title\">Empty id</span></a></li>\n<li class=\"booklink\"><span class=\"title\">No link</span></li>\n<li class=\"booklink\"><a class=\"link\" href=\"/ebooks/5\"></a></li>\n<li class=\"other\"><span class=\"title\">Not a booklink</span></li>\n<li class=\"booklink x\"><a class=\"link\" href=\"https://elsewhere.example/ebooks/77\"><span class=\"title\">Absolute</span></a></li>\n</ul></body></html>"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/gutenberg/ebooks/search/",
+     "raw_path": "/gutenberg/ebooks/search/",
+     "query": "query=x",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "gutenberg_1342",
+     "title": "Pride and Prejudice",
+     "url": "{{BASE}}/gutenberg/ebooks/1342",
+     "source": "gutenberg",
+     "download_url": "https://www.gutenberg.org/files/1342/1342-pdf.pdf",
+     "thumbnail": null,
+     "author": "Austen, Jane",
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    },
+    {
+     "id": "gutenberg_84",
+     "title": "Frankenstein;\n Or, The Modern Prometheus",
+     "url": "{{BASE}}/gutenberg/ebooks/84/",
+     "source": "gutenberg",
+     "download_url": "https://www.gutenberg.org/files/84/84-pdf.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Public domain classic"
+    }
+   ]
+  },
+  {
+   "name": "gutenberg_503",
+   "source": "gutenberg",
+   "query": "x",
+   "limit": 2,
+   "env": {},
+   "responses": [
+    {
+     "path": "/gutenberg",
+     "status": 503,
+     "ctype": "text/html; charset=utf-8",
+     "body": "no"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/gutenberg/ebooks/search/",
+     "raw_path": "/gutenberg/ebooks/search/",
+     "query": "query=x",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "openlibrary_ok",
+   "source": "openlibrary",
+   "query": "dune",
+   "limit": 6,
+   "env": {},
+   "responses": [
+    {
+     "path": "/openlibrary",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"docs\": [{\"key\": \"/works/OL1W\", \"title\": \"Dune\", \"author_name\": [\"Frank Herbert\"], \"first_publish_year\": 1965, \"ebook_access\": \"borrowable\", \"isbn\": [\"0441172717\", \"x\"]}, {\"key\": \"/works/OL2W\", \"title\": \"Public\", \"author_name\": [\"A\", \"B\", \"C\", \"D\"], \"first_publish_year\": 1900, \"ebook_access\": \"public\"}, {\"key\": \"/works/OL3W\", \"ebook_access\": \"no_ebook\", \"isbn\": [\"123\"]}, {\"title\": \"No key\"}, {\"key\": \"/works/OL5W\", \"title\": \"Bad year\", \"first_publish_year\": \"1999\"}, {\"key\": \"/works/OL6W\", \"title\": \"Float year\", \"first_publish_year\": 1999.5}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/openlibrary",
+     "raw_path": "/openlibrary",
+     "query": "q=dune&limit=6&fields=key,title,author_name,first_publish_year,isbn,ebook_access,cover_i",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "openlibrary__works_OL1W",
+     "title": "Dune",
+     "url": "https://openlibrary.org/works/OL1W",
+     "source": "openlibrary",
+     "download_url": "https://archive.org/download/0441172717/0441172717.pdf",
+     "thumbnail": null,
+     "author": "Frank Herbert",
+     "year": 1965,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "eBook access: borrowable"
+    },
+    {
+     "id": "openlibrary__works_OL2W",
+     "title": "Public",
+     "url": "https://openlibrary.org/works/OL2W",
+     "source": "openlibrary",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "A, B, C et al.",
+     "year": 1900,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "eBook access: public"
+    },
+    {
+     "id": "openlibrary__works_OL3W",
+     "title": "Untitled",
+     "url": "https://openlibrary.org/works/OL3W",
+     "source": "openlibrary",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "eBook access: no_ebook"
+    },
+    {
+     "id": "openlibrary_",
+     "title": "No key",
+     "url": "",
+     "source": "openlibrary",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "eBook access: no_ebook"
+    },
+    {
+     "id": "openlibrary__works_OL5W",
+     "title": "Bad year",
+     "url": "https://openlibrary.org/works/OL5W",
+     "source": "openlibrary",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": 1999,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "eBook access: no_ebook"
+    }
+   ]
+  },
+  {
+   "name": "pubmed_ok",
+   "source": "pubmed",
+   "query": "gene editing",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/pubmed/esearch",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<?xml version=\"1.0\"?><eSearchResult><Count>3</Count><IdList><Id>111</Id><Id>222</Id><Id>333</Id></IdList></eSearchResult>"
+    },
+    {
+     "path": "/pubmed/esummary",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<?xml version=\"1.0\"?><eSummaryResult>\n<DocSum><Id>111</Id><Item Name=\"PubDate\" Type=\"Date\">2020 Jan 15</Item><Item Name=\"Title\" Type=\"String\">Gene editing review</Item>\n<Item Name=\"AuthorList\" Type=\"List\"><Item Name=\"Author\" Type=\"String\">Smith J</Item><Item Name=\"Author\" Type=\"String\">Jones K</Item><Item Name=\"Author\" Type=\"String\">Lee L</Item><Item Name=\"Author\" Type=\"String\">Extra E</Item></Item></DocSum>\n<DocSum><Id>222</Id><Item Name=\"Title\" Type=\"String\">No date or authors</Item></DocSum>\n<DocSum><Id>333</Id><Item Name=\"PubDate\" Type=\"Date\">Spring 2021</Item></DocSum>\n<DocSum><Id>444</Id><Item Name=\"Title\" Type=\"String\">Bad date</Item><Item Name=\"PubDate\" Type=\"Date\">Winter</Item></DocSum>\n</eSummaryResult>"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/pubmed/esearch",
+     "raw_path": "/pubmed/esearch",
+     "query": "db=pmc&term=gene+editing&retmax=3&retmode=xml",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    },
+    {
+     "method": "GET",
+     "path": "/pubmed/esummary",
+     "raw_path": "/pubmed/esummary",
+     "query": "db=pmc&id=111,222,333&retmode=xml",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "pubmed_111",
+     "title": "Gene editing review",
+     "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC111/",
+     "source": "pubmed",
+     "download_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC111/pdf/",
+     "thumbnail": null,
+     "author": "Smith J, Jones K, Lee L",
+     "year": 2020,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "PubMed Central free full-text"
+    },
+    {
+     "id": "pubmed_222",
+     "title": "No date or authors",
+     "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC222/",
+     "source": "pubmed",
+     "download_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC222/pdf/",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "PubMed Central free full-text"
+    },
+    {
+     "id": "pubmed_444",
+     "title": "Bad date",
+     "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC444/",
+     "source": "pubmed",
+     "download_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC444/pdf/",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "PubMed Central free full-text"
+    }
+   ]
+  },
+  {
+   "name": "pubmed_empty",
+   "source": "pubmed",
+   "query": "zzz",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/pubmed/esearch",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<eSearchResult><IdList></IdList></eSearchResult>"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/pubmed/esearch",
+     "raw_path": "/pubmed/esearch",
+     "query": "db=pmc&term=zzz&retmax=3&retmode=xml",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "pubmed_summary_fail",
+   "source": "pubmed",
+   "query": "q",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/pubmed/esearch",
+     "status": 200,
+     "ctype": "application/xml",
+     "body": "<?xml version=\"1.0\"?><eSearchResult><Count>3</Count><IdList><Id>111</Id><Id>222</Id><Id>333</Id></IdList></eSearchResult>"
+    },
+    {
+     "path": "/pubmed/esummary",
+     "status": 500,
+     "ctype": "application/xml",
+     "body": "x"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/pubmed/esearch",
+     "raw_path": "/pubmed/esearch",
+     "query": "db=pmc&term=q&retmax=3&retmode=xml",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    },
+    {
+     "method": "GET",
+     "path": "/pubmed/esummary",
+     "raw_path": "/pubmed/esummary",
+     "query": "db=pmc&id=111,222,333&retmode=xml",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "s2_ok",
+   "source": "semantic_scholar",
+   "query": "deep learning",
+   "limit": 4,
+   "env": {},
+   "responses": [
+    {
+     "path": "/s2",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"data\": [{\"paperId\": \"p1\", \"title\": \"Deep learning\", \"url\": \"https://s2.example/p1\", \"abstract\": \"A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract \", \"year\": 2015, \"citationCount\": 1234, \"openAccessPdf\": {\"url\": \"https://s2.example/p1.pdf\"}, \"authors\": [{\"name\": \"Y LeCun\"}, {\"name\": \"Y Bengio\"}, {\"name\": \"G Hinton\"}, {\"name\": \"X Extra\"}]}, {\"paperId\": \"p2\", \"title\": \"No abstract\", \"url\": \"https://s2.example/p2\", \"abstract\": null, \"year\": null, \"citationCount\": 0, \"openAccessPdf\": null, \"authors\": []}, {\"paperId\": \"p3\", \"title\": \"Cited only\", \"url\": \"https://s2.example/p3\", \"abstract\": null, \"year\": 2020, \"citationCount\": 5, \"openAccessPdf\": {\"url\": null}, \"authors\": [{\"name\": \"Solo\"}]}, {\"paperId\": \"p4\", \"title\": \"Null cites\", \"url\": \"u\", \"citationCount\": null}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=deep+learning&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "s2_p1",
+     "title": "Deep learning",
+     "url": "https://s2.example/p1",
+     "source": "semantic_scholar",
+     "download_url": "https://s2.example/p1.pdf",
+     "thumbnail": null,
+     "author": "Y LeCun, Y Bengio, G Hinton et al.",
+     "year": 2015,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "[1234 citations] A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long a..."
+    },
+    {
+     "id": "s2_p2",
+     "title": "No abstract",
+     "url": "https://s2.example/p2",
+     "source": "semantic_scholar",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": null
+    },
+    {
+     "id": "s2_p3",
+     "title": "Cited only",
+     "url": "https://s2.example/p3",
+     "source": "semantic_scholar",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "Solo",
+     "year": 2020,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": "[5 citations] "
+    }
+   ]
+  },
+  {
+   "name": "s2_retry_then_ok",
+   "source": "semantic_scholar",
+   "query": "rl",
+   "limit": 4,
+   "env": {},
+   "responses": [
+    {
+     "path": "/s2",
+     "status": 429,
+     "ctype": "application/json",
+     "body": "{}",
+     "headers": {
+      "Retry-After": "0"
+     }
+    },
+    {
+     "path": "/s2",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"data\": [{\"paperId\": \"p1\", \"title\": \"Deep learning\", \"url\": \"https://s2.example/p1\", \"abstract\": \"A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract \", \"year\": 2015, \"citationCount\": 1234, \"openAccessPdf\": {\"url\": \"https://s2.example/p1.pdf\"}, \"authors\": [{\"name\": \"Y LeCun\"}, {\"name\": \"Y Bengio\"}, {\"name\": \"G Hinton\"}, {\"name\": \"X Extra\"}]}, {\"paperId\": \"p2\", \"title\": \"No abstract\", \"url\": \"https://s2.example/p2\", \"abstract\": null, \"year\": null, \"citationCount\": 0, \"openAccessPdf\": null, \"authors\": []}, {\"paperId\": \"p3\", \"title\": \"Cited only\", \"url\": \"https://s2.example/p3\", \"abstract\": null, \"year\": 2020, \"citationCount\": 5, \"openAccessPdf\": {\"url\": null}, \"authors\": [{\"name\": \"Solo\"}]}, {\"paperId\": \"p4\", \"title\": \"Null cites\", \"url\": \"u\", \"citationCount\": null}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    },
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "s2_p1",
+     "title": "Deep learning",
+     "url": "https://s2.example/p1",
+     "source": "semantic_scholar",
+     "download_url": "https://s2.example/p1.pdf",
+     "thumbnail": null,
+     "author": "Y LeCun, Y Bengio, G Hinton et al.",
+     "year": 2015,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "[1234 citations] A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long abstract A long a..."
+    },
+    {
+     "id": "s2_p2",
+     "title": "No abstract",
+     "url": "https://s2.example/p2",
+     "source": "semantic_scholar",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": null
+    },
+    {
+     "id": "s2_p3",
+     "title": "Cited only",
+     "url": "https://s2.example/p3",
+     "source": "semantic_scholar",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "Solo",
+     "year": 2020,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": "[5 citations] "
+    }
+   ]
+  },
+  {
+   "name": "s2_429_exhausted",
+   "source": "semantic_scholar",
+   "query": "rl",
+   "limit": 4,
+   "env": {},
+   "responses": [
+    {
+     "path": "/s2",
+     "status": 429,
+     "ctype": "application/json",
+     "body": "{}",
+     "headers": {
+      "Retry-After": "0"
+     }
+    },
+    {
+     "path": "/s2",
+     "status": 429,
+     "ctype": "application/json",
+     "body": "{}",
+     "headers": {
+      "Retry-After": "0"
+     }
+    },
+    {
+     "path": "/s2",
+     "status": 429,
+     "ctype": "application/json",
+     "body": "{}",
+     "headers": {
+      "Retry-After": "0"
+     }
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    },
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    },
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "s2_500",
+   "source": "semantic_scholar",
+   "query": "rl",
+   "limit": 4,
+   "env": {},
+   "responses": [
+    {
+     "path": "/s2",
+     "status": 500,
+     "ctype": "application/json",
+     "body": "{}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/s2",
+     "raw_path": "/s2",
+     "query": "query=rl&limit=4&fields=title,url,authors,year,abstract,openAccessPdf,venue,citationCount",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "google_ok",
+   "source": "google",
+   "query": "sales playbook",
+   "limit": 25,
+   "env": {
+    "api_key": "K-key",
+    "cse": "C-cx"
+   },
+   "responses": [
+    {
+     "path": "/google",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"items\": [{\"title\": \"A PDF about sales\", \"link\": \"https://files.example/sales.pdf\", \"snippet\": \"Sales snippet\", \"fileFormat\": \"PDF/Adobe Acrobat\"}, {\"title\": \"\\u00dcn\\u00efcode title that is longer than thirty characters for sure\", \"link\": \"https://files.example/u.pdf\"}, {\"link\": \"https://files.example/untitled.pdf\", \"snippet\": \"no title\"}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/google",
+     "raw_path": "/google",
+     "query": "key=K-key&cx=C-cx&q=sales+playbook+filetype:pdf&num=10",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "google_0_A%20PDF%20about%20sales",
+     "title": "A PDF about sales",
+     "url": "https://files.example/sales.pdf",
+     "source": "google",
+     "download_url": "https://files.example/sales.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Sales snippet"
+    },
+    {
+     "id": "google_1_%C3%9Cn%C3%AFcode%20title%20that%20is%20longer%20t",
+     "title": "Ünïcode title that is longer than thirty characters for sure",
+     "url": "https://files.example/u.pdf",
+     "source": "google",
+     "download_url": "https://files.example/u.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": ""
+    },
+    {
+     "id": "google_2_Untitled",
+     "title": "Untitled",
+     "url": "https://files.example/untitled.pdf",
+     "source": "google",
+     "download_url": "https://files.example/untitled.pdf",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "no title"
+    }
+   ]
+  },
+  {
+   "name": "google_unconfigured",
+   "source": "google",
+   "query": "sales playbook",
+   "limit": 25,
+   "env": {
+    "api_key": null,
+    "cse": null
+   },
+   "responses": [],
+   "requests": [],
+   "available": false,
+   "results": []
+  },
+  {
+   "name": "archive_ok",
+   "source": "archive",
+   "query": "old books",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/archive",
+     "status": 200,
+     "ctype": "text/javascript",
+     "body": "{\"response\": {\"numFound\": 4, \"docs\": [{\"identifier\": \"bk/1 x\", \"title\": [\"Part One\", \"Part Two\"], \"creator\": [\"A\", \"B\", \"C\", \"D\"], \"year\": \"1999\", \"mediatype\": \"texts\", \"format\": [\"Text PDF\", \"EPUB\"], \"description\": [\"First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph \", \"second\"]}, {\"identifier\": \"vid1\", \"title\": \"A film\", \"creator\": \"  Dir  \", \"date\": \"2001-02-03T00:00:00Z\", \"mediatype\": \"movies\", \"format\": [\"MPEG4\"], \"description\": \"  short  \"}, {\"identifier\": \"t2\", \"mediatype\": \"texts\", \"year\": \"0000\", \"date\": \"x 1850 y\", \"format\": \"Plain Text\"}, {\"title\": \"no identifier\"}]}}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/archive",
+     "raw_path": "/archive",
+     "query": "q=old+books&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator&fl%5B%5D=year&fl%5B%5D=date&fl%5B%5D=mediatype&fl%5B%5D=format&fl%5B%5D=downloads&fl%5B%5D=description&rows=3&page=1&output=json",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "archive_bk/1 x",
+     "title": "Part One, Part Two",
+     "url": "https://archive.org/details/bk%2F1%20x",
+     "source": "archive",
+     "download_url": "https://archive.org/download/bk%2F1%20x",
+     "thumbnail": "https://archive.org/services/img/bk%2F1%20x",
+     "author": "A, B, C et al.",
+     "year": 1999,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First paragraph First par..."
+    },
+    {
+     "id": "archive_vid1",
+     "title": "A film",
+     "url": "https://archive.org/details/vid1",
+     "source": "archive",
+     "download_url": "https://archive.org/download/vid1",
+     "thumbnail": "https://archive.org/services/img/vid1",
+     "author": "Dir",
+     "year": 2001,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": "short"
+    },
+    {
+     "id": "archive_t2",
+     "title": "t2",
+     "url": "https://archive.org/details/t2",
+     "source": "archive",
+     "download_url": "https://archive.org/download/t2",
+     "thumbnail": "https://archive.org/services/img/t2",
+     "author": null,
+     "year": 1850,
+     "file_type": "txt",
+     "file_size": null,
+     "snippet": null
+    }
+   ]
+  },
+  {
+   "name": "archive_blank_query",
+   "source": "archive",
+   "query": "   ",
+   "limit": 3,
+   "env": {},
+   "responses": [],
+   "requests": [],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "archive_500",
+   "source": "archive",
+   "query": "q",
+   "limit": 3,
+   "env": {},
+   "responses": [
+    {
+     "path": "/archive",
+     "status": 500,
+     "ctype": "application/json",
+     "body": "{}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/archive",
+     "raw_path": "/archive",
+     "query": "q=q&fl%5B%5D=identifier&fl%5B%5D=title&fl%5B%5D=creator&fl%5B%5D=year&fl%5B%5D=date&fl%5B%5D=mediatype&fl%5B%5D=format&fl%5B%5D=downloads&fl%5B%5D=description&rows=3&page=1&output=json",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "gbooks_ok",
+   "source": "google_books",
+   "query": "python programming",
+   "limit": 100,
+   "env": {
+    "books_key": "BK"
+   },
+   "responses": [
+    {
+     "path": "/gbooks",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"items\": [{\"id\": \"vol1\", \"volumeInfo\": {\"title\": \"Book\", \"subtitle\": \"A Subtitle\", \"infoLink\": \"https://books.google.com/info1\", \"authors\": [\"A\", \"B\", \"C\", \"D\"], \"publishedDate\": \"2007-05-21\", \"imageLinks\": {\"smallThumbnail\": \"https://img/s.jpg\", \"thumbnail\": \"https://img/t.jpg\"}, \"description\": \"Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc Desc \"}, \"accessInfo\": {\"pdf\": {\"isAvailable\": true, \"downloadLink\": \"https://dl/pdf\"}, \"epub\": {\"isAvailable\": true, \"downloadLink\": \"https://dl/epub\"}}, \"searchInfo\": {\"textSnippet\": \"snippet <b>text</b>\"}}, {\"id\": \"vol2\", \"volumeInfo\": {\"title\": \"Epub only\", \"publishedDate\": \"c.1999\"}, \"selfLink\": \"https://api/vol2\", \"accessInfo\": {\"epub\": {\"isAvailable\": true, \"downloadLink\": \"https://dl/e2\"}}}, {\"id\": \"vol 3\", \"volumeInfo\": {}, \"accessInfo\": {\"pdf\": {\"isAvailable\": true}}}, {\"volumeInfo\": {\"title\": \"no id\"}}]}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/gbooks",
+     "raw_path": "/gbooks",
+     "query": "q=python+programming&maxResults=40&printType=books&key=BK",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": [
+    {
+     "id": "google_books_vol1",
+     "title": "Book: A Subtitle",
+     "url": "https://books.google.com/info1",
+     "source": "google_books",
+     "download_url": "https://dl/pdf",
+     "thumbnail": "https://img/t.jpg",
+     "author": "A, B, C et al.",
+     "year": 2007,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "snippet <b>text</b>"
+    },
+    {
+     "id": "google_books_vol2",
+     "title": "Epub only",
+     "url": "https://api/vol2",
+     "source": "google_books",
+     "download_url": "https://dl/e2",
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "epub",
+     "file_size": null,
+     "snippet": null
+    },
+    {
+     "id": "google_books_vol 3",
+     "title": "Untitled",
+     "url": "https://books.google.com/books?id=vol%203",
+     "source": "google_books",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": null
+    }
+   ]
+  },
+  {
+   "name": "gbooks_nokey",
+   "source": "google_books",
+   "query": "python",
+   "limit": 0,
+   "env": {
+    "books_key": null
+   },
+   "responses": [
+    {
+     "path": "/gbooks",
+     "status": 200,
+     "ctype": "application/json",
+     "body": "{\"items\": null}"
+    }
+   ],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/gbooks",
+     "raw_path": "/gbooks",
+     "query": "q=python&maxResults=1&printType=books",
+     "ua": "Python/3.13 aiohttp/3.14.5"
+    }
+   ],
+   "available": true,
+   "results": []
+  },
+  {
+   "name": "slideshare",
+   "source": "slideshare",
+   "query": "q",
+   "limit": 3,
+   "env": {},
+   "responses": [],
+   "requests": [],
+   "available": false,
+   "results": []
+  }
+ ],
+ "unified": {
+  "fakes": {
+   "fa": [
+    {
+     "id": "a1",
+     "title": "Deep Learning",
+     "url": "http://x/a1",
+     "source": "fa",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "LeCun Yann Bengio",
+     "year": 2015,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Deep Learning snip"
+    },
+    {
+     "id": "a2",
+     "title": "Zebra Crossing",
+     "url": "http://x/a2",
+     "source": "fa",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "epub",
+     "file_size": null,
+     "snippet": "Zebra Crossing snip"
+    },
+    {
+     "id": "a3",
+     "title": "alpha",
+     "url": "http://x/a3",
+     "source": "fa",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "Z",
+     "year": 2001,
+     "file_type": "other",
+     "file_size": null,
+     "snippet": "alpha snip"
+    }
+   ],
+   "fb": [
+    {
+     "id": "b1",
+     "title": "deep  learning!",
+     "url": "http://x/b1",
+     "source": "fb",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "lecun yann bengio extra",
+     "year": 2016,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "deep  learning! snip"
+    },
+    {
+     "id": "b2",
+     "title": "Beta",
+     "url": "http://x/b2",
+     "source": "fb",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "B",
+     "year": 2020,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Beta snip"
+    },
+    {
+     "id": "b3",
+     "title": "Alpha",
+     "url": "http://x/b3",
+     "source": "fb",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "z",
+     "year": 1999,
+     "file_type": "epub",
+     "file_size": null,
+     "snippet": "Alpha snip"
+    }
+   ],
+   "fc": [
+    {
+     "id": "c1",
+     "title": "Gamma",
+     "url": "http://x/c1",
+     "source": "fc",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": 2020,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Gamma snip"
+    },
+    {
+     "id": "c2",
+     "title": "",
+     "url": "http://x/c2",
+     "source": "fc",
+     "download_url": null,
+     "thumbnail": null,
+     "author": null,
+     "year": null,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": " snip"
+    },
+    {
+     "id": "c3",
+     "title": "Gamma",
+     "url": "http://x/c3",
+     "source": "fc",
+     "download_url": null,
+     "thumbnail": null,
+     "author": "Auth",
+     "year": 2020,
+     "file_type": "pdf",
+     "file_size": null,
+     "snippet": "Gamma snip"
+    }
+   ]
+  },
+  "cases": [
+   {
+    "name": "default",
+    "args": {
+     "query": "q"
+    },
+    "total": 7,
+    "results": [
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     },
+     {
+      "id": "a3",
+      "title": "alpha",
+      "url": "http://x/a3",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Z",
+      "year": 2001,
+      "file_type": "other",
+      "file_size": null,
+      "snippet": "alpha snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     }
+    ]
+   },
+   {
+    "name": "only_b_c",
+    "args": {
+     "query": "q",
+     "sources": [
+      "fc",
+      "fb"
+     ]
+    },
+    "total": 6,
+    "results": [
+     {
+      "id": "b1",
+      "title": "deep  learning!",
+      "url": "http://x/b1",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "lecun yann bengio extra",
+      "year": 2016,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "deep  learning! snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "b3",
+      "title": "Alpha",
+      "url": "http://x/b3",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "z",
+      "year": 1999,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Alpha snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     }
+    ]
+   },
+   {
+    "name": "unknown_source",
+    "args": {
+     "query": "q",
+     "sources": [
+      "nope"
+     ]
+    },
+    "total": 0,
+    "results": []
+   },
+   {
+    "name": "sort_date",
+    "args": {
+     "query": "q",
+     "sort_by": "date"
+    },
+    "total": 7,
+    "results": [
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "a3",
+      "title": "alpha",
+      "url": "http://x/a3",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Z",
+      "year": 2001,
+      "file_type": "other",
+      "file_size": null,
+      "snippet": "alpha snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     }
+    ]
+   },
+   {
+    "name": "sort_title",
+    "args": {
+     "query": "q",
+     "sort_by": "title"
+    },
+    "total": 7,
+    "results": [
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     },
+     {
+      "id": "a3",
+      "title": "alpha",
+      "url": "http://x/a3",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Z",
+      "year": 2001,
+      "file_type": "other",
+      "file_size": null,
+      "snippet": "alpha snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     }
+    ]
+   },
+   {
+    "name": "sort_relevance",
+    "args": {
+     "query": "q",
+     "sort_by": "relevance"
+    },
+    "total": 7,
+    "results": [
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     },
+     {
+      "id": "a3",
+      "title": "alpha",
+      "url": "http://x/a3",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Z",
+      "year": 2001,
+      "file_type": "other",
+      "file_size": null,
+      "snippet": "alpha snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     }
+    ]
+   },
+   {
+    "name": "limit_2",
+    "args": {
+     "query": "q",
+     "limit_per_source": 2
+    },
+    "total": 5,
+    "results": [
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     }
+    ]
+   },
+   {
+    "name": "sort_other",
+    "args": {
+     "query": "q",
+     "sort_by": "whatever"
+    },
+    "total": 7,
+    "results": [
+     {
+      "id": "a1",
+      "title": "Deep Learning",
+      "url": "http://x/a1",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "LeCun Yann Bengio",
+      "year": 2015,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Deep Learning snip"
+     },
+     {
+      "id": "a2",
+      "title": "Zebra Crossing",
+      "url": "http://x/a2",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "epub",
+      "file_size": null,
+      "snippet": "Zebra Crossing snip"
+     },
+     {
+      "id": "a3",
+      "title": "alpha",
+      "url": "http://x/a3",
+      "source": "fa",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Z",
+      "year": 2001,
+      "file_type": "other",
+      "file_size": null,
+      "snippet": "alpha snip"
+     },
+     {
+      "id": "b2",
+      "title": "Beta",
+      "url": "http://x/b2",
+      "source": "fb",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "B",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Beta snip"
+     },
+     {
+      "id": "c1",
+      "title": "Gamma",
+      "url": "http://x/c1",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     },
+     {
+      "id": "c2",
+      "title": "",
+      "url": "http://x/c2",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": null,
+      "year": null,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": " snip"
+     },
+     {
+      "id": "c3",
+      "title": "Gamma",
+      "url": "http://x/c3",
+      "source": "fc",
+      "download_url": null,
+      "thumbnail": null,
+      "author": "Auth",
+      "year": 2020,
+      "file_type": "pdf",
+      "file_size": null,
+      "snippet": "Gamma snip"
+     }
+    ]
+   },
+   {
+    "name": "file_type_python_crash",
+    "args": {
+     "query": "q",
+     "file_type": "pdf"
+    },
+    "python_error": "AttributeError"
+   }
+  ]
+ }
+}

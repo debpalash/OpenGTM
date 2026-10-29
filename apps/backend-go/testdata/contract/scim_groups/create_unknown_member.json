@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "displayName": "Ghosts",
+      "members": [
+        {
+          "value": "99999"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Groups"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM user 99999 not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

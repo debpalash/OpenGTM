@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "condition": "is_empty({a}, {b})",
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid condition: is_empty() takes exactly one operand"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,46 @@
+{
+ "provider": "prospeo",
+ "input_name": "verify_existing_email",
+ "scenario": "miss",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "PROSPEO_API_KEY": "ctk_prospeo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.prospeo.io/email-verifier",
+    "headers": {
+     "authorization": "Bearer {{secret:PROSPEO_API_KEY}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"email\":\"ada@acme.com\"}",
+    "json": {
+     "email": "ada@acme.com"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"response\":{\"is_valid\":false}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "prospeo",
+  "success": true,
+  "fields": {
+   "email": "ada@acme.com",
+   "email_verify": "invalid"
+  },
+  "confidence": 0.3,
+  "error": ""
+ }
+}

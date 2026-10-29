@@ -1,0 +1,53 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/runs/run-a-05-02"
+  },
+  "response": {
+    "body": {
+      "action_results": [
+        {
+          "action_index": 0,
+          "action_type": "re_enrich",
+          "charged_usd": 0.05,
+          "created_at": "2026-08-29T13:00:03+00:00",
+          "error": "1 cell errors",
+          "id": 12,
+          "idempotency_key": "trig:ws-alpha:trg-a-05:wb-auto-2:3011:0:manual:trg-a-05:2026-08-29T13:00:00+00:00",
+          "lead_id": 14,
+          "result_summary": null,
+          "row_id": "3011",
+          "run_id": "run-a-05-02",
+          "skip_reason": null,
+          "status": "failed",
+          "trigger_id": "trg-a-05",
+          "workbook_id": "wb-auto-2"
+        }
+      ],
+      "actions_attempted": 3,
+      "actions_failed": 1,
+      "actions_skipped": 1,
+      "actions_succeeded": 1,
+      "error": null,
+      "finished_at": "2026-08-29T13:00:09+00:00",
+      "fire_key": "manual:trg-a-05:2026-08-29T13:00:00+00:00",
+      "fire_source": "manual",
+      "id": "run-a-05-02",
+      "job_id": 951,
+      "matched_rows": 3,
+      "started_at": "2026-08-29T13:00:00+00:00",
+      "status": "partial",
+      "total_charged_usd": 0.05,
+      "trigger_id": "trg-a-05",
+      "trigger_name_snapshot": "Daily sweep"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "job_change watch requires config.contacts (non-empty list)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

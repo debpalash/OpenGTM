@@ -1,0 +1,11 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Delivery has failed to these recipients
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+To: first@example.org
+then second@example.org
+Mailbox unavailable
+<orig-0025@contract.example.com>

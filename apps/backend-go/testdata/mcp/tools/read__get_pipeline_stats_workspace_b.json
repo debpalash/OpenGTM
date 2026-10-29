@@ -1,0 +1,28 @@
+{
+  "seq": 30,
+  "profile": "read",
+  "token": "workspace_b",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 29,
+    "method": "tools/call",
+    "params": {
+      "name": "get_pipeline_stats"
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 29,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"total\": 2,\n  \"by_status\": {\n    \"new\": 2\n  },\n  \"by_tier\": {\n    \"warm\": 1,\n    \"hot\": 1\n  },\n  \"by_city\": {\n    \"Palo Alto\": 1,\n    \"Pune\": 1\n  },\n  \"by_source\": {\n    \"mcp-seed\": 2\n  },\n  \"enrichment\": {\n    \"total\": 2,\n    \"with_email\": 2,\n    \"with_phone\": 0,\n    \"with_website\": 2,\n    \"with_linkedin\": 0,\n    \"with_contact\": 1,\n    \"avg_score\": 80.0\n  }\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "HUBSPOT_TOKEN": " ws-contract-token-4321 ",
+        "NOT_A_FIELD": "x"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/workspace-integrations/hubspot?workspace_id=ws-alpha"
+  },
+  "response": {
+    "body": {
+      "integration": {
+        "connected": true,
+        "description": "Push leads as HubSpot contacts (output column \u2192 CRM).",
+        "fields": [
+          {
+            "key": "HUBSPOT_TOKEN",
+            "label": "Private App Token",
+            "masked": "set",
+            "placeholder": "pat-na1-...",
+            "secret": true,
+            "set": true,
+            "source": "workspace",
+            "value": ""
+          }
+        ],
+        "icon": "hubspot",
+        "id": "hubspot",
+        "name": "HubSpot CRM"
+      },
+      "saved": [
+        "HUBSPOT_TOKEN"
+      ],
+      "status": "ok",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

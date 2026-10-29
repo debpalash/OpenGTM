@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "dedupe": false,
+      "rows": [
+        {
+          "company": "Zed Corp"
+        },
+        {
+          "company": "Zed Corp"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/rows"
+  },
+  "response": {
+    "body": {
+      "added": 2,
+      "skipped_duplicates": 0,
+      "total_rows": 9
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

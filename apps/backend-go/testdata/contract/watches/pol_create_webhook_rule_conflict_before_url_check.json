@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "create_webhook_rule": true,
+      "kind": "funding",
+      "target": "PolHook2"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "automations_disabled_cannot_create_webhook_rule"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

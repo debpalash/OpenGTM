@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "action": "nuke",
+      "lead_ids": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/bulk-enrich"
+  },
+  "response": {
+    "body": {
+      "detail": "action must be 'find_emails' or 'scrape_website'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

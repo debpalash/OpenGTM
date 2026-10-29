@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/__contract/schedules"
+  },
+  "response": {
+    "body": {
+      "playbooks": [
+        {
+          "enabled": false,
+          "has_next": false,
+          "matches_playbook": true,
+          "playbook_id": "pb-gov-multi",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "enabled": true,
+          "has_next": true,
+          "matches_playbook": false,
+          "playbook_id": "pb-gov-sched",
+          "workspace_id": "ws-alpha"
+        }
+      ],
+      "retention": [
+        {
+          "enabled": true,
+          "has_next": true,
+          "matches_policy": false,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "enabled": false,
+          "has_next": false,
+          "matches_policy": true,
+          "workspace_id": "ws-beta"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

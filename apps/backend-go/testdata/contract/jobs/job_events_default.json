@@ -1,0 +1,60 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000002/events"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Collection queued: IT staffing companies in Bangalore",
+          "query": "IT staffing companies in Bangalore",
+          "ts": 1788000000.0,
+          "type": "job_created",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Discovering sources",
+          "stage": "discovery",
+          "ts": 1788000001.25,
+          "type": "stage_start",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Found 12 leads \u2014 \u201cIT staffing\u201d \u2713",
+          "stage": "discovery",
+          "ts": 1788000003.75,
+          "type": "stage_done",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "count": 1,
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Added Acme HR",
+          "ts": 1788000005.0,
+          "type": "lead_found",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "job_id": "a1000000000000000000000000000002",
+          "message": "Validating 12 leads",
+          "stage": "validate",
+          "ts": 1788000006.5,
+          "type": "stage_start",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

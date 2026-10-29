@@ -1,0 +1,48 @@
+{
+ "provider": "ipinfo",
+ "input_name": "default",
+ "scenario": "http_500",
+ "input": {
+  "company": "Acme",
+  "website": "https://acme.com/about"
+ },
+ "secrets": {
+  "IPINFO_TOKEN": "ctk_ipinfo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://ipinfo.io/93.184.216.34",
+    "headers": {
+     "authorization": "Bearer {{secret:IPINFO_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><body>Internal Server Error</body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

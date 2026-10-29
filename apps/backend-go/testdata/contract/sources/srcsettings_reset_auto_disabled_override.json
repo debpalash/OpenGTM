@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/settings/sources/clutch/health/reset"
+  },
+  "response": {
+    "body": {
+      "consecutive_nonzero": 0,
+      "consecutive_zero": 0,
+      "disabled_at": null,
+      "disabled_reason": null,
+      "ewma_yield": 0.123,
+      "last_ok_at": "2026-08-20T03:00:00",
+      "last_outage_at": "2026-08-27T03:00:00",
+      "last_probe_at": "2026-08-29T03:00:00",
+      "last_yield": 0,
+      "manual_override": false,
+      "name": "clutch",
+      "probes": 11,
+      "state": "healthy",
+      "updated_at": "2026-09-01T12:00:00"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

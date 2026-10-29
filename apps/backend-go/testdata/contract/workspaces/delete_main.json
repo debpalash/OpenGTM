@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workspaces/ca7aba73-8603-40a4-99d5-2e844245b746"
+  },
+  "response": {
+    "body": {
+      "detail": "Cannot delete default workspace"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

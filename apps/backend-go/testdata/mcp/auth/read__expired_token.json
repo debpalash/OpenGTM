@@ -1,0 +1,30 @@
+{
+  "seq": 59,
+  "profile": "read",
+  "token": "expired",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 58,
+      "method": "ping"
+    }
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "body": {
+      "error": "unauthorized",
+      "detail": "MCP token expired"
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

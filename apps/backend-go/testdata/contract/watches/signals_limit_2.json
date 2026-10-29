@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-06/signals?limit=2"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "WzE3ODgwMDAwMDAuMCwic2lnLWEtMDEiXQ",
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788010800.0,
+          "description": "Seeded funding event #6 for contract fixtures",
+          "id": "sig-a-06",
+          "lead_id": 14,
+          "read": 1,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/6",
+          "title": "funding signal 6",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded funding event #1 for contract fixtures",
+          "id": "sig-a-01",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/1",
+          "title": "funding signal 1",
+          "weight": 11,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

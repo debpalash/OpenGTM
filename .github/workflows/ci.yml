@@ -14,40 +14,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  backend:
-    name: Backend tests (SQLite)
+  go:
+    name: Go vet and tests (PostgreSQL + Redis)
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: '3.13'
-          enable-cache: true
-      - run: uv run --frozen pytest -q -m 'not live and not postgres'
-
-  postgres:
-    name: PostgreSQL integrity and tenancy
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 60
     services:
       postgres:
         image: postgres:18
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: opengtm_test
+          POSTGRES_DB: opengtm_go_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d opengtm_test"
+          --health-cmd "pg_isready -U postgres -d opengtm_go_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
     env:
-      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/opengtm_test
+      TZ: UTC
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/opengtm_go_test
+      TEST_REDIS_URL: redis://localhost:6379/0
+    defaults:
+      run:
+        working-directory: apps/backend-go
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: apps/backend-go/go.mod
+          cache-dependency-path: apps/backend-go/go.sum
+      - name: Migrate schema with the Go runner
+        # Same path as production (baseline + migrations, grants, alembic_version stamp).
+        # schema.sql parity with the migrations is TestSchemaSQLMatchesMigrations (integration).
+        run: DATABASE_URL="$TEST_DATABASE_URL" go run ./cmd/migrate up
+      - run: go vet ./...
+      - name: Unit tests (race)
+        run: go test -race -count=1 ./...
+      - name: Integration tests (race)
+        run: go test -race -count=1 -tags integration -timeout 40m -p 4 ./...
+      - name: Build shipping binaries (UI embedded)
+        run: |
+          mkdir -p internal/webui/dist && touch internal/webui/dist/index.html
+          go build -tags webui -o /dev/null ./cmd/api
+          go build -o /dev/null ./cmd/worker ./cmd/mcp ./cmd/migrate ./cmd/scheduler ./cmd/seed ./cmd/suppressnorm
+
+  browser-service:
+    name: Browser service lint and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/browser-service
     steps:
       - uses: actions/checkout@v7
         with:
@@ -56,13 +86,16 @@ jobs:
         with:
           python-version: '3.13'
           enable-cache: true
-      - run: >-
-          uv run --frozen pytest -q
-          tests/test_create_merge_pg.py
-          tests/test_entity_identity_pg.py
-          tests/test_pg_tenancy_rls.py
-          tests/test_lead_paging_pg.py
-          tests/test_workbook_refresh_stale_sql_pg.py
+          cache-dependency-glob: apps/browser-service/uv.lock
+      - run: uv lock --check
+      - run: uv sync --frozen
+      - run: uv run --frozen ruff check .
+      - run: uv run --frozen ruff format --check .
+      # Chromium makes the real-browser egress tests run instead of skipping.
+      - run: uv run --frozen playwright install --with-deps --only-shell chromium
+      # Ubuntu 24.04 runners block unprivileged user namespaces through AppArmor, and Chromium's sandbox needs them.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - run: uv run --frozen pytest -q
 
   frontend:
     name: Frontend lint, tests and build
@@ -75,35 +108,15 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: '1.4.2'
-      - run: bun install --frozen-lockfile
-      - run: bun run lint
-      - run: bun test apps/web/tests
-      - run: bun test packages/chrome-extension
-      - run: bun run build
-
-  frontend-browser:
-    name: Frontend browser regressions
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v7
-        with:
-          python-version: '3.13'
-          enable-cache: true
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: '1.4.2'
-      - run: bun install --frozen-lockfile
-      - run: uv run --frozen playwright install --with-deps chromium
-      - name: Run mounted React interaction regressions
-        shell: bash
+      - name: Web (apps/web)
+        working-directory: apps/web
         run: |
-          export OPENGTM_BUN="$(command -v bun)"
-          export OPENGTM_CHROMIUM="$(uv run --frozen python -c 'from playwright.sync_api import sync_playwright; p = sync_playwright().start(); print(p.chromium.executable_path); p.stop()')"
-          uv run --frozen pytest -q \
-            tests/test_workbook_socket_browser.py \
-            tests/test_lead_selection_browser.py \
-            tests/test_workbook_clipboard_browser.py
+          bun install --frozen-lockfile
+          bun run lint
+          bun test tests
+          bun run build
+      - name: Chrome extension (packages/chrome-extension)
+        working-directory: packages/chrome-extension
+        run: |
+          bun install --frozen-lockfile
+          bun test

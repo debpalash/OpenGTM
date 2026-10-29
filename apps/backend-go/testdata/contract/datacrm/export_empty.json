@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data/export?q=zzzznomatch"
+  },
+  "response": {
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n",
+    "headers": {
+      "content-disposition": "attachment; filename=export_20260901_120000.csv",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

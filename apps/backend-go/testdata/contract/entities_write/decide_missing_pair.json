@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "decision": "merge",
+      "pair_id": 999
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "detail": "Review pair not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

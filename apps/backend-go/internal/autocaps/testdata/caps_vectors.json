@@ -1,0 +1,3448 @@
+{
+ "scenarios": [
+  {
+   "name": "action_cap_two",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 2
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 2
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 2
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "settled"
+    }
+   ]
+  },
+  {
+   "name": "action_cap_counts_held",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "action_cap_zero",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.5,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": []
+  },
+  {
+   "name": "spend_cap",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.3,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.2,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "settle",
+     "key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "f",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.2,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_float_rounding",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.3
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 4e-07,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 6e-07,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_zero",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0001,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 1e-07,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_released_frees_capacity",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_across_rules",
+   "global_cap_usd": 0.5,
+   "triggers": {
+    "t1": {},
+    "t2": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.3,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "b",
+     "cost": 0.3,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.2,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "settle",
+     "key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.3,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.2,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_workspace_isolation",
+   "global_cap_usd": 0.5,
+   "triggers": {
+    "t1": {},
+    "t2": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ws": "ws-1",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.5,
+     "ws": "ws-2",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.1,
+     "ws": "ws-1",
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.1,
+     "ws": "ws-2",
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-2",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_ignored_when_zero_cost",
+   "global_cap_usd": 0.1,
+   "triggers": {
+    "t1": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "per_rule_and_global_interplay",
+   "global_cap_usd": 1.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.6,
+     "max_actions": 3
+    },
+    "t2": {
+     "max_spend": 0.9
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.2,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.45,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "f",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "f"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "g",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.45,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "f",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "idempotent_rereserve",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 9.9,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    }
+   ]
+  },
+  {
+   "name": "released_then_retry_same_key_refused",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "settle_release_are_final",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "release",
+     "key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "settle_none"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "released"
+    }
+   ]
+  },
+  {
+   "name": "failed_reservation_has_no_row_and_no_id",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "day_rollover_utc",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1,
+     "max_spend": 0.5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "day",
+     "day": "2026-08-30"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "day": "2026-08-29",
+     "actions": 1
+    },
+    {
+     "op": "day",
+     "day": "2026-08-29"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-30",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "cost_normalisation",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": null,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": -5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": "0.25",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.1234567891,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.7,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.25,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.123457,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "many_small_costs_vs_cap",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k0",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k0"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k1",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k1"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k2",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k2"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k3",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k3"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k4",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k4"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k5",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k5"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k6",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k6"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k7",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k7"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k8",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k8"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k9",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k9"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k10",
+     "cost": 0.0999999,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k11",
+     "cost": 0.0999999,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k0",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k1",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k2",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k3",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k4",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k5",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k6",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k7",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k8",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k9",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "rule_isolation_same_day",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    },
+    "t2": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  }
+ ],
+ "vectors": [
+  {
+   "name": "action_cap_two",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 2
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 2
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 2
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "settled"
+    }
+   ]
+  },
+  {
+   "name": "action_cap_counts_held",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "action_cap_zero",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.5,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": []
+  },
+  {
+   "name": "spend_cap",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.3,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.2,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "settle",
+     "key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "f",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.2,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_float_rounding",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.3
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 4e-07,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 6e-07,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_zero",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0001,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 1e-07,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "spend_cap_released_frees_capacity",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.4,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.4,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_across_rules",
+   "global_cap_usd": 0.5,
+   "triggers": {
+    "t1": {},
+    "t2": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.3,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "b",
+     "cost": 0.3,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.2,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "settle",
+     "key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.01,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.3,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.2,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_workspace_isolation",
+   "global_cap_usd": 0.5,
+   "triggers": {
+    "t1": {},
+    "t2": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ws": "ws-1",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.5,
+     "ws": "ws-2",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.1,
+     "ws": "ws-1",
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.1,
+     "ws": "ws-2",
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-2",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "global_cap_ignored_when_zero_cost",
+   "global_cap_usd": 0.1,
+   "triggers": {
+    "t1": {}
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "per_rule_and_global_interplay",
+   "global_cap_usd": 1.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 0.6,
+     "max_actions": 3
+    },
+    "t2": {
+     "max_spend": 0.9
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.2,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "c",
+     "cost": 0.45,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "e"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "f",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "f"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "g",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.45,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "e",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "f",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "idempotent_rereserve",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 9.9,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    }
+   ]
+  },
+  {
+   "name": "released_then_retry_same_key_refused",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "released"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "settle_release_are_final",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "settle",
+     "key": "a"
+    },
+    {
+     "op": "release",
+     "key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "release",
+     "key": "b"
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    },
+    {
+     "op": "settle_none"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "settled"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "released"
+    }
+   ]
+  },
+  {
+   "name": "failed_reservation_has_no_row_and_no_id",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "settle",
+     "key": "b"
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "day_rollover_utc",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1,
+     "max_spend": 0.5
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "day",
+     "day": "2026-08-30"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": 0.1,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.1,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "actions": 1
+    },
+    {
+     "op": "actions_today",
+     "trigger": "t1",
+     "day": "2026-08-29",
+     "actions": 1
+    },
+    {
+     "op": "day",
+     "day": "2026-08-29"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.5,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-30",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "cost_normalisation",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": null,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "b",
+     "cost": -5,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": "0.25",
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "c"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "d",
+     "cost": 0.1234567891,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "d"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "e",
+     "cost": 0.7,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.25,
+     "reserved_actions": 1,
+     "idempotency_key": "c",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.123457,
+     "reserved_actions": 1,
+     "idempotency_key": "d",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "many_small_costs_vs_cap",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_spend": 1.0
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k0",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k0"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k1",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k1"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k2",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k2"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k3",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k3"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k4",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k4"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k5",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k5"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k6",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k6"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k7",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k7"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k8",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k8"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k9",
+     "cost": 0.0999999,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "k9"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k10",
+     "cost": 0.0999999,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "k11",
+     "cost": 0.0999999,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k0",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k1",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k2",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k3",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k4",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k5",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k6",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k7",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k8",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.1,
+     "reserved_actions": 1,
+     "idempotency_key": "k9",
+     "state": "held"
+    }
+   ]
+  },
+  {
+   "name": "rule_isolation_same_day",
+   "global_cap_usd": 0.0,
+   "triggers": {
+    "t1": {
+     "max_actions": 1
+    },
+    "t2": {
+     "max_actions": 1
+    }
+   },
+   "steps": [
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "a",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "a"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "b",
+     "cost": 0.0,
+     "ok": true,
+     "reason": null,
+     "has_id": true,
+     "idempotency_key": "b"
+    },
+    {
+     "op": "reserve",
+     "trigger": "t1",
+     "key": "c",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    },
+    {
+     "op": "reserve",
+     "trigger": "t2",
+     "key": "d",
+     "cost": 0.0,
+     "ok": false,
+     "reason": "cap",
+     "has_id": false,
+     "idempotency_key": null
+    }
+   ],
+   "rows": [
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t1",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "a",
+     "state": "held"
+    },
+    {
+     "workspace_id": "ws-1",
+     "trigger_id": "t2",
+     "day_utc": "2026-08-29",
+     "reserved_usd": 0.0,
+     "reserved_actions": 1,
+     "idempotency_key": "b",
+     "state": "held"
+    }
+   ]
+  }
+ ]
+}

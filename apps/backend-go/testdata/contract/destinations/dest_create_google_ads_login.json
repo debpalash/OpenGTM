@@ -1,0 +1,49 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "v22",
+        "consent_attested": true,
+        "consent_source": "s",
+        "customer_id": "1",
+        "login_customer_id": "3",
+        "user_list_id": "2"
+      },
+      "destination_type": "google_ads",
+      "name": "Google login"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "v22",
+        "consent_attested": true,
+        "consent_source": "s",
+        "customer_id": "1",
+        "login_customer_id": "3",
+        "user_list_id": "2"
+      },
+      "created_at": "2026-10-26T17:05:48.147526",
+      "destination_type": "google_ads",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002105",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Google login",
+      "updated_at": "2026-10-26T17:05:48.147526"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

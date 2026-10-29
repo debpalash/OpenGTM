@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "sequences": [
+        {
+          "auto_paused": false,
+          "bounce_count": 0,
+          "complaint_count": 0,
+          "consent_basis": "consent_contract",
+          "created_at": "2026-08-29T08:30:00+00:00",
+          "daily_limit": 50,
+          "description": "beta tenant",
+          "id": "seq-out-b-01",
+          "name": "Beta sequence",
+          "send_window_end": 18,
+          "send_window_start": 9,
+          "send_window_tz": "UTC",
+          "status": "draft",
+          "steps": [
+            {
+              "body_html": "<p>Hello from beta.</p>",
+              "delay_hours": 0,
+              "step_number": 0,
+              "subject": "Beta intro"
+            }
+          ],
+          "updated_at": "2026-08-29T08:30:00+00:00",
+          "workspace_id": "ws-beta"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

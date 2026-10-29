@@ -1,0 +1,1268 @@
+{
+ "vectors": [
+  {
+   "name": "webhook_is_free",
+   "action": {
+    "type": "webhook",
+    "config": {
+     "url": "https://x"
+    }
+   },
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "push_crm_is_free",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "send_email_is_free",
+   "action": {
+    "type": "send_email",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "sequencer_is_free",
+   "action": {
+    "type": "sequencer",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "unknown_type",
+   "action": {
+    "type": "carrier_pigeon"
+   },
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "missing_type",
+   "action": {},
+   "columns": [],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_no_config",
+   "action": {
+    "type": "re_enrich"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_config_none",
+   "action": {
+    "type": "re_enrich",
+    "config": null
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_empty_ids",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": []
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_unknown_column",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "zzz"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_byok_chain_free",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "hunter_io",
+      "apollo_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_research_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_research_then_byok",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "hunter_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_research_twice_in_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.1
+  },
+  {
+   "name": "re_enrich_claygent_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "claygent"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_two_columns_sum",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "b",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "hunter_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.1
+  },
+  {
+   "name": "re_enrich_duplicate_ids_counted_once",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_provider_only",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "research",
+     "target_field": "x"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_provider_byok",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "hunter_io",
+     "target_field": "email"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_waterfall_beats_provider",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "waterfall": [
+      "hunter_io"
+     ],
+     "provider": "research",
+     "target_field": "x"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_empty_waterfall_falls_to_provider",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "waterfall": [],
+     "provider": "research"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_default_waterfall_email",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_waterfall_phone",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "phone"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_waterfall_company_size",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "company_size"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_by_lead_field",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "lead_field",
+     "lead_field": "email"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_by_id",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "email"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "type": "waterfall"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_unknown_target_no_default",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "no_such_field"
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_column_without_id_skipped",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "name": "NoId",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.05
+  },
+  {
+   "name": "re_enrich_ids_none_in_config",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": null
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_three_research_columns",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "b",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "c",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.15
+  },
+  {
+   "name": "re_enrich_unknown_provider_free",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "no_such_vendor"
+     ]
+    }
+   ],
+   "research_vendor_cost": true,
+   "cost": 0.0
+  },
+  {
+   "name": "webhook_is_free",
+   "action": {
+    "type": "webhook",
+    "config": {
+     "url": "https://x"
+    }
+   },
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "push_crm_is_free",
+   "action": {
+    "type": "push_crm",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "send_email_is_free",
+   "action": {
+    "type": "send_email",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "sequencer_is_free",
+   "action": {
+    "type": "sequencer",
+    "config": {}
+   },
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "unknown_type",
+   "action": {
+    "type": "carrier_pigeon"
+   },
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "missing_type",
+   "action": {},
+   "columns": [],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_no_config",
+   "action": {
+    "type": "re_enrich"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_config_none",
+   "action": {
+    "type": "re_enrich",
+    "config": null
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_empty_ids",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": []
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_unknown_column",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "zzz"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_byok_chain_free",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "hunter_io",
+      "apollo_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_research_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_research_then_byok",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "hunter_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_research_twice_in_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_claygent_chain",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "claygent"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_two_columns_sum",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "b"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "b",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research",
+      "hunter_io"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_duplicate_ids_counted_once",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_provider_only",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "research",
+     "target_field": "x"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_provider_byok",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "hunter_io",
+     "target_field": "email"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_waterfall_beats_provider",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "waterfall": [
+      "hunter_io"
+     ],
+     "provider": "research",
+     "target_field": "x"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_empty_waterfall_falls_to_provider",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "waterfall": [],
+     "provider": "research"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_waterfall_email",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_waterfall_phone",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "phone"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_waterfall_company_size",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "company_size"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_by_lead_field",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "lead_field",
+     "lead_field": "email"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_default_by_id",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "email"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "type": "waterfall"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_unknown_target_no_default",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "no_such_field"
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_column_without_id_skipped",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "name": "NoId",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_ids_none_in_config",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": null
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_three_research_columns",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a",
+      "b",
+      "c"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "b",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    },
+    {
+     "id": "c",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "research"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  },
+  {
+   "name": "re_enrich_unknown_provider_free",
+   "action": {
+    "type": "re_enrich",
+    "config": {
+     "column_ids": [
+      "a"
+     ]
+    }
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "target_field": "email",
+     "waterfall": [
+      "no_such_vendor"
+     ]
+    }
+   ],
+   "research_vendor_cost": false,
+   "cost": 0.0
+  }
+ ]
+}

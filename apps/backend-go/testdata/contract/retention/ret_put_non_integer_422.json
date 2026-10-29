@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "retention_days": {
+        "audit": "abc"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "abc",
+          "loc": [
+            "body",
+            "retention_days",
+            "audit"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

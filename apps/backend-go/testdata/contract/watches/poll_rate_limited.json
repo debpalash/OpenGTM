@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches/watch-a-12/poll"
+  },
+  "response": {
+    "body": {
+      "detail": "poll-now rate limited"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 429
+  }
+}

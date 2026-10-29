@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "id": "evt_test",
+      "type": "checkout.session.completed"
+    },
+    "headers": {
+      "Stripe-Signature": "t=1,v1=00"
+    },
+    "method": "POST",
+    "path": "/api/billing/webhook"
+  },
+  "response": {
+    "body": {
+      "reason": "billing_disabled",
+      "status": "ignored"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

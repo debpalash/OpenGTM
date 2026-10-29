@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "max_score": 10,
+        "min_score": 70
+      },
+      "name": "Bad"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "max_score": 10,
+            "min_score": 70
+          },
+          "loc": [
+            "body",
+            "filters"
+          ],
+          "msg": "Value error, min_score cannot exceed max_score",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

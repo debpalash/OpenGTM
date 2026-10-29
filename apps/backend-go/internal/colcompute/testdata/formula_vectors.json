@@ -1,0 +1,4442 @@
+{
+ "evaluate": [
+  {
+   "name": "int_add",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": 2,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "5"
+    }
+   }
+  },
+  {
+   "name": "int_sub",
+   "expr": "{a} - {b}",
+   "row_values": {
+    "a": 2,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "-1"
+    }
+   }
+  },
+  {
+   "name": "int_mul",
+   "expr": "{a} * {b}",
+   "row_values": {
+    "a": 6,
+    "b": 7
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "42"
+    }
+   }
+  },
+  {
+   "name": "int_div_exact",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 6,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "2.0"
+    }
+   }
+  },
+  {
+   "name": "int_div_inexact",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 1,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "0.3333333333333333"
+    }
+   }
+  },
+  {
+   "name": "int_floordiv",
+   "expr": "{a} // {b}",
+   "row_values": {
+    "a": 7,
+    "b": 2
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "neg_floordiv",
+   "expr": "{a} // {b}",
+   "row_values": {
+    "a": -7,
+    "b": 2
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "-4"
+    }
+   }
+  },
+  {
+   "name": "mod",
+   "expr": "{a} % {b}",
+   "row_values": {
+    "a": 7,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "neg_mod",
+   "expr": "{a} % {b}",
+   "row_values": {
+    "a": -7,
+    "b": 3
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "2"
+    }
+   }
+  },
+  {
+   "name": "float_mod",
+   "expr": "{a} % {b}",
+   "row_values": {
+    "a": 7.5,
+    "b": 2
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "1.5"
+    }
+   }
+  },
+  {
+   "name": "float_add_noise",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": 0.1,
+    "b": 0.2
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "0.30000000000000004"
+    }
+   }
+  },
+  {
+   "name": "float_big",
+   "expr": "{a} * {b}",
+   "row_values": {
+    "a": 1e+16,
+    "b": 10
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "1e+17"
+    }
+   }
+  },
+  {
+   "name": "float_small",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 1,
+    "b": 10000000
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "1e-07"
+    }
+   }
+  },
+  {
+   "name": "float_neg_zero",
+   "expr": "{a} * {b}",
+   "row_values": {
+    "a": -1.0,
+    "b": 0
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "-0.0"
+    }
+   }
+  },
+  {
+   "name": "float_exp_repr",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 1,
+    "b": 3000000000.0
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "3.333333333333333e-10"
+    }
+   }
+  },
+  {
+   "name": "bigint_mul",
+   "expr": "{a} * {a}",
+   "row_values": {
+    "a": 100000000000000000000
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "10000000000000000000000000000000000000000"
+    }
+   }
+  },
+  {
+   "name": "int_float_mix",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": 1,
+    "b": 2.5
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "3.5"
+    }
+   }
+  },
+  {
+   "name": "true_div_ints_to_float",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 4,
+    "b": 2
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "2.0"
+    }
+   }
+  },
+  {
+   "name": "div_zero_int",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 1,
+    "b": 0
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "division by zero"
+   }
+  },
+  {
+   "name": "div_zero_float",
+   "expr": "{a} / {b}",
+   "row_values": {
+    "a": 1.0,
+    "b": 0
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "float division by zero"
+   }
+  },
+  {
+   "name": "floordiv_zero",
+   "expr": "{a} // {b}",
+   "row_values": {
+    "a": 1,
+    "b": 0
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "integer division or modulo by zero"
+   }
+  },
+  {
+   "name": "mod_zero",
+   "expr": "{a} % {b}",
+   "row_values": {
+    "a": 1,
+    "b": 0
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "integer modulo by zero"
+   }
+  },
+  {
+   "name": "unary_minus",
+   "expr": "-{a}",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "-5"
+    }
+   }
+  },
+  {
+   "name": "unary_plus_str",
+   "expr": "+{a}",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "bad operand type for unary +: 'str'"
+   }
+  },
+  {
+   "name": "unary_minus_str",
+   "expr": "-{a}",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "bad operand type for unary -: 'str'"
+   }
+  },
+  {
+   "name": "precedence",
+   "expr": "1 + 2 * 3 - 4 / 2",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "5.0"
+    }
+   }
+  },
+  {
+   "name": "parens",
+   "expr": "(1 + 2) * 3",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "9"
+    }
+   }
+  },
+  {
+   "name": "chained_unary",
+   "expr": "- - 3",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "bool_arith",
+   "expr": "True + True",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "2"
+    }
+   }
+  },
+  {
+   "name": "bool_in_add",
+   "expr": "{a} + 1",
+   "row_values": {
+    "a": true
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "2"
+    }
+   }
+  },
+  {
+   "name": "str_add_str",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": "foo",
+    "b": "bar"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "foobar"
+    }
+   }
+  },
+  {
+   "name": "str_add_int_formats",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": "n=",
+    "b": 5
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "n=5"
+    }
+   }
+  },
+  {
+   "name": "int_add_str_formats",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": 5,
+    "b": "x"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "5x"
+    }
+   }
+  },
+  {
+   "name": "str_add_float_formats",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": "v",
+    "b": 1.0
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "v1.0"
+    }
+   }
+  },
+  {
+   "name": "str_add_none_as_empty",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": "v",
+    "b": null
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "v"
+    }
+   }
+  },
+  {
+   "name": "str_add_bool",
+   "expr": "{a} + {b}",
+   "row_values": {
+    "a": "v",
+    "b": true
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "vTrue"
+    }
+   }
+  },
+  {
+   "name": "str_mul_int",
+   "expr": "{a} * 3",
+   "row_values": {
+    "a": "ab"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ababab"
+    }
+   }
+  },
+  {
+   "name": "int_mul_str",
+   "expr": "3 * {a}",
+   "row_values": {
+    "a": "ab"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ababab"
+    }
+   }
+  },
+  {
+   "name": "str_mul_neg",
+   "expr": "{a} * -1",
+   "row_values": {
+    "a": "ab"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "str_mul_float",
+   "expr": "{a} * 1.5",
+   "row_values": {
+    "a": "ab"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "can't multiply sequence by non-int of type 'float'"
+   }
+  },
+  {
+   "name": "str_mul_str",
+   "expr": "{a} * {b}",
+   "row_values": {
+    "a": "a",
+    "b": "b"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "can't multiply sequence by non-int of type 'str'"
+   }
+  },
+  {
+   "name": "str_sub_str",
+   "expr": "{a} - {b}",
+   "row_values": {
+    "a": "a",
+    "b": "b"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "unsupported operand type(s) for -: 'str' and 'str'"
+   }
+  },
+  {
+   "name": "str_div",
+   "expr": "{a} / 2",
+   "row_values": {
+    "a": "10"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "unsupported operand type(s) for /: 'str' and 'int'"
+   }
+  },
+  {
+   "name": "str_mod_formatting",
+   "expr": "{a} % 3",
+   "row_values": {
+    "a": "x%d"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x3"
+    }
+   }
+  },
+  {
+   "name": "upper_fn",
+   "expr": "upper({a})",
+   "row_values": {
+    "a": "straße"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "STRASSE"
+    }
+   }
+  },
+  {
+   "name": "lower_fn",
+   "expr": "lower({a})",
+   "row_values": {
+    "a": "İSTANBUL"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "i̇stanbul"
+    }
+   }
+  },
+  {
+   "name": "title_fn",
+   "expr": "title({a})",
+   "row_values": {
+    "a": "o'neil mc-donald"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "O'Neil Mc-Donald"
+    }
+   }
+  },
+  {
+   "name": "strip_fn",
+   "expr": "strip({a})",
+   "row_values": {
+    "a": "  x \n"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x"
+    }
+   }
+  },
+  {
+   "name": "trim_fn_unicode",
+   "expr": "trim({a})",
+   "row_values": {
+    "a": " x "
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x"
+    }
+   }
+  },
+  {
+   "name": "len_str",
+   "expr": "len({a})",
+   "row_values": {
+    "a": "héllo"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "5"
+    }
+   }
+  },
+  {
+   "name": "len_astral",
+   "expr": "len({a})",
+   "row_values": {
+    "a": "a😀b"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "len_int_error",
+   "expr": "len({a})",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "object of type 'int' has no len()"
+   }
+  },
+  {
+   "name": "len_none_missing",
+   "expr": "len({zz})",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "str_fn_float",
+   "expr": "str({a})",
+   "row_values": {
+    "a": 1.0
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "1.0"
+    }
+   }
+  },
+  {
+   "name": "str_fn_none",
+   "expr": "str({a})",
+   "row_values": {
+    "a": null
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "str_fn_bool",
+   "expr": "str({a})",
+   "row_values": {
+    "a": false
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "False"
+    }
+   }
+  },
+  {
+   "name": "int_fn_str",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "42"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "42"
+    }
+   }
+  },
+  {
+   "name": "int_fn_float_str",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "3.9"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "int_fn_sci_str",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "1e3"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1000"
+    }
+   }
+  },
+  {
+   "name": "int_fn_neg_float_str",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "-3.9"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "-3"
+    }
+   }
+  },
+  {
+   "name": "int_fn_big_str",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "9007199254740993"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "9007199254740993"
+    }
+   }
+  },
+  {
+   "name": "int_fn_empty",
+   "expr": "int({a})",
+   "row_values": {
+    "a": ""
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "int_fn_none_text",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "None"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "int_fn_garbage",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "could not convert string to float: 'abc'"
+   }
+  },
+  {
+   "name": "int_fn_float_val",
+   "expr": "int({a})",
+   "row_values": {
+    "a": 3.99
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "int_fn_underscore",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "1_000"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1000"
+    }
+   }
+  },
+  {
+   "name": "int_fn_spaces",
+   "expr": "int({a})",
+   "row_values": {
+    "a": " 7 "
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "7"
+    }
+   }
+  },
+  {
+   "name": "int_fn_nan",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "nan"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "cannot convert float NaN to integer"
+   }
+  },
+  {
+   "name": "int_fn_inf",
+   "expr": "int({a})",
+   "row_values": {
+    "a": "inf"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "cannot convert float infinity to integer"
+   }
+  },
+  {
+   "name": "float_fn_str",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "2.50"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "2.5"
+    }
+   }
+  },
+  {
+   "name": "float_fn_empty",
+   "expr": "float({a})",
+   "row_values": {
+    "a": ""
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "0.0"
+    }
+   }
+  },
+  {
+   "name": "float_fn_none_text",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "None"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "0.0"
+    }
+   }
+  },
+  {
+   "name": "float_fn_garbage",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "could not convert string to float: 'x'"
+   }
+  },
+  {
+   "name": "float_fn_int",
+   "expr": "float({a})",
+   "row_values": {
+    "a": 3
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "3.0"
+    }
+   }
+  },
+  {
+   "name": "float_fn_inf",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "inf"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "inf"
+    }
+   }
+  },
+  {
+   "name": "float_fn_nan",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "NaN"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "nan"
+    }
+   }
+  },
+  {
+   "name": "float_fn_exp",
+   "expr": "float({a})",
+   "row_values": {
+    "a": "1e-7"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "1e-07"
+    }
+   }
+  },
+  {
+   "name": "round_default",
+   "expr": "round({a})",
+   "row_values": {
+    "a": 2.5
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "2.0"
+    }
+   }
+  },
+  {
+   "name": "round_half_even_3_5",
+   "expr": "round({a})",
+   "row_values": {
+    "a": 3.5
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "4.0"
+    }
+   }
+  },
+  {
+   "name": "round_ndigits",
+   "expr": "round({a}, 2)",
+   "row_values": {
+    "a": "3.14159"
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "3.14"
+    }
+   }
+  },
+  {
+   "name": "round_neg_digits",
+   "expr": "round({a}, -1)",
+   "row_values": {
+    "a": 15
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "20.0"
+    }
+   }
+  },
+  {
+   "name": "round_str_garbage",
+   "expr": "round({a})",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "could not convert string to float: 'x'"
+   }
+  },
+  {
+   "name": "round_float_digits",
+   "expr": "round({a}, 1.9)",
+   "row_values": {
+    "a": 2.55
+   },
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "2.5"
+    }
+   }
+  },
+  {
+   "name": "replace_fn",
+   "expr": "replace({a}, \"a\", \"b\")",
+   "row_values": {
+    "a": "banana"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "bbnbnb"
+    }
+   }
+  },
+  {
+   "name": "replace_fn_int_target",
+   "expr": "replace({a}, 1, 2)",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "replace() argument 1 must be str, not int"
+   }
+  },
+  {
+   "name": "concat_fn",
+   "expr": "concat({a}, 1, None, True, 2.0)",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x1NoneTrue2.0"
+    }
+   }
+  },
+  {
+   "name": "concat_empty",
+   "expr": "concat()",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "default_first_nonempty",
+   "expr": "default({a}, {b}, \"z\")",
+   "row_values": {
+    "a": "",
+    "b": "B"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "B"
+    }
+   }
+  },
+  {
+   "name": "default_zero_kept",
+   "expr": "default({a}, \"z\")",
+   "row_values": {
+    "a": 0
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "default_false_kept",
+   "expr": "default({a}, \"z\")",
+   "row_values": {
+    "a": false
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": false
+    }
+   }
+  },
+  {
+   "name": "default_empty_list",
+   "expr": "default([], \"z\")",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "z"
+    }
+   }
+  },
+  {
+   "name": "default_all_empty",
+   "expr": "default({a}, {b})",
+   "row_values": {
+    "a": "",
+    "b": null
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "default_no_args",
+   "expr": "default()",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "default_whitespace_kept",
+   "expr": "default({a}, 1)",
+   "row_values": {
+    "a": " "
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": " "
+    }
+   }
+  },
+  {
+   "name": "default_na_kept",
+   "expr": "default({a}, 1)",
+   "row_values": {
+    "a": "N/A"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "N/A"
+    }
+   }
+  },
+  {
+   "name": "default_nan_text_kept",
+   "expr": "default({a}, 1)",
+   "row_values": {
+    "a": "nan"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "nan"
+    }
+   }
+  },
+  {
+   "name": "split_index",
+   "expr": "{a}.split(\"@\")[1]",
+   "row_values": {
+    "a": "x@y.com"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y.com"
+    }
+   }
+  },
+  {
+   "name": "split_index_oob",
+   "expr": "{a}.split(\"@\")[5]",
+   "row_values": {
+    "a": "x@y.com"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "split_negative_index",
+   "expr": "{a}.split(\"@\")[-1]",
+   "row_values": {
+    "a": "x@y.com"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y.com"
+    }
+   }
+  },
+  {
+   "name": "split_no_args",
+   "expr": "{a}.split()",
+   "row_values": {
+    "a": " a  b "
+   },
+   "result": {
+    "value": {
+     "t": "list",
+     "v": [
+      {
+       "t": "str",
+       "v": "a"
+      },
+      {
+       "t": "str",
+       "v": "b"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "split_maxsplit",
+   "expr": "{a}.split(\"-\", 1)",
+   "row_values": {
+    "a": "a-b-c"
+   },
+   "result": {
+    "value": {
+     "t": "list",
+     "v": [
+      {
+       "t": "str",
+       "v": "a"
+      },
+      {
+       "t": "str",
+       "v": "b-c"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "split_empty_sep",
+   "expr": "{a}.split(\"\")",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "empty separator"
+   }
+  },
+  {
+   "name": "split_on_int",
+   "expr": "{a}.split(\"1\")",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "value": {
+     "t": "list",
+     "v": [
+      {
+       "t": "str",
+       "v": "5"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "strip_chars",
+   "expr": "{a}.strip(\"xy\")",
+   "row_values": {
+    "a": "xxhixy"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "hi"
+    }
+   }
+  },
+  {
+   "name": "lstrip",
+   "expr": "{a}.lstrip(\"x\")",
+   "row_values": {
+    "a": "xxhi"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "hi"
+    }
+   }
+  },
+  {
+   "name": "rstrip",
+   "expr": "{a}.rstrip()",
+   "row_values": {
+    "a": "hi  "
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "hi"
+    }
+   }
+  },
+  {
+   "name": "startswith",
+   "expr": "{a}.startswith(\"ab\")",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "endswith_tuple",
+   "expr": "{a}.endswith([\"c\"])",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "endswith first arg must be str or a tuple of str, not list"
+   }
+  },
+  {
+   "name": "zfill",
+   "expr": "{a}.zfill(5)",
+   "row_values": {
+    "a": "-42"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "-0042"
+    }
+   }
+  },
+  {
+   "name": "find",
+   "expr": "{a}.find(\"b\")",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "find_missing",
+   "expr": "{a}.find(\"z\")",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "-1"
+    }
+   }
+  },
+  {
+   "name": "join",
+   "expr": "\",\".join({a}.split(\" \"))",
+   "row_values": {
+    "a": "a b c"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "a,b,c"
+    }
+   }
+  },
+  {
+   "name": "join_bad_type",
+   "expr": "\",\".join(5)",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "can only join an iterable"
+   }
+  },
+  {
+   "name": "method_title",
+   "expr": "{a}.title()",
+   "row_values": {
+    "a": "hello world"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "Hello World"
+    }
+   }
+  },
+  {
+   "name": "method_replace_chain",
+   "expr": "{a}.replace(\"a\",\"b\").upper()",
+   "row_values": {
+    "a": "banana"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "BBNBNB"
+    }
+   }
+  },
+  {
+   "name": "method_on_none",
+   "expr": "{a}.upper()",
+   "row_values": {
+    "a": null
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "method_on_int_is_str",
+   "expr": "{a}.zfill(4)",
+   "row_values": {
+    "a": 7
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "0007"
+    }
+   }
+  },
+  {
+   "name": "method_on_float_is_str",
+   "expr": "{a}.replace(\".\", \",\")",
+   "row_values": {
+    "a": 1.5
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "1,5"
+    }
+   }
+  },
+  {
+   "name": "method_on_list_is_str",
+   "expr": "[1, 2].upper()",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "[1, 2]"
+    }
+   }
+  },
+  {
+   "name": "method_on_bool",
+   "expr": "{a}.lower()",
+   "row_values": {
+    "a": true
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "true"
+    }
+   }
+  },
+  {
+   "name": "index_str",
+   "expr": "{a}[0]",
+   "row_values": {
+    "a": "héllo"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "h"
+    }
+   }
+  },
+  {
+   "name": "index_neg",
+   "expr": "{a}[-1]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "c"
+    }
+   }
+  },
+  {
+   "name": "index_oob_empty",
+   "expr": "{a}[10]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "slice_basic",
+   "expr": "{a}[1:3]",
+   "row_values": {
+    "a": "abcdef"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "bc"
+    }
+   }
+  },
+  {
+   "name": "slice_open",
+   "expr": "{a}[:2]",
+   "row_values": {
+    "a": "abcdef"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ab"
+    }
+   }
+  },
+  {
+   "name": "slice_step",
+   "expr": "{a}[::2]",
+   "row_values": {
+    "a": "abcdef"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ace"
+    }
+   }
+  },
+  {
+   "name": "slice_step_zero",
+   "expr": "{a}[::0]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "slice step cannot be zero"
+   }
+  },
+  {
+   "name": "slice_neg_step",
+   "expr": "{a}[::-1]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "cba"
+    }
+   }
+  },
+  {
+   "name": "slice_astral",
+   "expr": "{a}[1:2]",
+   "row_values": {
+    "a": "a😀b"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "😀"
+    }
+   }
+  },
+  {
+   "name": "slice_expr_bounds",
+   "expr": "{a}[{b}:]",
+   "row_values": {
+    "a": "abcdef",
+    "b": 2
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "cdef"
+    }
+   }
+  },
+  {
+   "name": "slice_str_bounds",
+   "expr": "{a}[\"x\":]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "slice indices must be integers or None or have an __index__ method"
+   }
+  },
+  {
+   "name": "index_list_literal",
+   "expr": "[10, 20, 30][1]",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "20"
+    }
+   }
+  },
+  {
+   "name": "index_tuple_literal",
+   "expr": "(1, 2)[0]",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "index_list_oob",
+   "expr": "[1][3]",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "index_none",
+   "expr": "{a}[0]",
+   "row_values": {
+    "a": null
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "index_int_value",
+   "expr": "{a}[0]",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "'int' object is not subscriptable"
+   }
+  },
+  {
+   "name": "index_str_key_on_str",
+   "expr": "{a}[\"k\"]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "string indices must be integers, not 'str'"
+   }
+  },
+  {
+   "name": "index_float",
+   "expr": "{a}[1.0]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "string indices must be integers, not 'float'"
+   }
+  },
+  {
+   "name": "index_bool",
+   "expr": "{a}[True]",
+   "row_values": {
+    "a": "abc"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "b"
+    }
+   }
+  },
+  {
+   "name": "cmp_eq_num_str",
+   "expr": "{a} == {b}",
+   "row_values": {
+    "a": 1,
+    "b": "1"
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": false
+    }
+   }
+  },
+  {
+   "name": "cmp_eq_int_float",
+   "expr": "{a} == {b}",
+   "row_values": {
+    "a": 1,
+    "b": 1.0
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_lt_str",
+   "expr": "{a} < {b}",
+   "row_values": {
+    "a": "a",
+    "b": "b"
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_lt_mixed_error",
+   "expr": "{a} < {b}",
+   "row_values": {
+    "a": 1,
+    "b": "b"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "'<' not supported between instances of 'int' and 'str'"
+   }
+  },
+  {
+   "name": "cmp_chain",
+   "expr": "1 < {a} < 10",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_chain_false",
+   "expr": "1 < {a} < 3",
+   "row_values": {
+    "a": 5
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": false
+    }
+   }
+  },
+  {
+   "name": "cmp_chain_eq",
+   "expr": "{a} == {a} == {a}",
+   "row_values": {
+    "a": 1
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_neq",
+   "expr": "{a} != {b}",
+   "row_values": {
+    "a": "x",
+    "b": "y"
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_list_eq",
+   "expr": "[1, 2] == [1, 2]",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_none_eq",
+   "expr": "{a} == \"\"",
+   "row_values": {
+    "a": null
+   },
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "cmp_nan",
+   "expr": "float(\"nan\") == float(\"nan\")",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": false
+    }
+   }
+  },
+  {
+   "name": "cmp_bool_int",
+   "expr": "True == 1",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "and_returns_operand",
+   "expr": "{a} and {b}",
+   "row_values": {
+    "a": "x",
+    "b": "y"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y"
+    }
+   }
+  },
+  {
+   "name": "and_short_circuit",
+   "expr": "{a} and {b}",
+   "row_values": {
+    "a": "",
+    "b": "y"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "or_returns_operand",
+   "expr": "{a} or {b}",
+   "row_values": {
+    "a": "",
+    "b": "y"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y"
+    }
+   }
+  },
+  {
+   "name": "or_first_truthy",
+   "expr": "{a} or {b}",
+   "row_values": {
+    "a": "x",
+    "b": "y"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x"
+    }
+   }
+  },
+  {
+   "name": "or_zero_falsy",
+   "expr": "{a} or \"d\"",
+   "row_values": {
+    "a": 0
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "d"
+    }
+   }
+  },
+  {
+   "name": "or_zero_text_truthy",
+   "expr": "{a} or \"d\"",
+   "row_values": {
+    "a": "0"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "or_na_text_truthy",
+   "expr": "{a} or \"d\"",
+   "row_values": {
+    "a": "N/A"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "N/A"
+    }
+   }
+  },
+  {
+   "name": "or_nan_text_truthy",
+   "expr": "{a} or \"d\"",
+   "row_values": {
+    "a": "nan"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "nan"
+    }
+   }
+  },
+  {
+   "name": "or_float_zero_falsy",
+   "expr": "{a} or \"d\"",
+   "row_values": {
+    "a": 0.0
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "d"
+    }
+   }
+  },
+  {
+   "name": "or_empty_list_falsy",
+   "expr": "[] or \"d\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "d"
+    }
+   }
+  },
+  {
+   "name": "and_chain",
+   "expr": "1 and 2 and 0 and 3",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "or_chain",
+   "expr": "0 or \"\" or [] or 4",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "4"
+    }
+   }
+  },
+  {
+   "name": "and_or_mix",
+   "expr": "0 or 1 and 2",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "2"
+    }
+   }
+  },
+  {
+   "name": "and_skipped_operand_still_validated",
+   "expr": "{a} and zz({b})",
+   "row_values": {
+    "a": "",
+    "b": 1
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown function: zz"
+   }
+  },
+  {
+   "name": "or_skipped_operand_zero_div_not_evaluated",
+   "expr": "1 or 1/0",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "ifexp_true",
+   "expr": "\"y\" if {a} else \"n\"",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y"
+    }
+   }
+  },
+  {
+   "name": "ifexp_false_empty",
+   "expr": "\"y\" if {a} else \"n\"",
+   "row_values": {
+    "a": ""
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "n"
+    }
+   }
+  },
+  {
+   "name": "ifexp_zero_text",
+   "expr": "\"y\" if {a} else \"n\"",
+   "row_values": {
+    "a": "0"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "y"
+    }
+   }
+  },
+  {
+   "name": "ifexp_nested",
+   "expr": "1 if {a} else 2 if {b} else 3",
+   "row_values": {
+    "a": "",
+    "b": "x"
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "2"
+    }
+   }
+  },
+  {
+   "name": "ifexp_lazy_branch",
+   "expr": "1 if 1 else 1/0",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "ref_case_insensitive",
+   "expr": "{COMPANY}",
+   "row_values": {
+    "company": "Acme"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "Acme"
+    }
+   }
+  },
+  {
+   "name": "ref_exact_beats_ci",
+   "expr": "{Company}",
+   "row_values": {
+    "company": "low",
+    "Company": "Exact"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "Exact"
+    }
+   }
+  },
+  {
+   "name": "ref_missing_is_empty",
+   "expr": "{missing} + \"x\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "x"
+    }
+   }
+  },
+  {
+   "name": "ref_missing_len",
+   "expr": "len({missing})",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "0"
+    }
+   }
+  },
+  {
+   "name": "ref_spaces_in_name",
+   "expr": "{First Name}",
+   "row_values": {
+    "First Name": "Ada"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "Ada"
+    }
+   }
+  },
+  {
+   "name": "ref_trim",
+   "expr": "{ a }",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "v"
+    }
+   }
+  },
+  {
+   "name": "ref_same_twice",
+   "expr": "{a} + {a}",
+   "row_values": {
+    "a": "ab"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "abab"
+    }
+   }
+  },
+  {
+   "name": "ref_in_string_literal_untouched",
+   "expr": "\"{a}\" + {a}",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "{a}v"
+    }
+   }
+  },
+  {
+   "name": "ref_in_single_quote_literal",
+   "expr": "'{a}'",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "{a}"
+    }
+   }
+  },
+  {
+   "name": "ref_in_triple_quote",
+   "expr": "\"\"\"{a} \\\" {a}\"\"\" + {a}",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "{a} \" {a}v"
+    }
+   }
+  },
+  {
+   "name": "ref_in_comment",
+   "expr": "{a} # {b}",
+   "row_values": {
+    "a": "v",
+    "b": "w"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "v"
+    }
+   }
+  },
+  {
+   "name": "ref_after_comment_newline",
+   "expr": "{a} # {b}\n + {b}",
+   "row_values": {
+    "a": "v",
+    "b": "w"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: unexpected indent (<unknown>, line 2)"
+   }
+  },
+  {
+   "name": "ref_unicode_key",
+   "expr": "{société}",
+   "row_values": {
+    "Société": "ok"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ok"
+    }
+   }
+  },
+  {
+   "name": "ref_value_is_expression_text",
+   "expr": "{a}",
+   "row_values": {
+    "a": "1 + 1"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "1 + 1"
+    }
+   }
+  },
+  {
+   "name": "ref_value_with_quote",
+   "expr": "{a} + \"!\"",
+   "row_values": {
+    "a": "it's \"q\""
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "it's \"q\"!"
+    }
+   }
+  },
+  {
+   "name": "ref_value_with_braces",
+   "expr": "{a}",
+   "row_values": {
+    "a": "{b}"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "{b}"
+    }
+   }
+  },
+  {
+   "name": "ref_key_with_dot",
+   "expr": "{a.b}",
+   "row_values": {
+    "a.b": "dot"
+   },
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "dot"
+    }
+   }
+  },
+  {
+   "name": "ref_nested_braces",
+   "expr": "{{a}}",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: unmatched '}' (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "ref_unclosed",
+   "expr": "{a",
+   "row_values": {
+    "a": "v"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: '{' was never closed (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "ref_empty",
+   "expr": "{}",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Dict"
+   }
+  },
+  {
+   "name": "ref_only_spaces",
+   "expr": "{  }",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "lit_string_concat_adjacent",
+   "expr": "\"a\" \"b\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "ab"
+    }
+   }
+  },
+  {
+   "name": "lit_escape_newline",
+   "expr": "\"a\\nb\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "a\nb"
+    }
+   }
+  },
+  {
+   "name": "lit_unicode_escape",
+   "expr": "\"\\u00e9\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "é"
+    }
+   }
+  },
+  {
+   "name": "lit_bytes",
+   "expr": "b\"x\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "bytes",
+     "repr": "b'x'"
+    }
+   }
+  },
+  {
+   "name": "lit_complex",
+   "expr": "1j",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "complex",
+     "repr": "1j"
+    }
+   }
+  },
+  {
+   "name": "lit_hex",
+   "expr": "0xff",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "255"
+    }
+   }
+  },
+  {
+   "name": "lit_bin_oct",
+   "expr": "0b11 + 0o7",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "10"
+    }
+   }
+  },
+  {
+   "name": "lit_underscore",
+   "expr": "1_000",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1000"
+    }
+   }
+  },
+  {
+   "name": "lit_exp",
+   "expr": "1e3",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "1000.0"
+    }
+   }
+  },
+  {
+   "name": "lit_exp_big",
+   "expr": "1e400",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "inf"
+    }
+   }
+  },
+  {
+   "name": "lit_none",
+   "expr": "None",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "none"
+    }
+   }
+  },
+  {
+   "name": "lit_true",
+   "expr": "True",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "bool",
+     "v": true
+    }
+   }
+  },
+  {
+   "name": "lit_list_empty",
+   "expr": "[]",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "list",
+     "v": []
+    }
+   }
+  },
+  {
+   "name": "lit_tuple_one",
+   "expr": "(1,)",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "list",
+     "v": [
+      {
+       "t": "int",
+       "v": "1"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "name": "lit_ellipsis",
+   "expr": "...",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "ellipsis",
+     "repr": "Ellipsis"
+    }
+   }
+  },
+  {
+   "name": "lit_leading_zero",
+   "expr": "007",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: leading zeros in decimal integer literals are not permitted; use an 0o prefix for octal integers (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "lit_float_dot",
+   "expr": "5.",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "5.0"
+    }
+   }
+  },
+  {
+   "name": "lit_float_lead_dot",
+   "expr": ".5",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "0.5"
+    }
+   }
+  },
+  {
+   "name": "lit_neg_zero_float",
+   "expr": "-0.0",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "float",
+     "repr": "-0.0"
+    }
+   }
+  },
+  {
+   "name": "lit_big_int",
+   "expr": "123456789012345678901234567890",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "123456789012345678901234567890"
+    }
+   }
+  },
+  {
+   "name": "rej_pow",
+   "expr": "2 ** 10",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Pow"
+   }
+  },
+  {
+   "name": "rej_lambda",
+   "expr": "(lambda: 1)()",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unsupported call target"
+   }
+  },
+  {
+   "name": "rej_listcomp",
+   "expr": "[x for x in [1]]",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: ListComp"
+   }
+  },
+  {
+   "name": "rej_fstring",
+   "expr": "f\"{1}\"",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: JoinedStr"
+   }
+  },
+  {
+   "name": "rej_import",
+   "expr": "__import__(\"os\")",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown function: __import__"
+   }
+  },
+  {
+   "name": "rej_dunder_attr",
+   "expr": "{a}.__class__",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "dunder/private access not allowed"
+   }
+  },
+  {
+   "name": "rej_dunder_method",
+   "expr": "{a}.__len__()",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .__len__"
+   }
+  },
+  {
+   "name": "rej_private_attr",
+   "expr": "{a}._x",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "dunder/private access not allowed"
+   }
+  },
+  {
+   "name": "rej_format_method",
+   "expr": "{a}.format()",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .format"
+   }
+  },
+  {
+   "name": "rej_unknown_func",
+   "expr": "eval(\"1\")",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown function: eval"
+   }
+  },
+  {
+   "name": "rej_unknown_name",
+   "expr": "foo",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown name: foo"
+   }
+  },
+  {
+   "name": "rej_walrus",
+   "expr": "(x := 1)",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: NamedExpr"
+   }
+  },
+  {
+   "name": "rej_dict_literal",
+   "expr": "{\"a\": 1}",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "rej_set_literal",
+   "expr": "{1, 2}",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": ""
+    }
+   }
+  },
+  {
+   "name": "rej_in",
+   "expr": "1 in [1]",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: In"
+   }
+  },
+  {
+   "name": "rej_not_in",
+   "expr": "1 not in [1]",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: NotIn"
+   }
+  },
+  {
+   "name": "rej_not",
+   "expr": "not {a}",
+   "row_values": {
+    "a": ""
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Not"
+   }
+  },
+  {
+   "name": "rej_is",
+   "expr": "None is None",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Is"
+   }
+  },
+  {
+   "name": "rej_bitand",
+   "expr": "1 & 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: BitAnd"
+   }
+  },
+  {
+   "name": "rej_bitor",
+   "expr": "1 | 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: BitOr"
+   }
+  },
+  {
+   "name": "rej_xor",
+   "expr": "1 ^ 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: BitXor"
+   }
+  },
+  {
+   "name": "rej_shift",
+   "expr": "1 << 2",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: LShift"
+   }
+  },
+  {
+   "name": "rej_invert",
+   "expr": "~1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Invert"
+   }
+  },
+  {
+   "name": "rej_matmul",
+   "expr": "1 @ 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: MatMult"
+   }
+  },
+  {
+   "name": "rej_starred",
+   "expr": "[*[1]]",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Starred"
+   }
+  },
+  {
+   "name": "rej_kwarg",
+   "expr": "round({a}, ndigits=1)",
+   "row_values": {
+    "a": 1.5
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: keyword"
+   }
+  },
+  {
+   "name": "rej_call_result",
+   "expr": "len({a})(1)",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "unsupported call target"
+   }
+  },
+  {
+   "name": "rej_call_on_subscript",
+   "expr": "{a}[0](1)",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "unsupported call target"
+   }
+  },
+  {
+   "name": "rej_attr_on_call_result_nonmethod",
+   "expr": "upper({a}).real",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "bare attribute access not allowed"
+   }
+  },
+  {
+   "name": "rej_method_not_allowed_capitalize",
+   "expr": "{a}.capitalize()",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .capitalize"
+   }
+  },
+  {
+   "name": "rej_method_isdigit",
+   "expr": "{a}.isdigit()",
+   "row_values": {
+    "a": "1"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .isdigit"
+   }
+  },
+  {
+   "name": "rej_method_count",
+   "expr": "{a}.count(\"a\")",
+   "row_values": {
+    "a": "aa"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .count"
+   }
+  },
+  {
+   "name": "rej_method_encode",
+   "expr": "{a}.encode()",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "method not allowed: .encode"
+   }
+  },
+  {
+   "name": "rej_await",
+   "expr": "await x",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Await"
+   }
+  },
+  {
+   "name": "rej_yield",
+   "expr": "(yield)",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Yield"
+   }
+  },
+  {
+   "name": "rej_slice_assign",
+   "expr": "x = 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: invalid syntax (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_multi_statement",
+   "expr": "1; 2",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: invalid syntax (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_empty",
+   "expr": "",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "empty formula"
+   }
+  },
+  {
+   "name": "rej_whitespace",
+   "expr": "   ",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "empty formula"
+   }
+  },
+  {
+   "name": "rej_syntax",
+   "expr": "1 +",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: invalid syntax (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_unbalanced_paren",
+   "expr": "(1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: '(' was never closed (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_trailing_op",
+   "expr": "{a} +",
+   "row_values": {
+    "a": 1
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: invalid syntax (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_invalid_ref_char",
+   "expr": "{a-b}",
+   "row_values": {
+    "a-b": 1
+   },
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "rej_newline_in_expr",
+   "expr": "1 +\n 2",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: invalid syntax (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_newline_paren",
+   "expr": "(1 +\n 2)",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "3"
+    }
+   }
+  },
+  {
+   "name": "rej_indent",
+   "expr": " 1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: unexpected indent (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_tab_indent",
+   "expr": "\t1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "syntax error: unexpected indent (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rej_percent_format",
+   "expr": "\"%s\" % 5",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "5"
+    }
+   }
+  },
+  {
+   "name": "rej_percent_tuple",
+   "expr": "\"%s-%s\" % (1, 2)",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "not enough arguments for format string"
+   }
+  },
+  {
+   "name": "rej_deep_nesting_ok",
+   "expr": "((((((((((1))))))))))",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "int",
+     "v": "1"
+    }
+   }
+  },
+  {
+   "name": "rej_unicode_ident",
+   "expr": "é",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown name: é"
+   }
+  },
+  {
+   "name": "rej_cmp_walk_in_call_args",
+   "expr": "len(1 in [1])",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: In"
+   }
+  },
+  {
+   "name": "rej_dunder_in_string_ok",
+   "expr": "\"__class__\"",
+   "row_values": {},
+   "result": {
+    "value": {
+     "t": "str",
+     "v": "__class__"
+    }
+   }
+  },
+  {
+   "name": "rej_attr_chain_method_then_private",
+   "expr": "{a}.upper().__class__",
+   "row_values": {
+    "a": "x"
+   },
+   "result": {
+    "error": "FormulaError",
+    "message": "dunder/private access not allowed"
+   }
+  },
+  {
+   "name": "rej_call_func_name_attribute_of_name",
+   "expr": "len.__name__",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "dunder/private access not allowed"
+   }
+  },
+  {
+   "name": "rej_subscript_of_name_func",
+   "expr": "len[0]",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown name: len"
+   }
+  },
+  {
+   "name": "rej_bool_and_unknown_func",
+   "expr": "1 or foo()",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown function: foo"
+   }
+  },
+  {
+   "name": "rej_ifexp_unknown",
+   "expr": "1 if 1 else foo()",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "unknown function: foo"
+   }
+  },
+  {
+   "name": "rej_unary_not_tilde",
+   "expr": "-~1",
+   "row_values": {},
+   "result": {
+    "error": "FormulaError",
+    "message": "disallowed expression element: Invert"
+   }
+  }
+ ],
+ "references": [
+  {
+   "expr": "{a}",
+   "refs": [
+    "a"
+   ],
+   "replaced": "<a>"
+  },
+  {
+   "expr": "{a} + {b}",
+   "refs": [
+    "a",
+    "b"
+   ],
+   "replaced": "<a> + <b>"
+  },
+  {
+   "expr": "\"{a}\"",
+   "refs": [],
+   "replaced": "\"{a}\""
+  },
+  {
+   "expr": "'{a}' + {b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "'{a}' + <b>"
+  },
+  {
+   "expr": "{a} # {b}",
+   "refs": [
+    "a"
+   ],
+   "replaced": "<a> # {b}"
+  },
+  {
+   "expr": "# only comment {a}",
+   "refs": [],
+   "replaced": "# only comment {a}"
+  },
+  {
+   "expr": "{a} # c\n{b}",
+   "refs": [
+    "a",
+    "b"
+   ],
+   "replaced": "<a> # c\n<b>"
+  },
+  {
+   "expr": "\"\"\"{a}\"\"\" {b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "\"\"\"{a}\"\"\" <b>"
+  },
+  {
+   "expr": "'''x {a}''' + {b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "'''x {a}''' + <b>"
+  },
+  {
+   "expr": "\"unterminated {a}",
+   "refs": [],
+   "replaced": "\"unterminated {a}"
+  },
+  {
+   "expr": "{ a }",
+   "refs": [
+    "a"
+   ],
+   "replaced": "< a >"
+  },
+  {
+   "expr": "{a b}",
+   "refs": [
+    "a b"
+   ],
+   "replaced": "<a b>"
+  },
+  {
+   "expr": "{}",
+   "refs": [],
+   "replaced": "{}"
+  },
+  {
+   "expr": "{a",
+   "refs": [],
+   "replaced": "{a"
+  },
+  {
+   "expr": "a}",
+   "refs": [],
+   "replaced": "a}"
+  },
+  {
+   "expr": "\"esc \\\" {a}\" {b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "\"esc \\\" {a}\" <b>"
+  },
+  {
+   "expr": "'esc \\' {a}' {b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "'esc \\' {a}' <b>"
+  },
+  {
+   "expr": "{a}{b}",
+   "refs": [
+    "a",
+    "b"
+   ],
+   "replaced": "<a><b>"
+  },
+  {
+   "expr": "{{a}}",
+   "refs": [
+    "{a"
+   ],
+   "replaced": "<{a>}"
+  },
+  {
+   "expr": "\"\" {a} \"\"",
+   "refs": [
+    "a"
+   ],
+   "replaced": "\"\" <a> \"\""
+  },
+  {
+   "expr": "{société} + {Ünï}",
+   "refs": [
+    "société",
+    "Ünï"
+   ],
+   "replaced": "<société> + <Ünï>"
+  },
+  {
+   "expr": "{a.b}",
+   "refs": [
+    "a.b"
+   ],
+   "replaced": "<a.b>"
+  },
+  {
+   "expr": "\"{\" + {a}",
+   "refs": [
+    "a"
+   ],
+   "replaced": "\"{\" + <a>"
+  },
+  {
+   "expr": "# \"{a}\n{b}",
+   "refs": [
+    "b"
+   ],
+   "replaced": "# \"{a}\n<b>"
+  },
+  {
+   "expr": "\\{a}",
+   "refs": [
+    "a"
+   ],
+   "replaced": "\\<a>"
+  },
+  {
+   "expr": "{a}\n# {b}\n{c}",
+   "refs": [
+    "a",
+    "c"
+   ],
+   "replaced": "<a>\n# {b}\n<c>"
+  },
+  {
+   "expr": "",
+   "refs": [],
+   "replaced": ""
+  }
+ ],
+ "execute": [
+  {
+   "name": "domain_of_email",
+   "column": {
+    "formula": "{Email}.split(\"@\")[1]"
+   },
+   "lead_data": {
+    "email": "x@y.com"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "y.com"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "count_times_two_is_string_repeat",
+   "column": {
+    "formula": "{n} * 2"
+   },
+   "lead_data": {
+    "n": "5"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "55"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "count_int_is_numeric",
+   "column": {
+    "formula": "{n} * 2"
+   },
+   "lead_data": {
+    "n": 5
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "55"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "count_float_cast",
+   "column": {
+    "formula": "float({n}) * 2"
+   },
+   "lead_data": {
+    "n": "5"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "float",
+     "repr": "10.0"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "int_cast_arith",
+   "column": {
+    "formula": "int({n}) + 1"
+   },
+   "lead_data": {
+    "n": "41"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "int",
+     "v": "42"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "empty_result_is_error",
+   "column": {
+    "formula": "{email}"
+   },
+   "lead_data": {
+    "email": ""
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty_result"
+   }
+  },
+  {
+   "name": "none_missing_is_error",
+   "column": {
+    "formula": "{email}"
+   },
+   "lead_data": {},
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty_result"
+   }
+  },
+  {
+   "name": "empty_string_expr_is_error",
+   "column": {
+    "formula": "\"\""
+   },
+   "lead_data": {},
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty_result"
+   }
+  },
+  {
+   "name": "bool_true_to_text",
+   "column": {
+    "formula": "{n} == \"1\""
+   },
+   "lead_data": {
+    "n": "1"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "true"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "bool_false_to_text_not_empty",
+   "column": {
+    "formula": "{n} == \"1\""
+   },
+   "lead_data": {
+    "n": "2"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "false"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "zero_int_value_kept",
+   "column": {
+    "formula": "int({n}) - int({n})"
+   },
+   "lead_data": {
+    "n": "3"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "int",
+     "v": "0"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "float_value",
+   "column": {
+    "formula": "float({n}) / 3"
+   },
+   "lead_data": {
+    "n": "1"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "float",
+     "repr": "0.3333333333333333"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "list_value",
+   "column": {
+    "formula": "{email}.split(\"@\")"
+   },
+   "lead_data": {
+    "email": "a@b"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "list",
+     "v": [
+      {
+       "t": "str",
+       "v": "a"
+      },
+      {
+       "t": "str",
+       "v": "b"
+      }
+     ]
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "no_formula_key",
+   "column": {},
+   "lead_data": {
+    "n": "1"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_formula"
+   }
+  },
+  {
+   "name": "blank_formula",
+   "column": {
+    "formula": "   "
+   },
+   "lead_data": {
+    "n": "1"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_formula"
+   }
+  },
+  {
+   "name": "none_formula",
+   "column": {
+    "formula": null
+   },
+   "lead_data": {},
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_formula"
+   }
+  },
+  {
+   "name": "syntax_error_truncated_120",
+   "column": {
+    "formula": "(((111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111"
+   },
+   "lead_data": {},
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "syntax error: '(' was never closed (<unknown>, line 1)"
+   }
+  },
+  {
+   "name": "rejected_syntax",
+   "column": {
+    "formula": "{n} ** 2"
+   },
+   "lead_data": {
+    "n": "2"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "disallowed expression element: Pow"
+   }
+  },
+  {
+   "name": "zero_division_error_text",
+   "column": {
+    "formula": "1 / int({n})"
+   },
+   "lead_data": {
+    "n": "0"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "division by zero"
+   }
+  },
+  {
+   "name": "type_error_text",
+   "column": {
+    "formula": "{n} - 1"
+   },
+   "lead_data": {
+    "n": "5"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "unsupported operand type(s) for -: 'str' and 'int'"
+   }
+  },
+  {
+   "name": "value_error_text",
+   "column": {
+    "formula": "int({email})"
+   },
+   "lead_data": {
+    "email": "abc"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "could not convert string to float: 'abc'"
+   }
+  },
+  {
+   "name": "alias_by_name",
+   "column": {
+    "formula": "{Company}"
+   },
+   "lead_data": {
+    "company": "Acme"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "Acme"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "alias_by_id",
+   "column": {
+    "formula": "{company}"
+   },
+   "lead_data": {
+    "company": "Acme"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "Acme"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "cell_dict_values",
+   "column": {
+    "formula": "{company}"
+   },
+   "lead_data": {
+    "company": {
+     "value": "X"
+    }
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "{'value': 'X'}"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "underscore_alias_not_resolved_by_formula",
+   "column": {
+    "formula": "{co_mpany}"
+   },
+   "lead_data": {
+    "company": "Acme"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty_result"
+   }
+  },
+  {
+   "name": "unicode_len",
+   "column": {
+    "formula": "len({company})"
+   },
+   "lead_data": {
+    "company": "日本語"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "int",
+     "v": "3"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "float_nan_text_value",
+   "column": {
+    "formula": "float({n})"
+   },
+   "lead_data": {
+    "n": "nan"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "float",
+     "repr": "nan"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "float_inf_text_value",
+   "column": {
+    "formula": "float({n})"
+   },
+   "lead_data": {
+    "n": "inf"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "float",
+     "repr": "inf"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "long_string_value_untruncated",
+   "column": {
+    "formula": "{company} * 100"
+   },
+   "lead_data": {
+    "company": "abcdefghij"
+   },
+   "columns_config": [
+    {
+     "id": "company",
+     "name": "Company"
+    },
+    {
+     "id": "n",
+     "name": "Count"
+    },
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "f",
+     "name": "F"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij"
+    },
+    "error": null
+   }
+  }
+ ]
+}

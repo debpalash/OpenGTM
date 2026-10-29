@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "field_map": {
+        "a": 1
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002080"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "field_map",
+            "a"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

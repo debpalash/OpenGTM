@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/data/9999"
+  },
+  "response": {
+    "body": {
+      "detail": "Record with id 9999 not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

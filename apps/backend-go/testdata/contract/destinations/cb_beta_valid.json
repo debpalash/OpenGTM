@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "evt-b-cb-1",
+      "fields": {
+        "jobtitle": "Director"
+      },
+      "lead_id": 17
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-beta-crm"
+  },
+  "response": {
+    "body": {
+      "applied_fields": [],
+      "conflict_policy": "fill_missing",
+      "created_at": "2026-10-26T17:05:52.495967",
+      "destination_id": "dst-beta-crm",
+      "error": null,
+      "external_event_id": "evt-b-cb-1",
+      "external_record_id": null,
+      "id": "00000000-0000-4000-8000-000000002127",
+      "ignored_fields": [
+        "jobtitle"
+      ],
+      "lead_id": 17,
+      "provider": "hubspot",
+      "replay": false,
+      "status": "no_change"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

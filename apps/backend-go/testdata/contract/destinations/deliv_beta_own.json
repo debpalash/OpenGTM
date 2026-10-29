@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-beta-crm1/deliveries"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 1,
+        "created_at": "2026-08-28T11:00:05",
+        "delivered_at": "2026-08-28T11:00:10",
+        "destination_id": "dst-beta-crm",
+        "error": null,
+        "external_id": "hs-b17",
+        "id": 27,
+        "lead_id": 17,
+        "operation": "upsert",
+        "run_id": "run-beta-crm1",
+        "status": "success",
+        "summary": "Pushed 1 contact"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

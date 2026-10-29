@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "DELETE 1 ROWS",
+      "expected_count": 1,
+      "search": "zzz-no-match",
+      "view_id": "view-alpha-2"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "actual_count": 0,
+        "expected_count": 1,
+        "message": "Matching row count changed; review and confirm again"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

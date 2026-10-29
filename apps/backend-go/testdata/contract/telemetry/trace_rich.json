@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/rows/2/cells/summary/trace"
+  },
+  "response": {
+    "body": {
+      "column_id": "summary",
+      "goal": "find the CEO email",
+      "lead_id": 2,
+      "outcome": "found",
+      "steps": [
+        {
+          "cost": 0.004,
+          "provider": "hunter",
+          "reason": "domain match \u00e9",
+          "step": 1,
+          "success": true,
+          "value": "x@y.z"
+        },
+        {
+          "cost": 0.0,
+          "provider": "apollo",
+          "reason": "skipped",
+          "step": 2,
+          "success": false,
+          "value": null
+        }
+      ],
+      "total_cost_usd": {
+        "spent": 0.0123
+      },
+      "workbook_id": "wb-alpha-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

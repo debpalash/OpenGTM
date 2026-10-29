@@ -1,0 +1,1154 @@
+[
+ {
+  "args": {
+   "action_id": "a1",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "first_completes",
+  "now": 1000.0,
+  "op": "ok",
+  "payload": {
+   "count": 2,
+   "ok": true,
+   "people": [
+    {
+     "name": "A"
+    }
+   ]
+  },
+  "raises": null,
+  "result": {
+   "count": 2,
+   "execution_status": "completed",
+   "ok": true,
+   "people": [
+    {
+     "name": "A"
+    }
+   ]
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a1",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "replay_completed",
+  "now": 1001.0,
+  "op": "ok",
+  "payload": {
+   "count": 99,
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "count": 2,
+   "execution_status": "completed",
+   "ok": true,
+   "people": [
+    {
+     "name": "A"
+    }
+   ],
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a1",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 2,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "contract_conflict",
+  "now": 1002.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "action_id": "a1",
+   "error": "Idempotency key conflicts with a different contact contract",
+   "execution_status": "conflict",
+   "ok": false
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a2",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "failed_result_replays",
+  "now": 1003.0,
+  "op": "ok",
+  "payload": {
+   "error": "nope",
+   "ok": false
+  },
+  "raises": null,
+  "result": {
+   "error": "nope",
+   "execution_status": "failed",
+   "ok": false
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a2",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "failed_replay",
+  "now": 1004.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "error": "nope",
+   "execution_status": "failed",
+   "ok": false,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a1",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w2"
+  },
+  "name": "other_workspace_independent",
+  "now": 1005.0,
+  "op": "ok",
+  "payload": {
+   "ok": true,
+   "w": 2
+  },
+  "raises": null,
+  "result": {
+   "execution_status": "completed",
+   "ok": true,
+   "w": 2
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a3",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "operation_raises_uncertain",
+  "now": 1006.0,
+  "op": "raise",
+  "payload": null,
+  "raises": null,
+  "result": {
+   "action_id": "a3",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_outcome_uncertain",
+   "execution_status": "uncertain",
+   "ok": false,
+   "recovery": "Provider usage may have been billed. Review usage and saved results before approving a new action key.",
+   "retry_after_seconds": 0,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a3",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "uncertain_blocks_retry",
+  "now": 1007.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "action_id": "a3",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_outcome_uncertain",
+   "execution_status": "uncertain",
+   "ok": false,
+   "recovery": "Provider usage may have been billed. Review usage and saved results before approving a new action key.",
+   "retry_after_seconds": 0,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a4",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 0.05,
+   "workspace_id": "w1"
+  },
+  "name": "operation_timeout_uncertain",
+  "now": 1008.0,
+  "op": "slow",
+  "payload": null,
+  "raises": null,
+  "result": {
+   "action_id": "a4",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_outcome_uncertain",
+   "execution_status": "uncertain",
+   "ok": false,
+   "recovery": "Provider usage may have been billed. Review usage and saved results before approving a new action key.",
+   "retry_after_seconds": 0,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a5",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "notdict_uncertain",
+  "now": 1009.0,
+  "op": "notdict",
+  "payload": null,
+  "raises": null,
+  "result": {
+   "action_id": "a5",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_outcome_uncertain",
+   "execution_status": "uncertain",
+   "ok": false,
+   "recovery": "Provider usage may have been billed. Review usage and saved results before approving a new action key.",
+   "retry_after_seconds": 0,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a6",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "running_blocks",
+  "now": 1050.5,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "action_id": "a6",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_in_progress",
+   "execution_status": "running",
+   "ok": false,
+   "recovery": "Check this action again after the retry interval; no additional provider calls were started.",
+   "retry_after_seconds": 49,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a6",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1100.0,
+    "result": null,
+    "started_at": 1010.0,
+    "status": "running",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a6",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "running_expires_to_uncertain",
+  "now": 1100.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": null,
+  "result": {
+   "action_id": "a6",
+   "automatic_retry_allowed": false,
+   "error": "contact_action_outcome_uncertain",
+   "execution_status": "uncertain",
+   "ok": false,
+   "recovery": "Provider usage may have been billed. Review usage and saved results before approving a new action key.",
+   "retry_after_seconds": 0,
+   "reused": true
+  },
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a6",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1100.0,
+    "result": null,
+    "started_at": 1010.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a7",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": ""
+  },
+  "name": "bad_args_workspace",
+  "now": 1101.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": "ValueError",
+  "result": null,
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a6",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1100.0,
+    "result": null,
+    "started_at": 1010.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "contract": {
+    "company": "Café Münch",
+    "flag": true,
+    "n": 1.5,
+    "nested": {
+     "a": [
+      1,
+      2.0
+     ],
+     "z": null
+    },
+    "people": [
+     "a",
+     "b"
+    ]
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "bad_args_long_action",
+  "now": 1101.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": "ValueError",
+  "result": null,
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a6",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1100.0,
+    "result": null,
+    "started_at": 1010.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ },
+ {
+  "args": {
+   "action_id": "a8",
+   "contract": {
+    "x": "__NaN__"
+   },
+   "timeout_seconds": 900,
+   "workspace_id": "w1"
+  },
+  "name": "nan_contract",
+  "now": 1101.0,
+  "op": "ok",
+  "payload": {
+   "ok": true
+  },
+  "raises": "ValueError",
+  "result": null,
+  "rows": [
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1930.0,
+    "result": "{\"ok\": true, \"count\": 2, \"people\": [{\"name\": \"A\"}]}",
+    "started_at": 1000.0,
+    "status": "completed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a2",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1933.0,
+    "result": "{\"ok\": false, \"error\": \"nope\"}",
+    "started_at": 1003.0,
+    "status": "failed",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a3",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1936.0,
+    "result": "null",
+    "started_at": 1006.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a4",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1038.05,
+    "result": "null",
+    "started_at": 1008.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a5",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1939.0,
+    "result": "null",
+    "started_at": 1009.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a6",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1100.0,
+    "result": null,
+    "started_at": 1010.0,
+    "status": "uncertain",
+    "workspace_id": "w1"
+   },
+   {
+    "action_id": "a1",
+    "contract_hash": "7e9dab30c2ee485475a6ed3b07082611c45999e6aa8109f769ccc2f0b8f63722",
+    "expires_at": 1935.0,
+    "result": "{\"ok\": true, \"w\": 2}",
+    "started_at": 1005.0,
+    "status": "completed",
+    "workspace_id": "w2"
+   }
+  ]
+ }
+]

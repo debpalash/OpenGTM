@@ -1,0 +1,36 @@
+{
+  "seq": 1,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {
+        "name": "t",
+        "version": "1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {
+          "listChanged": false
+        }
+      },
+      "serverInfo": {
+        "name": "opengtm",
+        "version": "3.0.0"
+      }
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,44 @@
+{
+  "seq": 45,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 44,
+    "method": "tools/call",
+    "params": {
+      "name": "get_hiring_signals",
+      "arguments": {
+        "company": "Nobody Inc"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 44,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"company\": \"Nobody Inc\",\n  \"hiring\": false,\n  \"data\": {}\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "get_hiring_signals": {
+      "success": false,
+      "fields": {}
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "get_hiring_signals",
+      "lead_id": 0,
+      "company": "Nobody Inc"
+    }
+  ]
+}

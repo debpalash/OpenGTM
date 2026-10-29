@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers/trg-a-01/runs?limit=0"
+  },
+  "response": {
+    "body": [],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

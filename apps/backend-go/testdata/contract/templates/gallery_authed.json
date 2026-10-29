@@ -1,0 +1,305 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/templates/gallery"
+  },
+  "response": {
+    "body": {
+      "categories": {
+        "crm-hygiene": {
+          "color": "text-emerald-400",
+          "icon": "sparkles",
+          "label": "CRM Hygiene"
+        },
+        "list-building": {
+          "color": "text-blue-400",
+          "icon": "radar",
+          "label": "List Building"
+        },
+        "outbound": {
+          "color": "text-violet-400",
+          "icon": "send",
+          "label": "Outbound"
+        },
+        "research": {
+          "color": "text-amber-400",
+          "icon": "search",
+          "label": "Research"
+        },
+        "signals": {
+          "color": "text-rose-400",
+          "icon": "activity",
+          "label": "Signals"
+        }
+      },
+      "recipes": [
+        {
+          "category": "crm-hygiene",
+          "column_types": {
+            "lead_field": 2,
+            "waterfall": 4
+          },
+          "columns_count": 6,
+          "description": "Fill the holes in an existing list \u2014 phone, LinkedIn, description and website are only enriched where they're empty, so good data is never overwritten.",
+          "icon": "paintbrush",
+          "name": "Backfill missing CRM fields",
+          "slug": "backfill-missing-fields"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "ai_formula": 2,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 1
+          },
+          "columns_count": 6,
+          "description": "Turn a raw list into sequence-ready rows: a verified email, two likely pain points, and a personalized opening line for every company.",
+          "icon": "pen-line",
+          "name": "Cold email personalization at scale",
+          "slug": "cold-email-personalization"
+        },
+        {
+          "category": "research",
+          "column_types": {
+            "lead_field": 2,
+            "research": 1,
+            "waterfall": 3
+          },
+          "columns_count": 6,
+          "description": "Turn a list of competitors into battlecards: positioning, detected tech stack, headcount, and a researched strengths/weaknesses summary per company.",
+          "icon": "swords",
+          "name": "Competitor battlecards",
+          "slug": "competitor-battlecards"
+        },
+        {
+          "category": "crm-hygiene",
+          "column_types": {
+            "lead_field": 2,
+            "waterfall": 4
+          },
+          "columns_count": 6,
+          "description": "Refresh stale CRM records: headcount, industry tags, founding year and registered address from public registries and the company's own website.",
+          "icon": "refresh-cw",
+          "name": "CRM record refresh (firmographics)",
+          "slug": "crm-record-enrichment"
+        },
+        {
+          "category": "list-building",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 2,
+            "source": 1,
+            "waterfall": 2
+          },
+          "columns_count": 6,
+          "description": "Discover direct-to-consumer e-commerce brands (Shopify stores, review sites), pull a company one-liner, and find a contactable email for each store.",
+          "icon": "shopping-bag",
+          "name": "D2C e-commerce brands with contact emails",
+          "slug": "d2c-brands-shopify"
+        },
+        {
+          "category": "crm-hygiene",
+          "column_types": {
+            "ai_formula": 1,
+            "formula": 2,
+            "lead_field": 3
+          },
+          "columns_count": 6,
+          "description": "Derive a canonical domain and a lowercased company key from each row with safe formulas \u2014 the join keys you need before deduping or merging lists.",
+          "icon": "combine",
+          "name": "Normalize & dedupe prep (domains + clean names)",
+          "slug": "domain-normalize-dedupe"
+        },
+        {
+          "category": "crm-hygiene",
+          "column_types": {
+            "formula": 1,
+            "lead_field": 2,
+            "waterfall": 2
+          },
+          "columns_count": 5,
+          "description": "Import your list (CSV or leads), verify every email with SMTP + account-presence checks, extract the domain, and re-find addresses for rows that fail.",
+          "icon": "shield-check",
+          "name": "Email list verification & cleanup",
+          "slug": "email-verify-cleanup"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 4
+          },
+          "columns_count": 7,
+          "description": "Complete each row (email, phone, LinkedIn, headcount) with zero-key waterfalls, then push finished contacts into HubSpot as CRM records.",
+          "icon": "upload-cloud",
+          "name": "Enrich & sync to HubSpot",
+          "slug": "enrich-and-sync-hubspot"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "ai_formula": 2,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 3
+          },
+          "columns_count": 8,
+          "description": "Find the founder or key decision maker at each company, get a verified email, and draft a personalized opener \u2014 ready to enroll in a sequence.",
+          "icon": "crown",
+          "name": "Founder & decision-maker outreach",
+          "slug": "founder-outreach"
+        },
+        {
+          "category": "signals",
+          "column_types": {
+            "lead_field": 2,
+            "research": 1,
+            "waterfall": 4
+          },
+          "columns_count": 7,
+          "description": "Track funding stage, last round, investors and recent news across your accounts, and research one cited, recent signal per company.",
+          "icon": "banknote",
+          "name": "Funding-round watch",
+          "slug": "funding-round-watch"
+        },
+        {
+          "category": "signals",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 1
+          },
+          "columns_count": 5,
+          "description": "Detect open roles across your accounts from public ATS boards, then turn each hiring signal into a concrete outreach angle \u2014 pushed to your webhook.",
+          "icon": "radar",
+          "name": "Hiring-signals radar",
+          "slug": "hiring-signals-radar"
+        },
+        {
+          "category": "research",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 3,
+            "source": 1,
+            "waterfall": 2
+          },
+          "columns_count": 7,
+          "description": "Source funded Indian startups from Tracxn, Inc42 and YourStory, add founding year, headcount and a one-liner \u2014 a ready-made market map for any segment.",
+          "icon": "map",
+          "name": "India startup market map",
+          "slug": "india-startup-market-map"
+        },
+        {
+          "category": "list-building",
+          "column_types": {
+            "enrichment": 1,
+            "lead_field": 3,
+            "source": 1,
+            "waterfall": 3
+          },
+          "columns_count": 8,
+          "description": "Build a directory of IT services and consulting firms in India from IndiaMART, Justdial and Clutch, with phone, registered address, email, and a lead score.",
+          "icon": "building-2",
+          "name": "IT services companies in India (directories)",
+          "slug": "it-services-india-directory"
+        },
+        {
+          "category": "signals",
+          "column_types": {
+            "lead_field": 2,
+            "source": 1,
+            "waterfall": 3
+          },
+          "columns_count": 6,
+          "description": "Source companies actively posting on Naukri, Indeed and Shine \u2014 a spend-signal \u2014 then find an HR/hiring contact and a verified email.",
+          "icon": "briefcase",
+          "name": "Job-board intent (India)",
+          "slug": "job-board-intent-india"
+        },
+        {
+          "category": "research",
+          "column_types": {
+            "lead_field": 2,
+            "research": 1,
+            "waterfall": 2
+          },
+          "columns_count": 5,
+          "description": "For every account on your call list: what they do, one recent concrete signal (news, hiring, funding), and a suggested outreach angle \u2014 cited.",
+          "icon": "notebook-pen",
+          "name": "Pre-call account briefs",
+          "slug": "pre-call-account-briefs"
+        },
+        {
+          "category": "list-building",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 2,
+            "source": 1,
+            "waterfall": 2
+          },
+          "columns_count": 6,
+          "description": "Source SaaS vendors from G2, Capterra and Product Hunt, detect their tech stack and headcount, and score how well each fits your ICP.",
+          "icon": "star",
+          "name": "SaaS companies from review sites (G2 / Capterra)",
+          "slug": "saas-buyers-review-sites"
+        },
+        {
+          "category": "list-building",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 3,
+            "output": 1,
+            "source": 1,
+            "waterfall": 3
+          },
+          "columns_count": 9,
+          "description": "Source 100 SaaS companies in India, find the founders, discover and verify their emails, score ICP fit, and push clean contacts to HubSpot.",
+          "icon": "rocket",
+          "name": "SaaS founders in India \u2192 verified emails \u2192 HubSpot",
+          "slug": "saas-founders-india"
+        },
+        {
+          "category": "research",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 2,
+            "research": 1,
+            "waterfall": 1
+          },
+          "columns_count": 5,
+          "description": "Detect each company's technologies twice \u2014 a website fingerprint waterfall plus an evidence-only research agent over job posts \u2014 and reconcile them.",
+          "icon": "cpu",
+          "name": "Tech-stack mapping",
+          "slug": "tech-stack-mapping"
+        },
+        {
+          "category": "outbound",
+          "column_types": {
+            "formula": 1,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 2
+          },
+          "columns_count": 6,
+          "description": "Enrich each row with a verified email and firmographics, then POST the finished row to any endpoint you own \u2014 Zapier, n8n, your own API.",
+          "icon": "webhook",
+          "name": "Enrich & push via webhook",
+          "slug": "webhook-export-pipeline"
+        }
+      ],
+      "total": 19
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

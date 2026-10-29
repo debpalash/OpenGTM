@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "schedule_interval_minutes": 14
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/research-playbooks/pb-gov-sched"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 15
+          },
+          "input": 14,
+          "loc": [
+            "body",
+            "schedule_interval_minutes"
+          ],
+          "msg": "Input should be greater than or equal to 15",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

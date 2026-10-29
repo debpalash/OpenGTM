@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "columns": [
+          "a",
+          1
+        ],
+        "spreadsheet_id": "s"
+      },
+      "destination_type": "google_sheets",
+      "name": "cfg 49"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "google_sheets columns must contain 1 to 100 field names"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -86,8 +86,8 @@ payloads stay byte-identical.
 
 ## Adding a provider with a YAML manifest
 
-Most REST providers need no Python. Drop a manifest under
-`apps/api/services/leadgen/enrichment/declarative/manifests/<capability>/`:
+Most REST providers need no code. Drop a manifest under
+`apps/backend-go/internal/manifest/builtin/manifests/<capability>/`:
 
 ```yaml
 name: acme_email
@@ -116,9 +116,4 @@ input_fields: [website_domain, contact_person]
 
 The manifest compiler validates it at load, registers it under `name`, and the
 vendor catalog picks up `cost_per_lookup` for estimates. Ship a golden fixture
-so the accuracy evaluation can rank it:
-
-```bash
-uv run python -m apps.api.services.leadgen.enrichment.eval.cli --json
-uv run python -m apps.api.services.leadgen.enrichment.eval.cli --persist   # feed the planner
-```
+with it so its accuracy can be checked, not just its presence.

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "Track these accounts weekly for partnership hiring, leadership changes, funding, and pricing-page changes.",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"000003f2-000\"}\n\ndata: {\"content\": \"Intent signal tracking is disabled in this deployment. I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/drafts"
+  },
+  "response": {
+    "body": {
+      "drafts": [
+        {
+          "body_text": "Hi Rhea,\n\nCongrats on the funding.",
+          "company": "Zenith Robotics Pvt Ltd",
+          "contact_status": "risky",
+          "created_at": "2026-08-29T09:00:00+00:00",
+          "generic_inbox": true,
+          "id": "d-out-2",
+          "is_role_address": true,
+          "person_id": "person-2",
+          "person_name": "Rhea Kapoor",
+          "risky_approved": true,
+          "send_performed": true,
+          "sent_at": "2026-08-29T09:00:00+00:00",
+          "state": "sent",
+          "subject": "Warehouse robots",
+          "title": "",
+          "to_email": "info@zenithrobotics.example.com",
+          "updated_at": "2026-08-29T09:00:00+00:00"
+        },
+        {
+          "body_text": "Hi Sam,\n\nSaw the hiring push at Hot Pursuit Labs.\n\nBest",
+          "company": "Hot Pursuit Labs",
+          "contact_status": "verified",
+          "created_at": "2026-08-29T08:00:00+00:00",
+          "generic_inbox": false,
+          "id": "d-out-1",
+          "is_role_address": false,
+          "person_id": "person-1",
+          "person_name": "Sam Lee",
+          "risky_approved": false,
+          "send_performed": false,
+          "sent_at": null,
+          "state": "draft",
+          "subject": "Quick note on analytics",
+          "title": "CTO",
+          "to_email": "ceo@hotpursuit.example.com",
+          "updated_at": "2026-08-29T08:00:00+00:00"
+        }
+      ],
+      "limit": 50,
+      "offset": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

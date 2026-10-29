@@ -1,0 +1,69 @@
+{
+  "request": {
+    "as": "alice",
+    "path": "/api/workbooks/wb-enrich-1/ws",
+    "query": {
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [
+      {
+        "publish": {
+          "channel": "workbook:wb-enrich-1",
+          "message": "{\"type\":\"cell_update\",\"workbook_id\":\"wb-enrich-1\",\"row_id\":101,\"column_id\":\"calc_len\",\"value\":\"6\"}"
+        }
+      },
+      {
+        "publish": {
+          "channel": "workbook:wb-alpha-2",
+          "message": "{\"type\":\"cell_update\",\"workbook_id\":\"wb-alpha-2\"}"
+        }
+      },
+      {
+        "publish": {
+          "channel": "workbook:wb-enrich-1",
+          "message": "{\"type\":\"progress\",\"note\":\"unicode \u00e9\u6771 and  spaces\"}"
+        }
+      },
+      {
+        "publish": {
+          "channel": "workbook:wb-enrich-1",
+          "message": "plain text not json"
+        }
+      },
+      {
+        "send": "{\"type\":\"ping\"}"
+      }
+    ],
+    "token": "login"
+  },
+  "response": {
+    "closed_by_server": null,
+    "handshake_status": 101,
+    "steps": [
+      {
+        "received": [
+          "{\"type\":\"cell_update\",\"workbook_id\":\"wb-enrich-1\",\"row_id\":101,\"column_id\":\"calc_len\",\"value\":\"6\"}"
+        ]
+      },
+      {
+        "received": []
+      },
+      {
+        "received": [
+          "{\"type\":\"progress\",\"note\":\"unicode \u00e9\u6771 and  spaces\"}"
+        ]
+      },
+      {
+        "received": [
+          "plain text not json"
+        ]
+      },
+      {
+        "received": [
+          "{\"type\":\"pong\"}"
+        ]
+      }
+    ]
+  }
+}

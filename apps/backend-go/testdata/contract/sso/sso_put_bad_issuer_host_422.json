@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "issuer": "https://evil.example.test"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "detail": "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

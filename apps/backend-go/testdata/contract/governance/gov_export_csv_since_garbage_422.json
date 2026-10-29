@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events/export.csv?since=garbage"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": "input is too short"
+          },
+          "input": "garbage",
+          "loc": [
+            "query",
+            "since"
+          ],
+          "msg": "Input should be a valid datetime or date, input is too short",
+          "type": "datetime_from_date_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

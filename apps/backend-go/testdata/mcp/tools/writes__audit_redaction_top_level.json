@@ -1,0 +1,130 @@
+{
+  "seq": 82,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 82,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "Redact Co",
+        "city": "Oslo",
+        "email": "secret@redact.example.com",
+        "notes": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "token": "FAKE_TOP_LEVEL_TOKEN",
+        "Password": "FAKE_PW",
+        "api_key": "FAKE_KEY"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 82,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"created\", \"lead_id\": 15, \"company\": \"Redact Co\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "Redact Co",
+        "city": "Oslo",
+        "email": "***redacted***",
+        "notes": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx…",
+        "token": "***redacted***",
+        "Password": "***redacted***",
+        "api_key": "***redacted***"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000091",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "leads": {
+      "added": [
+        {
+          "id": 15,
+          "city": "Oslo",
+          "email": "secret@redact.example.com",
+          "notes": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "phone": "",
+          "score": 0,
+          "state": "",
+          "source": "",
+          "status": "new",
+          "address": "",
+          "company": "Redact Co",
+          "website": "",
+          "investors": "",
+          "score_tier": "unqualified",
+          "source_url": "",
+          "description": "",
+          "recent_news": "",
+          "twitter_url": "",
+          "company_need": "",
+          "company_size": "",
+          "email_verify": "",
+          "facebook_url": "",
+          "founded_year": "",
+          "linkedin_url": "",
+          "technologies": "",
+          "workspace_id": "ws-alpha",
+          "contact_title": "",
+          "founding_year": "",
+          "funding_stage": "",
+          "google_rating": "",
+          "industry_tags": "",
+          "revenue_range": "",
+          "contact_person": "",
+          "email_presence": "",
+          "email_provider": "",
+          "hiring_signals": "",
+          "phone_provider": "",
+          "specialization": "",
+          "technographics": "",
+          "decision_makers": "",
+          "email_confidence": "",
+          "field_provenance": "",
+          "glassdoor_rating": "",
+          "revenue_estimate": "",
+          "secondary_emails": "",
+          "secondary_phones": "",
+          "collection_job_id": "",
+          "yupcha_value_prop": "",
+          "company_size_basis": "",
+          "enrichment_attempts": 0,
+          "last_funding_amount": "",
+          "employee_count_exact": 0,
+          "enrichment_waterfall": ""
+        }
+      ]
+    },
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 64,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000091",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

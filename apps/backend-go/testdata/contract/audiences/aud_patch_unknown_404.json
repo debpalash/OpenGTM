@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audiences/does-not-exist"
+  },
+  "response": {
+    "body": {
+      "detail": "Audience not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

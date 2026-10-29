@@ -1,0 +1,2813 @@
+{
+  "note": "_validate_config(destination_type, config); the REST layer answers 422 detail=<message>. Types: airtable,google_ads,google_sheets,hubspot,instantly,linkedin_ads,meta_ads,salesforce,slack,smartlead,warehouse_http,webhook. The workspace-secret existence check (warehouse_http header_secret_ref, slack webhook_secret_ref) is a separate step, not here.",
+  "cases": [
+    {
+      "type": "webhook",
+      "config": {
+        "token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "api_key": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "password": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "Token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "API_KEY": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "Secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "PASSWORD": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "api_key": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "password": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "Token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "API_KEY": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "Secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "PASSWORD": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "api_key": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "password": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "Token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "API_KEY": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "Secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "PASSWORD": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "api_key": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "password": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "Token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "API_KEY": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "Secret": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "PASSWORD": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "root credential key"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "a": {
+          "b": {
+            "Secret": 1
+          }
+        }
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "nested"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "items": [
+          {
+            "x": 1
+          },
+          {
+            "password": "p"
+          }
+        ]
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "inside list"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "items": [
+          [
+            {
+              "api_key": 1
+            }
+          ]
+        ]
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "list in list"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "note": "token",
+        "value": "password"
+      },
+      "ok": true,
+      "result": {
+        "note": "token",
+        "value": "password"
+      },
+      "label": "credential word only as a value: ok"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "tokens": 1,
+        "api_keys": 2,
+        "secrets": 3
+      },
+      "ok": true,
+      "result": {
+        "tokens": 1,
+        "api_keys": 2,
+        "secrets": 3
+      },
+      "label": "plural keys are not forbidden"
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "x-token": 1,
+        "my_secret": 2
+      },
+      "ok": true,
+      "result": {
+        "x-token": 1,
+        "my_secret": 2
+      },
+      "label": "substring keys are not forbidden"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "token": "x"
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": "credential beats url checks"
+    },
+    {
+      "type": "hubspot",
+      "config": {},
+      "ok": true,
+      "result": {},
+      "label": ""
+    },
+    {
+      "type": "hubspot",
+      "config": {
+        "anything": [
+          1,
+          2
+        ],
+        "nested": {
+          "k": "v"
+        }
+      },
+      "ok": true,
+      "result": {
+        "anything": [
+          1,
+          2
+        ],
+        "nested": {
+          "k": "v"
+        }
+      },
+      "label": ""
+    },
+    {
+      "type": "salesforce",
+      "config": {
+        "inbound_conflict_policy": "bogus"
+      },
+      "ok": true,
+      "result": {
+        "inbound_conflict_policy": "bogus"
+      },
+      "label": "no validation of policy"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x"
+      },
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "POST"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": "POST"
+      },
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "put"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": "put"
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "Patch"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": "Patch"
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "PUT"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": "PUT"
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "post"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": "post"
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "GET"
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "DELETE"
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": ""
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": ""
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": null
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "method": null
+      },
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": 5
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "HEAD"
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": " POST"
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "method": "POST "
+      },
+      "ok": false,
+      "error": "webhook method must be POST, PUT, or PATCH",
+      "label": "method"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "header_secret_ref": "REF",
+        "header_name": "X-A"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://hooks.example.test/x",
+        "header_secret_ref": "REF",
+        "header_name": "X-A"
+      },
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "headers": {}
+      },
+      "ok": false,
+      "error": "unsupported webhook config: headers",
+      "label": "unknown key"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://hooks.example.test/x",
+        "zeta": 1,
+        "alpha": 2,
+        "body": 3
+      },
+      "ok": false,
+      "error": "unsupported webhook config: alpha, body, zeta",
+      "label": "unknown keys sorted"
+    },
+    {
+      "type": "webhook",
+      "config": {},
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "no url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": ""
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": null
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": 5
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "ftp://h.example/x"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https:///path"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "http://"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "javascript:alert(1)"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "//h.example/x"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "h.example/x"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://user@h.example/"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://user:pw@h.example/"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://:pw@h.example/"
+      },
+      "ok": false,
+      "error": "webhook requires an http(s) URL without embedded credentials",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "http://h.example"
+      },
+      "ok": true,
+      "result": {
+        "url": "http://h.example"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "HTTPS://H.EXAMPLE/"
+      },
+      "ok": true,
+      "result": {
+        "url": "HTTPS://H.EXAMPLE/"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://h.example:8443/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://h.example:8443/x"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://[::1]/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://[::1]/x"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://h.example\n"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://h.example\n"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": " https://h.example"
+      },
+      "ok": true,
+      "result": {
+        "url": " https://h.example"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://[bad"
+      },
+      "ok": false,
+      "error": "Invalid IPv6 URL",
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://h.example:notaport"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://h.example:notaport"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "https://h.example:99999/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://h.example:99999/x"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "http://127.0.0.1/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "http://127.0.0.1/x"
+      },
+      "label": "url"
+    },
+    {
+      "type": "webhook",
+      "config": {
+        "url": "http://localhost/x"
+      },
+      "ok": true,
+      "result": {
+        "url": "http://localhost/x"
+      },
+      "label": "url"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH"
+      },
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "header_name": "X-Auth",
+        "dataset": "ds",
+        "mode": "upsert"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "header_name": "X-Auth",
+        "dataset": "ds",
+        "mode": "upsert"
+      },
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "snapshot"
+      },
+      "ok": true,
+      "result": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "snapshot"
+      },
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": "append"
+      },
+      "ok": false,
+      "error": "warehouse mode must be snapshot or upsert",
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": ""
+      },
+      "ok": true,
+      "result": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": ""
+      },
+      "label": "empty mode -> default snapshot?"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": null
+      },
+      "ok": true,
+      "result": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "mode": null
+      },
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test/ingest",
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "table": "t"
+      },
+      "ok": false,
+      "error": "unsupported warehouse config: table",
+      "label": "unknown"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "http://w.example.test",
+        "header_secret_ref": "R"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": "http"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://",
+        "header_secret_ref": "R"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://u:p@w.example.test",
+        "header_secret_ref": "R"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://u@w.example.test",
+        "header_secret_ref": "R"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires header_secret_ref",
+      "label": "no ref"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test",
+        "header_secret_ref": "  "
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires header_secret_ref",
+      "label": "blank ref"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "url": "https://w.example.test",
+        "header_secret_ref": null
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires header_secret_ref",
+      "label": ""
+    },
+    {
+      "type": "warehouse_http",
+      "config": {
+        "header_secret_ref": "R"
+      },
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": "no url"
+    },
+    {
+      "type": "warehouse_http",
+      "config": {},
+      "ok": false,
+      "error": "warehouse HTTP destination requires an HTTPS URL without embedded credentials",
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "ok": true,
+      "result": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "ok": true,
+      "result": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "label": "login id allowed on every ad type"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "zzz": 1,
+        "aaa": 2
+      },
+      "ok": false,
+      "error": "unsupported ad destination config: aaa, zzz",
+      "label": "unknown sorted"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "no consent"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": false,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": "true",
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "string true"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": 1,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "int 1"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": null,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "  "
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "blank source"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": ""
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": null
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "ok": true,
+      "result": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "label": "int source"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "missing custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "  ",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "blank custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "empty custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": null,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "null custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": 0,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "zero custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "custom_audience_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": "int custom_audience_id"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: custom_audience_id",
+      "label": "all required missing"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "ok": true,
+      "result": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "ok": true,
+      "result": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "label": "login id allowed on every ad type"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s",
+        "zzz": 1,
+        "aaa": 2
+      },
+      "ok": false,
+      "error": "unsupported ad destination config: aaa, zzz",
+      "label": "unknown sorted"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "no consent"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": false,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": "true",
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "string true"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": 1,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "int 1"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": null,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "  "
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "blank source"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": ""
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": null
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "ok": true,
+      "result": {
+        "customer_id": "1",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "label": "int source"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id",
+      "label": "missing customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "  ",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id",
+      "label": "blank customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "",
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id",
+      "label": "empty customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": null,
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id",
+      "label": "null customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": 0,
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id",
+      "label": "zero customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": 123,
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "customer_id": 123,
+        "user_list_id": "2",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": "int customer_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: user_list_id",
+      "label": "missing user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "  ",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: user_list_id",
+      "label": "blank user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": "",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: user_list_id",
+      "label": "empty user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": null,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: user_list_id",
+      "label": "null user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": 0,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: user_list_id",
+      "label": "zero user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "customer_id": "1",
+        "user_list_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "customer_id": "1",
+        "user_list_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": "int user_list_id"
+    },
+    {
+      "type": "google_ads",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: customer_id, user_list_id",
+      "label": "all required missing"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "ok": true,
+      "result": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s",
+        "api_version": "v1"
+      },
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "ok": true,
+      "result": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s",
+        "login_customer_id": "9"
+      },
+      "label": "login id allowed on every ad type"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "s",
+        "zzz": 1,
+        "aaa": 2
+      },
+      "ok": false,
+      "error": "unsupported ad destination config: aaa, zzz",
+      "label": "unknown sorted"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "no consent"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": false,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": "true",
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "string true"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": 1,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "int 1"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": null,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": "  "
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": "blank source"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": ""
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": null
+      },
+      "ok": false,
+      "error": "ad destinations require consent_attested=true and a consent_source",
+      "label": ""
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "ok": true,
+      "result": {
+        "segment_id": "3",
+        "consent_attested": true,
+        "consent_source": 5
+      },
+      "label": "int source"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "missing segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "  ",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "blank segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "",
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "empty segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": null,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "null segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": 0,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "zero segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": true,
+      "result": {
+        "segment_id": 123,
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "label": "int segment_id"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "ok": false,
+      "error": "missing ad destination config: segment_id",
+      "label": "all required missing"
+    },
+    {
+      "type": "meta_ads",
+      "config": {
+        "custom_audience_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "segment_id": "2"
+      },
+      "ok": false,
+      "error": "unsupported ad destination config: segment_id",
+      "label": "other type's key"
+    },
+    {
+      "type": "linkedin_ads",
+      "config": {
+        "segment_id": "1",
+        "consent_attested": true,
+        "consent_source": "s",
+        "customer_id": "2"
+      },
+      "ok": false,
+      "error": "unsupported ad destination config: customer_id",
+      "label": "other type's key"
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": "c"
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c"
+      },
+      "label": ""
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": "c",
+        "skip_if_in_campaign": false
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c",
+        "skip_if_in_campaign": false
+      },
+      "label": ""
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": "c",
+        "skip_if_in_campaign": "no"
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c",
+        "skip_if_in_campaign": "no"
+      },
+      "label": "not validated"
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": "c",
+        "settings": {}
+      },
+      "ok": false,
+      "error": "unsupported instantly config: settings",
+      "label": "unknown"
+    },
+    {
+      "type": "instantly",
+      "config": {},
+      "ok": false,
+      "error": "instantly campaign_id is required",
+      "label": ""
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": "  "
+      },
+      "ok": false,
+      "error": "instantly campaign_id is required",
+      "label": ""
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": null
+      },
+      "ok": false,
+      "error": "instantly campaign_id is required",
+      "label": ""
+    },
+    {
+      "type": "instantly",
+      "config": {
+        "campaign_id": 5
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": 5
+      },
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c"
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c"
+      },
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c",
+        "settings": {
+          "a": 1
+        }
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c",
+        "settings": {
+          "a": 1
+        }
+      },
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c",
+        "settings": null
+      },
+      "ok": true,
+      "result": {
+        "campaign_id": "c",
+        "settings": null
+      },
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c",
+        "settings": []
+      },
+      "ok": false,
+      "error": "smartlead settings must be an object",
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c",
+        "settings": "x"
+      },
+      "ok": false,
+      "error": "smartlead settings must be an object",
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "campaign_id": "c",
+        "skip_if_in_campaign": true
+      },
+      "ok": false,
+      "error": "unsupported smartlead config: skip_if_in_campaign",
+      "label": "unknown"
+    },
+    {
+      "type": "smartlead",
+      "config": {},
+      "ok": false,
+      "error": "smartlead campaign_id is required",
+      "label": ""
+    },
+    {
+      "type": "smartlead",
+      "config": {
+        "settings": []
+      },
+      "ok": false,
+      "error": "smartlead campaign_id is required",
+      "label": "unknown-free but settings bad and campaign missing: campaign message first"
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a"
+        ]
+      },
+      "ok": true,
+      "result": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a"
+        ]
+      },
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a"
+        ],
+        "range": "Sheet1!A:B"
+      },
+      "ok": true,
+      "result": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a"
+        ],
+        "range": "Sheet1!A:B"
+      },
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a"
+        ],
+        "tab": "x"
+      },
+      "ok": false,
+      "error": "unsupported google_sheets config: tab",
+      "label": "unknown"
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "columns": [
+          "a"
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets spreadsheet_id is required",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "  ",
+        "columns": [
+          "a"
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets spreadsheet_id is required",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s"
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": []
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "c0",
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5",
+          "c6",
+          "c7",
+          "c8",
+          "c9",
+          "c10",
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15",
+          "c16",
+          "c17",
+          "c18",
+          "c19",
+          "c20",
+          "c21",
+          "c22",
+          "c23",
+          "c24",
+          "c25",
+          "c26",
+          "c27",
+          "c28",
+          "c29",
+          "c30",
+          "c31",
+          "c32",
+          "c33",
+          "c34",
+          "c35",
+          "c36",
+          "c37",
+          "c38",
+          "c39",
+          "c40",
+          "c41",
+          "c42",
+          "c43",
+          "c44",
+          "c45",
+          "c46",
+          "c47",
+          "c48",
+          "c49",
+          "c50",
+          "c51",
+          "c52",
+          "c53",
+          "c54",
+          "c55",
+          "c56",
+          "c57",
+          "c58",
+          "c59",
+          "c60",
+          "c61",
+          "c62",
+          "c63",
+          "c64",
+          "c65",
+          "c66",
+          "c67",
+          "c68",
+          "c69",
+          "c70",
+          "c71",
+          "c72",
+          "c73",
+          "c74",
+          "c75",
+          "c76",
+          "c77",
+          "c78",
+          "c79",
+          "c80",
+          "c81",
+          "c82",
+          "c83",
+          "c84",
+          "c85",
+          "c86",
+          "c87",
+          "c88",
+          "c89",
+          "c90",
+          "c91",
+          "c92",
+          "c93",
+          "c94",
+          "c95",
+          "c96",
+          "c97",
+          "c98",
+          "c99"
+        ]
+      },
+      "ok": true,
+      "result": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "c0",
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5",
+          "c6",
+          "c7",
+          "c8",
+          "c9",
+          "c10",
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15",
+          "c16",
+          "c17",
+          "c18",
+          "c19",
+          "c20",
+          "c21",
+          "c22",
+          "c23",
+          "c24",
+          "c25",
+          "c26",
+          "c27",
+          "c28",
+          "c29",
+          "c30",
+          "c31",
+          "c32",
+          "c33",
+          "c34",
+          "c35",
+          "c36",
+          "c37",
+          "c38",
+          "c39",
+          "c40",
+          "c41",
+          "c42",
+          "c43",
+          "c44",
+          "c45",
+          "c46",
+          "c47",
+          "c48",
+          "c49",
+          "c50",
+          "c51",
+          "c52",
+          "c53",
+          "c54",
+          "c55",
+          "c56",
+          "c57",
+          "c58",
+          "c59",
+          "c60",
+          "c61",
+          "c62",
+          "c63",
+          "c64",
+          "c65",
+          "c66",
+          "c67",
+          "c68",
+          "c69",
+          "c70",
+          "c71",
+          "c72",
+          "c73",
+          "c74",
+          "c75",
+          "c76",
+          "c77",
+          "c78",
+          "c79",
+          "c80",
+          "c81",
+          "c82",
+          "c83",
+          "c84",
+          "c85",
+          "c86",
+          "c87",
+          "c88",
+          "c89",
+          "c90",
+          "c91",
+          "c92",
+          "c93",
+          "c94",
+          "c95",
+          "c96",
+          "c97",
+          "c98",
+          "c99"
+        ]
+      },
+      "label": "100 ok"
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "c0",
+          "c1",
+          "c2",
+          "c3",
+          "c4",
+          "c5",
+          "c6",
+          "c7",
+          "c8",
+          "c9",
+          "c10",
+          "c11",
+          "c12",
+          "c13",
+          "c14",
+          "c15",
+          "c16",
+          "c17",
+          "c18",
+          "c19",
+          "c20",
+          "c21",
+          "c22",
+          "c23",
+          "c24",
+          "c25",
+          "c26",
+          "c27",
+          "c28",
+          "c29",
+          "c30",
+          "c31",
+          "c32",
+          "c33",
+          "c34",
+          "c35",
+          "c36",
+          "c37",
+          "c38",
+          "c39",
+          "c40",
+          "c41",
+          "c42",
+          "c43",
+          "c44",
+          "c45",
+          "c46",
+          "c47",
+          "c48",
+          "c49",
+          "c50",
+          "c51",
+          "c52",
+          "c53",
+          "c54",
+          "c55",
+          "c56",
+          "c57",
+          "c58",
+          "c59",
+          "c60",
+          "c61",
+          "c62",
+          "c63",
+          "c64",
+          "c65",
+          "c66",
+          "c67",
+          "c68",
+          "c69",
+          "c70",
+          "c71",
+          "c72",
+          "c73",
+          "c74",
+          "c75",
+          "c76",
+          "c77",
+          "c78",
+          "c79",
+          "c80",
+          "c81",
+          "c82",
+          "c83",
+          "c84",
+          "c85",
+          "c86",
+          "c87",
+          "c88",
+          "c89",
+          "c90",
+          "c91",
+          "c92",
+          "c93",
+          "c94",
+          "c95",
+          "c96",
+          "c97",
+          "c98",
+          "c99",
+          "c100"
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": "101"
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": "a,b"
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a",
+          1
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a",
+          " "
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          "a",
+          null
+        ]
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": {
+          "a": 1
+        }
+      },
+      "ok": false,
+      "error": "google_sheets columns must contain 1 to 100 field names",
+      "label": ""
+    },
+    {
+      "type": "google_sheets",
+      "config": {
+        "spreadsheet_id": "s",
+        "columns": [
+          " a "
+        ]
+      },
+      "ok": true,
+      "result": {
+        "spreadsheet_id": "s",
+        "columns": [
+          " a "
+        ]
+      },
+      "label": "stored as is"
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t"
+      },
+      "ok": true,
+      "result": {
+        "base_id": "b",
+        "table": "t"
+      },
+      "label": ""
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": "X",
+        "typecast": false
+      },
+      "ok": true,
+      "result": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": "X",
+        "typecast": false
+      },
+      "label": ""
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": ""
+      },
+      "ok": true,
+      "result": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": ""
+      },
+      "label": "empty -> default"
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": "  "
+      },
+      "ok": false,
+      "error": "airtable idempotency_field cannot be blank",
+      "label": "blank"
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": null
+      },
+      "ok": true,
+      "result": {
+        "base_id": "b",
+        "table": "t",
+        "idempotency_field": null
+      },
+      "label": ""
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "view": "v"
+      },
+      "ok": false,
+      "error": "unsupported airtable config: view",
+      "label": "unknown"
+    },
+    {
+      "type": "airtable",
+      "config": {},
+      "ok": false,
+      "error": "missing airtable config: base_id, table",
+      "label": "both missing (sorted)"
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": "b"
+      },
+      "ok": false,
+      "error": "missing airtable config: table",
+      "label": ""
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "table": "t"
+      },
+      "ok": false,
+      "error": "missing airtable config: base_id",
+      "label": ""
+    },
+    {
+      "type": "airtable",
+      "config": {
+        "base_id": " ",
+        "table": "t"
+      },
+      "ok": false,
+      "error": "missing airtable config: base_id",
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R"
+      },
+      "ok": true,
+      "result": {
+        "webhook_secret_ref": "R"
+      },
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "message_template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "ok": true,
+      "result": {
+        "webhook_secret_ref": "R",
+        "message_template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "message_template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "ok": false,
+      "error": "slack message_template may not exceed 2000 characters",
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "message_template": null
+      },
+      "ok": true,
+      "result": {
+        "webhook_secret_ref": "R",
+        "message_template": null
+      },
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "message_template": 5
+      },
+      "ok": true,
+      "result": {
+        "webhook_secret_ref": "R",
+        "message_template": 5
+      },
+      "label": "int template -> str"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "message_template": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+      },
+      "ok": false,
+      "error": "slack message_template may not exceed 2000 characters",
+      "label": "unicode length is in characters"
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "R",
+        "channel": "#x"
+      },
+      "ok": false,
+      "error": "unsupported slack config: channel",
+      "label": "unknown"
+    },
+    {
+      "type": "slack",
+      "config": {},
+      "ok": false,
+      "error": "slack webhook_secret_ref is required",
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": "  "
+      },
+      "ok": false,
+      "error": "slack webhook_secret_ref is required",
+      "label": ""
+    },
+    {
+      "type": "slack",
+      "config": {
+        "webhook_secret_ref": null
+      },
+      "ok": false,
+      "error": "slack webhook_secret_ref is required",
+      "label": ""
+    },
+    {
+      "type": "carrier_pigeon",
+      "config": {
+        "x": 1
+      },
+      "ok": true,
+      "result": {
+        "x": 1
+      },
+      "label": "unknown type: no validation beyond credentials"
+    },
+    {
+      "type": "carrier_pigeon",
+      "config": {
+        "token": 1
+      },
+      "ok": false,
+      "error": "credentials must use workspace secrets, not destination config",
+      "label": ""
+    }
+  ]
+}

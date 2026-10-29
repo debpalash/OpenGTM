@@ -1,0 +1,53 @@
+{
+  "request": {
+    "body": {
+      "name": "x",
+      "steps": [
+        {
+          "step_number": 0
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "step_number": 0
+          },
+          "loc": [
+            "body",
+            "steps",
+            0,
+            "subject"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        },
+        {
+          "input": {
+            "step_number": 0
+          },
+          "loc": [
+            "body",
+            "steps",
+            0,
+            "body_html"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

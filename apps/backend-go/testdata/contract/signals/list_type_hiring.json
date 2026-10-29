@@ -1,0 +1,127 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?signal_type=hiring"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Quantum Foods",
+          "created_at": 1788043200.0,
+          "description": "Seeded hiring event #20 for contract fixtures",
+          "id": "sig-a-20",
+          "lead_id": 10,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/20",
+          "title": "hiring signal 20",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787996400.0,
+          "description": "Seeded hiring event #5 for contract fixtures",
+          "id": "sig-a-05",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/5",
+          "title": "hiring signal 5",
+          "weight": 10,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787992800.0,
+          "description": "Seeded hiring event #10 for contract fixtures",
+          "id": "sig-a-10",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/10",
+          "title": "hiring signal 10",
+          "weight": 9,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787827200.0,
+          "description": "Seeded hiring event #15 for contract fixtures",
+          "id": "sig-a-15",
+          "lead_id": 6,
+          "read": 1,
+          "signal_type": "hiring",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/15",
+          "title": "hiring signal 15",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "\u00c9co Solutions Pvt Ltd",
+          "created_at": 1787481600.0,
+          "description": "Seeded hiring event #25 for contract fixtures",
+          "id": "sig-a-25",
+          "lead_id": 4,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/25",
+          "title": "hiring signal 25",
+          "weight": 9,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "",
+          "created_at": 1786790400.0,
+          "description": "Seeded hiring event #30 for contract fixtures",
+          "id": "sig-a-30",
+          "lead_id": 0,
+          "read": 1,
+          "signal_type": "hiring",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/30",
+          "title": "hiring signal 30",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

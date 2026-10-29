@@ -1,0 +1,13 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/"
+  },
+  "response": {
+    "body": null,
+    "headers": {},
+    "status": 307
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs?status=cancelled"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 1,
+        "completed_at": "2026-08-25T12:06:30.000077+00:00",
+        "created_at": "2026-08-25T12:00:00.000005+00:00",
+        "error": "Cancelled by user",
+        "id": "a1000000000000000000000000000006",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"executive search Hyderabad\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 1,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "executive search Hyderabad",
+        "started_at": "2026-08-25T12:01:00+00:00",
+        "status": "cancelled",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

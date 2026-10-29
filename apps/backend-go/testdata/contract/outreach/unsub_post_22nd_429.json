@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/unsubscribe?token=eyJlbWFpbCI6InVuc3ViLXZhbGlkQGV4YW1wbGUuY29tIiwiZXhwIjo0OTQxNjAwMDAwLCJzZXEiOiJzZXEtb3V0LWEtMDEiLCJ3cyI6IndzLWFscGhhIn0.AZTPXZ3xTjV7VCjBfhKudPl8xbfRpE2TKoI_jIlmi90"
+  },
+  "response": {
+    "body": {
+      "detail": "rate limited"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 429
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "query": "\u6771\u4eac\u306eIT\u4f01\u696d caf\u00e9 Z\u00fcrich"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005003",
+      "ok": true,
+      "query": "\u6771\u4eac\u306eIT\u4f01\u696d caf\u00e9 Z\u00fcrich",
+      "queue_job_id": 13,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

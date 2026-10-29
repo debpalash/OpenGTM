@@ -1,0 +1,476 @@
+{
+  "cases": [
+    {
+      "input": "User@Example.COM",
+      "keys": [
+        "user@example.com"
+      ],
+      "normalized": "user@example.com"
+    },
+    {
+      "input": "  spaced@example.com  ",
+      "keys": [
+        "spaced@example.com"
+      ],
+      "normalized": "spaced@example.com"
+    },
+    {
+      "input": "\tTab@Example.com\n",
+      "keys": [
+        "tab@example.com"
+      ],
+      "normalized": "tab@example.com"
+    },
+    {
+      "input": "plain@example.com",
+      "keys": [
+        "plain@example.com"
+      ],
+      "normalized": "plain@example.com"
+    },
+    {
+      "input": "UPPER@EXAMPLE.COM",
+      "keys": [
+        "upper@example.com"
+      ],
+      "normalized": "upper@example.com"
+    },
+    {
+      "input": "ＵＳＥＲ＠Ｅｘａｍｐｌｅ．ｃｏｍ",
+      "keys": [
+        "user@example.com"
+      ],
+      "normalized": "user@example.com"
+    },
+    {
+      "input": "ﬁrst@example.com",
+      "keys": [
+        "first@example.com"
+      ],
+      "normalized": "first@example.com"
+    },
+    {
+      "input": "x²@example.com",
+      "keys": [
+        "x2@example.com"
+      ],
+      "normalized": "x2@example.com"
+    },
+    {
+      "input": "école@example.com",
+      "keys": [
+        "école@example.com"
+      ],
+      "normalized": "école@example.com"
+    },
+    {
+      "input": "Å@example.com",
+      "keys": [
+        "å@example.com"
+      ],
+      "normalized": "å@example.com"
+    },
+    {
+      "input": "user@bücher.de",
+      "keys": [
+        "user@xn--bcher-kva.de"
+      ],
+      "normalized": "user@xn--bcher-kva.de"
+    },
+    {
+      "input": "user@BÜCHER.DE",
+      "keys": [
+        "user@xn--bcher-kva.de"
+      ],
+      "normalized": "user@xn--bcher-kva.de"
+    },
+    {
+      "input": "x@ß.de",
+      "keys": [
+        "x@ss.de"
+      ],
+      "normalized": "x@ss.de"
+    },
+    {
+      "input": "x@straße.example",
+      "keys": [
+        "x@strasse.example"
+      ],
+      "normalized": "x@strasse.example"
+    },
+    {
+      "input": "user@日本語.jp",
+      "keys": [
+        "user@xn--wgv71a119e.jp"
+      ],
+      "normalized": "user@xn--wgv71a119e.jp"
+    },
+    {
+      "input": "user@例え.テスト",
+      "keys": [
+        "user@xn--r8jz45g.xn--zckzah"
+      ],
+      "normalized": "user@xn--r8jz45g.xn--zckzah"
+    },
+    {
+      "input": "user@xn--bcher-kva.de",
+      "keys": [
+        "user@xn--bcher-kva.de"
+      ],
+      "normalized": "user@xn--bcher-kva.de"
+    },
+    {
+      "input": "user@XN--BCHER-KVA.DE",
+      "keys": [
+        "user@xn--bcher-kva.de"
+      ],
+      "normalized": "user@xn--bcher-kva.de"
+    },
+    {
+      "input": "user@ΒΟΛΟΣ.com",
+      "keys": [
+        "user@xn--nxaslbu.com"
+      ],
+      "normalized": "user@xn--nxaslbu.com"
+    },
+    {
+      "input": "user@münchen.example.",
+      "keys": [
+        "user@xn--mnchen-3ya.example."
+      ],
+      "normalized": "user@xn--mnchen-3ya.example."
+    },
+    {
+      "input": "user@example.com.",
+      "keys": [
+        "user@example.com."
+      ],
+      "normalized": "user@example.com."
+    },
+    {
+      "input": "user@exa mple.com",
+      "keys": [
+        "user@exa mple.com"
+      ],
+      "normalized": "user@exa mple.com"
+    },
+    {
+      "input": "user@a..com",
+      "keys": [
+        "user@a..com"
+      ],
+      "normalized": "user@a..com"
+    },
+    {
+      "input": "user@.",
+      "keys": [
+        "user@."
+      ],
+      "normalized": "user@."
+    },
+    {
+      "input": "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+      "keys": [
+        "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+      ],
+      "normalized": "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+    },
+    {
+      "input": "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+      "keys": [
+        "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+      ],
+      "normalized": "user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com"
+    },
+    {
+      "input": "ñandú@español.example",
+      "keys": [
+        "ñandú@xn--espaol-zwa.example"
+      ],
+      "normalized": "ñandú@xn--espaol-zwa.example"
+    },
+    {
+      "input": "user@ｅｘａｍｐｌｅ.ｃｏｍ",
+      "keys": [
+        "user@example.com"
+      ],
+      "normalized": "user@example.com"
+    },
+    {
+      "input": "john.doe@gmail.com",
+      "keys": [
+        "john.doe@gmail.com",
+        "johndoe@gmail.com"
+      ],
+      "normalized": "john.doe@gmail.com"
+    },
+    {
+      "input": "John.Doe+news@Gmail.com",
+      "keys": [
+        "john.doe+news@gmail.com",
+        "johndoe@gmail.com"
+      ],
+      "normalized": "john.doe+news@gmail.com"
+    },
+    {
+      "input": "johndoe@gmail.com",
+      "keys": [
+        "johndoe@gmail.com"
+      ],
+      "normalized": "johndoe@gmail.com"
+    },
+    {
+      "input": "j.o.h.n+a+b@gmail.com",
+      "keys": [
+        "j.o.h.n+a+b@gmail.com",
+        "john@gmail.com"
+      ],
+      "normalized": "j.o.h.n+a+b@gmail.com"
+    },
+    {
+      "input": "john.doe@googlemail.com",
+      "keys": [
+        "john.doe@googlemail.com",
+        "johndoe@googlemail.com"
+      ],
+      "normalized": "john.doe@googlemail.com"
+    },
+    {
+      "input": "JOHN.DOE+x@GOOGLEMAIL.COM",
+      "keys": [
+        "john.doe+x@googlemail.com",
+        "johndoe@googlemail.com"
+      ],
+      "normalized": "john.doe+x@googlemail.com"
+    },
+    {
+      "input": "+tag@gmail.com",
+      "keys": [
+        "+tag@gmail.com"
+      ],
+      "normalized": "+tag@gmail.com"
+    },
+    {
+      "input": ".@gmail.com",
+      "keys": [
+        ".@gmail.com"
+      ],
+      "normalized": ".@gmail.com"
+    },
+    {
+      "input": "..@gmail.com",
+      "keys": [
+        "..@gmail.com"
+      ],
+      "normalized": "..@gmail.com"
+    },
+    {
+      "input": "a+@gmail.com",
+      "keys": [
+        "a+@gmail.com",
+        "a@gmail.com"
+      ],
+      "normalized": "a+@gmail.com"
+    },
+    {
+      "input": "a.b+c.d@gmail.com",
+      "keys": [
+        "a.b+c.d@gmail.com",
+        "ab@gmail.com"
+      ],
+      "normalized": "a.b+c.d@gmail.com"
+    },
+    {
+      "input": "a.b@gmail.com.",
+      "keys": [
+        "a.b@gmail.com."
+      ],
+      "normalized": "a.b@gmail.com."
+    },
+    {
+      "input": "a.b@mail.gmail.com",
+      "keys": [
+        "a.b@mail.gmail.com"
+      ],
+      "normalized": "a.b@mail.gmail.com"
+    },
+    {
+      "input": "a.b@gmail.co",
+      "keys": [
+        "a.b@gmail.co"
+      ],
+      "normalized": "a.b@gmail.co"
+    },
+    {
+      "input": "a.b+x@yahoo.com",
+      "keys": [
+        "a.b+x@yahoo.com"
+      ],
+      "normalized": "a.b+x@yahoo.com"
+    },
+    {
+      "input": "john.doe+tag@example.com",
+      "keys": [
+        "john.doe+tag@example.com"
+      ],
+      "normalized": "john.doe+tag@example.com"
+    },
+    {
+      "input": "dot.only@example.com",
+      "keys": [
+        "dot.only@example.com"
+      ],
+      "normalized": "dot.only@example.com"
+    },
+    {
+      "input": "no-at-sign",
+      "keys": [
+        "no-at-sign"
+      ],
+      "normalized": "no-at-sign"
+    },
+    {
+      "input": "NoAt",
+      "keys": [
+        "noat"
+      ],
+      "normalized": "noat"
+    },
+    {
+      "input": "@",
+      "keys": [
+        "@"
+      ],
+      "normalized": "@"
+    },
+    {
+      "input": "@example.com",
+      "keys": [
+        "@example.com"
+      ],
+      "normalized": "@example.com"
+    },
+    {
+      "input": "user@",
+      "keys": [
+        "user@"
+      ],
+      "normalized": "user@"
+    },
+    {
+      "input": "a@b@c.com",
+      "keys": [
+        "a@b@c.com"
+      ],
+      "normalized": "a@b@c.com"
+    },
+    {
+      "input": "a@b@gmail.com",
+      "keys": [
+        "a@b@gmail.com"
+      ],
+      "normalized": "a@b@gmail.com"
+    },
+    {
+      "input": "a.b@@gmail.com",
+      "keys": [
+        "a.b@@gmail.com",
+        "ab@@gmail.com"
+      ],
+      "normalized": "a.b@@gmail.com"
+    },
+    {
+      "input": "",
+      "keys": [],
+      "normalized": ""
+    },
+    {
+      "input": "   ",
+      "keys": [],
+      "normalized": ""
+    },
+    {
+      "input": null,
+      "keys": [],
+      "normalized": ""
+    },
+    {
+      "input": 12345,
+      "keys": [
+        "12345"
+      ],
+      "normalized": "12345"
+    },
+    {
+      "input": "a@b",
+      "keys": [
+        "a@b"
+      ],
+      "normalized": "a@b"
+    },
+    {
+      "input": "a@b.c",
+      "keys": [
+        "a@b.c"
+      ],
+      "normalized": "a@b.c"
+    },
+    {
+      "input": "user+tag@bücher.de",
+      "keys": [
+        "user+tag@xn--bcher-kva.de"
+      ],
+      "normalized": "user+tag@xn--bcher-kva.de"
+    },
+    {
+      "input": "x@gmail.com\r\n",
+      "keys": [
+        "x@gmail.com"
+      ],
+      "normalized": "x@gmail.com"
+    },
+    {
+      "input": "x y@example.com",
+      "keys": [
+        "x y@example.com"
+      ],
+      "normalized": "x y@example.com"
+    },
+    {
+      "input": "ユーザー@例え.jp",
+      "keys": [
+        "ユーザー@xn--r8jz45g.jp"
+      ],
+      "normalized": "ユーザー@xn--r8jz45g.jp"
+    },
+    {
+      "input": "x@GMAIL.com",
+      "keys": [
+        "x@gmail.com"
+      ],
+      "normalized": "x@gmail.com"
+    },
+    {
+      "input": "x.y@gmail.com ",
+      "keys": [
+        "x.y@gmail.com",
+        "xy@gmail.com"
+      ],
+      "normalized": "x.y@gmail.com"
+    },
+    {
+      "input": "user@xn--",
+      "keys": [
+        "user@xn--"
+      ],
+      "normalized": "user@xn--"
+    },
+    {
+      "input": "user@xn--a.com",
+      "keys": [
+        "user@xn--a.com"
+      ],
+      "normalized": "user@xn--a.com"
+    }
+  ]
+}

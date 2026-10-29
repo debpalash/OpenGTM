@@ -1,0 +1,1948 @@
+{
+ "schema_version": 1,
+ "scan_signal_id": [
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "moderate|2026-W35",
+   "id": "45ab93d19dbfbcaf3d1b35a110cc33afc504609a2e3a390f607070c626428bef"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "moderate|2026-W36",
+   "id": "db3fabe624007e969db68f2a0dcc17e2e196048c21905becba10b7c0029f417c"
+  },
+  {
+   "workspace_id": "ws-beta",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "moderate|2026-W35",
+   "id": "67986ce57022f5aa7ab36afe580dc39412c7d3aeaa3c32908f74ed3dd6c66755"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 15,
+   "signal_type": "hiring",
+   "natural_key": "moderate|2026-W35",
+   "id": "46143bd0f472f61087015d3a942b8a8cf050f37bf1fb510eb60a4ff55bcb7392"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "funding",
+   "natural_key": "moderate|2026-W35",
+   "id": "7e0e07fa2c4c7e5241a23e07d6ea3bd906cd30a2f3d58e46fa535d8f9a683bab"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "high|2026-W35",
+   "id": "21746d5352309e9f5708922313d5d949e2bb937b15e7cecbbfd91280427d2088"
+  },
+  {
+   "workspace_id": "",
+   "lead_id": 0,
+   "signal_type": "",
+   "natural_key": "",
+   "id": "58d11c9c186553d8d9c8a88a39dc7d482b575299e1f7e0df4527b14b9539fe25"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 0,
+   "signal_type": "hiring",
+   "natural_key": "low|2026-W01",
+   "id": "5caada04a2f327f7255c1bfc0c1677ee4f6619dff765acbfb8ac52f009185307"
+  },
+  {
+   "workspace_id": "ws-ü",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "ключ|2026-W35",
+   "id": "76e501656e29222e74010358a305a2ef3a96de69dbfd8f19838f00fb98bb1859"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": -1,
+   "signal_type": "hiring",
+   "natural_key": "x",
+   "id": "eccc7fb77742e6a95fcbb7a06748dd5069724aa543345313b9ca33ae90deef8b"
+  },
+  {
+   "workspace_id": "ws|alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "a|b",
+   "id": "e836c183b14672422005dc564773ef18ee603b319fd6e76aea177c85122c098c"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring|x",
+   "natural_key": "b",
+   "id": "3ac40abd19dccff4c4f27fe2b428725a0d8183e8e7e9fa4ce15fb8055a8270e3"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "x|2026-W35|extra",
+   "id": "08cb66cd6f380d611f360f63474bfc45380170980ef87611af69c3a6935c6f3d"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 140000000000,
+   "signal_type": "hiring",
+   "natural_key": "k",
+   "id": "671922da47f41065e37c0689d87fb548955fc581fea94cf49f10d3714daf83be"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "surge|2026-W53",
+   "id": "1d894c7c3ff31df099ffe981db8fbc7878c86fe566e77c04bd447070a56ae4ee"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "low|2027-W01",
+   "id": "6bc8053217a9bdfac5b071e6deb12bec74f20a6cc8bd65b23550ef66fe0c6556"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": true,
+   "signal_type": "hiring",
+   "natural_key": "k",
+   "id": "ee9cdd059571775e6ac1a8cade65a08b7476b087692c4f5d4eb57455cc6e6876"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": "14",
+   "signal_type": "hiring",
+   "natural_key": "k",
+   "id": "0140fb71d53a691ddc7cfffd1b3d97ef76785845cade45118d85d8f98bd95887"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": "moderate|2026-W35\n",
+   "id": "ab1d5340dfb1226e4ee1bb2a8a3b8007870fe9e2e62fab981bc30c0c5759b03d"
+  },
+  {
+   "workspace_id": "ws-alpha",
+   "lead_id": 14,
+   "signal_type": "hiring",
+   "natural_key": " moderate|2026-W35",
+   "id": "96a2e298c2500cd8d9718f748a5333e499e7a3cf56f75dc80b0413c9bc563268"
+  }
+ ],
+ "hiring_band": [
+  {
+   "total": -1,
+   "band": "low"
+  },
+  {
+   "total": 0,
+   "band": "low"
+  },
+  {
+   "total": 1,
+   "band": "low"
+  },
+  {
+   "total": 5,
+   "band": "low"
+  },
+  {
+   "total": 6,
+   "band": "moderate"
+  },
+  {
+   "total": 7,
+   "band": "moderate"
+  },
+  {
+   "total": 20,
+   "band": "moderate"
+  },
+  {
+   "total": 21,
+   "band": "high"
+  },
+  {
+   "total": 22,
+   "band": "high"
+  },
+  {
+   "total": 50,
+   "band": "high"
+  },
+  {
+   "total": 51,
+   "band": "surge"
+  },
+  {
+   "total": 52,
+   "band": "surge"
+  },
+  {
+   "total": 1000,
+   "band": "surge"
+  }
+ ],
+ "period_bucket": [
+  {
+   "name": "mon_w35_start",
+   "ts": 1787529600.0,
+   "bucket": "2026-W35"
+  },
+  {
+   "name": "sun_w34_end",
+   "ts": 1787529599.0,
+   "bucket": "2026-W34"
+  },
+  {
+   "name": "sun_w35_end_boundary",
+   "ts": 1788134399.0,
+   "bucket": "2026-W35"
+  },
+  {
+   "name": "mon_w36_start_boundary",
+   "ts": 1788134400.0,
+   "bucket": "2026-W36"
+  },
+  {
+   "name": "mid_week",
+   "ts": 1787837400.0,
+   "bucket": "2026-W35"
+  },
+  {
+   "name": "jan1_2026_is_w01",
+   "ts": 1767225600.0,
+   "bucket": "2026-W01"
+  },
+  {
+   "name": "dec28_2026_w53",
+   "ts": 1798416000.0,
+   "bucket": "2026-W53"
+  },
+  {
+   "name": "dec31_2026_w53",
+   "ts": 1798761599.0,
+   "bucket": "2026-W53"
+  },
+  {
+   "name": "jan1_2027_still_w53",
+   "ts": 1798761600.0,
+   "bucket": "2026-W53"
+  },
+  {
+   "name": "jan4_2027_w01",
+   "ts": 1799020800.0,
+   "bucket": "2027-W01"
+  },
+  {
+   "name": "dec31_2024_is_2025_w01",
+   "ts": 1735646400.0,
+   "bucket": "2025-W01"
+  },
+  {
+   "name": "jan1_2021_is_2020_w53",
+   "ts": 1609459200.0,
+   "bucket": "2020-W53"
+  },
+  {
+   "name": "leap_day_2028",
+   "ts": 1835438400.0,
+   "bucket": "2028-W09"
+  },
+  {
+   "name": "epoch",
+   "ts": 0.0,
+   "bucket": "1970-W01"
+  },
+  {
+   "name": "pre_epoch",
+   "ts": -86400.0,
+   "bucket": "1970-W01"
+  },
+  {
+   "name": "fractional",
+   "ts": 1788134399.999,
+   "bucket": "2026-W35"
+  },
+  {
+   "name": "year_9999",
+   "ts": 253402214400.0,
+   "bucket": "9999-W52"
+  },
+  {
+   "name": "seed_fixed_ts",
+   "ts": 1788000000.0,
+   "bucket": "2026-W35"
+  }
+ ],
+ "now_for_detection": 1787835600.0,
+ "detect_hiring_signals": [
+  {
+   "name": "single_high_band",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "56130973171dbde2388e81a868a2a455da71e02ed00d0a0c28557e31f145661a",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 30 open positions",
+     "description": "Active hiring detected. Top roles: SDR, AE, CS",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "fields_json_string",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "67fb928688921daf985986bb63e7ed0c6a2346732ff09a947a0ad39d85ed52e6",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 7 open positions",
+     "description": "Active hiring detected. Top roles: X",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 7,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "fields_dict",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 3 open positions",
+     "description": "Active hiring detected. Top roles: ",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 3,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "fields_bad_json_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "fields_json_list_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "no_data_no_fields",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "failure_result_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "zero_jobs_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "missing_total_jobs_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "weight_capped_at_10",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "b44f1f2af0ca9d9afbc8c6d51e2e20b6dac6f6aa1d404462edf39bd9e0a8a1e9",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 500 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "weight_equals_total_when_small",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 4 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 4,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "negative_total_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "top_titles_first_three",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 5 open positions",
+     "description": "Active hiring detected. Top roles: a, b, c",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 5,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "top_titles_missing",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 5 open positions",
+     "description": "Active hiring detected. Top roles: ",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 5,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "lead_without_company_skipped",
+   "leads": [
+    {
+     "id": 1,
+     "company": ""
+    },
+    {
+     "id": 2,
+     "company": "B"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "9100d037439c6f7cabe8dc2a582c3cdd74ce3585fc03c610eb8e47ca32a72353",
+     "workspace_id": "ws-alpha",
+     "lead_id": 2,
+     "company": "B",
+     "signal_type": "hiring",
+     "title": "B has 25 open positions",
+     "description": "Active hiring detected. Top roles: t",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "provider_exception_isolated",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    },
+    {
+     "id": 2,
+     "company": "B"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "9100d037439c6f7cabe8dc2a582c3cdd74ce3585fc03c610eb8e47ca32a72353",
+     "workspace_id": "ws-alpha",
+     "lead_id": 2,
+     "company": "B",
+     "signal_type": "hiring",
+     "title": "B has 25 open positions",
+     "description": "Active hiring detected. Top roles: t",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "cap_limits_leads_scanned",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    },
+    {
+     "id": 2,
+     "company": "B"
+    },
+    {
+     "id": 3,
+     "company": "C"
+    }
+   ],
+   "cap": 2,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "67fb928688921daf985986bb63e7ed0c6a2346732ff09a947a0ad39d85ed52e6",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 8 open positions",
+     "description": "Active hiring detected. Top roles: t",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 8,
+     "read": false
+    },
+    {
+     "id": "860a5e23e861c8ce4744e99b84c020d400a4ffd579f4f72fd09d2709a823e4bb",
+     "workspace_id": "ws-alpha",
+     "lead_id": 2,
+     "company": "B",
+     "signal_type": "hiring",
+     "title": "B has 8 open positions",
+     "description": "Active hiring detected. Top roles: t",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 8,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "cap_zero_scans_none",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": 0,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "data_dict_wins_over_fields",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 2 open positions",
+     "description": "Active hiring detected. Top roles: d",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 2,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "empty_data_dict_is_present_but_falsy_total",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": []
+  },
+  {
+   "name": "band_boundaries_one_lead_each",
+   "leads": [
+    {
+     "id": 1,
+     "company": "C1"
+    },
+    {
+     "id": 2,
+     "company": "C2"
+    },
+    {
+     "id": 3,
+     "company": "C3"
+    },
+    {
+     "id": 4,
+     "company": "C4"
+    },
+    {
+     "id": 5,
+     "company": "C5"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "7fb93bf8b1aaeabcbe9c3f43d0bbf8c3cf460ac443f6eccaab83da1544c8901d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "C1",
+     "signal_type": "hiring",
+     "title": "C1 has 5 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 5,
+     "read": false
+    },
+    {
+     "id": "860a5e23e861c8ce4744e99b84c020d400a4ffd579f4f72fd09d2709a823e4bb",
+     "workspace_id": "ws-alpha",
+     "lead_id": 2,
+     "company": "C2",
+     "signal_type": "hiring",
+     "title": "C2 has 6 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 6,
+     "read": false
+    },
+    {
+     "id": "636987ca8f4a5841c1520b89ef2d0c8b5976d1298319169e640cb208db107d37",
+     "workspace_id": "ws-alpha",
+     "lead_id": 3,
+     "company": "C3",
+     "signal_type": "hiring",
+     "title": "C3 has 20 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    },
+    {
+     "id": "9ab86ad54b06f8be4d37b04ed5bad82e5fc1447d43bef08b8ab93b332f82b43d",
+     "workspace_id": "ws-alpha",
+     "lead_id": 4,
+     "company": "C4",
+     "signal_type": "hiring",
+     "title": "C4 has 21 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    },
+    {
+     "id": "0c54c49b860bfc447ad61ff2bf31a8e0c2dde0757d4972dda38e4801f357113f",
+     "workspace_id": "ws-alpha",
+     "lead_id": 5,
+     "company": "C5",
+     "signal_type": "hiring",
+     "title": "C5 has 51 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "unicode_company_title",
+   "leads": [
+    {
+     "id": 1,
+     "company": "Société Générale"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "67fb928688921daf985986bb63e7ed0c6a2346732ff09a947a0ad39d85ed52e6",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "Société Générale",
+     "signal_type": "hiring",
+     "title": "Société Générale has 12 open positions",
+     "description": "Active hiring detected. Top roles: Ingénieur",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  },
+  {
+   "name": "same_lead_twice_same_id",
+   "leads": [
+    {
+     "id": 1,
+     "company": "A"
+    },
+    {
+     "id": 1,
+     "company": "A"
+    }
+   ],
+   "cap": null,
+   "bucket_now": "2026-W35",
+   "signals": [
+    {
+     "id": "67fb928688921daf985986bb63e7ed0c6a2346732ff09a947a0ad39d85ed52e6",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 12 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    },
+    {
+     "id": "67fb928688921daf985986bb63e7ed0c6a2346732ff09a947a0ad39d85ed52e6",
+     "workspace_id": "ws-alpha",
+     "lead_id": 1,
+     "company": "A",
+     "signal_type": "hiring",
+     "title": "A has 12 open positions",
+     "description": "Active hiring detected. Top roles: x",
+     "source": "JobSpy",
+     "source_url": "",
+     "weight": 10,
+     "read": false
+    }
+   ]
+  }
+ ],
+ "extract_hiring_data": [
+  {
+   "name": "data_dict",
+   "result": {
+    "value": {
+     "a": 1
+    }
+   }
+  },
+  {
+   "name": "empty_dict_data",
+   "result": {
+    "value": {}
+   }
+  },
+  {
+   "name": "fields_str",
+   "result": {
+    "value": {
+     "x": 2
+    }
+   }
+  },
+  {
+   "name": "fields_dict",
+   "result": {
+    "value": {
+     "x": 3
+    }
+   }
+  },
+  {
+   "name": "fields_empty_value",
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "name": "fields_bad",
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "name": "fields_number",
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "name": "no_attrs",
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "name": "data_list",
+   "result": {
+    "value": null
+   }
+  },
+  {
+   "name": "fields_not_dict",
+   "result": {
+    "value": null
+   }
+  }
+ ],
+ "apply_signal_boosts": [
+  {
+   "name": "below_cap_updates_and_retiers",
+   "leads": [
+    {
+     "id": 1,
+     "score": 40,
+     "score_tier": "cold"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 8
+    }
+   ],
+   "boosted": 1,
+   "updates": [
+    {
+     "id": 1,
+     "score": 48,
+     "score_tier": "cold"
+    }
+   ]
+  },
+  {
+   "name": "tier_thresholds",
+   "leads": [
+    {
+     "id": 1,
+     "score": 24,
+     "score_tier": "warm"
+    },
+    {
+     "id": 2,
+     "score": 25,
+     "score_tier": "warm"
+    },
+    {
+     "id": 3,
+     "score": 49,
+     "score_tier": "warm"
+    },
+    {
+     "id": 4,
+     "score": 50,
+     "score_tier": "warm"
+    },
+    {
+     "id": 5,
+     "score": 74,
+     "score_tier": "warm"
+    },
+    {
+     "id": 6,
+     "score": 75,
+     "score_tier": "warm"
+    },
+    {
+     "id": 7,
+     "score": 0,
+     "score_tier": "warm"
+    },
+    {
+     "id": 8,
+     "score": null,
+     "score_tier": "warm"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 0
+    },
+    {
+     "lead_id": 2,
+     "weight": 0
+    },
+    {
+     "lead_id": 3,
+     "weight": 1
+    },
+    {
+     "lead_id": 4,
+     "weight": 1
+    },
+    {
+     "lead_id": 5,
+     "weight": 1
+    },
+    {
+     "lead_id": 6,
+     "weight": 1
+    },
+    {
+     "lead_id": 7,
+     "weight": 3
+    },
+    {
+     "lead_id": 8,
+     "weight": 30
+    }
+   ],
+   "boosted": 6,
+   "updates": [
+    {
+     "id": 3,
+     "score": 50,
+     "score_tier": "warm"
+    },
+    {
+     "id": 4,
+     "score": 51,
+     "score_tier": "warm"
+    },
+    {
+     "id": 5,
+     "score": 75,
+     "score_tier": "hot"
+    },
+    {
+     "id": 6,
+     "score": 76,
+     "score_tier": "hot"
+    },
+    {
+     "id": 7,
+     "score": 3,
+     "score_tier": "unqualified"
+    },
+    {
+     "id": 8,
+     "score": 30,
+     "score_tier": "cold"
+    }
+   ]
+  },
+  {
+   "name": "cap_at_100",
+   "leads": [
+    {
+     "id": 1,
+     "score": 96,
+     "score_tier": "hot"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 10
+    }
+   ],
+   "boosted": 1,
+   "updates": [
+    {
+     "id": 1,
+     "score": 100,
+     "score_tier": "hot"
+    }
+   ]
+  },
+  {
+   "name": "already_100_no_update",
+   "leads": [
+    {
+     "id": 1,
+     "score": 100,
+     "score_tier": "hot"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 10
+    }
+   ],
+   "boosted": 0,
+   "updates": []
+  },
+  {
+   "name": "zero_weight_no_update",
+   "leads": [
+    {
+     "id": 1,
+     "score": 40,
+     "score_tier": "cold"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 0
+    }
+   ],
+   "boosted": 0,
+   "updates": []
+  },
+  {
+   "name": "multiple_signals_aggregate_weight",
+   "leads": [
+    {
+     "id": 1,
+     "score": 10,
+     "score_tier": "cold"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": 3
+    },
+    {
+     "lead_id": 1,
+     "weight": 4
+    }
+   ],
+   "boosted": 1,
+   "updates": [
+    {
+     "id": 1,
+     "score": 17,
+     "score_tier": "unqualified"
+    }
+   ]
+  },
+  {
+   "name": "lead_missing_skipped",
+   "leads": [],
+   "signals": [
+    {
+     "lead_id": 9,
+     "weight": 5
+    }
+   ],
+   "boosted": 0,
+   "updates": []
+  },
+  {
+   "name": "lead_id_zero_ignored",
+   "leads": [
+    {
+     "id": 0,
+     "score": 1,
+     "score_tier": "cold"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 0,
+     "weight": 5
+    }
+   ],
+   "boosted": 0,
+   "updates": []
+  },
+  {
+   "name": "no_signals",
+   "leads": [
+    {
+     "id": 1,
+     "score": 1,
+     "score_tier": "cold"
+    }
+   ],
+   "signals": [],
+   "boosted": 0,
+   "updates": []
+  },
+  {
+   "name": "negative_weight_lowers_score",
+   "leads": [
+    {
+     "id": 1,
+     "score": 50,
+     "score_tier": "warm"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": -5
+    }
+   ],
+   "boosted": 1,
+   "updates": [
+    {
+     "id": 1,
+     "score": 45,
+     "score_tier": "cold"
+    }
+   ]
+  },
+  {
+   "name": "none_weight_is_zero",
+   "leads": [
+    {
+     "id": 1,
+     "score": 50,
+     "score_tier": "warm"
+    }
+   ],
+   "signals": [
+    {
+     "lead_id": 1,
+     "weight": null
+    }
+   ],
+   "boosted": 0,
+   "updates": []
+  }
+ ],
+ "run_signal_scan": [
+  {
+   "name": "two_workspaces_basic",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a",
+    "ws-b"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 3,
+    "signals_found": 3,
+    "leads_boosted": 3,
+    "workspaces": 2,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 3
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "9f0997f3d6faccd4f04e8eb720ed39be83b195c750e11378cd0017d3e3a4edc2",
+      "lead_id": 1,
+      "weight": 10,
+      "title": "A1 has 30 open positions"
+     },
+     {
+      "id": "3bbb3c76bfeef89890ef22b9fe1cd8a4a7bb354a3eaa86eb3df4a2a46cd39eb2",
+      "lead_id": 2,
+      "weight": 3,
+      "title": "A2 has 3 open positions"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "B1 has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "9f0997f3d6faccd4f04e8eb720ed39be83b195c750e11378cd0017d3e3a4edc2",
+      "inserted": true
+     },
+     {
+      "id": "3bbb3c76bfeef89890ef22b9fe1cd8a4a7bb354a3eaa86eb3df4a2a46cd39eb2",
+      "inserted": true
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 80,
+      "score_tier": "hot"
+     },
+     {
+      "id": 2,
+      "score": 58,
+      "score_tier": "warm"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": 1,
+      "score": 98,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "same_lead_id_in_two_workspaces_distinct_ids",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a",
+    "ws-b"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 2,
+    "signals_found": 2,
+    "leads_boosted": 2,
+    "workspaces": 2,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 2
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "Same has 8 open positions"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "Same has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 78,
+      "score_tier": "hot"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": 1,
+      "score": 78,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "one_workspace_failing_does_not_abort",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a",
+    "ws-bad",
+    "ws-c"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 2,
+    "signals_found": 2,
+    "leads_boosted": 2,
+    "workspaces": 2,
+    "workspaces_failed": 1,
+    "by_type": {
+     "hiring": 2
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "A1 has 8 open positions"
+     }
+    ],
+    "ws-bad": [],
+    "ws-c": [
+     {
+      "id": "def12923fe687895096e474e655c04419cf4a75f2cecf92b2f1ba47b7e1a47c2",
+      "lead_id": 2,
+      "weight": 8,
+      "title": "C1 has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     }
+    ],
+    "ws-bad": [],
+    "ws-c": [
+     {
+      "id": "def12923fe687895096e474e655c04419cf4a75f2cecf92b2f1ba47b7e1a47c2",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 78,
+      "score_tier": "hot"
+     }
+    ],
+    "ws-c": [
+     {
+      "id": 2,
+      "score": 68,
+      "score_tier": "warm"
+     }
+    ]
+   }
+  },
+  {
+   "name": "workspace_without_hot_warm_leads",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 0,
+    "signals_found": 0,
+    "leads_boosted": 0,
+    "workspaces": 1,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 0
+    }
+   },
+   "signals_written": {
+    "ws-a": []
+   },
+   "add_signal_calls": {
+    "ws-a": []
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": []
+   }
+  },
+  {
+   "name": "per_workspace_cap",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 2,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 5,
+    "signals_found": 2,
+    "leads_boosted": 2,
+    "workspaces": 1,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 2
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "C1 has 8 open positions"
+     },
+     {
+      "id": "1136866b19de50130553437dee2077f505c562ee68777f3456ea4de147b0905d",
+      "lead_id": 2,
+      "weight": 8,
+      "title": "C2 has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     },
+     {
+      "id": "1136866b19de50130553437dee2077f505c562ee68777f3456ea4de147b0905d",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 88,
+      "score_tier": "hot"
+     },
+     {
+      "id": 2,
+      "score": 88,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "global_cap_stops_workspace_loop",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 3
+   },
+   "workspaces": [
+    "ws-a",
+    "ws-b",
+    "ws-c"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 3,
+    "signals_found": 3,
+    "leads_boosted": 3,
+    "workspaces": 1,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 3
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "A1 has 8 open positions"
+     },
+     {
+      "id": "1136866b19de50130553437dee2077f505c562ee68777f3456ea4de147b0905d",
+      "lead_id": 2,
+      "weight": 8,
+      "title": "A2 has 8 open positions"
+     },
+     {
+      "id": "743784eed59317a30d6c28d811baa063f6defee4f6e4606f020d92ad8bf7c3e4",
+      "lead_id": 3,
+      "weight": 8,
+      "title": "A3 has 8 open positions"
+     }
+    ],
+    "ws-b": [],
+    "ws-c": []
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     },
+     {
+      "id": "1136866b19de50130553437dee2077f505c562ee68777f3456ea4de147b0905d",
+      "inserted": true
+     },
+     {
+      "id": "743784eed59317a30d6c28d811baa063f6defee4f6e4606f020d92ad8bf7c3e4",
+      "inserted": true
+     }
+    ],
+    "ws-b": [],
+    "ws-c": []
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 88,
+      "score_tier": "hot"
+     },
+     {
+      "id": 2,
+      "score": 88,
+      "score_tier": "hot"
+     },
+     {
+      "id": 3,
+      "score": 88,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "global_cap_zero_means_unlimited",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 0
+   },
+   "workspaces": [
+    "ws-a",
+    "ws-b"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 2,
+    "signals_found": 2,
+    "leads_boosted": 2,
+    "workspaces": 2,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 2
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "A1 has 8 open positions"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "B1 has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     }
+    ],
+    "ws-b": [
+     {
+      "id": "0f73a65b0d58674e8e8f5bae1be76dd75d4f2ed2f4bc7b3db772b3a15976eec9",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 88,
+      "score_tier": "hot"
+     }
+    ],
+    "ws-b": [
+     {
+      "id": 1,
+      "score": 88,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "hot_then_warm_caps",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 1,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 1,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 2,
+    "signals_found": 2,
+    "leads_boosted": 2,
+    "workspaces": 1,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 2
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 8,
+      "title": "H1 has 8 open positions"
+     },
+     {
+      "id": "743784eed59317a30d6c28d811baa063f6defee4f6e4606f020d92ad8bf7c3e4",
+      "lead_id": 3,
+      "weight": 8,
+      "title": "W1 has 8 open positions"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": true
+     },
+     {
+      "id": "743784eed59317a30d6c28d811baa063f6defee4f6e4606f020d92ad8bf7c3e4",
+      "inserted": true
+     }
+    ]
+   },
+   "preexisting_ids": [],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 88,
+      "score_tier": "hot"
+     },
+     {
+      "id": 3,
+      "score": 68,
+      "score_tier": "warm"
+     }
+    ]
+   }
+  },
+  {
+   "name": "rescan_same_week_inserts_once",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [
+    "ws-a"
+   ],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 1,
+    "signals_found": 1,
+    "leads_boosted": 1,
+    "workspaces": 1,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 1
+    }
+   },
+   "signals_written": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "lead_id": 1,
+      "weight": 0,
+      "title": "preexisting"
+     }
+    ]
+   },
+   "add_signal_calls": {
+    "ws-a": [
+     {
+      "id": "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707",
+      "inserted": false
+     }
+    ]
+   },
+   "preexisting_ids": [
+    "60b53abd0f9d2187a15870756310ea778a95dc008b4ac17cbb9189a1fb302707"
+   ],
+   "lead_updates": {
+    "ws-a": [
+     {
+      "id": 1,
+      "score": 78,
+      "score_tier": "hot"
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_workspaces",
+   "caps": {
+    "SIGNAL_SCAN_MAX_HOT_LEADS": 50,
+    "SIGNAL_SCAN_MAX_WARM_LEADS": 30,
+    "SIGNAL_SCAN_MAX_LEADS_PER_WORKSPACE": 20,
+    "SIGNAL_SCAN_GLOBAL_MAX_LEADS": 500
+   },
+   "workspaces": [],
+   "bucket_now": "2026-W35",
+   "result": {
+    "scanned": 0,
+    "signals_found": 0,
+    "leads_boosted": 0,
+    "workspaces": 0,
+    "workspaces_failed": 0,
+    "by_type": {
+     "hiring": 0
+    }
+   },
+   "signals_written": {},
+   "add_signal_calls": {},
+   "preexisting_ids": [],
+   "lead_updates": {}
+  }
+ ],
+ "run_signal_scan_list_workspaces_failure": {
+  "scanned": 0,
+  "signals_found": 0,
+  "workspaces": 0
+ },
+ "signal_types": {
+  "hiring": {
+   "label": "Hiring",
+   "icon": "users",
+   "weight": 8
+  },
+  "funding": {
+   "label": "Funding",
+   "icon": "trending-up",
+   "weight": 10
+  },
+  "tech_change": {
+   "label": "Tech Change",
+   "icon": "code",
+   "weight": 6
+  },
+  "website_change": {
+   "label": "Website Update",
+   "icon": "globe",
+   "weight": 4
+  },
+  "news": {
+   "label": "News Mention",
+   "icon": "newspaper",
+   "weight": 5
+  },
+  "growth": {
+   "label": "Growth Signal",
+   "icon": "bar-chart-3",
+   "weight": 7
+  },
+  "job_change": {
+   "label": "Job Change",
+   "icon": "briefcase",
+   "weight": 9
+  },
+  "social_activity": {
+   "label": "Social Activity",
+   "icon": "message-square",
+   "weight": 3
+  }
+ }
+}

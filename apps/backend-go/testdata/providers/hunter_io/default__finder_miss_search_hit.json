@@ -1,0 +1,61 @@
+{
+ "provider": "hunter_io",
+ "input_name": "default",
+ "scenario": "finder_miss_search_hit",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com/about",
+  "contact_person": "Ada Lovelace"
+ },
+ "secrets": {
+  "HUNTER_API_KEY": "ctk_hunter_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/email-finder?domain=acme.com&first_name=Ada&last_name=Lovelace&api_key={{secret:HUNTER_API_KEY}}",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"email\":null}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/domain-search?domain=acme.com&api_key={{secret:HUNTER_API_KEY}}&limit=5",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"emails\":[{\"value\":\"info@acme.com\",\"confidence\":70,\"first_name\":\"Bob\",\"last_name\":\"Ray\",\"position\":\"CTO\"},{\"value\":\"ada@acme.com\",\"confidence\":92,\"first_name\":\"Ada\",\"last_name\":\"Lovelace\",\"position\":\"CEO\"}]}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "hunter_io",
+  "success": true,
+  "fields": {
+   "email": "ada@acme.com",
+   "email_confidence": "92",
+   "email_provider": "hunter_io",
+   "email_match_method": "domain_search",
+   "contact_person": "Ada Lovelace",
+   "contact_title": "CEO"
+  },
+  "confidence": 0.92,
+  "error": ""
+ }
+}

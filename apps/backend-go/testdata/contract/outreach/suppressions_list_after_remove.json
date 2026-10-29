@@ -1,0 +1,76 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/suppressions"
+  },
+  "response": {
+    "body": {
+      "suppressions": [
+        {
+          "created_at": "2026-10-26T14:15:11.390978+00:00",
+          "email": "not-an-email",
+          "id": 12,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        },
+        {
+          "created_at": "2026-10-26T14:15:11.353714+00:00",
+          "email": "user@xn--bcher-kva.example",
+          "id": 11,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        },
+        {
+          "created_at": "2026-10-26T14:15:11.333298+00:00",
+          "email": "p.a.t.lee+news@gmail.com",
+          "id": 10,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        },
+        {
+          "created_at": "2026-08-29T08:05:00+00:00",
+          "email": "patlee@gmail.com",
+          "id": 5,
+          "locked": false,
+          "reason": "manual",
+          "source": "manual"
+        },
+        {
+          "created_at": "2026-08-29T08:04:00+00:00",
+          "email": "bounced-user@example.com",
+          "id": 4,
+          "locked": false,
+          "reason": "bounce",
+          "source": "seq-out-a-01"
+        },
+        {
+          "created_at": "2026-08-29T08:02:00+00:00",
+          "email": "locked-complaint@example.com",
+          "id": 2,
+          "locked": true,
+          "reason": "complaint",
+          "source": "inbound"
+        },
+        {
+          "created_at": "2026-08-29T08:01:00+00:00",
+          "email": "locked-unsub@example.com",
+          "id": 1,
+          "locked": true,
+          "reason": "unsubscribe",
+          "source": "seq-out-a-01"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "name": ""
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/v2/workbooks/wb-alpha-2/views/c543c7d2-4f27-4ab1-ba34-b00c104be7dd"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "min_length": 1
+          },
+          "input": "",
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "String should have at least 1 character",
+          "type": "string_too_short"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

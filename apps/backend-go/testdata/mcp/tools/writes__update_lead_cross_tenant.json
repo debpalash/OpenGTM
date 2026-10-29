@@ -1,0 +1,61 @@
+{
+  "seq": 20,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 20,
+    "method": "tools/call",
+    "params": {
+      "name": "update_lead",
+      "arguments": {
+        "lead_id": 7,
+        "notes": "hijack"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 20,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Lead not found\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "update_lead",
+      "arguments_redacted": {
+        "lead_id": 7,
+        "notes": "hijack"
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "Lead not found",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 14,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000001b",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

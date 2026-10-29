@@ -1,0 +1,162 @@
+# Go workbook executor: rollout and rollback runbook
+
+> **Historical (plan 15).** OpenGTM now runs without the Python backend: the Python api, worker, scheduler
+> and seed services, the root `Dockerfile` and the nginx canary (`go-split.conf`, `go-routes.conf`) are gone, and
+> every Go path is on (`GO_ALL_NATIVE=true` in compose). This document records the side-by-side period. Current
+> operation: `docs/go-port/runbooks/docker-compose.md`; final cutover: `docs/go-port/runbooks/15-cutover.md`.
+
+The Go worker (`apps/backend-go/cmd/worker`) executes `run_workbook` jobs for an
+eligible subset of workbooks. Python remains the default and the fallback. Jobs
+carry an `executor` column (`python` | `go`); each worker claims only its own.
+
+## Prerequisites
+
+- Every Python api/worker/scheduler replica runs schema revision >=
+  `REQUIRED_GO_SCHEMA_REVISION` = `4a5162738495`
+  (`legacy/python/apps/api/services/go_executor.py`; mirrored in the Go
+  `config.RequiredGoSchemaRevision`). Run the `migrate` service first and make
+  sure no old-image Python worker is still running, otherwise it may mis-handle
+  lease-fenced `go` rows.
+- `INTERNAL_SERVICE_TOKEN` generated (at least 32 characters, not starting with `change-me`: the Go worker refuses to start and the Python internal API answers 503 otherwise): `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+
+## Enabling
+
+1. In `.env` set `INTERNAL_SERVICE_TOKEN=<strong random>`, `GO_EXECUTOR_ENABLED=1`
+   and `GO_EXECUTOR_WORKSPACES=<ws1,ws2>` (the cohort; empty means nobody).
+   Optional knobs: `GO_WORKER_CONCURRENCY`, `GO_WORKER_DB_MAX_CONNS`,
+   `GO_WORKER_HEARTBEAT_SECONDS`, `GO_WORKER_SHUTDOWN_GRACE_SECONDS`,
+   `GO_WORKER_DEBUG_ADDR`, `WORKER_MAX_ACTIVE_PER_WORKSPACE`, and
+   `GO_WORKER_JOB_TIMEOUT_SECONDS` (per-job wall clock, default 1800 = Python's
+   `JOB_TIMEOUTS["run_workbook"]`, clamped to 60..7200; on expiry the job fails
+   through the normal retry path).
+2. Recreate the API so it picks up the flag/token: `docker compose up -d api`.
+   `GO_EXECUTOR_ENABLED`/`GO_EXECUTOR_WORKSPACES` are read only at enqueue time
+   (`enqueue_run_workbook`, called from the API, `seed`, and the source engine
+   inside the Python worker), so restart `api` and, if you want source-engine
+   enqueues from `worker` to follow the change, `worker` too:
+   `docker compose up -d api worker`. The scheduler does not read the flag.
+3. Start the worker: `docker compose --profile go up -d worker-go`.
+   It refuses to start with an empty token or a schema older than the required revision.
+
+Only runs enqueued after the flag is on are routed; existing queued jobs keep their executor.
+
+## Eligibility (summary of `go_eligibility`)
+
+A run goes to Go only if the flag is on, the workspace is in the cohort, and the
+workbook has columns that are all `enrichment`/`waterfall` with: no `condition`,
+no `{column}` references (prompt/formula/http_url/goal/input_columns), no
+structured write-back targets (decision_makers, hiring_signals, secondary
+emails/phones, technographics), email targets with `verify` off, a non-empty
+provider chain of declarative providers only, target-only mappings, and no
+extra manifest env vars. Provenance and automations must be off for the
+workspace. Anything else stays on Python; the decision reason is logged as
+`run_workbook executor=<x> reason=<r>` (e.g. `not_in_cohort`, `email_verify`,
+`column_refs`, `non_declarative_provider`, `templated_authority`,
+`literal_auth_value`).
+
+A manifest that carries credentials (any `auth.type` other than `none`, or any
+`${env:` reference) must not template the URL's scheme/host/port (`{{` before the
+first `/` after `://`): lead data could redirect the key to another host. Such a
+manifest is ineligible (`templated_authority`), the Python declarative compiler
+refuses it, and Go's `manifest.Execute` refuses it before any credential or
+network call. A literal `auth.value` (not a `${env:..}` reference) is likewise
+ineligible (`literal_auth_value`).
+
+## Manifest verification and hand-back
+
+The payload's `go.manifests` are claims, not trusted code. Before any work the
+worker fetches each named manifest from `GET /internal/v1/manifests/{name}`
+(same service-token auth as the credentials endpoint; the signature-verified
+manifest and its sha256, the same hash as `go.manifest_sha256`), requires the
+sha256 to equal the payload's, and executes the FETCHED manifest, never the
+payload copy. Responses are cached for 60s; redirects are never followed.
+
+Deterministic refusals before work begins (unsupported payload version, missing
+`go` block, unsupported or edited column, unknown provider, manifest
+verification failure `manifest_mismatch`) hand the job back to Python with a
+lease-fenced update: `executor='python'`, `status='pending'`, `retry_count`
+unchanged, `error='handed back to python: <reason>'`, and the workbook is not
+marked failed. Python then runs the job normally. Transient failures (for
+example the API being down) still fail the attempt and retry on Go.
+
+## Observability
+
+- The debug server (`/metrics`, `/debug/pprof/`) listens on `127.0.0.1:6060`
+  inside the container. `GO_WORKER_DEBUG_ADDR` must be a loopback IP; the
+  worker refuses to start otherwise, so it can never be exposed on the network.
+  The image is distroless (no shell), so reach it with a sidecar sharing the
+  network namespace:
+  `docker run --rm --network container:$(docker compose ps -q worker-go) curlimages/curl -s http://127.0.0.1:6060/metrics`
+  (or a compose sidecar with `network_mode: "service:worker-go"`).
+- JSON logs on stdout with fields `job_id`, `workspace_id`, `lease_token`:
+  `docker compose logs -f worker-go`.
+
+## Rollback drill (run once on staging before widening the cohort)
+
+Python only claims `executor='python'` rows, and the reaper requeues stale
+`processing` jobs as `pending` while keeping `executor='go'`. So
+`reassign-executor` moves only rows that are already `pending`; **processing
+rows are not moved until the reaper requeues them**, and the command must be
+repeated afterwards.
+
+1. Enable the cohort and start a 10k-row run on an eligible workbook. Record
+   the baseline before the run: `SELECT budget_spent_usd FROM workbooks WHERE id = :wb;`
+2. Turn the flag off: `GO_EXECUTOR_ENABLED=0` in `.env`, then `docker compose up -d api`
+   (new runs go to Python).
+3. Stop the Go worker: `docker compose stop worker-go`.
+4. Move the already-pending Go rows:
+   `docker compose run --rm api python -m apps.api.cli jobs reassign-executor --from go --to python [--workspace W]`
+   (prints the count; changes only `status='pending'` rows).
+5. Wait for the Python reaper: a `processing` job becomes stale after a 5 minute
+   heartbeat threshold, then is requeued with backoff `2^retry_count` minutes.
+6. Re-run the step 4 command until this returns 0 (as DB owner):
+   `SELECT count(*) FROM jobs WHERE executor='go' AND status IN ('pending','processing');`
+7. Confirm the run finishes on Python (job `completed`, cells terminal).
+
+Verification SQL, run as the DB owner role (the runtime role is subject to
+forced RLS and would see nothing), with `:wb` = the drill workbook id:
+
+```sql
+-- (a) must return 0 rows. 'uncertain' attempts are unresolved spend: list them
+--     and reconcile manually; do not ignore them.
+SELECT attempt_key, status, provider, reserved_microusd
+FROM workbook_spend_attempts
+WHERE workbook_id = :wb AND status IN ('reserved','dispatched','uncertain');
+
+-- (b) spent_delta must equal settled_usd (baseline from step 1).
+SELECT w.budget_spent_usd - :baseline AS spent_delta,
+       (SELECT coalesce(sum(settled_microusd),0)/1e6
+          FROM workbook_spend_attempts a
+         WHERE a.workbook_id = w.id AND a.status = 'settled') AS settled_usd
+FROM workbooks w WHERE w.id = :wb;
+
+-- (c) must return 0 rows: every cell is terminal.
+SELECT status, count(*) FROM workbook_enrichments
+WHERE workbook_id = :wb AND (status IS NULL OR status NOT IN ('complete','error','skipped'))
+GROUP BY status;
+```
+
+(`settled_usd` is only comparable with the budget delta if the baseline was
+taken when no other run was spending on that workbook.)
+
+## Known limits
+
+- Eligible scope only (see above); everything else runs on Python.
+- No lead write-back from the Go path.
+- Email verification must be off for email targets.
+- The spend contract is narrowed for declarative providers: it hashes only the
+  seven manifest-readable lead fields of the RAW stored row, never values written
+  by this job's own enrichment columns.
+- Paid providers are vetted (credential present, URL allowed) before any budget
+  is reserved; Python still reserves first, so a paid provider with a missing key
+  ends `accounting_uncertain` on Python but is skipped without a hold on Go.
+- Rollback re-enqueuing the same job id can hit `contract_conflict` on attempts written before the contract alignment.
+
+## Security notes
+
+- `/internal/v1/credentials` is not proxied by nginx; it is reachable only on
+  `lead_net` (and the host-local API diagnostics port). Do not add an nginx route.
+- `INTERNAL_SERVICE_TOKEN` is the trust boundary (constant-time compare). Treat
+  it like a database password; rotate by updating `.env` and recreating api and worker-go.
+- `X-Workspace-Id` on internal calls is caller-asserted; any holder of the
+  token can request credentials for any workspace. Keep worker-go unpublished and the token secret.

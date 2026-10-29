@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "consent_attested": true,
+        "consent_source": "s"
+      },
+      "destination_type": "linkedin_ads",
+      "name": "cfg 34"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "missing ad destination config: segment_id"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

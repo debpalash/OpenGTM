@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "displayName": "Empty"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Groups"
+  },
+  "response": {
+    "body": {
+      "displayName": "Empty",
+      "externalId": "",
+      "id": "b293f97c-e3f3-4e1d-a532-7d6dc8e2c2fd",
+      "members": [],
+      "meta": {
+        "created": "2026-10-26T07:22:55.195218+00:00",
+        "lastModified": "2026-10-26T07:22:55.195218+00:00",
+        "location": "/scim/v2/alpha/Groups/b293f97c-e3f3-4e1d-a532-7d6dc8e2c2fd",
+        "resourceType": "Group"
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Group"
+      ]
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 201
+  }
+}

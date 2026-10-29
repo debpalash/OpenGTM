@@ -1,0 +1,21 @@
+{
+ "provider": "google_maps",
+ "input_name": "no_company",
+ "scenario": "miss",
+ "input": {
+  "city": "Austin"
+ },
+ "secrets": {
+  "GOOGLE_MAPS_API_KEY": "ctk_gmaps_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "google_maps",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No company name available"
+ }
+}

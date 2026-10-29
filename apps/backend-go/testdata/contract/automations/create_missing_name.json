@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "trigger_type": "on_row_added"
+          },
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

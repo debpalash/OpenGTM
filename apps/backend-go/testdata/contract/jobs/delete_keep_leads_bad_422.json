@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/jobs/a1000000000000000000000000000003?keep_leads=maybe"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "maybe",
+          "loc": [
+            "query",
+            "keep_leads"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

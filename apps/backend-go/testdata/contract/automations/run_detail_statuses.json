@@ -1,0 +1,121 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/runs/run-a-01-09"
+  },
+  "response": {
+    "body": {
+      "action_results": [
+        {
+          "action_index": 0,
+          "action_type": "re_enrich",
+          "charged_usd": 0.05,
+          "created_at": "2026-08-29T12:09:01+00:00",
+          "error": null,
+          "id": 7,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3001:0:rowadd:wb-auto-1:3009",
+          "lead_id": 14,
+          "result_summary": "re_enrich: 1 cells completed, 0 errors",
+          "row_id": "3001",
+          "run_id": "run-a-01-09",
+          "skip_reason": null,
+          "status": "success",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 1,
+          "action_type": "push_crm",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:09:02+00:00",
+          "error": "hubspot not connected",
+          "id": 8,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3002:1:rowadd:wb-auto-1:3009",
+          "lead_id": 11,
+          "result_summary": null,
+          "row_id": "3002",
+          "run_id": "run-a-01-09",
+          "skip_reason": "not_connected",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "re_enrich",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:09:03+00:00",
+          "error": null,
+          "id": 9,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3003:0:rowadd:wb-auto-1:3009",
+          "lead_id": 7,
+          "result_summary": "daily cap reached",
+          "row_id": "3003",
+          "run_id": "run-a-01-09",
+          "skip_reason": "cap",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "re_enrich",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:09:04+00:00",
+          "error": null,
+          "id": 10,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3004:0:rowadd:wb-auto-1:3009",
+          "lead_id": 6,
+          "result_summary": "insufficient credits",
+          "row_id": "3004",
+          "run_id": "run-a-01-09",
+          "skip_reason": "credits",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "re_enrich",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:09:05+00:00",
+          "error": null,
+          "id": 11,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3005:0:rowadd:wb-auto-1:3009",
+          "lead_id": 12,
+          "result_summary": "none of the configured columns exist in this workbook",
+          "row_id": "3005",
+          "run_id": "run-a-01-09",
+          "skip_reason": "no_target",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        }
+      ],
+      "actions_attempted": 0,
+      "actions_failed": 1,
+      "actions_skipped": 1,
+      "actions_succeeded": 1,
+      "error": null,
+      "finished_at": "2026-08-29T12:09:30+00:00",
+      "fire_key": "rowadd:wb-auto-1:3009",
+      "fire_source": "row_added",
+      "id": "run-a-01-09",
+      "job_id": 909,
+      "matched_rows": 1,
+      "started_at": "2026-08-29T12:09:00+00:00",
+      "status": "partial",
+      "total_charged_usd": 0.1111,
+      "trigger_id": "trg-a-01",
+      "trigger_name_snapshot": "New row webhook"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

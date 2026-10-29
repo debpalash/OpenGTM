@@ -1,0 +1,44 @@
+{
+ "provider": "hunter_io",
+ "input_name": "default",
+ "scenario": "finder_hit_zero_confidence",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com/about",
+  "contact_person": "Ada Lovelace"
+ },
+ "secrets": {
+  "HUNTER_API_KEY": "ctk_hunter_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/email-finder?domain=acme.com&first_name=Ada&last_name=Lovelace&api_key={{secret:HUNTER_API_KEY}}",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"email\":\"ada@acme.com\",\"confidence\":0}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "hunter_io",
+  "success": true,
+  "fields": {
+   "email": "ada@acme.com",
+   "email_confidence": "0",
+   "email_provider": "hunter_io",
+   "email_match_method": "exact_name"
+  },
+  "confidence": 0.0,
+  "error": ""
+ }
+}

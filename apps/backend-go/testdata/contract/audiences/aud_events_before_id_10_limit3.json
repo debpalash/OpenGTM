@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/events?before_id=10&limit=3"
+  },
+  "response": {
+    "body": [
+      {
+        "audience_id": "aud-act-2",
+        "created_at": "2026-08-27T08:35:00",
+        "event_type": "entered",
+        "id": 9,
+        "lead_id": 5,
+        "snapshot": {
+          "city": "",
+          "company": "Nordlicht GmbH",
+          "contact_person": "",
+          "contact_title": "",
+          "email": "kontakt@nordlicht.example.com",
+          "id": 5,
+          "phone": "",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "contacted",
+          "website": "https://nordlicht.example.com"
+        }
+      },
+      {
+        "audience_id": "aud-act-2",
+        "created_at": "2026-08-27T08:35:00",
+        "event_type": "entered",
+        "id": 8,
+        "lead_id": 4,
+        "snapshot": {
+          "city": "Pune",
+          "company": "\u00c9co Solutions Pvt Ltd",
+          "contact_person": "Isha Rao",
+          "contact_title": "Founder",
+          "email": "info@eco.example.com",
+          "id": 4,
+          "phone": "+91 20 5550 0004",
+          "score": 80,
+          "score_tier": "hot",
+          "status": "new",
+          "website": "https://eco.example.com:8443/home"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

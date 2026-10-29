@@ -1,0 +1,42 @@
+{
+ "vendor": "sheets",
+ "scenario": "a1_column_names",
+ "call": {
+  "function": "_column_name_table",
+  "args": {
+   "numbers": [
+    1,
+    2,
+    25,
+    26,
+    27,
+    28,
+    52,
+    53,
+    78,
+    702,
+    703,
+    728,
+    18278
+   ]
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "1": "A",
+  "2": "B",
+  "25": "Y",
+  "26": "Z",
+  "27": "AA",
+  "28": "AB",
+  "52": "AZ",
+  "53": "BA",
+  "78": "BZ",
+  "702": "ZZ",
+  "703": "AAA",
+  "728": "AAZ",
+  "18278": "ZZZ"
+ }
+}

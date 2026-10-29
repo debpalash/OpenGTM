@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/runs/run-gov-r1/retry"
+  },
+  "response": {
+    "body": {
+      "detail": "Only failed, completed-with-errors, or cancelled runs can be retried"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

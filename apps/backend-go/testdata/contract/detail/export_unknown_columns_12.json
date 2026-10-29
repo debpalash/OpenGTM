@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/export.csv?column_ids=u00&column_ids=u01&column_ids=u02&column_ids=u03&column_ids=u04&column_ids=u05&column_ids=u06&column_ids=u07&column_ids=u08&column_ids=u09&column_ids=u10&column_ids=u11"
+  },
+  "response": {
+    "body": {
+      "detail": "Unknown columns: u00, u01, u02, u03, u04, u05, u06, u07, u08, u09"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

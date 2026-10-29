@@ -1,0 +1,279 @@
+[
+ {
+  "name": "simple",
+  "path": "/p/simple",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/simple",
+   "html": "<!doctype html><html><head><title>Acme Corp</title><meta name=\"description\" content=\"We make anvils.\"></head>\n<body><h1>Acme</h1><p>Contact <a href=\"mailto:sales@acme.com\">sales@acme.com</a> or info@acme.com.</p>\n<ul><li>One</li><li>Two</li></ul><p>Again: sales@acme.com</p></body></html>",
+   "text": "# Acme\n\nContact sales@acme.com or info@acme.com.\n\n* One\n* Two\n\nAgain: sales@acme.com",
+   "title": "Acme Corp",
+   "description": "We make anvils."
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/simple",
+   "title": "Acme Corp",
+   "description": "We make anvils.",
+   "method": "fast",
+   "extracted_emails": [
+    "sales@acme.com",
+    "info@acme.com"
+   ],
+   "word_count": 12,
+   "preview_text": "# Acme\n\nContact sales@acme.com or info@acme.com.\n\n* One\n* Two\n\nAgain: sales@acme.com",
+   "html_content": "<!doctype html><html><head><title>Acme Corp</title><meta name=\"description\" content=\"We make anvils.\"></head>\n<body><h1>Acme</h1><p>Contact <a href=\"mailto:sales@acme.com\">sales@acme.com</a> or info@acme.com.</p>\n<ul><li>One</li><li>Two</li></ul><p>Again: sales@acme.com</p></body></html>"
+  }
+ },
+ {
+  "name": "og_description",
+  "path": "/p/og_description",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/og_description",
+   "html": "<html><head><title>OG</title><meta property=\"og:description\" content=\"Open graph text\"></head><body><p>hello world</p></body></html>",
+   "text": "hello world",
+   "title": "OG",
+   "description": "Open graph text"
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/og_description",
+   "title": "OG",
+   "description": "Open graph text",
+   "method": "fast",
+   "extracted_emails": [],
+   "word_count": 2,
+   "preview_text": "hello world",
+   "html_content": "<html><head><title>OG</title><meta property=\"og:description\" content=\"Open graph text\"></head><body><p>hello world</p></body></html>"
+  }
+ },
+ {
+  "name": "no_title_scripts",
+  "path": "/p/no_title_scripts",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/no_title_scripts",
+   "html": "<html><body><script>var a=\"x@y.com\"</script><style>p{}</style><noscript>ns@x.com</noscript><svg><text>svg</text></svg>\n<iframe src=\"x\"></iframe><p>Visible text here</p></body></html>",
+   "text": "Visible text here",
+   "title": "",
+   "description": ""
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/no_title_scripts",
+   "title": "{{BASE}}/p/no_title_scripts",
+   "description": "",
+   "method": "fast",
+   "extracted_emails": [],
+   "word_count": 3,
+   "preview_text": "Visible text here",
+   "html_content": "<html><body><script>var a=\"x@y.com\"</script><style>p{}</style><noscript>ns@x.com</noscript><svg><text>svg</text></svg>\n<iframe src=\"x\"></iframe><p>Visible text here</p></body></html>"
+  }
+ },
+ {
+  "name": "long_unicode",
+  "path": "/p/long_unicode",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/long_unicode",
+   "html": "<html><head><title>Long</title></head><body><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit  日本語のテキスト 😀 contact big@example.com</p><p>a.b+c@sub.example.co.uk x@y.z trailing@example.org.</p></body></html>",
+   "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit 日本語のテキスト 😀 contact big@example.com\n\na.b+c@sub.example.co.uk x@y.z trailing@example.org.",
+   "title": "Long",
+   "description": ""
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/long_unicode",
+   "title": "Long",
+   "description": "",
+   "method": "fast",
+   "extracted_emails": [
+    "big@example.com",
+    "trailing@example.org",
+    "a.b+c@sub.example.co.uk"
+   ],
+   "word_count": 487,
+   "preview_text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur ",
+   "html_content": "<html><head><title>Long</title></head><body><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit Lorem ipsum dolor sit amet, consectetur adipiscing elit  日本語のテキスト 😀 contact big@example.com</p><p>a.b+c@sub.example.co.uk x@y.z trailing@example.org.</p></body></html>"
+  }
+ },
+ {
+  "name": "entity_title",
+  "path": "/p/entity_title",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/entity_title",
+   "html": "<html><head><title>  A &amp; B  </title><meta name=\"description\" content=\"d &amp; e\"></head><body><h2>Sub</h2><table><tr><td>c1</td><td>c2</td></tr></table></body></html>",
+   "text": "## Sub\n\n|  |  |\n| --- | --- |\n| c1 | c2 |",
+   "title": "A & B",
+   "description": "d & e"
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/entity_title",
+   "title": "  A & B  ",
+   "description": "d & e",
+   "method": "fast",
+   "extracted_emails": [],
+   "word_count": 15,
+   "preview_text": "## Sub\n\n|  |  |\n| --- | --- |\n| c1 | c2 |",
+   "html_content": "<html><head><title>  A &amp; B  </title><meta name=\"description\" content=\"d &amp; e\"></head><body><h2>Sub</h2><table><tr><td>c1</td><td>c2</td></tr></table></body></html>"
+  }
+ },
+ {
+  "name": "empty_body",
+  "path": "/p/empty_body",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/empty_body",
+   "html": "<html><head><title>Empty</title></head><body></body></html>",
+   "text": "",
+   "title": "Empty",
+   "description": ""
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/empty_body",
+   "title": "Empty",
+   "description": "",
+   "method": "fast",
+   "extracted_emails": [],
+   "word_count": 0,
+   "preview_text": "",
+   "html_content": "<html><head><title>Empty</title></head><body></body></html>"
+  }
+ },
+ {
+  "name": "js_wall_enable",
+  "path": "/p/js_wall_enable",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/js_wall_enable",
+   "html": "<html><body>Please enable JavaScript to view this page. wall@example.com</body></html>",
+   "text": "Please enable JavaScript to view this page. wall@example.com",
+   "title": "",
+   "description": ""
+  },
+  "python": {
+   "method": "robust-stub",
+   "url": "{{BASE}}/p/js_wall_enable"
+  },
+  "python_robust": {
+   "status": "success",
+   "url": "{{BASE}}/p/js_wall_enable",
+   "title": "{{BASE}}/p/js_wall_enable",
+   "description": "",
+   "method": "robust",
+   "extracted_emails": [
+    "wall@example.com"
+   ],
+   "word_count": 8,
+   "preview_text": "Please enable JavaScript to view this page. wall@example.com",
+   "html_content": "<html><body>Please enable JavaScript to view this page. wall@example.com</body></html>"
+  }
+ },
+ {
+  "name": "js_wall_please_wait_small",
+  "path": "/p/js_wall_please_wait_small",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/js_wall_please_wait_small",
+   "html": "<html><body>Please wait... checking</body></html>",
+   "text": "Please wait... checking",
+   "title": "",
+   "description": ""
+  },
+  "python": {
+   "method": "robust-stub",
+   "url": "{{BASE}}/p/js_wall_please_wait_small"
+  },
+  "python_robust": {
+   "status": "success",
+   "url": "{{BASE}}/p/js_wall_please_wait_small",
+   "title": "{{BASE}}/p/js_wall_please_wait_small",
+   "description": "",
+   "method": "robust",
+   "extracted_emails": [],
+   "word_count": 3,
+   "preview_text": "Please wait... checking",
+   "html_content": "<html><body>Please wait... checking</body></html>"
+  }
+ },
+ {
+  "name": "please_wait_big_is_fast",
+  "path": "/p/please_wait_big_is_fast",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/please_wait_big_is_fast",
+   "html": "<html><head><title>Big wait</title></head><body><p>please wait... filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text </p></body></html>",
+   "text": "please wait... filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text",
+   "title": "Big wait",
+   "description": ""
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/please_wait_big_is_fast",
+   "title": "Big wait",
+   "description": "",
+   "method": "fast",
+   "extracted_emails": [],
+   "word_count": 402,
+   "preview_text": "please wait... filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text fille",
+   "html_content": "<html><head><title>Big wait</title></head><body><p>please wait... filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text filler text </p></body></html>"
+  }
+ },
+ {
+  "name": "not_found",
+  "path": "/p/not_found",
+  "service": {
+   "status": 404,
+   "final_url": "{{BASE}}/p/not_found",
+   "html": "<html><head><title>Nope</title></head><body>gone</body></html>",
+   "text": "gone",
+   "title": "Nope",
+   "description": ""
+  },
+  "python": {
+   "method": "robust-stub",
+   "url": "{{BASE}}/p/not_found"
+  },
+  "python_robust": {
+   "status": "success",
+   "url": "{{BASE}}/p/not_found",
+   "title": "Nope",
+   "description": "",
+   "method": "robust",
+   "extracted_emails": [],
+   "word_count": 1,
+   "preview_text": "gone",
+   "html_content": "<html><head><title>Nope</title></head><body>gone</body></html>"
+  }
+ },
+ {
+  "name": "redirect",
+  "path": "/redirect",
+  "service": {
+   "status": 200,
+   "final_url": "{{BASE}}/p/simple",
+   "html": "<!doctype html><html><head><title>Acme Corp</title><meta name=\"description\" content=\"We make anvils.\"></head>\n<body><h1>Acme</h1><p>Contact <a href=\"mailto:sales@acme.com\">sales@acme.com</a> or info@acme.com.</p>\n<ul><li>One</li><li>Two</li></ul><p>Again: sales@acme.com</p></body></html>",
+   "text": "# Acme\n\nContact sales@acme.com or info@acme.com.\n\n* One\n* Two\n\nAgain: sales@acme.com",
+   "title": "Acme Corp",
+   "description": "We make anvils."
+  },
+  "python": {
+   "status": "success",
+   "url": "{{BASE}}/p/simple",
+   "title": "Acme Corp",
+   "description": "We make anvils.",
+   "method": "fast",
+   "extracted_emails": [
+    "sales@acme.com",
+    "info@acme.com"
+   ],
+   "word_count": 12,
+   "preview_text": "# Acme\n\nContact sales@acme.com or info@acme.com.\n\n* One\n* Two\n\nAgain: sales@acme.com",
+   "html_content": "<!doctype html><html><head><title>Acme Corp</title><meta name=\"description\" content=\"We make anvils.\"></head>\n<body><h1>Acme</h1><p>Contact <a href=\"mailto:sales@acme.com\">sales@acme.com</a> or info@acme.com.</p>\n<ul><li>One</li><li>Two</li></ul><p>Again: sales@acme.com</p></body></html>"
+  }
+ }
+]

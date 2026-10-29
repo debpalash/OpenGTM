@@ -1,0 +1,61 @@
+{
+  "request": {
+    "body": {
+      "name": "Dup keys",
+      "prompt_template": "Describe {company} please.",
+      "steps": [
+        {
+          "key": "k1",
+          "name": "A",
+          "prompt_template": "First step text."
+        },
+        {
+          "key": "k1",
+          "name": "B",
+          "prompt_template": "Second step text."
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "name": "Dup keys",
+            "prompt_template": "Describe {company} please.",
+            "steps": [
+              {
+                "key": "k1",
+                "name": "A",
+                "prompt_template": "First step text."
+              },
+              {
+                "key": "k1",
+                "name": "B",
+                "prompt_template": "Second step text."
+              }
+            ]
+          },
+          "loc": [
+            "body"
+          ],
+          "msg": "Value error, playbook step keys must be unique",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

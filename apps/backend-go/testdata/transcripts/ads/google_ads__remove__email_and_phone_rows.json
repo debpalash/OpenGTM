@@ -1,0 +1,142 @@
+{
+  "platform": "google_ads",
+  "operation": "remove",
+  "scenario": "email_and_phone_rows",
+  "config": {
+    "customer_id": "1234567890",
+    "user_list_id": "9876543210",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "a@b.co",
+      "phone": "+1 555 010 0001"
+    },
+    {
+      "phone": "+1 555 010 0002"
+    },
+    {
+      "email": "c@d.co"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs:create",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {
+          "job": {
+            "type": "CUSTOMER_MATCH_USER_LIST",
+            "customerMatchUserListMetadata": {
+              "userList": "customers/1234567890/userLists/9876543210",
+              "consent": {
+                "adUserData": "GRANTED",
+                "adPersonalization": "GRANTED"
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "resourceName": "customers/1234567890/offlineUserDataJobs/55"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs/55:addOperations",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {
+          "enablePartialFailure": true,
+          "operations": [
+            {
+              "remove": {
+                "userIdentifiers": [
+                  {
+                    "hashedEmail": "80305c9bb1bb2480e03894350e0a8a366dcbdeb302e69e0817aa0743abd77054"
+                  },
+                  {
+                    "hashedPhoneNumber": "e4c8fb8bb5fa41dd884af1a99af131200b735da16b5a821fccbb20e04b8aaffa"
+                  }
+                ]
+              }
+            },
+            {
+              "remove": {
+                "userIdentifiers": [
+                  {
+                    "hashedPhoneNumber": "8b59b4a2524480f9dde379374f645e4c29ca3e3239e2149c32b6f25acfa3411a"
+                  }
+                ]
+              }
+            },
+            {
+              "remove": {
+                "userIdentifiers": [
+                  {
+                    "hashedEmail": "8c1f43b65366bb423397f8425e1bb9270ccac59cf8942b9cfba9294328cd62c7"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {}
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs/55:run",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {}
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {}
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "result": {
+    "success": true,
+    "summary": "queued remove for 3 hashed users",
+    "error": null,
+    "external_id": "customers/1234567890/offlineUserDataJobs/55"
+  }
+}

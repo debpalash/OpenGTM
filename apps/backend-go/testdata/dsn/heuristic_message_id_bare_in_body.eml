@@ -1,0 +1,8 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Delivery failure
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+
+No such user: ghost@example.org referenced in <orig-0024@contract.example.com> at 10:40

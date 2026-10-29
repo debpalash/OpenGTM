@@ -1,0 +1,412 @@
+[
+  {
+    "input_json": "{}",
+    "typed": false,
+    "dumps": "{}",
+    "dumps_indent2": "{}",
+    "dumps_indent2_default_str": "{}",
+    "dumps_default_str": "{}"
+  },
+  {
+    "input_json": "[]",
+    "typed": false,
+    "dumps": "[]",
+    "dumps_indent2": "[]",
+    "dumps_indent2_default_str": "[]",
+    "dumps_default_str": "[]"
+  },
+  {
+    "input_json": "{\"a\": {}, \"b\": [], \"c\": [[]], \"d\": [{}]}",
+    "typed": false,
+    "dumps": "{\"a\": {}, \"b\": [], \"c\": [[]], \"d\": [{}]}",
+    "dumps_indent2": "{\n  \"a\": {},\n  \"b\": [],\n  \"c\": [\n    []\n  ],\n  \"d\": [\n    {}\n  ]\n}",
+    "dumps_indent2_default_str": "{\n  \"a\": {},\n  \"b\": [],\n  \"c\": [\n    []\n  ],\n  \"d\": [\n    {}\n  ]\n}",
+    "dumps_default_str": "{\"a\": {}, \"b\": [], \"c\": [[]], \"d\": [{}]}"
+  },
+  {
+    "input_json": "{\"z\": 1, \"a\": 2, \"m\": {\"y\": 1, \"b\": 2}}",
+    "typed": false,
+    "dumps": "{\"z\": 1, \"a\": 2, \"m\": {\"y\": 1, \"b\": 2}}",
+    "dumps_indent2": "{\n  \"z\": 1,\n  \"a\": 2,\n  \"m\": {\n    \"y\": 1,\n    \"b\": 2\n  }\n}",
+    "dumps_indent2_default_str": "{\n  \"z\": 1,\n  \"a\": 2,\n  \"m\": {\n    \"y\": 1,\n    \"b\": 2\n  }\n}",
+    "dumps_default_str": "{\"z\": 1, \"a\": 2, \"m\": {\"y\": 1, \"b\": 2}}"
+  },
+  {
+    "input_json": "\"plain\"",
+    "typed": false,
+    "dumps": "\"plain\"",
+    "dumps_indent2": "\"plain\"",
+    "dumps_indent2_default_str": "\"plain\"",
+    "dumps_default_str": "\"plain\""
+  },
+  {
+    "input_json": "null",
+    "typed": false,
+    "dumps": "null",
+    "dumps_indent2": "null",
+    "dumps_indent2_default_str": "null",
+    "dumps_default_str": "null"
+  },
+  {
+    "input_json": "true",
+    "typed": false,
+    "dumps": "true",
+    "dumps_indent2": "true",
+    "dumps_indent2_default_str": "true",
+    "dumps_default_str": "true"
+  },
+  {
+    "input_json": "false",
+    "typed": false,
+    "dumps": "false",
+    "dumps_indent2": "false",
+    "dumps_indent2_default_str": "false",
+    "dumps_default_str": "false"
+  },
+  {
+    "input_json": "0",
+    "typed": false,
+    "dumps": "0",
+    "dumps_indent2": "0",
+    "dumps_indent2_default_str": "0",
+    "dumps_default_str": "0"
+  },
+  {
+    "input_json": "-0",
+    "typed": false,
+    "dumps": "0",
+    "dumps_indent2": "0",
+    "dumps_indent2_default_str": "0",
+    "dumps_default_str": "0"
+  },
+  {
+    "input_json": "1",
+    "typed": false,
+    "dumps": "1",
+    "dumps_indent2": "1",
+    "dumps_indent2_default_str": "1",
+    "dumps_default_str": "1"
+  },
+  {
+    "input_json": "-17",
+    "typed": false,
+    "dumps": "-17",
+    "dumps_indent2": "-17",
+    "dumps_indent2_default_str": "-17",
+    "dumps_default_str": "-17"
+  },
+  {
+    "input_json": "1.0",
+    "typed": false,
+    "dumps": "1.0",
+    "dumps_indent2": "1.0",
+    "dumps_indent2_default_str": "1.0",
+    "dumps_default_str": "1.0"
+  },
+  {
+    "input_json": "0.1",
+    "typed": false,
+    "dumps": "0.1",
+    "dumps_indent2": "0.1",
+    "dumps_indent2_default_str": "0.1",
+    "dumps_default_str": "0.1"
+  },
+  {
+    "input_json": "-0.0",
+    "typed": false,
+    "dumps": "-0.0",
+    "dumps_indent2": "-0.0",
+    "dumps_indent2_default_str": "-0.0",
+    "dumps_default_str": "-0.0"
+  },
+  {
+    "input_json": "0.30000000000000004",
+    "typed": false,
+    "dumps": "0.30000000000000004",
+    "dumps_indent2": "0.30000000000000004",
+    "dumps_indent2_default_str": "0.30000000000000004",
+    "dumps_default_str": "0.30000000000000004"
+  },
+  {
+    "input_json": "1e-05",
+    "typed": false,
+    "dumps": "1e-05",
+    "dumps_indent2": "1e-05",
+    "dumps_indent2_default_str": "1e-05",
+    "dumps_default_str": "1e-05"
+  },
+  {
+    "input_json": "0.0001",
+    "typed": false,
+    "dumps": "0.0001",
+    "dumps_indent2": "0.0001",
+    "dumps_indent2_default_str": "0.0001",
+    "dumps_default_str": "0.0001"
+  },
+  {
+    "input_json": "0.00001",
+    "typed": false,
+    "dumps": "1e-05",
+    "dumps_indent2": "1e-05",
+    "dumps_indent2_default_str": "1e-05",
+    "dumps_default_str": "1e-05"
+  },
+  {
+    "input_json": "1e-7",
+    "typed": false,
+    "dumps": "1e-07",
+    "dumps_indent2": "1e-07",
+    "dumps_indent2_default_str": "1e-07",
+    "dumps_default_str": "1e-07"
+  },
+  {
+    "input_json": "1e16",
+    "typed": false,
+    "dumps": "1e+16",
+    "dumps_indent2": "1e+16",
+    "dumps_indent2_default_str": "1e+16",
+    "dumps_default_str": "1e+16"
+  },
+  {
+    "input_json": "1e15",
+    "typed": false,
+    "dumps": "1000000000000000.0",
+    "dumps_indent2": "1000000000000000.0",
+    "dumps_indent2_default_str": "1000000000000000.0",
+    "dumps_default_str": "1000000000000000.0"
+  },
+  {
+    "input_json": "123456789012345678",
+    "typed": false,
+    "dumps": "123456789012345678",
+    "dumps_indent2": "123456789012345678",
+    "dumps_indent2_default_str": "123456789012345678",
+    "dumps_default_str": "123456789012345678"
+  },
+  {
+    "input_json": "1e22",
+    "typed": false,
+    "dumps": "1e+22",
+    "dumps_indent2": "1e+22",
+    "dumps_indent2_default_str": "1e+22",
+    "dumps_default_str": "1e+22"
+  },
+  {
+    "input_json": "1.5e300",
+    "typed": false,
+    "dumps": "1.5e+300",
+    "dumps_indent2": "1.5e+300",
+    "dumps_indent2_default_str": "1.5e+300",
+    "dumps_default_str": "1.5e+300"
+  },
+  {
+    "input_json": "5e-324",
+    "typed": false,
+    "dumps": "5e-324",
+    "dumps_indent2": "5e-324",
+    "dumps_indent2_default_str": "5e-324",
+    "dumps_default_str": "5e-324"
+  },
+  {
+    "input_json": "1.7976931348623157e308",
+    "typed": false,
+    "dumps": "1.7976931348623157e+308",
+    "dumps_indent2": "1.7976931348623157e+308",
+    "dumps_indent2_default_str": "1.7976931348623157e+308",
+    "dumps_default_str": "1.7976931348623157e+308"
+  },
+  {
+    "input_json": "9007199254740993",
+    "typed": false,
+    "dumps": "9007199254740993",
+    "dumps_indent2": "9007199254740993",
+    "dumps_indent2_default_str": "9007199254740993",
+    "dumps_default_str": "9007199254740993"
+  },
+  {
+    "input_json": "9223372036854775808",
+    "typed": false,
+    "dumps": "9223372036854775808",
+    "dumps_indent2": "9223372036854775808",
+    "dumps_indent2_default_str": "9223372036854775808",
+    "dumps_default_str": "9223372036854775808"
+  },
+  {
+    "input_json": "123456789012345678901234567890",
+    "typed": false,
+    "dumps": "123456789012345678901234567890",
+    "dumps_indent2": "123456789012345678901234567890",
+    "dumps_indent2_default_str": "123456789012345678901234567890",
+    "dumps_default_str": "123456789012345678901234567890"
+  },
+  {
+    "input_json": "-9223372036854775809",
+    "typed": false,
+    "dumps": "-9223372036854775809",
+    "dumps_indent2": "-9223372036854775809",
+    "dumps_indent2_default_str": "-9223372036854775809",
+    "dumps_default_str": "-9223372036854775809"
+  },
+  {
+    "input_json": "1E5",
+    "typed": false,
+    "dumps": "100000.0",
+    "dumps_indent2": "100000.0",
+    "dumps_indent2_default_str": "100000.0",
+    "dumps_default_str": "100000.0"
+  },
+  {
+    "input_json": "2.50",
+    "typed": false,
+    "dumps": "2.5",
+    "dumps_indent2": "2.5",
+    "dumps_indent2_default_str": "2.5",
+    "dumps_default_str": "2.5"
+  },
+  {
+    "input_json": "100.0",
+    "typed": false,
+    "dumps": "100.0",
+    "dumps_indent2": "100.0",
+    "dumps_indent2_default_str": "100.0",
+    "dumps_default_str": "100.0"
+  },
+  {
+    "input_json": "\"é ü ñ 東京 😀 \\u2028 \\u0000 \\u001f \\u007f \\ud83d\\ude00\"",
+    "typed": false,
+    "dumps": "\"\\u00e9 \\u00fc \\u00f1 \\u6771\\u4eac \\ud83d\\ude00 \\u2028 \\u0000 \\u001f \\u007f \\ud83d\\ude00\"",
+    "dumps_indent2": "\"\\u00e9 \\u00fc \\u00f1 \\u6771\\u4eac \\ud83d\\ude00 \\u2028 \\u0000 \\u001f \\u007f \\ud83d\\ude00\"",
+    "dumps_indent2_default_str": "\"\\u00e9 \\u00fc \\u00f1 \\u6771\\u4eac \\ud83d\\ude00 \\u2028 \\u0000 \\u001f \\u007f \\ud83d\\ude00\"",
+    "dumps_default_str": "\"\\u00e9 \\u00fc \\u00f1 \\u6771\\u4eac \\ud83d\\ude00 \\u2028 \\u0000 \\u001f \\u007f \\ud83d\\ude00\""
+  },
+  {
+    "input_json": "\"quote\\\" backslash\\\\ slash/ tab\\t nl\\n cr\\r bs\\b ff\\f\"",
+    "typed": false,
+    "dumps": "\"quote\\\" backslash\\\\ slash/ tab\\t nl\\n cr\\r bs\\b ff\\f\"",
+    "dumps_indent2": "\"quote\\\" backslash\\\\ slash/ tab\\t nl\\n cr\\r bs\\b ff\\f\"",
+    "dumps_indent2_default_str": "\"quote\\\" backslash\\\\ slash/ tab\\t nl\\n cr\\r bs\\b ff\\f\"",
+    "dumps_default_str": "\"quote\\\" backslash\\\\ slash/ tab\\t nl\\n cr\\r bs\\b ff\\f\""
+  },
+  {
+    "input_json": "{\"é\": \"ü\", \"東京\": [\"テスト\", 1.5, null, true]}",
+    "typed": false,
+    "dumps": "{\"\\u00e9\": \"\\u00fc\", \"\\u6771\\u4eac\": [\"\\u30c6\\u30b9\\u30c8\", 1.5, null, true]}",
+    "dumps_indent2": "{\n  \"\\u00e9\": \"\\u00fc\",\n  \"\\u6771\\u4eac\": [\n    \"\\u30c6\\u30b9\\u30c8\",\n    1.5,\n    null,\n    true\n  ]\n}",
+    "dumps_indent2_default_str": "{\n  \"\\u00e9\": \"\\u00fc\",\n  \"\\u6771\\u4eac\": [\n    \"\\u30c6\\u30b9\\u30c8\",\n    1.5,\n    null,\n    true\n  ]\n}",
+    "dumps_default_str": "{\"\\u00e9\": \"\\u00fc\", \"\\u6771\\u4eac\": [\"\\u30c6\\u30b9\\u30c8\", 1.5, null, true]}"
+  },
+  {
+    "input_json": "{\"lead\": {\"id\": 1, \"score\": 80, \"decision_makers\": [{\"name\": \"Sam Lee\"}], \"x\": null}}",
+    "typed": false,
+    "dumps": "{\"lead\": {\"id\": 1, \"score\": 80, \"decision_makers\": [{\"name\": \"Sam Lee\"}], \"x\": null}}",
+    "dumps_indent2": "{\n  \"lead\": {\n    \"id\": 1,\n    \"score\": 80,\n    \"decision_makers\": [\n      {\n        \"name\": \"Sam Lee\"\n      }\n    ],\n    \"x\": null\n  }\n}",
+    "dumps_indent2_default_str": "{\n  \"lead\": {\n    \"id\": 1,\n    \"score\": 80,\n    \"decision_makers\": [\n      {\n        \"name\": \"Sam Lee\"\n      }\n    ],\n    \"x\": null\n  }\n}",
+    "dumps_default_str": "{\"lead\": {\"id\": 1, \"score\": 80, \"decision_makers\": [{\"name\": \"Sam Lee\"}], \"x\": null}}"
+  },
+  {
+    "input_json": "{\"leads\": [], \"count\": 0}",
+    "typed": false,
+    "dumps": "{\"leads\": [], \"count\": 0}",
+    "dumps_indent2": "{\n  \"leads\": [],\n  \"count\": 0\n}",
+    "dumps_indent2_default_str": "{\n  \"leads\": [],\n  \"count\": 0\n}",
+    "dumps_default_str": "{\"leads\": [], \"count\": 0}"
+  },
+  {
+    "input_json": "{\"error\": \"Lead not found\"}",
+    "typed": false,
+    "dumps": "{\"error\": \"Lead not found\"}",
+    "dumps_indent2": "{\n  \"error\": \"Lead not found\"\n}",
+    "dumps_indent2_default_str": "{\n  \"error\": \"Lead not found\"\n}",
+    "dumps_default_str": "{\"error\": \"Lead not found\"}"
+  },
+  {
+    "input_json": "{\"status\": \"created\", \"lead_id\": 9, \"company\": \"Ünï 東京\"}",
+    "typed": false,
+    "dumps": "{\"status\": \"created\", \"lead_id\": 9, \"company\": \"\\u00dcn\\u00ef \\u6771\\u4eac\"}",
+    "dumps_indent2": "{\n  \"status\": \"created\",\n  \"lead_id\": 9,\n  \"company\": \"\\u00dcn\\u00ef \\u6771\\u4eac\"\n}",
+    "dumps_indent2_default_str": "{\n  \"status\": \"created\",\n  \"lead_id\": 9,\n  \"company\": \"\\u00dcn\\u00ef \\u6771\\u4eac\"\n}",
+    "dumps_default_str": "{\"status\": \"created\", \"lead_id\": 9, \"company\": \"\\u00dcn\\u00ef \\u6771\\u4eac\"}"
+  },
+  {
+    "input_json": "{\"a\": [1, [2, [3, []]], {\"b\": {}}]}",
+    "typed": false,
+    "dumps": "{\"a\": [1, [2, [3, []]], {\"b\": {}}]}",
+    "dumps_indent2": "{\n  \"a\": [\n    1,\n    [\n      2,\n      [\n        3,\n        []\n      ]\n    ],\n    {\n      \"b\": {}\n    }\n  ]\n}",
+    "dumps_indent2_default_str": "{\n  \"a\": [\n    1,\n    [\n      2,\n      [\n        3,\n        []\n      ]\n    ],\n    {\n      \"b\": {}\n    }\n  ]\n}",
+    "dumps_default_str": "{\"a\": [1, [2, [3, []]], {\"b\": {}}]}"
+  },
+  {
+    "input_json": "[1, 2.5, \"x\", null, true, {\"k\": []}]",
+    "typed": false,
+    "dumps": "[1, 2.5, \"x\", null, true, {\"k\": []}]",
+    "dumps_indent2": "[\n  1,\n  2.5,\n  \"x\",\n  null,\n  true,\n  {\n    \"k\": []\n  }\n]",
+    "dumps_indent2_default_str": "[\n  1,\n  2.5,\n  \"x\",\n  null,\n  true,\n  {\n    \"k\": []\n  }\n]",
+    "dumps_default_str": "[1, 2.5, \"x\", null, true, {\"k\": []}]"
+  },
+  {
+    "input_json": "{\"email\": \"x@y.example.com\", \"valid\": true, \"confidence\": 0.97, \"detail\": \"\"}",
+    "typed": false,
+    "dumps": "{\"email\": \"x@y.example.com\", \"valid\": true, \"confidence\": 0.97, \"detail\": \"\"}",
+    "dumps_indent2": "{\n  \"email\": \"x@y.example.com\",\n  \"valid\": true,\n  \"confidence\": 0.97,\n  \"detail\": \"\"\n}",
+    "dumps_indent2_default_str": "{\n  \"email\": \"x@y.example.com\",\n  \"valid\": true,\n  \"confidence\": 0.97,\n  \"detail\": \"\"\n}",
+    "dumps_default_str": "{\"email\": \"x@y.example.com\", \"valid\": true, \"confidence\": 0.97, \"detail\": \"\"}"
+  },
+  {
+    "input_json": "{\"confidence\": 0.1, \"ratio\": 1e-05, \"big\": 12345678901234567890, \"neg\": -1.5e-10}",
+    "typed": false,
+    "dumps": "{\"confidence\": 0.1, \"ratio\": 1e-05, \"big\": 12345678901234567890, \"neg\": -1.5e-10}",
+    "dumps_indent2": "{\n  \"confidence\": 0.1,\n  \"ratio\": 1e-05,\n  \"big\": 12345678901234567890,\n  \"neg\": -1.5e-10\n}",
+    "dumps_indent2_default_str": "{\n  \"confidence\": 0.1,\n  \"ratio\": 1e-05,\n  \"big\": 12345678901234567890,\n  \"neg\": -1.5e-10\n}",
+    "dumps_default_str": "{\"confidence\": 0.1, \"ratio\": 1e-05, \"big\": 12345678901234567890, \"neg\": -1.5e-10}"
+  },
+  {
+    "input_json": "{\"escapes\": \"line1\\nline2\\t\\\"q\\\" \\\\ \\u00e9 \\ud83d\\ude00\"}",
+    "typed": false,
+    "dumps": "{\"escapes\": \"line1\\nline2\\t\\\"q\\\" \\\\ \\u00e9 \\ud83d\\ude00\"}",
+    "dumps_indent2": "{\n  \"escapes\": \"line1\\nline2\\t\\\"q\\\" \\\\ \\u00e9 \\ud83d\\ude00\"\n}",
+    "dumps_indent2_default_str": "{\n  \"escapes\": \"line1\\nline2\\t\\\"q\\\" \\\\ \\u00e9 \\ud83d\\ude00\"\n}",
+    "dumps_default_str": "{\"escapes\": \"line1\\nline2\\t\\\"q\\\" \\\\ \\u00e9 \\ud83d\\ude00\"}"
+  },
+  {
+    "input_json": "{\"dt\": {\"$py\": \"datetime\", \"v\": \"2026-08-29T10:00:00\"}}",
+    "typed": true,
+    "dumps_default_str": "{\"dt\": \"2026-08-29 10:00:00\"}",
+    "dumps_indent2_default_str": "{\n  \"dt\": \"2026-08-29 10:00:00\"\n}"
+  },
+  {
+    "input_json": "{\"dt\": {\"$py\": \"datetime\", \"v\": \"2026-08-29T10:00:00.123456+00:00\"}}",
+    "typed": true,
+    "dumps_default_str": "{\"dt\": \"2026-08-29 10:00:00.123456+00:00\"}",
+    "dumps_indent2_default_str": "{\n  \"dt\": \"2026-08-29 10:00:00.123456+00:00\"\n}"
+  },
+  {
+    "input_json": "{\"dt\": {\"$py\": \"datetime\", \"v\": \"2026-08-29T10:00:00+05:30\"}}",
+    "typed": true,
+    "dumps_default_str": "{\"dt\": \"2026-08-29 10:00:00+05:30\"}",
+    "dumps_indent2_default_str": "{\n  \"dt\": \"2026-08-29 10:00:00+05:30\"\n}"
+  },
+  {
+    "input_json": "{\"d\": {\"$py\": \"date\", \"v\": \"2026-08-29\"}, \"n\": null}",
+    "typed": true,
+    "dumps_default_str": "{\"d\": \"2026-08-29\", \"n\": null}",
+    "dumps_indent2_default_str": "{\n  \"d\": \"2026-08-29\",\n  \"n\": null\n}"
+  },
+  {
+    "input_json": "{\"price\": {\"$py\": \"decimal\", \"v\": \"1.10\"}, \"tiny\": {\"$py\": \"decimal\", \"v\": \"0.00000010\"}}",
+    "typed": true,
+    "dumps_default_str": "{\"price\": \"1.10\", \"tiny\": \"1.0E-7\"}",
+    "dumps_indent2_default_str": "{\n  \"price\": \"1.10\",\n  \"tiny\": \"1.0E-7\"\n}"
+  },
+  {
+    "input_json": "{\"id\": {\"$py\": \"uuid\", \"v\": \"00000000-0000-4000-8000-000000000001\"}}",
+    "typed": true,
+    "dumps_default_str": "{\"id\": \"00000000-0000-4000-8000-000000000001\"}",
+    "dumps_indent2_default_str": "{\n  \"id\": \"00000000-0000-4000-8000-000000000001\"\n}"
+  },
+  {
+    "input_json": "[{\"$py\": \"datetime\", \"v\": \"2026-01-01T00:00:00\"}, {\"$py\": \"date\", \"v\": \"2026-01-02\"}]",
+    "typed": true,
+    "dumps_default_str": "[\"2026-01-01 00:00:00\", \"2026-01-02\"]",
+    "dumps_indent2_default_str": "[\n  \"2026-01-01 00:00:00\",\n  \"2026-01-02\"\n]"
+  }
+]

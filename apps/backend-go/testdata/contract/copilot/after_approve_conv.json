@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/0000043d-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "0000043d-000",
+        "title": "[sim:text_plain] go ahead",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:text_plain] go ahead",
+          "conversation_id": "0000043d-000",
+          "created_at": "<volatile>",
+          "id": "0000043e-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "update_lead_status result",
+          "conversation_id": "0000043d-000",
+          "created_at": "<volatile>",
+          "id": "0000043f-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"update_lead_status\", \"result\": {\"ok\": true, \"lead_id\": 4, \"new_status\": \"qualified\"}}"
+        },
+        {
+          "content": "Hello from the simulator \u2014 caf\u00e9 \u2713.",
+          "conversation_id": "0000043d-000",
+          "created_at": "<volatile>",
+          "id": "00000440-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

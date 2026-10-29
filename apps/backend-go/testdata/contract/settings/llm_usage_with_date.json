@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/llm-usage?date=2026-01-02"
+  },
+  "response": {
+    "body": {
+      "all_time_calls": 0,
+      "all_time_tokens": 0,
+      "providers": [],
+      "today_calls": 0,
+      "today_tokens": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

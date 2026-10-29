@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "header_secret_ref": "   ",
+        "url": "https://w.example.test"
+      },
+      "destination_type": "warehouse_http",
+      "name": "cfg 20"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "warehouse HTTP destination requires header_secret_ref"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

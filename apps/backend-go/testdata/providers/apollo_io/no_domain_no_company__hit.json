@@ -1,0 +1,19 @@
+{
+ "provider": "apollo_io",
+ "input_name": "no_domain_no_company",
+ "scenario": "hit",
+ "input": {},
+ "secrets": {
+  "APOLLO_API_KEY": "ctk_apollo_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "apollo_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No data found"
+ }
+}

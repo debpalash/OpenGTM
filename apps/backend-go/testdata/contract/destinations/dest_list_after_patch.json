@@ -1,0 +1,757 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations?audience_id=aud-act-1"
+  },
+  "response": {
+    "body": [
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "inbound_conflict_policy": "crm_wins"
+        },
+        "created_at": "2026-10-26T17:05:47.569169",
+        "destination_type": "hubspot",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002081",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created hubspot",
+        "updated_at": "2026-10-26T17:05:50.384466"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "consent_attested": true,
+          "consent_source": "changed",
+          "custom_audience_id": "42"
+        },
+        "created_at": "2026-10-26T17:05:47.647067",
+        "destination_type": "meta_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002084",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created meta_ads",
+        "updated_at": "2026-10-26T17:05:50.214020"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "message_template": "{company}",
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "created_at": "2026-10-26T17:05:47.816559",
+        "destination_type": "slack",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002091",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created slack",
+        "updated_at": "2026-10-26T17:05:50.168208"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "header_secret_ref": "WAREHOUSE_AUTH",
+          "url": "https://w2.example.test"
+        },
+        "created_at": "2026-10-26T17:05:47.618352",
+        "destination_type": "warehouse_http",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002083",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created warehouse_http",
+        "updated_at": "2026-10-26T17:05:50.143222"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "method": "POST",
+          "url": "https://hooks.example.test/changed"
+        },
+        "created_at": "2026-10-26T17:05:47.540367",
+        "destination_type": "webhook",
+        "enabled": false,
+        "field_map": {
+          "email": "e"
+        },
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002080",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Renamed webhook",
+        "updated_at": "2026-10-26T17:05:49.971444"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "anything": [
+            1,
+            2
+          ],
+          "nested": {
+            "k": "v"
+          }
+        },
+        "created_at": "2026-10-26T17:05:49.873508",
+        "destination_type": "hubspot",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002113",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "hs any keys ok",
+        "updated_at": "2026-10-26T17:05:49.873508"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "base_id": "b",
+          "idempotency_field": "",
+          "table": "t"
+        },
+        "created_at": "2026-10-26T17:05:49.749976",
+        "destination_type": "airtable",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002112",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "at empty idem ok",
+        "updated_at": "2026-10-26T17:05:49.749976"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "campaign_id": "1",
+          "settings": null
+        },
+        "created_at": "2026-10-26T17:05:49.467593",
+        "destination_type": "smartlead",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002111",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "sl null ok",
+        "updated_at": "2026-10-26T17:05:49.467593"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "header_name": "X-A",
+          "header_secret_ref": "MISSING",
+          "url": "https://h.example.test"
+        },
+        "created_at": "2026-10-26T17:05:48.781555",
+        "destination_type": "webhook",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002110",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "wh ref ok",
+        "updated_at": "2026-10-26T17:05:48.781555"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "method": "patch",
+          "url": "http://h.example.test"
+        },
+        "created_at": "2026-10-26T17:05:48.760288",
+        "destination_type": "webhook",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002109",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "wh lower ok",
+        "updated_at": "2026-10-26T17:05:48.760288"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "note": "token"
+        },
+        "created_at": "2026-10-26T17:05:48.586470",
+        "destination_type": "salesforce",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002108",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "cred value ok",
+        "updated_at": "2026-10-26T17:05:48.586470"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "api_version": "v22",
+          "consent_attested": true,
+          "consent_source": "s",
+          "customer_id": "1",
+          "login_customer_id": "3",
+          "user_list_id": "2"
+        },
+        "created_at": "2026-10-26T17:05:48.147526",
+        "destination_type": "google_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002105",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Google login",
+        "updated_at": "2026-10-26T17:05:48.147526"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "api_version": "v24.0",
+          "consent_attested": true,
+          "consent_source": "s",
+          "custom_audience_id": "1"
+        },
+        "created_at": "2026-10-26T17:05:48.123811",
+        "destination_type": "meta_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002104",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Meta full",
+        "updated_at": "2026-10-26T17:05:48.123811"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "dataset": "ds",
+          "header_name": "X-Auth",
+          "header_secret_ref": "WAREHOUSE_AUTH",
+          "mode": "upsert",
+          "url": "https://w.example.test/x"
+        },
+        "created_at": "2026-10-26T17:05:48.099958",
+        "destination_type": "warehouse_http",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002103",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Warehouse upsert",
+        "updated_at": "2026-10-26T17:05:48.099958"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "base_id": "b",
+          "idempotency_field": "Custom ID",
+          "table": "t",
+          "typecast": false
+        },
+        "created_at": "2026-10-26T17:05:48.078043",
+        "destination_type": "airtable",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002102",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Airtable full",
+        "updated_at": "2026-10-26T17:05:48.078043"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "campaign_id": "1",
+          "skip_if_in_campaign": false
+        },
+        "created_at": "2026-10-26T17:05:48.056941",
+        "destination_type": "instantly",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002101",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Instantly skip false",
+        "updated_at": "2026-10-26T17:05:48.056941"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "campaign_id": "1",
+          "settings": {
+            "a": {
+              "b": 1
+            }
+          }
+        },
+        "created_at": "2026-10-26T17:05:48.033589",
+        "destination_type": "smartlead",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002100",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Smartlead settings",
+        "updated_at": "2026-10-26T17:05:48.033589"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "columns": [
+            "c0",
+            "c1",
+            "c2",
+            "c3",
+            "c4",
+            "c5",
+            "c6",
+            "c7",
+            "c8",
+            "c9",
+            "c10",
+            "c11",
+            "c12",
+            "c13",
+            "c14",
+            "c15",
+            "c16",
+            "c17",
+            "c18",
+            "c19",
+            "c20",
+            "c21",
+            "c22",
+            "c23",
+            "c24",
+            "c25",
+            "c26",
+            "c27",
+            "c28",
+            "c29",
+            "c30",
+            "c31",
+            "c32",
+            "c33",
+            "c34",
+            "c35",
+            "c36",
+            "c37",
+            "c38",
+            "c39",
+            "c40",
+            "c41",
+            "c42",
+            "c43",
+            "c44",
+            "c45",
+            "c46",
+            "c47",
+            "c48",
+            "c49",
+            "c50",
+            "c51",
+            "c52",
+            "c53",
+            "c54",
+            "c55",
+            "c56",
+            "c57",
+            "c58",
+            "c59",
+            "c60",
+            "c61",
+            "c62",
+            "c63",
+            "c64",
+            "c65",
+            "c66",
+            "c67",
+            "c68",
+            "c69",
+            "c70",
+            "c71",
+            "c72",
+            "c73",
+            "c74",
+            "c75",
+            "c76",
+            "c77",
+            "c78",
+            "c79",
+            "c80",
+            "c81",
+            "c82",
+            "c83",
+            "c84",
+            "c85",
+            "c86",
+            "c87",
+            "c88",
+            "c89",
+            "c90",
+            "c91",
+            "c92",
+            "c93",
+            "c94",
+            "c95",
+            "c96",
+            "c97",
+            "c98",
+            "c99"
+          ],
+          "spreadsheet_id": "s"
+        },
+        "created_at": "2026-10-26T17:05:48.010331",
+        "destination_type": "google_sheets",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002099",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Sheets 100",
+        "updated_at": "2026-10-26T17:05:48.010331"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "message_template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "created_at": "2026-10-26T17:05:47.983932",
+        "destination_type": "slack",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002098",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Slack long template",
+        "updated_at": "2026-10-26T17:05:47.983932"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.961727",
+        "destination_type": "hubspot",
+        "enabled": true,
+        "field_map": {
+          "city": "city",
+          "company": "name",
+          "contact_title": "jobtitle",
+          "email": "email"
+        },
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002097",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Field map",
+        "updated_at": "2026-10-26T17:05:47.961727"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.938339",
+        "destination_type": "hubspot",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002096",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Erin dest",
+        "updated_at": "2026-10-26T17:05:47.938339"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.916042",
+        "destination_type": "salesforce",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002095",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Padded dest",
+        "updated_at": "2026-10-26T17:05:47.916042"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "method": "PUT",
+          "url": "https://hooks.example.test/new"
+        },
+        "created_at": "2026-10-26T17:05:47.892576",
+        "destination_type": "webhook",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002094",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Uppercase type",
+        "updated_at": "2026-10-26T17:05:47.892576"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.865069",
+        "destination_type": "salesforce",
+        "enabled": false,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002093",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created disabled",
+        "updated_at": "2026-10-26T17:05:47.865069"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.842516",
+        "destination_type": "salesforce",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002092",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Defaults",
+        "updated_at": "2026-10-26T17:05:47.842516"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "base_id": "appNew",
+          "table": "Leads"
+        },
+        "created_at": "2026-10-26T17:05:47.793142",
+        "destination_type": "airtable",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002090",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created airtable",
+        "updated_at": "2026-10-26T17:05:47.793142"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "columns": [
+            "company",
+            "email"
+          ],
+          "spreadsheet_id": "sheet-new"
+        },
+        "created_at": "2026-10-26T17:05:47.769386",
+        "destination_type": "google_sheets",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002089",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created google_sheets",
+        "updated_at": "2026-10-26T17:05:47.769386"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "campaign_id": "7777"
+        },
+        "created_at": "2026-10-26T17:05:47.745193",
+        "destination_type": "smartlead",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002088",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created smartlead",
+        "updated_at": "2026-10-26T17:05:47.745193"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "campaign_id": "camp-new"
+        },
+        "created_at": "2026-10-26T17:05:47.721439",
+        "destination_type": "instantly",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002087",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created instantly",
+        "updated_at": "2026-10-26T17:05:47.721439"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "api_version": "202607",
+          "consent_attested": true,
+          "consent_source": "import wizard",
+          "segment_id": "55512345"
+        },
+        "created_at": "2026-10-26T17:05:47.698210",
+        "destination_type": "linkedin_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002086",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created linkedin_ads",
+        "updated_at": "2026-10-26T17:05:47.698210"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "consent_attested": true,
+          "consent_source": "import wizard",
+          "customer_id": "1112223333",
+          "user_list_id": "4445556666"
+        },
+        "created_at": "2026-10-26T17:05:47.672743",
+        "destination_type": "google_ads",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002085",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created google_ads",
+        "updated_at": "2026-10-26T17:05:47.672743"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {},
+        "created_at": "2026-10-26T17:05:47.593162",
+        "destination_type": "salesforce",
+        "enabled": true,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "00000000-0000-4000-8000-000000002082",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Created salesforce",
+        "updated_at": "2026-10-26T17:05:47.593162"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "inbound_conflict_policy": "fill_missing"
+        },
+        "created_at": "2026-08-27T10:31:00",
+        "destination_type": "hubspot",
+        "enabled": false,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-hubspot-off",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": null,
+        "name": "Disabled hubspot",
+        "updated_at": "2026-08-28T13:01:00"
+      },
+      {
+        "audience_id": "aud-act-1",
+        "config": {
+          "method": "POST",
+          "url": "https://hooks.example.test/audience"
+        },
+        "created_at": "2026-08-27T10:30:00",
+        "destination_type": "webhook",
+        "enabled": false,
+        "field_map": {},
+        "health_status": "unverified",
+        "id": "dst-act-webhook-off",
+        "last_error": null,
+        "last_success_at": null,
+        "latest_run": {
+          "attempted": 1,
+          "created_at": "2026-08-28T08:00:00",
+          "destination_id": "dst-act-webhook-off",
+          "error": "Final failure: boom",
+          "failed": 1,
+          "finished_at": "2026-08-28T08:01:00",
+          "id": "run-act-off1",
+          "skipped": 0,
+          "started_at": "2026-08-28T08:00:00",
+          "status": "failed",
+          "succeeded": 0
+        },
+        "name": "Disabled webhook",
+        "updated_at": "2026-08-28T13:00:00"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

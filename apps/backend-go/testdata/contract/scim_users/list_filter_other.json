@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Users?filter=displayName%20eq%20%22Dave%22"
+  },
+  "response": {
+    "body": {
+      "detail": "Only userName eq filtering is supported"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

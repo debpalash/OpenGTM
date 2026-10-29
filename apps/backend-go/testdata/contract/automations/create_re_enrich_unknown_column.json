@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "column_ids": [
+              "enr_email",
+              "nope",
+              "nada"
+            ]
+          },
+          "type": "re_enrich"
+        }
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "re_enrich action 0: column_ids not in scoped workbook(s): ['nope', 'nada']"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

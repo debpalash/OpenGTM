@@ -1,0 +1,55 @@
+{
+  "request": {
+    "body": {
+      "columns_config": "x",
+      "name": "",
+      "status": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/66c8b7b2-97ea-4955-bbd8-875ad2336b07"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "min_length": 1
+          },
+          "input": "",
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "String should have at least 1 character",
+          "type": "string_too_short"
+        },
+        {
+          "input": "x",
+          "loc": [
+            "body",
+            "columns_config"
+          ],
+          "msg": "Input should be a valid list",
+          "type": "list_type"
+        },
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "status"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

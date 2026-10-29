@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "target_rows": "many"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/sources"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "many",
+          "loc": [
+            "body",
+            "target_rows"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

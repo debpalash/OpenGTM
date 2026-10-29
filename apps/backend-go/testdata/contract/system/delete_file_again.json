@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "DELETE",
+    "path": "/api/files/delete/tobedeleted.txt"
+  },
+  "response": {
+    "body": {
+      "detail": "404: File not found or could not be deleted"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 500
+  }
+}

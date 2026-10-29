@@ -1,0 +1,410 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates?category=sales"
+  },
+  "response": {
+    "body": {
+      "categories": {
+        "agency": {
+          "color": "text-emerald-400",
+          "icon": "building-2",
+          "label": "Agency"
+        },
+        "recruiting": {
+          "color": "text-purple-400",
+          "icon": "users",
+          "label": "Recruiting"
+        },
+        "research": {
+          "color": "text-amber-400",
+          "icon": "search",
+          "label": "Market Research"
+        },
+        "sales": {
+          "color": "text-blue-400",
+          "icon": "target",
+          "label": "Sales Prospecting"
+        },
+        "signals": {
+          "color": "text-rose-400",
+          "icon": "activity",
+          "label": "Signals & Alerts"
+        }
+      },
+      "templates": [
+        {
+          "category": "sales",
+          "columns": [
+            {
+              "key": "company",
+              "name": "Company",
+              "type": "text"
+            },
+            {
+              "key": "contact_person",
+              "name": "Contact",
+              "type": "text"
+            },
+            {
+              "key": "contact_title",
+              "name": "Title",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "name": "Email",
+              "type": "email"
+            },
+            {
+              "key": "linkedin_url",
+              "name": "LinkedIn",
+              "type": "url"
+            },
+            {
+              "key": "city",
+              "name": "City",
+              "type": "text"
+            },
+            {
+              "key": "company_size",
+              "name": "Size",
+              "type": "text"
+            },
+            {
+              "key": "score",
+              "name": "Score",
+              "type": "number"
+            }
+          ],
+          "description": "Find CTOs and VP Engineering at SaaS companies. Includes email, LinkedIn, and hiring signals.",
+          "enrichment_columns": [
+            {
+              "condition": "{email} == \"\"",
+              "id": "enrich_email",
+              "name": "Email (waterfall)",
+              "target_field": "email",
+              "type": "waterfall",
+              "verify": true,
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "width": 220
+            },
+            {
+              "id": "enrich_company_info",
+              "name": "Company Info",
+              "target_field": "description",
+              "type": "waterfall",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "ddg_company"
+              ],
+              "width": 280
+            },
+            {
+              "id": "enrich_company_size",
+              "name": "Headcount",
+              "target_field": "company_size",
+              "type": "waterfall",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "ddg_company"
+              ],
+              "width": 140
+            },
+            {
+              "id": "enrich_account_brief",
+              "max_steps": 4,
+              "name": "Account Brief",
+              "output_format": "text",
+              "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+              "type": "research",
+              "width": 320
+            }
+          ],
+          "filter": {
+            "specialization": "SaaS"
+          },
+          "id": "saas-ctos",
+          "name": "SaaS CTOs & Tech Leaders"
+        },
+        {
+          "category": "sales",
+          "columns": [
+            {
+              "key": "company",
+              "name": "Company",
+              "type": "text"
+            },
+            {
+              "key": "contact_person",
+              "name": "Contact",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "name": "Email",
+              "type": "email"
+            },
+            {
+              "key": "phone",
+              "name": "Phone",
+              "type": "phone"
+            },
+            {
+              "key": "score",
+              "name": "Score",
+              "type": "number"
+            },
+            {
+              "key": "score_tier",
+              "name": "Tier",
+              "type": "text"
+            },
+            {
+              "key": "city",
+              "name": "City",
+              "type": "text"
+            }
+          ],
+          "description": "High-scoring leads with verified emails. Export-ready for email sequences.",
+          "filter": {
+            "score_tier": "hot"
+          },
+          "id": "hot-leads-outreach",
+          "name": "Hot Leads \u2014 Ready for Outreach"
+        },
+        {
+          "category": "sales",
+          "columns": [
+            {
+              "key": "company",
+              "name": "Company",
+              "type": "text"
+            },
+            {
+              "key": "website",
+              "name": "Website",
+              "type": "url"
+            },
+            {
+              "key": "email",
+              "name": "Email",
+              "type": "email"
+            },
+            {
+              "key": "phone",
+              "name": "Phone",
+              "type": "phone"
+            },
+            {
+              "key": "contact_person",
+              "name": "Contact",
+              "type": "text"
+            },
+            {
+              "key": "company_size",
+              "name": "Size",
+              "type": "text"
+            },
+            {
+              "key": "specialization",
+              "name": "Industry",
+              "type": "text"
+            },
+            {
+              "key": "score",
+              "name": "Score",
+              "type": "number"
+            }
+          ],
+          "description": "IT staffing and consulting firms in Pune with decision maker contacts.",
+          "filter": {
+            "city": "Pune",
+            "specialization": "IT"
+          },
+          "id": "it-staffing-pune",
+          "name": "IT Staffing Companies \u2014 Pune"
+        },
+        {
+          "category": "sales",
+          "columns": [
+            {
+              "key": "company",
+              "name": "Store",
+              "type": "text"
+            },
+            {
+              "key": "website",
+              "name": "Website",
+              "type": "url"
+            },
+            {
+              "key": "email",
+              "name": "Email",
+              "type": "email"
+            },
+            {
+              "key": "city",
+              "name": "City",
+              "type": "text"
+            },
+            {
+              "key": "company_size",
+              "name": "Size",
+              "type": "text"
+            },
+            {
+              "key": "score",
+              "name": "Score",
+              "type": "number"
+            }
+          ],
+          "description": "E-commerce businesses with website, email, and growth indicators.",
+          "filter": {
+            "specialization": "ecommerce"
+          },
+          "id": "ecommerce-shopify",
+          "name": "E-commerce Stores"
+        },
+        {
+          "category": "sales",
+          "columns": [
+            {
+              "key": "company",
+              "name": "Company",
+              "type": "text"
+            },
+            {
+              "key": "website",
+              "name": "Website",
+              "type": "url"
+            },
+            {
+              "key": "contact_person",
+              "name": "Founder/CEO",
+              "type": "text"
+            },
+            {
+              "key": "email",
+              "name": "Email",
+              "type": "email"
+            },
+            {
+              "key": "linkedin_url",
+              "name": "LinkedIn",
+              "type": "url"
+            },
+            {
+              "key": "city",
+              "name": "City",
+              "type": "text"
+            },
+            {
+              "key": "company_size",
+              "name": "Size",
+              "type": "text"
+            },
+            {
+              "key": "founding_year",
+              "name": "Founded",
+              "type": "text"
+            },
+            {
+              "key": "funding_stage",
+              "name": "Stage",
+              "type": "text"
+            },
+            {
+              "key": "last_funding_amount",
+              "name": "Funding",
+              "type": "text"
+            },
+            {
+              "key": "investors",
+              "name": "Investors",
+              "type": "text"
+            },
+            {
+              "key": "hiring_signals",
+              "name": "Hiring",
+              "type": "text"
+            },
+            {
+              "key": "score",
+              "name": "Score",
+              "type": "number"
+            }
+          ],
+          "description": "Recently funded startups actively hiring and growing.",
+          "enrichment_columns": [
+            {
+              "condition": "{email} == \"\"",
+              "id": "enrich_email",
+              "name": "Email (waterfall)",
+              "target_field": "email",
+              "type": "waterfall",
+              "verify": true,
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "width": 220
+            },
+            {
+              "id": "enrich_company_info",
+              "name": "Company Info",
+              "target_field": "description",
+              "type": "waterfall",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "ddg_company"
+              ],
+              "width": 280
+            },
+            {
+              "id": "enrich_hiring",
+              "name": "Hiring Signals",
+              "target_field": "hiring_signals",
+              "type": "waterfall",
+              "waterfall": [
+                "ats_hiring",
+                "deep_scraper",
+                "ddg_company"
+              ],
+              "width": 200
+            },
+            {
+              "id": "enrich_account_brief",
+              "max_steps": 4,
+              "name": "Account Brief",
+              "output_format": "text",
+              "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+              "type": "research",
+              "width": 320
+            }
+          ],
+          "filter": {},
+          "id": "funded-startups",
+          "name": "Funded Startups"
+        }
+      ],
+      "total": 5
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

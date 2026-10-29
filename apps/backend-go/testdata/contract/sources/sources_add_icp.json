@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": {
+      "channels": {
+        "regions": [
+          "eu"
+        ]
+      },
+      "icp": {
+        "description": "fintech",
+        "industry": "finance"
+      },
+      "name": "Contract ICP",
+      "target_rows": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/sources"
+  },
+  "response": {
+    "body": {
+      "column": {
+        "channels": {
+          "regions": [
+            "eu"
+          ]
+        },
+        "icp": {
+          "description": "fintech",
+          "industry": "finance"
+        },
+        "id": "src_5b41fbe1",
+        "name": "Contract ICP",
+        "target_rows": 5,
+        "type": "source"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

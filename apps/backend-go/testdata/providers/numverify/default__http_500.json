@@ -1,0 +1,37 @@
+{
+ "provider": "numverify",
+ "input_name": "default",
+ "scenario": "http_500",
+ "input": {
+  "phone": "+1 (555) 010-0100"
+ },
+ "secrets": {
+  "NUMVERIFY_API_KEY": "ctk_numverify_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "http://apilayer.net/api/validate?access_key={{secret:NUMVERIFY_API_KEY}}&number=%2B15550100100&format=1",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><body>Internal Server Error</body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

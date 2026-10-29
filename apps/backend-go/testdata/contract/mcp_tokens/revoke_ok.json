@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/mcp/tokens/c8b2e66b-e871-4f63-8c64-8053f637cc7b"
+  },
+  "response": {
+    "body": {
+      "id": "c8b2e66b-e871-4f63-8c64-8053f637cc7b",
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

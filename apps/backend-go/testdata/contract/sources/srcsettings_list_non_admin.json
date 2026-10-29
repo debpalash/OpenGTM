@@ -1,0 +1,1021 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/sources"
+  },
+  "response": {
+    "body": [
+      {
+        "category": "core",
+        "description": "Web search for company websites",
+        "enabled": true,
+        "health": null,
+        "icon": "search",
+        "id": "duckduckgo",
+        "name": "DuckDuckGo",
+        "strategy": "web"
+      },
+      {
+        "category": "core",
+        "description": "Local business listings with reviews & ratings",
+        "enabled": false,
+        "health": null,
+        "icon": "map-pin",
+        "id": "google_maps",
+        "name": "Google Maps",
+        "strategy": "maps"
+      },
+      {
+        "category": "core",
+        "description": "Clutch, GoodFirms aggregated directory scraping",
+        "enabled": true,
+        "health": null,
+        "icon": "book-open",
+        "id": "directories",
+        "name": "Business Directories",
+        "strategy": "directories"
+      },
+      {
+        "category": "core",
+        "description": "Professional network company profiles",
+        "enabled": true,
+        "health": null,
+        "icon": "briefcase",
+        "id": "linkedin",
+        "name": "LinkedIn",
+        "strategy": "linkedin"
+      },
+      {
+        "category": "core",
+        "description": "Companies actively hiring (Indeed, Naukri)",
+        "enabled": true,
+        "health": null,
+        "icon": "users",
+        "id": "job_boards",
+        "name": "Job Boards",
+        "strategy": "job_boards"
+      },
+      {
+        "category": "india_b2b",
+        "description": "India's largest B2B marketplace \u2014 manufacturers, suppliers, exporters",
+        "enabled": true,
+        "health": {
+          "disabled_reason": null,
+          "last_ok_at": "2026-08-29T03:00:00",
+          "last_yield": 6,
+          "manual_override": false,
+          "state": "healthy"
+        },
+        "icon": "shopping-bag",
+        "id": "indiamart",
+        "name": "IndiaMart",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_b2b",
+        "description": "India's #1 local business directory with contacts",
+        "enabled": false,
+        "health": {
+          "disabled_reason": null,
+          "last_ok_at": "2026-08-26T03:00:00",
+          "last_yield": 0,
+          "manual_override": false,
+          "state": "degraded"
+        },
+        "icon": "phone",
+        "id": "justdial",
+        "name": "JustDial",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_b2b",
+        "description": "B2B marketplace for Indian manufacturers & exporters",
+        "enabled": true,
+        "health": {
+          "disabled_reason": "zero_yield",
+          "last_ok_at": "2026-08-21T03:00:00",
+          "last_yield": 0,
+          "manual_override": false,
+          "state": "auto_disabled"
+        },
+        "icon": "package",
+        "id": "tradeindia",
+        "name": "TradeIndia",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_b2b",
+        "description": "Local services & business directory",
+        "enabled": true,
+        "health": {
+          "disabled_reason": null,
+          "last_ok_at": "2026-08-29T03:00:00",
+          "last_yield": 3,
+          "manual_override": true,
+          "state": "healthy"
+        },
+        "icon": "store",
+        "id": "sulekha",
+        "name": "Sulekha",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_b2b",
+        "description": "Indian exporters & manufacturers directory",
+        "enabled": true,
+        "health": {
+          "disabled_reason": null,
+          "last_ok_at": "2026-08-25T03:00:00",
+          "last_yield": 0,
+          "manual_override": true,
+          "state": "degraded"
+        },
+        "icon": "globe",
+        "id": "exportersindia",
+        "name": "ExportersIndia",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_review",
+        "description": "Company reviews, salaries, culture ratings",
+        "enabled": true,
+        "health": null,
+        "icon": "bar-chart-3",
+        "id": "ambitionbox",
+        "name": "AmbitionBox",
+        "strategy": "review_sites"
+      },
+      {
+        "category": "india_review",
+        "description": "Employee reviews & company ratings India",
+        "enabled": true,
+        "health": null,
+        "icon": "star",
+        "id": "glassdoor_in",
+        "name": "Glassdoor India",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_jobs",
+        "description": "Hiring companies on India's top job portal",
+        "enabled": true,
+        "health": null,
+        "icon": "user-check",
+        "id": "naukri",
+        "name": "Naukri",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_gov",
+        "description": "Ministry of Corporate Affairs \u2014 registered companies",
+        "enabled": true,
+        "health": null,
+        "icon": "landmark",
+        "id": "zaubacorp",
+        "name": "Zauba Corp (MCA)",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_gov",
+        "description": "Company financials, directors, registration data",
+        "enabled": true,
+        "health": null,
+        "icon": "file-text",
+        "id": "tofler",
+        "name": "Tofler",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_startup",
+        "description": "Indian startup news & company profiles",
+        "enabled": true,
+        "health": null,
+        "icon": "newspaper",
+        "id": "yourstory",
+        "name": "YourStory",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_startup",
+        "description": "Indian startup funding & news tracker",
+        "enabled": true,
+        "health": null,
+        "icon": "trending-up",
+        "id": "inc42",
+        "name": "Inc42",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_tech",
+        "description": "B2B reviews & ratings for IT/digital agencies",
+        "enabled": true,
+        "health": {
+          "disabled_reason": "zero_yield",
+          "last_ok_at": "2026-08-20T03:00:00",
+          "last_yield": 0,
+          "manual_override": true,
+          "state": "auto_disabled"
+        },
+        "icon": "award",
+        "id": "clutch",
+        "name": "Clutch",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_tech",
+        "description": "IT company reviews & research platform",
+        "enabled": true,
+        "health": {
+          "disabled_reason": null,
+          "last_ok_at": null,
+          "last_yield": 1,
+          "manual_override": false,
+          "state": "healthy"
+        },
+        "icon": "check-circle",
+        "id": "goodfirms",
+        "name": "GoodFirms",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_tech",
+        "description": "Software & service company reviews \u2014 buyer intent",
+        "enabled": true,
+        "health": null,
+        "icon": "grid",
+        "id": "g2",
+        "name": "G2",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_tech",
+        "description": "Software companies & product comparison",
+        "enabled": true,
+        "health": null,
+        "icon": "monitor",
+        "id": "softwaresuggest",
+        "name": "SoftwareSuggest",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_tech",
+        "description": "IT agencies & digital companies worldwide",
+        "enabled": true,
+        "health": null,
+        "icon": "cpu",
+        "id": "techbehemoths",
+        "name": "TechBehemoths",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "US/global local business directory",
+        "enabled": true,
+        "health": null,
+        "icon": "book",
+        "id": "yellowpages",
+        "name": "Yellow Pages",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Local businesses with customer reviews",
+        "enabled": true,
+        "health": null,
+        "icon": "message-circle",
+        "id": "yelp",
+        "name": "Yelp",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Accredited US businesses with trust ratings",
+        "enabled": false,
+        "health": null,
+        "icon": "shield",
+        "id": "bbb",
+        "name": "Better Business Bureau",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "US industrial suppliers & manufacturers",
+        "enabled": false,
+        "health": null,
+        "icon": "factory",
+        "id": "thomasnet",
+        "name": "ThomasNet",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_startup",
+        "description": "Startup funding rounds & company data",
+        "enabled": true,
+        "health": null,
+        "icon": "rocket",
+        "id": "crunchbase",
+        "name": "Crunchbase",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_startup",
+        "description": "Startup tracking & funding intelligence",
+        "enabled": true,
+        "health": null,
+        "icon": "activity",
+        "id": "tracxn",
+        "name": "Tracxn",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_startup",
+        "description": "Startup jobs & company profiles",
+        "enabled": true,
+        "health": null,
+        "icon": "zap",
+        "id": "angellist",
+        "name": "AngelList / Wellfound",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Company pages on LinkedIn via DDG",
+        "enabled": true,
+        "health": null,
+        "icon": "linkedin",
+        "id": "linkedin_companies",
+        "name": "LinkedIn Companies",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Business pages on Facebook",
+        "enabled": true,
+        "health": null,
+        "icon": "facebook",
+        "id": "facebook_pages",
+        "name": "Facebook Business",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_jobs",
+        "description": "Companies hiring globally \u2014 intent signal",
+        "enabled": true,
+        "health": null,
+        "icon": "briefcase",
+        "id": "indeed",
+        "name": "Indeed",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_jobs",
+        "description": "Company reviews & employer ratings",
+        "enabled": true,
+        "health": null,
+        "icon": "star",
+        "id": "glassdoor",
+        "name": "Glassdoor",
+        "strategy": "registry"
+      },
+      {
+        "category": "europe",
+        "description": "European B2B supplier directory",
+        "enabled": false,
+        "health": null,
+        "icon": "globe-2",
+        "id": "europages",
+        "name": "Europages",
+        "strategy": "registry"
+      },
+      {
+        "category": "europe",
+        "description": "Global B2B company directory",
+        "enabled": false,
+        "health": null,
+        "icon": "compass",
+        "id": "kompass",
+        "name": "Kompass",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Generic web search for company lists & directories",
+        "enabled": true,
+        "health": null,
+        "icon": "list",
+        "id": "generic_companies_list",
+        "name": "Company Lists",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Chamber of commerce & association member directories",
+        "enabled": true,
+        "health": null,
+        "icon": "users-2",
+        "id": "generic_association",
+        "name": "Industry Associations",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Best/fastest-growing company award lists",
+        "enabled": true,
+        "health": null,
+        "icon": "trophy",
+        "id": "generic_awards",
+        "name": "Award Winners",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "Software reviews & comparison platform",
+        "enabled": true,
+        "health": null,
+        "icon": "monitor",
+        "id": "capterra",
+        "name": "Capterra",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "SaaS product discovery & reviews",
+        "enabled": true,
+        "health": null,
+        "icon": "grid",
+        "id": "getapp",
+        "name": "GetApp",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "New product launches & startup discovery",
+        "enabled": true,
+        "health": null,
+        "icon": "rocket",
+        "id": "producthunt",
+        "name": "Product Hunt",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "Open source & commercial software directory",
+        "enabled": true,
+        "health": null,
+        "icon": "code",
+        "id": "sourceforge",
+        "name": "SourceForge",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "Software alternative recommendations",
+        "enabled": true,
+        "health": null,
+        "icon": "layers",
+        "id": "alternativeto",
+        "name": "AlternativeTo",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "SaaS product directory & alternatives",
+        "enabled": true,
+        "health": null,
+        "icon": "layout",
+        "id": "saashub",
+        "name": "SaaSHub",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "Tech stack discovery \u2014 who uses what",
+        "enabled": true,
+        "health": null,
+        "icon": "cpu",
+        "id": "stackshare",
+        "name": "StackShare",
+        "strategy": "registry"
+      },
+      {
+        "category": "saas_directory",
+        "description": "SaaS deals & product marketplace",
+        "enabled": true,
+        "health": null,
+        "icon": "tag",
+        "id": "appsumo",
+        "name": "AppSumo",
+        "strategy": "registry"
+      },
+      {
+        "category": "trust_review",
+        "description": "Business trust reviews & ratings",
+        "enabled": true,
+        "health": null,
+        "icon": "shield",
+        "id": "trustpilot",
+        "name": "Trustpilot",
+        "strategy": "registry"
+      },
+      {
+        "category": "trust_review",
+        "description": "Hospitality & tourism business reviews",
+        "enabled": false,
+        "health": null,
+        "icon": "map",
+        "id": "tripadvisor",
+        "name": "TripAdvisor",
+        "strategy": "registry"
+      },
+      {
+        "category": "trust_review",
+        "description": "Google Business Profile reviews",
+        "enabled": true,
+        "health": null,
+        "icon": "star",
+        "id": "google_reviews",
+        "name": "Google Reviews",
+        "strategy": "registry"
+      },
+      {
+        "category": "trust_review",
+        "description": "Indian consumer & business reviews",
+        "enabled": true,
+        "health": null,
+        "icon": "message-circle",
+        "id": "mouthshut",
+        "name": "MouthShut",
+        "strategy": "registry"
+      },
+      {
+        "category": "freelance",
+        "description": "Freelance agencies & service providers",
+        "enabled": true,
+        "health": null,
+        "icon": "briefcase",
+        "id": "upwork",
+        "name": "Upwork",
+        "strategy": "registry"
+      },
+      {
+        "category": "freelance",
+        "description": "Service provider marketplace",
+        "enabled": false,
+        "health": null,
+        "icon": "zap",
+        "id": "fiverr",
+        "name": "Fiverr Business",
+        "strategy": "registry"
+      },
+      {
+        "category": "freelance",
+        "description": "Top 3% freelancers & agencies",
+        "enabled": false,
+        "health": null,
+        "icon": "award",
+        "id": "toptal",
+        "name": "Toptal",
+        "strategy": "registry"
+      },
+      {
+        "category": "freelance",
+        "description": "Freelance & agency marketplace",
+        "enabled": false,
+        "health": null,
+        "icon": "user",
+        "id": "freelancer",
+        "name": "Freelancer",
+        "strategy": "registry"
+      },
+      {
+        "category": "freelance",
+        "description": "Local service professionals directory",
+        "enabled": true,
+        "health": null,
+        "icon": "phone",
+        "id": "bark",
+        "name": "Bark",
+        "strategy": "registry"
+      },
+      {
+        "category": "developer",
+        "description": "Tech companies on GitHub",
+        "enabled": true,
+        "health": null,
+        "icon": "code",
+        "id": "github_orgs",
+        "name": "GitHub Organizations",
+        "strategy": "registry"
+      },
+      {
+        "category": "developer",
+        "description": "Companies hiring developers",
+        "enabled": true,
+        "health": null,
+        "icon": "layers",
+        "id": "stackoverflow_jobs",
+        "name": "StackOverflow Companies",
+        "strategy": "registry"
+      },
+      {
+        "category": "developer",
+        "description": "Show HN launches & tech company mentions",
+        "enabled": true,
+        "health": null,
+        "icon": "terminal",
+        "id": "hackernews",
+        "name": "Hacker News",
+        "strategy": "registry"
+      },
+      {
+        "category": "developer",
+        "description": "Developer community company mentions",
+        "enabled": false,
+        "health": null,
+        "icon": "hash",
+        "id": "devto",
+        "name": "Dev.to",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Latest company news & press coverage",
+        "enabled": true,
+        "health": null,
+        "icon": "newspaper",
+        "id": "google_news",
+        "name": "Google News",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Indian business news & company mentions",
+        "enabled": true,
+        "health": null,
+        "icon": "trending-up",
+        "id": "economic_times",
+        "name": "Economic Times",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Indian financial & business news",
+        "enabled": true,
+        "health": null,
+        "icon": "file-text",
+        "id": "business_standard",
+        "name": "Business Standard",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Indian business & startup news",
+        "enabled": true,
+        "health": null,
+        "icon": "newspaper",
+        "id": "livemint",
+        "name": "Livemint",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Tech startup funding & news",
+        "enabled": true,
+        "health": null,
+        "icon": "zap",
+        "id": "techcrunch",
+        "name": "TechCrunch",
+        "strategy": "registry"
+      },
+      {
+        "category": "news",
+        "description": "Forbes company lists & rankings",
+        "enabled": true,
+        "health": null,
+        "icon": "award",
+        "id": "forbes",
+        "name": "Forbes",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "Indian local business directory",
+        "enabled": true,
+        "health": null,
+        "icon": "book",
+        "id": "yellowpages_in",
+        "name": "India Yellow Pages",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "Indian business listing & directory",
+        "enabled": true,
+        "health": null,
+        "icon": "search",
+        "id": "grotal",
+        "name": "Grotal",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "Indian professionals & training providers",
+        "enabled": true,
+        "health": null,
+        "icon": "user-check",
+        "id": "urbanpro",
+        "name": "UrbanPro",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "Indian B2B supplier directory",
+        "enabled": true,
+        "health": null,
+        "icon": "phone",
+        "id": "dial4trade",
+        "name": "Dial4Trade",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "Indian company database & contacts",
+        "enabled": true,
+        "health": null,
+        "icon": "database",
+        "id": "fundoodata",
+        "name": "FundooData",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_startup",
+        "description": "Government startup registry portal",
+        "enabled": true,
+        "health": null,
+        "icon": "rocket",
+        "id": "startup_india",
+        "name": "Startup India",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_directory",
+        "description": "IT industry body member directory",
+        "enabled": true,
+        "health": null,
+        "icon": "landmark",
+        "id": "nasscom",
+        "name": "NASSCOM",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_jobs",
+        "description": "Indian job portal \u2014 hiring companies",
+        "enabled": true,
+        "health": null,
+        "icon": "briefcase",
+        "id": "shine",
+        "name": "Shine Jobs",
+        "strategy": "registry"
+      },
+      {
+        "category": "india_jobs",
+        "description": "Indian recruitment & hiring portal",
+        "enabled": true,
+        "health": null,
+        "icon": "briefcase",
+        "id": "monsterindia",
+        "name": "Monster India",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "US small business directory",
+        "enabled": true,
+        "health": null,
+        "icon": "book",
+        "id": "manta",
+        "name": "Manta",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Dun & Bradstreet company profiles",
+        "enabled": false,
+        "health": null,
+        "icon": "database",
+        "id": "dnb",
+        "name": "D&B",
+        "strategy": "registry"
+      },
+      {
+        "category": "europe",
+        "description": "Open corporate registry data worldwide",
+        "enabled": true,
+        "health": null,
+        "icon": "globe",
+        "id": "opencorporates",
+        "name": "OpenCorporates",
+        "strategy": "registry"
+      },
+      {
+        "category": "europe",
+        "description": "UK company registration records",
+        "enabled": false,
+        "health": null,
+        "icon": "landmark",
+        "id": "companieshouse",
+        "name": "Companies House UK",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_startup",
+        "description": "European startup & VC data platform",
+        "enabled": true,
+        "health": null,
+        "icon": "trending-up",
+        "id": "dealroom",
+        "name": "Dealroom",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_startup",
+        "description": "Market intelligence & company research",
+        "enabled": true,
+        "health": null,
+        "icon": "bar-chart-3",
+        "id": "cbinsights",
+        "name": "CB Insights",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Location-based business discovery",
+        "enabled": false,
+        "health": null,
+        "icon": "map-pin",
+        "id": "foursquare",
+        "name": "Foursquare",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Global business listing directory",
+        "enabled": true,
+        "health": null,
+        "icon": "globe",
+        "id": "hotfrog",
+        "name": "Hotfrog",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Worldwide business directory",
+        "enabled": true,
+        "health": null,
+        "icon": "book-open",
+        "id": "brownbook",
+        "name": "BrownBook",
+        "strategy": "registry"
+      },
+      {
+        "category": "global_directory",
+        "description": "Business directory \u2014 US & Europe",
+        "enabled": true,
+        "health": null,
+        "icon": "search",
+        "id": "cylex",
+        "name": "Cylex",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Company accounts on Twitter/X",
+        "enabled": true,
+        "health": null,
+        "icon": "hash",
+        "id": "twitter_companies",
+        "name": "Twitter/X Companies",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Business accounts on Instagram",
+        "enabled": true,
+        "health": null,
+        "icon": "camera",
+        "id": "instagram_business",
+        "name": "Instagram Business",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Company recommendations on Reddit",
+        "enabled": true,
+        "health": null,
+        "icon": "message-circle",
+        "id": "reddit_companies",
+        "name": "Reddit Mentions",
+        "strategy": "registry"
+      },
+      {
+        "category": "social",
+        "description": "Company mentions on Quora",
+        "enabled": true,
+        "health": null,
+        "icon": "help-circle",
+        "id": "quora_companies",
+        "name": "Quora Mentions",
+        "strategy": "registry"
+      },
+      {
+        "category": "ecommerce",
+        "description": "Amazon marketplace sellers & brands",
+        "enabled": true,
+        "health": null,
+        "icon": "shopping-bag",
+        "id": "amazon_sellers",
+        "name": "Amazon Sellers",
+        "strategy": "registry"
+      },
+      {
+        "category": "ecommerce",
+        "description": "Flipkart marketplace sellers",
+        "enabled": true,
+        "health": null,
+        "icon": "shopping-bag",
+        "id": "flipkart_sellers",
+        "name": "Flipkart Sellers",
+        "strategy": "registry"
+      },
+      {
+        "category": "ecommerce",
+        "description": "Shopify-powered online stores",
+        "enabled": true,
+        "health": null,
+        "icon": "store",
+        "id": "shopify_stores",
+        "name": "Shopify Stores",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Exhibition & trade show exhibitor lists",
+        "enabled": true,
+        "health": null,
+        "icon": "calendar",
+        "id": "generic_expo",
+        "name": "Trade Shows & Expos",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Startup accelerator portfolio companies",
+        "enabled": true,
+        "health": null,
+        "icon": "rocket",
+        "id": "generic_incubator",
+        "name": "Incubator/Accelerator",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Govt tender vendor & supplier lists",
+        "enabled": true,
+        "health": null,
+        "icon": "landmark",
+        "id": "generic_govt_tender",
+        "name": "Government Tenders",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "ISO certified companies by industry",
+        "enabled": true,
+        "health": null,
+        "icon": "check-circle",
+        "id": "generic_iso_certified",
+        "name": "ISO Certified",
+        "strategy": "registry"
+      },
+      {
+        "category": "generic",
+        "description": "Companies actively posting \"we are hiring\"",
+        "enabled": true,
+        "health": null,
+        "icon": "trending-up",
+        "id": "generic_hiring_surge",
+        "name": "Hiring Surge",
+        "strategy": "registry"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

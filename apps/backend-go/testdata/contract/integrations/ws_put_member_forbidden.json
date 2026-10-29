@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "HUBSPOT_TOKEN": "ws-contract-token-4321"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/workspace-integrations/hubspot?workspace_id=ws-alpha"
+  },
+  "response": {
+    "body": {
+      "detail": "Insufficient workspace role"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

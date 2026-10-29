@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "username": "alice"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/auth/token"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": null,
+          "loc": [
+            "body",
+            "password"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/columns/phone"
+  },
+  "response": {
+    "body": {
+      "detail": "Column is referenced by saved views: Sorted by company. Update those views before deleting."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

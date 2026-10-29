@@ -1,0 +1,58 @@
+{
+ "provider": "gleif",
+ "input_name": "default",
+ "scenario": "http_429",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q=Acme+Corporation",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "30"
+    },
+    "body": "{\"error\":{\"code\":\"rate_limited\",\"message\":\"Too many requests\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalName%5D=Acme+Corporation&page%5Bsize%5D=1",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "30"
+    },
+    "body": "{\"error\":{\"code\":\"rate_limited\",\"message\":\"Too many requests\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "gleif",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_lei_match"
+ }
+}

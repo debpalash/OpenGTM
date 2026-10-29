@@ -1,0 +1,252 @@
+{
+ "cases": [
+  {
+   "name": "start_collection",
+   "args": {
+    "query": "IT staffing in Pune"
+   },
+   "description": "🚀 Launch Lead Collection\nRuns 7 parallel scraping strategies using DDG, Maps, and external APIs.\nQuery: \"IT staffing in Pune\""
+  },
+  {
+   "name": "start_collection",
+   "args": {},
+   "description": "🚀 Launch Lead Collection\nRuns 7 parallel scraping strategies using DDG, Maps, and external APIs.\nQuery: \"?\""
+  },
+  {
+   "name": "update_lead_status",
+   "args": {
+    "lead_id": 7,
+    "status": "contacted"
+   },
+   "description": "📝 Update Lead Status\nChanges the pipeline status of a lead.\nLead #7 → contacted"
+  },
+  {
+   "name": "update_lead_status",
+   "args": {},
+   "description": "📝 Update Lead Status\nChanges the pipeline status of a lead.\nLead #? → ?"
+  },
+  {
+   "name": "enrich_lead",
+   "args": {
+    "lead_id": 3
+   },
+   "description": "🔍 Enrich Lead\nTriggers external website scraping and contact discovery.\nLead #3"
+  },
+  {
+   "name": "enrich_lead",
+   "args": {
+    "lead_id": "x"
+   },
+   "description": "🔍 Enrich Lead\nTriggers external website scraping and contact discovery.\nLead #x"
+  },
+  {
+   "name": "import_ambitionbox_to_workbook",
+   "args": {},
+   "description": "📊 Create AmbitionBox Workbook\nCreates a workbook and stores the matching AmbitionBox companies as rows.\n10 companies"
+  },
+  {
+   "name": "import_ambitionbox_to_workbook",
+   "args": {
+    "limit": 25,
+    "industry": "IT Services",
+    "name": "AB list"
+   },
+   "description": "📊 Create AmbitionBox Workbook\nCreates a workbook and stores the matching AmbitionBox companies as rows.\n25 companies · Industry: IT Services · Workbook: AB list"
+  },
+  {
+   "name": "import_ambitionbox_to_workbook",
+   "args": {
+    "limit": 5,
+    "industry": "",
+    "name": null
+   },
+   "description": "📊 Create AmbitionBox Workbook\nCreates a workbook and stores the matching AmbitionBox companies as rows.\n5 companies"
+  },
+  {
+   "name": "create_people_workbook",
+   "args": {
+    "conversation_id": "c1",
+    "person_ids": [
+     "p1",
+     "p2"
+    ],
+    "name": "Acme people"
+   },
+   "description": "📋 Create People Workbook\nCreates a workbook and snapshots the people already found in this conversation.\nConversation: c1 · People: 2 · Workbook: Acme people"
+  },
+  {
+   "name": "create_people_workbook",
+   "args": {},
+   "description": "📋 Create People Workbook\nCreates a workbook and snapshots the people already found in this conversation.\nConversation: ?"
+  },
+  {
+   "name": "create_people_workbook",
+   "args": {
+    "conversation_id": "c1",
+    "person_ids": []
+   },
+   "description": "📋 Create People Workbook\nCreates a workbook and snapshots the people already found in this conversation.\nConversation: c1"
+  },
+  {
+   "name": "enrich_people_contacts",
+   "args": {
+    "conversation_id": "c2",
+    "person_ids": [
+     "a"
+    ]
+   },
+   "description": "Find and Verify Work Emails\nUses configured email-finder and verification providers for the exact saved people selection.\nConversation: c2 · People: 1"
+  },
+  {
+   "name": "enrich_people_contacts",
+   "args": {},
+   "description": "Find and Verify Work Emails\nUses configured email-finder and verification providers for the exact saved people selection.\nConversation: ?"
+  },
+  {
+   "name": "create_source_workbook",
+   "args": {
+    "target_rows": 50,
+    "icp_description": "SaaS in Berlin"
+   },
+   "description": "📚 Create and Source Workbook\nCreates persistent data and launches a background sourcing workflow.\nTarget rows: 50 · Query: SaaS in Berlin"
+  },
+  {
+   "name": "create_source_workbook",
+   "args": {},
+   "description": "📚 Create and Source Workbook\nCreates persistent data and launches a background sourcing workflow.\nTarget rows: ? · Query: ?"
+  },
+  {
+   "name": "track_account_signals",
+   "args": {
+    "workbook_id": "wb1",
+    "account_ids": [
+     "a",
+     "b"
+    ],
+    "cadence": "daily",
+    "signal_types": [
+     "funding",
+     "leadership_change"
+    ]
+   },
+   "description": "Track Account Signals\nCreates or updates a recurring collector schedule for an exact saved account selection.\nWorkbook: wb1 · Accounts: 2 · Cadence: daily · Signals: funding, leadership_change"
+  },
+  {
+   "name": "track_account_signals",
+   "args": {},
+   "description": "Track Account Signals\nCreates or updates a recurring collector schedule for an exact saved account selection.\nWorkbook: ? · Accounts: 0 · Cadence: ? · Signals: "
+  },
+  {
+   "name": "track_account_signals",
+   "args": {
+    "account_ids": null,
+    "signal_types": null
+   },
+   "description": "Track Account Signals\nCreates or updates a recurring collector schedule for an exact saved account selection.\nWorkbook: ? · Accounts: 0 · Cadence: ? · Signals: "
+  },
+  {
+   "name": "draft_grounded_outreach",
+   "args": {
+    "conversation_id": "c3",
+    "person_id": "person_x",
+    "allow_risky": true
+   },
+   "description": "Create Grounded Draft\nPersists a draft for one exact saved contact. This action cannot send messages.\nConversation: c3 · Person: person_x · Risky address approved: True · Send: disabled"
+  },
+  {
+   "name": "draft_grounded_outreach",
+   "args": {},
+   "description": "Create Grounded Draft\nPersists a draft for one exact saved contact. This action cannot send messages.\nConversation: ? · Person: ? · Risky address approved: False · Send: disabled"
+  },
+  {
+   "name": "set_workbook_refresh",
+   "args": {
+    "workbook_id": "wb",
+    "interval": "daily"
+   },
+   "description": "⏱️ Change Workbook Refresh\nChanges a recurring schedule that can repeatedly spend resources.\n"
+  },
+  {
+   "name": "add_agent_column",
+   "args": {
+    "workbook_id": "wb"
+   },
+   "description": "🤖 Add Agent Column\nChanges workbook configuration and may run paid AI tools.\n"
+  },
+  {
+   "name": "add_signal_trigger",
+   "args": {
+    "workbook_id": "wb",
+    "signals": [
+     "funding"
+    ]
+   },
+   "description": "⚡ Add Signal Trigger\nCreates a persistent automation trigger.\n"
+  },
+  {
+   "name": "not_a_tool",
+   "args": {
+    "x": 1
+   },
+   "description": "not_a_tool\nThis action modifies data.\n"
+  },
+  {
+   "name": "search_leads",
+   "args": {
+    "query": "x"
+   },
+   "description": "search_leads\nThis action modifies data.\n"
+  },
+  {
+   "name": "start_collection",
+   "args": {
+    "query": 12
+   },
+   "description": "🚀 Launch Lead Collection\nRuns 7 parallel scraping strategies using DDG, Maps, and external APIs.\nQuery: \"12\""
+  },
+  {
+   "name": "start_collection",
+   "args": {
+    "query": "naïve “quotes” ✓"
+   },
+   "description": "🚀 Launch Lead Collection\nRuns 7 parallel scraping strategies using DDG, Maps, and external APIs.\nQuery: \"naïve “quotes” ✓\""
+  },
+  {
+   "name": "update_lead_status",
+   "args": {
+    "lead_id": 1.5,
+    "status": true
+   },
+   "description": "📝 Update Lead Status\nChanges the pipeline status of a lead.\nLead #1.5 → True"
+  },
+  {
+   "name": "update_lead_status",
+   "args": {
+    "lead_id": null,
+    "status": null
+   },
+   "description": "📝 Update Lead Status\nChanges the pipeline status of a lead.\nLead #None → None"
+  },
+  {
+   "name": "create_source_workbook",
+   "args": {
+    "target_rows": [
+     1
+    ],
+    "icp_description": {
+     "a": 1
+    }
+   },
+   "description": "📚 Create and Source Workbook\nCreates persistent data and launches a background sourcing workflow.\nTarget rows: [1] · Query: {'a': 1}"
+  },
+  {
+   "name": "import_ambitionbox_to_workbook",
+   "args": {
+    "limit": 0,
+    "industry": 0,
+    "name": 0
+   },
+   "description": "📊 Create AmbitionBox Workbook\nCreates a workbook and stores the matching AmbitionBox companies as rows.\n0 companies"
+  }
+ ]
+}

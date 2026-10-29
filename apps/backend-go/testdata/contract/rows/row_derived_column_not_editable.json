@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "email_wf": "x",
+      "summary": "y"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows/3"
+  },
+  "response": {
+    "body": {
+      "detail": "No editable row fields supplied"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

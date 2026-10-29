@@ -1,0 +1,151 @@
+{
+  "request": {
+    "body": {
+      "file_name": "Clay Export.csv",
+      "rows": [
+        {
+          "City": "Berlin",
+          "Claygent": "ok",
+          "Company Domain": "globex.example.org",
+          "Company Name": "Globex Corp",
+          "Custom Score": 7.5,
+          "Email Finder": "x@y.z",
+          "Enrichment Status": "done",
+          "Job Title": "CTO",
+          "Person LinkedIn URL": "https://linkedin.com/in/hank",
+          "Phone Number": "+1-555-0100",
+          "Summary": "s",
+          "Work Email": "hank@globex.example.org"
+        },
+        {
+          "City": "",
+          "Claygent": "",
+          "Company Domain": "",
+          "Company Name": "Acme 03",
+          "Custom Score": "",
+          "Email Finder": "",
+          "Enrichment Status": "",
+          "Job Title": "",
+          "Person LinkedIn URL": "",
+          "Phone Number": "",
+          "Summary": "",
+          "Work Email": ""
+        },
+        {
+          "Company Domain": "https://www.acme05.example.com/x",
+          "Company Name": "Initrode",
+          "Custom Score": 0,
+          "Work Email": "bob@initrode.example.net"
+        },
+        {
+          "Company Domain": "",
+          "Company Name": "",
+          "Custom Score": "",
+          "Work Email": ""
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/import"
+  },
+  "response": {
+    "body": {
+      "added": 2,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [
+          "Person LinkedIn URL",
+          "Claygent",
+          "Enrichment Status",
+          "Job Title",
+          "Email Finder",
+          "Summary",
+          "Custom Score"
+        ],
+        "custom_columns": [
+          "Claygent",
+          "Custom Score",
+          "Email Finder",
+          "Enrichment Status",
+          "Summary"
+        ],
+        "detection_reason": "filename",
+        "headers": [
+          "Company Name",
+          "Company Domain",
+          "Work Email",
+          "Person LinkedIn URL",
+          "Claygent",
+          "Enrichment Status",
+          "Job Title",
+          "Email Finder",
+          "Summary",
+          "City",
+          "Phone Number",
+          "Custom Score"
+        ],
+        "importable_rows": 3,
+        "input_rows": 4,
+        "mapped_standard": [
+          "City",
+          "Company Domain",
+          "Company Name",
+          "Job Title",
+          "Person LinkedIn URL",
+          "Phone Number",
+          "Work Email"
+        ],
+        "mapping": {
+          "City": "city",
+          "Claygent": "claygent",
+          "Company Domain": "website",
+          "Company Name": "company",
+          "Custom Score": "custom_score",
+          "Email Finder": "email_finder",
+          "Enrichment Status": "enrichment_status",
+          "Job Title": "contact_title",
+          "Person LinkedIn URL": "linkedin_url",
+          "Phone Number": "phone",
+          "Summary": "summary",
+          "Work Email": "email"
+        },
+        "skipped_columns": [],
+        "source_system": "clay"
+      },
+      "columns_added": [
+        "Person LinkedIn URL",
+        "Claygent",
+        "Enrichment Status",
+        "Job Title",
+        "Email Finder",
+        "Summary",
+        "Custom Score"
+      ],
+      "created": 2,
+      "mapping": {
+        "City": "city",
+        "Claygent": "claygent",
+        "Company Domain": "website",
+        "Company Name": "company",
+        "Custom Score": "custom_score",
+        "Email Finder": "email_finder",
+        "Enrichment Status": "enrichment_status",
+        "Job Title": "contact_title",
+        "Person LinkedIn URL": "linkedin_url",
+        "Phone Number": "phone",
+        "Summary": "summary",
+        "Work Email": "email"
+      },
+      "skipped_duplicates": 1,
+      "total_rows": 27
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

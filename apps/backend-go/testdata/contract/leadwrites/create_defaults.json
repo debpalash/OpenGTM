@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "company": "Defaults Only"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "id": 20,
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

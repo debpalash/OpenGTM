@@ -1,0 +1,84 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/pb-gov-sched/runs"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "runs": [
+        {
+          "attempted": 1,
+          "audience_id": "aud-gov-1",
+          "created_at": "2026-08-27T12:00:00",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-gov-r8",
+          "max_members": 100,
+          "playbook_id": "pb-gov-sched",
+          "prompt_version": 1,
+          "started_at": "2026-08-27T12:00:00",
+          "status": "running",
+          "succeeded": 0
+        },
+        {
+          "attempted": 0,
+          "audience_id": "aud-gov-1",
+          "created_at": "2026-08-27T11:00:00",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-gov-r7",
+          "max_members": 10,
+          "playbook_id": "pb-gov-sched",
+          "prompt_version": 1,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        },
+        {
+          "attempted": 2,
+          "audience_id": "aud-gov-1",
+          "created_at": "2026-08-27T10:00:00",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-gov-r6",
+          "max_members": 50,
+          "playbook_id": "pb-gov-sched",
+          "prompt_version": 1,
+          "started_at": "2026-08-27T10:00:00",
+          "status": "running",
+          "succeeded": 1
+        },
+        {
+          "attempted": 0,
+          "audience_id": "aud-gov-1",
+          "created_at": "2026-08-27T09:00:00",
+          "error": null,
+          "failed": 0,
+          "finished_at": null,
+          "id": "run-gov-r5",
+          "max_members": 100,
+          "playbook_id": "pb-gov-sched",
+          "prompt_version": 1,
+          "started_at": null,
+          "status": "pending",
+          "succeeded": 0
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

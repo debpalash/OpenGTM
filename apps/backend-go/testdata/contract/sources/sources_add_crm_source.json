@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "name": "CRM",
+      "source": {
+        "crm": "hubspot",
+        "kind": "crm_import",
+        "limit": 50,
+        "object": "contact"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-live/sources"
+  },
+  "response": {
+    "body": {
+      "column": {
+        "channels": {},
+        "icp": {},
+        "id": "src_d66fb5ea",
+        "name": "CRM",
+        "source": {
+          "crm": "hubspot",
+          "kind": "crm_import",
+          "limit": 50,
+          "object": "contact"
+        },
+        "target_rows": 0,
+        "type": "source"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

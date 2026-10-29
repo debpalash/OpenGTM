@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": {
+      "limit": 2
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-05/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 11,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "enr_email",
+                  "wf_email"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "column_ids": [
+                  "enr_email",
+                  "wf_email"
+                ]
+              },
+              "type": "re_enrich",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3002",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

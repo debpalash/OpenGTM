@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/analytics?days=6"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 7
+          },
+          "input": "6",
+          "loc": [
+            "query",
+            "days"
+          ],
+          "msg": "Input should be greater than or equal to 7",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

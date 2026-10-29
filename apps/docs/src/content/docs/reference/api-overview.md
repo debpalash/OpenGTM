@@ -15,7 +15,7 @@ available on self-hosted installs with no plan gating.
 | Setup | Base |
 |---|---|
 | Docker Compose | `http://localhost:3000` (nginx) |
-| Local uvicorn | `http://localhost:8000` |
+| Local Go API (`make run`) | `http://localhost:8000` |
 
 Interactive docs are also served by the API itself at `/docs` (Swagger UI)
 and `/redoc`.

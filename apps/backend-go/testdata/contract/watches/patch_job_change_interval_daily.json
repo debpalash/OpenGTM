@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "interval": "daily"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-05"
+  },
+  "response": {
+    "body": {
+      "detail": "job_change watches poll at most weekly (interval='weekly')"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

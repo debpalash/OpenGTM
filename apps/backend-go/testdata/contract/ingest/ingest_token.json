@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Company": "Hooli Labs",
+          "Website": "https://hoolilabs.io"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-enrich-1/rows/ingest"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "row_ids": [
+        1272
+      ],
+      "skipped_duplicates": 0,
+      "skipped_empty": 0,
+      "total_rows": 10,
+      "unmapped_keys": [],
+      "workbook_id": "wb-enrich-1"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "ids": [
+        1
+      ]
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/data/mark-used"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "seq": 73,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 73,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 1,
+        "subject": "Hello",
+        "body_html": "<p>hi</p>",
+        "idempotency_key": "k-send-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 73,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"duplicate\", \"idempotency_key\": \"k-send-1\", \"message\": \"already applied (idempotent replay)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 1,
+        "subject": "Hello",
+        "body_html": "<p>hi</p>",
+        "idempotency_key": "k-send-1"
+      },
+      "idempotency_key": null,
+      "result_status": "ok",
+      "error": "idempotent_replay",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

@@ -1,0 +1,102 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-webhook/runs?limit=200"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 200,
+      "next_cursor": null,
+      "offset": 0,
+      "runs": [
+        {
+          "attempted": 3,
+          "created_at": "2026-08-28T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": "Final failure: webhook HTTP 500",
+          "failed": 3,
+          "finished_at": "2026-08-28T10:01:00",
+          "id": "run-act-w6",
+          "skipped": 0,
+          "started_at": "2026-08-28T10:00:00",
+          "status": "failed",
+          "succeeded": 0
+        },
+        {
+          "attempted": 3,
+          "created_at": "2026-08-28T09:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": "Final failure: worker killed",
+          "failed": 1,
+          "finished_at": "2026-08-28T09:02:00",
+          "id": "run-act-w5",
+          "skipped": 0,
+          "started_at": "2026-08-28T09:00:00",
+          "status": "failed",
+          "succeeded": 2
+        },
+        {
+          "attempted": 1,
+          "created_at": "2026-08-27T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": "Cancellation completed",
+          "failed": 0,
+          "finished_at": "2026-08-27T10:00:30",
+          "id": "run-act-w4",
+          "skipped": 0,
+          "started_at": "2026-08-27T10:00:00",
+          "status": "cancelled",
+          "succeeded": 1
+        },
+        {
+          "attempted": 2,
+          "created_at": "2026-08-27T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": null,
+          "failed": 0,
+          "finished_at": "2026-08-27T10:01:00",
+          "id": "run-act-w3",
+          "skipped": 1,
+          "started_at": "2026-08-27T10:00:00",
+          "status": "completed",
+          "succeeded": 2
+        },
+        {
+          "attempted": 3,
+          "created_at": "2026-08-26T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": null,
+          "failed": 0,
+          "finished_at": "2026-08-26T10:01:00",
+          "id": "run-act-w2",
+          "skipped": 0,
+          "started_at": "2026-08-26T10:00:00",
+          "status": "completed",
+          "succeeded": 3
+        },
+        {
+          "attempted": 3,
+          "created_at": "2026-08-26T09:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": null,
+          "failed": 0,
+          "finished_at": "2026-08-26T09:01:00",
+          "id": "run-act-w1",
+          "skipped": 0,
+          "started_at": "2026-08-26T09:00:00",
+          "status": "completed",
+          "succeeded": 3
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

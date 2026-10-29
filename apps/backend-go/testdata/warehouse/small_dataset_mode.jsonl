@@ -1,0 +1,4 @@
+{"_manifest":{"audience_id":"aud-1","dataset":"my_ds","destination_id":"dest-1","mode":"upsert","records_sha256":"5822fe0e99b9c04b4c0691fc6312be795e5916ae53ad551fded4c0916162f154","row_count":3,"run_id":"run-1","type":"opengtm.audience.export","version":1,"workspace_id":"ws-vec"}}
+{"_opengtm_lead_id":1,"company":"Acme","email":"a@b.co","score":80}
+{"_opengtm_lead_id":2,"company":"Zed","email":"","score":0}
+{"_opengtm_lead_id":3,"a":{"y":null,"z":[3,1]},"b":1,"\u00e9":"\u00fc"}

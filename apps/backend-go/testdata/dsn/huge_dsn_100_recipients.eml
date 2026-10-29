@@ -1,0 +1,531 @@
+From: mailer-daemon@mx.example.net
+To: sender@contract.example.com
+Subject: Delivery Status Notification (Failure)
+Message-ID: <dsn-0038@mx.example.net>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=delivery-status; boundary="BND-dsn-1"
+
+--BND-dsn-1
+Content-Type: text/plain; charset=utf-8
+
+Your message could not be delivered.
+
+--BND-dsn-1
+Content-Type: message/delivery-status
+
+Reporting-MTA: dns; mx.example.net
+Arrival-Date: Sat, 29 Aug 2026 10:40:00 +0000
+
+Final-Recipient: rfc822; user000@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user000 unknown
+
+Final-Recipient: rfc822; user001@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user001 unknown
+
+Final-Recipient: rfc822; user002@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user002 unknown
+
+Final-Recipient: rfc822; user003@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user003 unknown
+
+Final-Recipient: rfc822; user004@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user004 unknown
+
+Final-Recipient: rfc822; user005@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user005 unknown
+
+Final-Recipient: rfc822; user006@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user006 unknown
+
+Final-Recipient: rfc822; user007@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user007 unknown
+
+Final-Recipient: rfc822; user008@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user008 unknown
+
+Final-Recipient: rfc822; user009@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user009 unknown
+
+Final-Recipient: rfc822; user010@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user010 unknown
+
+Final-Recipient: rfc822; user011@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user011 unknown
+
+Final-Recipient: rfc822; user012@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user012 unknown
+
+Final-Recipient: rfc822; user013@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user013 unknown
+
+Final-Recipient: rfc822; user014@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user014 unknown
+
+Final-Recipient: rfc822; user015@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user015 unknown
+
+Final-Recipient: rfc822; user016@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user016 unknown
+
+Final-Recipient: rfc822; user017@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user017 unknown
+
+Final-Recipient: rfc822; user018@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user018 unknown
+
+Final-Recipient: rfc822; user019@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user019 unknown
+
+Final-Recipient: rfc822; user020@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user020 unknown
+
+Final-Recipient: rfc822; user021@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user021 unknown
+
+Final-Recipient: rfc822; user022@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user022 unknown
+
+Final-Recipient: rfc822; user023@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user023 unknown
+
+Final-Recipient: rfc822; user024@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user024 unknown
+
+Final-Recipient: rfc822; user025@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user025 unknown
+
+Final-Recipient: rfc822; user026@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user026 unknown
+
+Final-Recipient: rfc822; user027@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user027 unknown
+
+Final-Recipient: rfc822; user028@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user028 unknown
+
+Final-Recipient: rfc822; user029@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user029 unknown
+
+Final-Recipient: rfc822; user030@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user030 unknown
+
+Final-Recipient: rfc822; user031@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user031 unknown
+
+Final-Recipient: rfc822; user032@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user032 unknown
+
+Final-Recipient: rfc822; user033@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user033 unknown
+
+Final-Recipient: rfc822; user034@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user034 unknown
+
+Final-Recipient: rfc822; user035@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user035 unknown
+
+Final-Recipient: rfc822; user036@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user036 unknown
+
+Final-Recipient: rfc822; user037@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user037 unknown
+
+Final-Recipient: rfc822; user038@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user038 unknown
+
+Final-Recipient: rfc822; user039@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user039 unknown
+
+Final-Recipient: rfc822; user040@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user040 unknown
+
+Final-Recipient: rfc822; user041@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user041 unknown
+
+Final-Recipient: rfc822; user042@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user042 unknown
+
+Final-Recipient: rfc822; user043@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user043 unknown
+
+Final-Recipient: rfc822; user044@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user044 unknown
+
+Final-Recipient: rfc822; user045@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user045 unknown
+
+Final-Recipient: rfc822; user046@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user046 unknown
+
+Final-Recipient: rfc822; user047@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user047 unknown
+
+Final-Recipient: rfc822; user048@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user048 unknown
+
+Final-Recipient: rfc822; user049@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user049 unknown
+
+Final-Recipient: rfc822; user050@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user050 unknown
+
+Final-Recipient: rfc822; user051@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user051 unknown
+
+Final-Recipient: rfc822; user052@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user052 unknown
+
+Final-Recipient: rfc822; user053@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user053 unknown
+
+Final-Recipient: rfc822; user054@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user054 unknown
+
+Final-Recipient: rfc822; user055@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user055 unknown
+
+Final-Recipient: rfc822; user056@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user056 unknown
+
+Final-Recipient: rfc822; user057@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user057 unknown
+
+Final-Recipient: rfc822; user058@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user058 unknown
+
+Final-Recipient: rfc822; user059@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user059 unknown
+
+Final-Recipient: rfc822; user060@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user060 unknown
+
+Final-Recipient: rfc822; user061@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user061 unknown
+
+Final-Recipient: rfc822; user062@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user062 unknown
+
+Final-Recipient: rfc822; user063@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user063 unknown
+
+Final-Recipient: rfc822; user064@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user064 unknown
+
+Final-Recipient: rfc822; user065@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user065 unknown
+
+Final-Recipient: rfc822; user066@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user066 unknown
+
+Final-Recipient: rfc822; user067@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user067 unknown
+
+Final-Recipient: rfc822; user068@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user068 unknown
+
+Final-Recipient: rfc822; user069@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user069 unknown
+
+Final-Recipient: rfc822; user070@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user070 unknown
+
+Final-Recipient: rfc822; user071@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user071 unknown
+
+Final-Recipient: rfc822; user072@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user072 unknown
+
+Final-Recipient: rfc822; user073@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user073 unknown
+
+Final-Recipient: rfc822; user074@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user074 unknown
+
+Final-Recipient: rfc822; user075@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user075 unknown
+
+Final-Recipient: rfc822; user076@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user076 unknown
+
+Final-Recipient: rfc822; user077@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user077 unknown
+
+Final-Recipient: rfc822; user078@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user078 unknown
+
+Final-Recipient: rfc822; user079@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user079 unknown
+
+Final-Recipient: rfc822; user080@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user080 unknown
+
+Final-Recipient: rfc822; user081@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user081 unknown
+
+Final-Recipient: rfc822; user082@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user082 unknown
+
+Final-Recipient: rfc822; user083@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user083 unknown
+
+Final-Recipient: rfc822; user084@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user084 unknown
+
+Final-Recipient: rfc822; user085@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user085 unknown
+
+Final-Recipient: rfc822; user086@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user086 unknown
+
+Final-Recipient: rfc822; user087@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user087 unknown
+
+Final-Recipient: rfc822; user088@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user088 unknown
+
+Final-Recipient: rfc822; user089@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user089 unknown
+
+Final-Recipient: rfc822; user090@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user090 unknown
+
+Final-Recipient: rfc822; user091@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user091 unknown
+
+Final-Recipient: rfc822; user092@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user092 unknown
+
+Final-Recipient: rfc822; user093@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user093 unknown
+
+Final-Recipient: rfc822; user094@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user094 unknown
+
+Final-Recipient: rfc822; user095@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user095 unknown
+
+Final-Recipient: rfc822; user096@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user096 unknown
+
+Final-Recipient: rfc822; user097@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user097 unknown
+
+Final-Recipient: rfc822; user098@example.org
+Action: failed
+Status: 5.1.1
+Diagnostic-Code: smtp; 550 5.1.1 user098 unknown
+
+Final-Recipient: rfc822; user099@example.org
+Action: failed
+Status: 4.2.2
+Diagnostic-Code: smtp; 550 5.1.1 user099 unknown
+
+--BND-dsn-1
+Content-Type: message/rfc822
+
+Message-ID: <orig-0038@contract.example.com>
+From: Contract Sender <sender@contract.example.com>
+To: ann@example.com
+Subject: Hi Ann
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+Hello Ann.
+
+--BND-dsn-1--

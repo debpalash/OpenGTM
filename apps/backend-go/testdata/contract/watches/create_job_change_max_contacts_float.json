@@ -1,0 +1,60 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "lead_id": 1
+          }
+        ],
+        "max_contacts_per_poll": 2.7
+      },
+      "kind": "job_change",
+      "target": "Roster E"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "company": "",
+            "lead_id": 1,
+            "linkedin_url": "",
+            "name": ""
+          }
+        ],
+        "max_contacts_per_poll": 2
+      },
+      "consecutive_failures": 0,
+      "created_at": "2099-01-01T00:00:00.000001+00:00",
+      "cursor": {
+        "bootstrapped": false
+      },
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000000044",
+      "interval": "weekly",
+      "kind": "job_change",
+      "last_error": null,
+      "last_polled_at": null,
+      "lead_id": null,
+      "next_poll_at": "2099-01-01T00:00:00.000001+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "job_change"
+      ],
+      "target": "Roster E",
+      "webhook_rule_id": null,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

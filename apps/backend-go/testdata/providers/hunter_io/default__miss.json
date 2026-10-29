@@ -1,0 +1,54 @@
+{
+ "provider": "hunter_io",
+ "input_name": "default",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com/about",
+  "contact_person": "Ada Lovelace"
+ },
+ "secrets": {
+  "HUNTER_API_KEY": "ctk_hunter_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/email-finder?domain=acme.com&first_name=Ada&last_name=Lovelace&api_key={{secret:HUNTER_API_KEY}}",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"email\":null}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hunter.io/v2/domain-search?domain=acme.com&api_key={{secret:HUNTER_API_KEY}}&limit=5",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"emails\":[]}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "hunter_io",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No emails found for domain"
+ }
+}

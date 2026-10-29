@@ -1,0 +1,21 @@
+{
+ "area": "webtech",
+ "scenario": "no_website_noop",
+ "description": "no website: no request",
+ "input": {
+  "target": "Acme",
+  "website": "",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "backfill": false,
+  "flag": true
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {}
+ }
+}

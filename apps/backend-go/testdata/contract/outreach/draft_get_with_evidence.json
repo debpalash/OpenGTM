@@ -1,0 +1,48 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/drafts/d-out-1"
+  },
+  "response": {
+    "body": {
+      "body_text": "Hi Sam,\n\nSaw the hiring push at Hot Pursuit Labs.\n\nBest",
+      "company": "Hot Pursuit Labs",
+      "contact_status": "verified",
+      "created_at": "2026-08-29T08:00:00+00:00",
+      "generic_inbox": false,
+      "id": "d-out-1",
+      "is_role_address": false,
+      "person_id": "person-1",
+      "person_name": "Sam Lee",
+      "risky_approved": false,
+      "send_performed": false,
+      "sent_at": null,
+      "sentence_evidence": [
+        {
+          "sentence": "Saw the hiring push at Hot Pursuit Labs.",
+          "source_id": "sig-a-01",
+          "url": "https://signals.example.com/a/1"
+        }
+      ],
+      "source_snapshot": {
+        "company": "Hot Pursuit Labs",
+        "signals": [
+          "hiring"
+        ]
+      },
+      "state": "draft",
+      "subject": "Quick note on analytics",
+      "title": "CTO",
+      "to_email": "ceo@hotpursuit.example.com",
+      "updated_at": "2026-08-29T08:00:00+00:00"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

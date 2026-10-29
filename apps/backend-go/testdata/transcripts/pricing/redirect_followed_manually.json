@@ -1,0 +1,70 @@
+{
+ "area": "pricing",
+ "scenario": "redirect_followed_manually",
+ "description": "guarded_get follows redirects hop by hop (each hop re-validated); the final url is recorded",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.example.com/pricing",
+    "headers": {
+     "host": "acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 301,
+    "headers": {
+     "location": "https://www.acme.example.com/plans"
+    },
+    "body": ""
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.example.com/plans",
+    "headers": {
+     "host": "www.acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html"
+    },
+    "body": "<html><head><style>a{}</style><script>var x=1</script></head><body><h1>Pricing</h1><p>Pro $49/mo</p></body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": true,
+  "present": true,
+  "url": "https://www.acme.example.com/plans",
+  "fingerprint": "9ff61b44de7914d0fdf6cb6f6239dcfd7419a1518f03b5281d941ca281da4188"
+ }
+}

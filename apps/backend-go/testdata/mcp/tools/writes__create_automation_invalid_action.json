@@ -1,0 +1,71 @@
+{
+  "seq": 66,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 66,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "x",
+        "trigger_type": "on_signal",
+        "actions": [
+          {
+            "type": "launch_missiles"
+          }
+        ]
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 66,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"invalid action type 'launch_missiles' at index 0\", \"status_code\": 422}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "x",
+        "trigger_type": "on_signal",
+        "actions": [
+          {
+            "type": "launch_missiles"
+          }
+        ]
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "invalid action type 'launch_missiles' at index 0",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 49,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000071",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

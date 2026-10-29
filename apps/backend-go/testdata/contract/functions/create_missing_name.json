@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "columns_chain": []
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "columns_chain": []
+          },
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-3/accounts"
+  },
+  "response": {
+    "body": {
+      "accounts": [],
+      "pagination": {
+        "limit": 50,
+        "next_offset": null,
+        "offset": 0,
+        "total": 0
+      },
+      "summary": {
+        "account_count": 0,
+        "accounts_with_decision_makers": 0,
+        "accounts_with_signals": 0,
+        "contact_count": 0
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

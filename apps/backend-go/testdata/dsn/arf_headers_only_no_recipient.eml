@@ -1,0 +1,31 @@
+From: fbl@isp.example.net
+To: sender@contract.example.com
+Subject: FW: Hi Ann
+Message-ID: <arf-0017@isp.example.net>
+MIME-Version: 1.0
+Content-Type: multipart/report; report-type=feedback-report; boundary="BND-arf-1"
+
+--BND-arf-1
+Content-Type: text/plain; charset=us-ascii
+
+This is an email abuse report for an email message received from IP 192.0.2.1.
+
+--BND-arf-1
+Content-Type: message/feedback-report
+
+Feedback-Type: abuse
+User-Agent: ContractFBL/1.0
+Version: 1
+Arrival-Date: Sat, 29 Aug 2026 10:40:00 +0000
+
+--BND-arf-1
+Content-Type: text/rfc822-headers
+
+Message-ID: <orig-0017@contract.example.com>
+From: Contract Sender <sender@contract.example.com>
+To: ann@example.com
+Subject: Hi Ann
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+
+--BND-arf-1--

@@ -1,0 +1,105 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": [
+      {
+        "cell_budget_usd": 0.1,
+        "created_at": "2026-08-21T08:00:00",
+        "description": "hourly over the gov audience",
+        "enabled": true,
+        "id": "pb-gov-sched",
+        "max_steps": 2,
+        "name": "Scheduled research",
+        "next_run_at": "2026-10-26T17:33:43.805682",
+        "output_format": "text",
+        "prompt_template": "Find the latest funding news for {company}.",
+        "schedule_audience_id": "aud-gov-1",
+        "schedule_interval_minutes": 15,
+        "steps": [],
+        "updated_at": "2026-10-26T17:18:43.798001",
+        "version": 1
+      },
+      {
+        "cell_budget_usd": 0.4,
+        "created_at": "2026-08-20T08:00:00",
+        "description": "changed",
+        "enabled": true,
+        "id": "pb-gov-multi",
+        "max_steps": 4,
+        "name": "Multi step research v2",
+        "next_run_at": null,
+        "output_format": "text",
+        "prompt_template": "Research {company} and write three bullets.",
+        "schedule_audience_id": null,
+        "schedule_interval_minutes": null,
+        "steps": [
+          {
+            "key": "only",
+            "name": "Only",
+            "prompt_template": "Only step for {company}."
+          }
+        ],
+        "updated_at": "2026-10-26T17:18:43.481658",
+        "version": 6
+      },
+      {
+        "cell_budget_usd": 5.0,
+        "created_at": "2026-10-26T17:18:43.076010",
+        "description": "full body",
+        "enabled": true,
+        "id": "00000000-0000-4000-8000-000000003087",
+        "max_steps": 8,
+        "name": "Created full",
+        "next_run_at": null,
+        "output_format": "json",
+        "prompt_template": "Research {company} thoroughly.",
+        "schedule_audience_id": null,
+        "schedule_interval_minutes": null,
+        "steps": [
+          {
+            "key": "a_step",
+            "name": "A",
+            "output_format": "text",
+            "prompt_template": "First step about {company}."
+          },
+          {
+            "key": "b_step",
+            "name": "B",
+            "output_format": "json",
+            "prompt_template": "Second step using {a_step}."
+          }
+        ],
+        "updated_at": "2026-10-26T17:18:43.076010",
+        "version": 1
+      },
+      {
+        "cell_budget_usd": 0.1,
+        "created_at": "2026-10-26T17:18:43.055083",
+        "description": "",
+        "enabled": true,
+        "id": "00000000-0000-4000-8000-000000003085",
+        "max_steps": 4,
+        "name": "Created minimal",
+        "next_run_at": null,
+        "output_format": "text",
+        "prompt_template": "Describe {company} in one line.",
+        "schedule_audience_id": null,
+        "schedule_interval_minutes": null,
+        "steps": [],
+        "updated_at": "2026-10-26T17:18:43.055083",
+        "version": 1
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

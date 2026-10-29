@@ -1,0 +1,156 @@
+[
+  {
+    "arguments": {},
+    "fields": {}
+  },
+  {
+    "arguments": {
+      "company": "A"
+    },
+    "fields": {
+      "company": "A"
+    }
+  },
+  {
+    "arguments": {
+      "company": "A",
+      "idempotency_key": "k",
+      "workspace_id": "ws-beta",
+      "lead_id": 4
+    },
+    "fields": {
+      "company": "A"
+    }
+  },
+  {
+    "arguments": {
+      "company": "A",
+      "email": null,
+      "phone": "",
+      "city": 0,
+      "notes": false
+    },
+    "fields": {
+      "company": "A",
+      "phone": "",
+      "city": 0,
+      "notes": false
+    }
+  },
+  {
+    "arguments": {
+      "id": 9,
+      "created_at": "x",
+      "score": 99,
+      "score_tier": "hot",
+      "field_provenance": "{}",
+      "workspace_id": "w"
+    },
+    "fields": {}
+  },
+  {
+    "arguments": {
+      "company": "v-company",
+      "website": "v-website",
+      "email": "v-email",
+      "phone": "v-phone",
+      "contact_person": "v-contact_person",
+      "contact_title": "v-contact_title",
+      "city": "v-city",
+      "state": "v-state",
+      "address": "v-address",
+      "specialization": "v-specialization",
+      "company_size": "v-company_size",
+      "description": "v-description",
+      "industry_tags": "v-industry_tags",
+      "linkedin_url": "v-linkedin_url",
+      "twitter_url": "v-twitter_url",
+      "facebook_url": "v-facebook_url",
+      "notes": "v-notes",
+      "status": "v-status",
+      "source": "v-source"
+    },
+    "fields": {
+      "company": "v-company",
+      "website": "v-website",
+      "email": "v-email",
+      "phone": "v-phone",
+      "contact_person": "v-contact_person",
+      "contact_title": "v-contact_title",
+      "city": "v-city",
+      "state": "v-state",
+      "address": "v-address",
+      "specialization": "v-specialization",
+      "company_size": "v-company_size",
+      "description": "v-description",
+      "industry_tags": "v-industry_tags",
+      "linkedin_url": "v-linkedin_url",
+      "twitter_url": "v-twitter_url",
+      "facebook_url": "v-facebook_url",
+      "notes": "v-notes",
+      "status": "v-status",
+      "source": "v-source"
+    }
+  },
+  {
+    "arguments": {
+      "zzz": 1,
+      "company": "A",
+      "status": "new",
+      "aaa": 2
+    },
+    "fields": {
+      "company": "A",
+      "status": "new"
+    }
+  },
+  {
+    "arguments": {
+      "industry_tags": [
+        "a",
+        "b"
+      ],
+      "notes": {
+        "x": 1
+      }
+    },
+    "fields": {
+      "industry_tags": [
+        "a",
+        "b"
+      ],
+      "notes": {
+        "x": 1
+      }
+    }
+  },
+  {
+    "arguments": {
+      "Company": "case-sensitive",
+      "EMAIL": "x"
+    },
+    "fields": {}
+  },
+  {
+    "arguments": {
+      "company": "東京",
+      "description": "ünï"
+    },
+    "fields": {
+      "company": "東京",
+      "description": "ünï"
+    }
+  },
+  {
+    "arguments": {
+      "contact_title": "CTO",
+      "contact_person": "Ada",
+      "company": "Z"
+    },
+    "fields": {
+      "contact_title": "CTO",
+      "contact_person": "Ada",
+      "company": "Z"
+    }
+  }
+]

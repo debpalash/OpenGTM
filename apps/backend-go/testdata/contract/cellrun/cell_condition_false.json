@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/rows/103/cells/calc_dom/run"
+  },
+  "response": {
+    "body": {
+      "error": "condition_not_met",
+      "forced": false,
+      "provider": null,
+      "research": null,
+      "skipped": false,
+      "status": "error",
+      "value": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

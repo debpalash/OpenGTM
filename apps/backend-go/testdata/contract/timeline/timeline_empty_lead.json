@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/2/timeline"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "",
+          "id": "lead:updated",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787997600.0,
+          "status": "updated",
+          "title": "Lead updated"
+        },
+        {
+          "description": "",
+          "id": "lead:created",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787997600.0,
+          "status": "created",
+          "title": "Lead created"
+        }
+      ],
+      "next_before": null,
+      "next_before_id": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

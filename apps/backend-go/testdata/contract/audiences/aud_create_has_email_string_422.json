@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "has_email": "yes"
+      },
+      "name": "Bad"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "has_email": "yes"
+          },
+          "loc": [
+            "body",
+            "filters"
+          ],
+          "msg": "Value error, has_email must be a boolean",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,20 @@
+{
+ "vendor": "hubspot",
+ "scenario": "update_no_properties",
+ "call": {
+  "function": "update_contact_by_id",
+  "args": {
+   "contact_id": "501",
+   "properties": {}
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "no mapped fields to update"
+ }
+}

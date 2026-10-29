@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/runs/run-act-w5/deliveries?limit=0"
+  },
+  "response": {
+    "body": {
+      "detail": "limit must be between 1 and 500"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "interval": "daily"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-enrich-1/refresh-policy"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

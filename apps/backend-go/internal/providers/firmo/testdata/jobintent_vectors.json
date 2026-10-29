@@ -1,0 +1,2706 @@
+{
+ "analyze": [
+  {
+   "text": "",
+   "open_roles": null,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": []
+   }
+  },
+  {
+   "text": "",
+   "open_roles": 0,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "",
+   "open_roles": 3,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "",
+   "open_roles": 12,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "  ",
+   "open_roles": null,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": []
+   }
+  },
+  {
+   "text": "  ",
+   "open_roles": 0,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "  ",
+   "open_roles": 3,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "  ",
+   "open_roles": 12,
+   "value": {
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "We use Salesforce and HubSpot",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "HubSpot",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "HubSpot",
+      "category": "CRM",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "We use Salesforce and HubSpot",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "HubSpot",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "HubSpot",
+      "category": "CRM",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "We use Salesforce and HubSpot",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "HubSpot",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "HubSpot",
+      "category": "CRM",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "We use Salesforce and HubSpot",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "HubSpot",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "HubSpot",
+      "category": "CRM",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "Migrating to Snowflake from Redshift",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redshift",
+     "Snowflake"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redshift",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Snowflake",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "Migrating to Snowflake from Redshift",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redshift",
+     "Snowflake"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redshift",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Snowflake",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "Migrating to Snowflake from Redshift",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redshift",
+     "Snowflake"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redshift",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Snowflake",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "Migrating to Snowflake from Redshift",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redshift",
+     "Snowflake"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redshift",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Snowflake",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "go golang Go! google",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Go"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "go golang Go! google",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Go"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "go golang Go! google",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Go"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "go golang Go! google",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Go"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "C# and .NET and dotnet",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "C#"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "C#",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "C# and .NET and dotnet",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "C#"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "C#",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "C# and .NET and dotnet",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "C#"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "C#",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "C# and .NET and dotnet",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "C#"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "C#",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "Python Python Python",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Python"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "Python Python Python",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Python"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "Python Python Python",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Python"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "Python Python Python",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Python"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "react vue angular node",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Angular",
+     "Node.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Angular",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Node.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "react vue angular node",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Angular",
+     "Node.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Angular",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Node.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "react vue angular node",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Angular",
+     "Node.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Angular",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Node.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "react vue angular node",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Angular",
+     "Node.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Angular",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Node.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "Hiring a Clay.com power user; apollo.io",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Apollo.io",
+     "Clay"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Apollo.io",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Clay",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "Hiring a Clay.com power user; apollo.io",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Apollo.io",
+     "Clay"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Apollo.io",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Clay",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "Hiring a Clay.com power user; apollo.io",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Apollo.io",
+     "Clay"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Apollo.io",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Clay",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "Hiring a Clay.com power user; apollo.io",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Apollo.io",
+     "Clay"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Apollo.io",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Clay",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "Roll out of Marketo; first Kafka",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Kafka",
+     "Marketo"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Kafka",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Marketo",
+      "category": "MarTech",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "Roll out of Marketo; first Kafka",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Kafka",
+     "Marketo"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Kafka",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Marketo",
+      "category": "MarTech",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "Roll out of Marketo; first Kafka",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Kafka",
+     "Marketo"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Kafka",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Marketo",
+      "category": "MarTech",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "Roll out of Marketo; first Kafka",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Kafka",
+     "Marketo"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Kafka",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     },
+     {
+      "tech": "Marketo",
+      "category": "MarTech",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "evaluate Databricks xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx databricks",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Databricks"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Databricks",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "evaluate Databricks xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx databricks",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Databricks"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Databricks",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "evaluate Databricks xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx databricks",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Databricks"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Databricks",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "evaluate Databricks xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx databricks",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Databricks"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Databricks",
+      "category": "Data & Warehouse",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "École Salesforce 中文 python",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Python",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "École Salesforce 中文 python",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Python",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "École Salesforce 中文 python",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Python",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "École Salesforce 中文 python",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Python",
+     "Salesforce"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Salesforce",
+      "category": "CRM",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "Gong gong.io",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Gong"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Gong",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "Gong gong.io",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Gong"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Gong",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "Gong gong.io",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Gong"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Gong",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "Gong gong.io",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Gong"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Gong",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "outreach Outreach.io",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Outreach"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Outreach",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "outreach Outreach.io",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Outreach"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Outreach",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "outreach Outreach.io",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Outreach"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Outreach",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "outreach Outreach.io",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Outreach"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Outreach",
+      "category": "Competitor Tools",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "ruby on rails; rails; ruby",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Rails",
+     "Ruby"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Rails",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Ruby",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "ruby on rails; rails; ruby",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Rails",
+     "Ruby"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Rails",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Ruby",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "ruby on rails; rails; ruby",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Rails",
+     "Ruby"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Rails",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Ruby",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "ruby on rails; rails; ruby",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Rails",
+     "Ruby"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Rails",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Ruby",
+      "category": "Languages",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "AWS, Azure, GCP, K8s",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "AWS",
+     "Azure",
+     "GCP",
+     "Kubernetes"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Azure",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "GCP",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Kubernetes",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "AWS, Azure, GCP, K8s",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "AWS",
+     "Azure",
+     "GCP",
+     "Kubernetes"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Azure",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "GCP",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Kubernetes",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "AWS, Azure, GCP, K8s",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "AWS",
+     "Azure",
+     "GCP",
+     "Kubernetes"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Azure",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "GCP",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Kubernetes",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "AWS, Azure, GCP, K8s",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "AWS",
+     "Azure",
+     "GCP",
+     "Kubernetes"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Azure",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "GCP",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Kubernetes",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "power bi powerbi PowerBI",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Power BI"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Power BI",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "power bi powerbi PowerBI",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Power BI"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Power BI",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "power bi powerbi PowerBI",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Power BI"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Power BI",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "power bi powerbi PowerBI",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Power BI"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Power BI",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "spark pyspark apache spark",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Spark"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Spark",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "spark pyspark apache spark",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Spark"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Spark",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "spark pyspark apache spark",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Spark"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Spark",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "spark pyspark apache spark",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Spark"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Spark",
+      "category": "Data & Warehouse",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "sql\nPOSTGRES\nmongo",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "MongoDB",
+     "PostgreSQL"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "MongoDB",
+      "category": "Databases",
+      "intent": "using"
+     },
+     {
+      "tech": "PostgreSQL",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "sql\nPOSTGRES\nmongo",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "MongoDB",
+     "PostgreSQL"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "MongoDB",
+      "category": "Databases",
+      "intent": "using"
+     },
+     {
+      "tech": "PostgreSQL",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "sql\nPOSTGRES\nmongo",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "MongoDB",
+     "PostgreSQL"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "MongoDB",
+      "category": "Databases",
+      "intent": "using"
+     },
+     {
+      "tech": "PostgreSQL",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "sql\nPOSTGRES\nmongo",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "MongoDB",
+     "PostgreSQL"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "MongoDB",
+      "category": "Databases",
+      "intent": "using"
+     },
+     {
+      "tech": "PostgreSQL",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "next.js nextjs react.js reactjs vue.js",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Next.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Next.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     }
+    ]
+   }
+  },
+  {
+   "text": "next.js nextjs react.js reactjs vue.js",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Next.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Next.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "next.js nextjs react.js reactjs vue.js",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Next.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Next.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "next.js nextjs react.js reactjs vue.js",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Next.js",
+     "React",
+     "Vue.js"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Next.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "React",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     },
+     {
+      "tech": "Vue.js",
+      "category": "Web Frameworks",
+      "intent": "expanding"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "setting up redis",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "setting up redis",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "setting up redis",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "setting up redis",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx migrating redis",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx migrating redis",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx migrating redis",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx migrating redis",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ]
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "redis yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy migrate",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  },
+  {
+   "text": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmigrat redis",
+   "open_roles": null,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ]
+   }
+  },
+  {
+   "text": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmigrat redis",
+   "open_roles": 0,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "text": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmigrat redis",
+   "open_roles": 3,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "text": "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzmigrat redis",
+   "open_roles": 12,
+   "value": {
+    "technologies": [
+     "Redis"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Redis",
+      "category": "Databases",
+      "intent": "adopting"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 12,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "hypergrowth"
+    }
+   }
+  }
+ ],
+ "signals": [
+  {
+   "titles": [],
+   "value": {
+    "open_roles": 0,
+    "departments": {},
+    "tech_hiring": [],
+    "is_hiring": false,
+    "eng_hiring": false,
+    "sample_titles": [],
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 0,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "none"
+    }
+   }
+  },
+  {
+   "titles": [
+    "Senior Backend Engineer",
+    "Account Executive",
+    "Go Developer"
+   ],
+   "value": {
+    "open_roles": 3,
+    "departments": {
+     "engineering": 2,
+     "sales": 1
+    },
+    "tech_hiring": [
+     "go"
+    ],
+    "is_hiring": true,
+    "eng_hiring": true,
+    "sample_titles": [
+     "Senior Backend Engineer",
+     "Account Executive",
+     "Go Developer"
+    ],
+    "technologies": [
+     "Go"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "titles": [
+    "Data Scientist (ML Engineer)",
+    "SDR",
+    "Growth Marketer"
+   ],
+   "value": {
+    "open_roles": 3,
+    "departments": {
+     "engineering": 1,
+     "sales": 1,
+     "marketing": 1
+    },
+    "tech_hiring": [],
+    "is_hiring": true,
+    "eng_hiring": true,
+    "sample_titles": [
+     "Data Scientist (ML Engineer)",
+     "SDR",
+     "Growth Marketer"
+    ],
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 3,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  },
+  {
+   "titles": [
+    "Über Engineer",
+    "UX Designer",
+    "HR Manager",
+    "Product Manager",
+    "Controller",
+    "ops lead",
+    "FP&A Analyst"
+   ],
+   "value": {
+    "open_roles": 7,
+    "departments": {
+     "engineering": 1,
+     "product": 2,
+     "people": 1,
+     "finance": 2,
+     "operations": 1
+    },
+    "tech_hiring": [],
+    "is_hiring": true,
+    "eng_hiring": true,
+    "sample_titles": [
+     "Über Engineer",
+     "UX Designer",
+     "HR Manager",
+     "Product Manager",
+     "Controller",
+     "ops lead",
+     "FP&A Analyst"
+    ],
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 7,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "high"
+    }
+   }
+  },
+  {
+   "titles": [
+    "Rust Developer",
+    "Kubernetes SRE",
+    "Python/Django dev",
+    "AWS Architect",
+    "go "
+   ],
+   "value": {
+    "open_roles": 5,
+    "departments": {
+     "engineering": 2
+    },
+    "tech_hiring": [
+     "aws",
+     "django",
+     "go",
+     "kubernetes",
+     "python",
+     "rust"
+    ],
+    "is_hiring": true,
+    "eng_hiring": true,
+    "sample_titles": [
+     "Rust Developer",
+     "Kubernetes SRE",
+     "Python/Django dev",
+     "AWS Architect",
+     "go "
+    ],
+    "technologies": [
+     "AWS",
+     "Django",
+     "Go",
+     "Kubernetes",
+     "Python",
+     "Rust"
+    ],
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Django",
+      "category": "Web Frameworks",
+      "intent": "using"
+     },
+     {
+      "tech": "Go",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Kubernetes",
+      "category": "Cloud & Infra",
+      "intent": "using"
+     },
+     {
+      "tech": "Python",
+      "category": "Languages",
+      "intent": "using"
+     },
+     {
+      "tech": "Rust",
+      "category": "Languages",
+      "intent": "using"
+     }
+    ],
+    "hiring_velocity": {
+     "open_roles": 5,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "high"
+    }
+   }
+  },
+  {
+   "titles": [
+    "PM ",
+    "ae "
+   ],
+   "value": {
+    "open_roles": 2,
+    "departments": {
+     "product": 1,
+     "sales": 1
+    },
+    "tech_hiring": [],
+    "is_hiring": true,
+    "eng_hiring": false,
+    "sample_titles": [
+     "PM ",
+     "ae "
+    ],
+    "technologies": [],
+    "tech_adoption_signal": [],
+    "hiring_velocity": {
+     "open_roles": 2,
+     "recent_roles": 0,
+     "recency_days": null,
+     "level": "moderate"
+    }
+   }
+  }
+ ],
+ "slugs": [
+  {
+   "lead": {
+    "website": "https://www.Acme.com/careers?x=1",
+    "company": "Acme Corp"
+   },
+   "value": [
+    "acme",
+    "acmecorp",
+    "acme-corp"
+   ]
+  },
+  {
+   "lead": {
+    "website": "",
+    "company": "Foo & Bar, Inc."
+   },
+   "value": [
+    "foobarinc",
+    "foo-bar-inc"
+   ]
+  },
+  {
+   "lead": {
+    "website": "acme.io",
+    "company": "Acme"
+   },
+   "value": [
+    "acme"
+   ]
+  },
+  {
+   "lead": {
+    "website": "http://a.b.c/d",
+    "company": "--x--"
+   },
+   "value": [
+    "a",
+    "x"
+   ]
+  },
+  {
+   "lead": {
+    "website": "WWW.X.com"
+   },
+   "value": [
+    "x"
+   ]
+  },
+  {
+   "lead": {
+    "company": "A B"
+   },
+   "value": [
+    "ab",
+    "a-b"
+   ]
+  },
+  {
+   "lead": {},
+   "value": []
+  },
+  {
+   "lead": {
+    "website": "https://www.",
+    "company": "z"
+   },
+   "value": [
+    "z"
+   ]
+  },
+  {
+   "lead": {
+    "website": "?q=1.com",
+    "company": "q"
+   },
+   "value": [
+    "q"
+   ]
+  },
+  {
+   "lead": {
+    "website": "École.fr",
+    "company": "École 中"
+   },
+   "value": [
+    "école",
+    "cole"
+   ]
+  },
+  {
+   "lead": {
+    "company": "foo-bar"
+   },
+   "value": [
+    "foobar",
+    "foo-bar"
+   ]
+  },
+  {
+   "lead": {
+    "company": "foobar"
+   },
+   "value": [
+    "foobar"
+   ]
+  },
+  {
+   "lead": {
+    "company": "a--b"
+   },
+   "value": [
+    "ab",
+    "a-b"
+   ]
+  }
+ ]
+}

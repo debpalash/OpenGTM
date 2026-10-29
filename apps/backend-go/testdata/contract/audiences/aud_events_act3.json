@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-3/events?limit=1"
+  },
+  "response": {
+    "body": [
+      {
+        "audience_id": "aud-act-3",
+        "created_at": "2026-08-27T09:10:00",
+        "event_type": "exited",
+        "id": 21,
+        "lead_id": 6,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Pvt Ltd",
+          "contact_person": "Rhea Kapoor",
+          "contact_title": "CEO",
+          "email": "hello@zenithrobotics.example.com",
+          "id": 6,
+          "phone": "+91 22 5550 1001",
+          "score": 65,
+          "score_tier": "warm",
+          "status": "qualified",
+          "website": "https://zenithrobotics.example.com"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "refresh_token": "not-a-jwt"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/auth/refresh"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid refresh token"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

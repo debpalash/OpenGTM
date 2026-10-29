@@ -1,0 +1,47 @@
+{
+  "seq": 2,
+  "profile": "automations_off",
+  "token": "all",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "x",
+        "trigger_type": "on_signal"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"automations disabled\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-all",
+      "user_id": 2,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "x",
+        "trigger_type": "on_signal"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "automations disabled",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

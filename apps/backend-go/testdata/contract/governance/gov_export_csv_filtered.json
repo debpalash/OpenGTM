@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events/export.csv?method=POST&outcome=success&since=2030-01-02&before=2030-01-02T12:00:00&actor_user_id=1"
+  },
+  "response": {
+    "body": "\ufeffid,created_at,actor_user_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json\r\n11111111-0000-4000-8000-000000000053,2030-01-02T06:30:00.123456,1,owner,POST,/api/audiences,/api/audiences,201,success,req-gov-a-053,\"{\"\"action\"\":\"\"audience.create\"\"}\"\r\n11111111-0000-4000-8000-000000000025,2030-01-02T00:00:00,1,owner,POST,/api/audiences,/api/audiences,201,success,req-gov-a-025,\"{\"\"action\"\":\"\"audience.create\"\"}\"\r\n",
+    "headers": {
+      "content-disposition": "attachment; filename=opengtm-audit-events.csv",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

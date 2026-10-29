@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/data/1"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authorized"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

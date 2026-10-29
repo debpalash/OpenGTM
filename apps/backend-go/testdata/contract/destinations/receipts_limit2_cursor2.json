@@ -1,0 +1,56 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-hubspot/inbound-receipts?limit=2&cursor=WyIyMDI2LTA4LTI4VDA5OjAwOjAwIiwicmNwLWh1Yi0zIl0"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 2,
+      "next_cursor": null,
+      "offset": null,
+      "receipts": [
+        {
+          "applied_fields": [],
+          "conflict_policy": "fill_missing",
+          "created_at": "2026-08-27T13:00:00",
+          "destination_id": "dst-act-hubspot",
+          "error": null,
+          "external_event_id": "evt-0002",
+          "external_record_id": "hs-6",
+          "id": "rcp-hub-2",
+          "ignored_fields": [
+            "company"
+          ],
+          "lead_id": 6,
+          "provider": "hubspot",
+          "status": "no_change"
+        },
+        {
+          "applied_fields": [
+            "contact_title"
+          ],
+          "conflict_policy": "fill_missing",
+          "created_at": "2026-08-27T12:00:00",
+          "destination_id": "dst-act-hubspot",
+          "error": null,
+          "external_event_id": "evt-0001",
+          "external_record_id": "hs-14",
+          "id": "rcp-hub-1",
+          "ignored_fields": [],
+          "lead_id": 14,
+          "provider": "hubspot",
+          "status": "applied"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

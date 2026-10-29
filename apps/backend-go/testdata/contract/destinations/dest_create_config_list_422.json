@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": [],
+      "destination_type": "salesforce",
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [],
+          "loc": [
+            "body",
+            "config"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

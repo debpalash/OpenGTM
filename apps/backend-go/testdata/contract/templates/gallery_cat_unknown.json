@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/gallery?category=nope"
+  },
+  "response": {
+    "body": {
+      "detail": "Unknown category 'nope'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

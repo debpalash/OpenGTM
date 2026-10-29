@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?threshold=0.49"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 0.5
+          },
+          "input": "0.49",
+          "loc": [
+            "query",
+            "threshold"
+          ],
+          "msg": "Input should be greater than or equal to 0.5",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

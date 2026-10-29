@@ -1,0 +1,3768 @@
+{
+ "update_fields": [
+  {
+   "crm_type": "hubspot",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "firstname": "Ada",
+    "lastname": "Lovelace",
+    "jobtitle": "CTO",
+    "hs_linkedinid": "https://l/in/a",
+    "hs_lead_status": "80"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "Acme",
+    "Email": "a@x.com",
+    "firstname": "Ada",
+    "lastname": "Lovelace",
+    "Rating": "80"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "firstname": "Ada",
+    "lastname": "Lovelace",
+    "jobtitle": "CTO",
+    "hs_linkedinid": "https://l/in/a",
+    "hs_lead_status": "80"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "firstname": "Ada",
+    "lastname": "Lovelace",
+    "jobtitle": "CTO",
+    "hs_linkedinid": "https://l/in/a",
+    "hs_lead_status": "80"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "email": "c@x.com",
+    "firstname": "Cher"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "c@x.com",
+    "Name": "Cher"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "c@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "email": "c@x.com",
+    "firstname": "Cher"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "email": "c@x.com",
+    "firstname": "Cher"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "email": "a@x.com",
+    "firstname": "Ada",
+    "lastname": "B. Lovelace Jr"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "a@x.com",
+    "firstname": "Ada",
+    "lastname": "B. Lovelace Jr"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "email": "a@x.com",
+    "firstname": "Ada",
+    "lastname": "B. Lovelace Jr"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "email": "a@x.com",
+    "firstname": "Ada",
+    "lastname": "B. Lovelace Jr"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "email": "a@x.com",
+    "firstname": "",
+    "lastname": "Ada Lovelace "
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "a@x.com",
+    "firstname": "",
+    "lastname": "Ada Lovelace "
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "email": "a@x.com",
+    "firstname": "",
+    "lastname": "Ada Lovelace "
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "email": "a@x.com",
+    "firstname": "",
+    "lastname": "Ada Lovelace "
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "company": "False",
+    "email": "z@x.com",
+    "phone": "0",
+    "hs_lead_status": "0"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "False",
+    "Email": "z@x.com",
+    "Rating": "0"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "z@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "company": "False",
+    "email": "z@x.com",
+    "phone": "0",
+    "hs_lead_status": "0"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "company": "False",
+    "email": "z@x.com",
+    "phone": "0",
+    "hs_lead_status": "0"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "email": "n@x.com",
+    "hs_lead_status": "55"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "n@x.com",
+    "Rating": "55"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "n@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "email": "n@x.com",
+    "hs_lead_status": "55"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "email": "n@x.com",
+    "hs_lead_status": "55"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "company": "Éco Ünïcode",
+    "email": "j@x.com",
+    "firstname": "José",
+    "lastname": "Álvarez"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "Éco Ünïcode",
+    "Email": "j@x.com",
+    "firstname": "José",
+    "lastname": "Álvarez"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "j@x.com"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "company": "Éco Ünïcode",
+    "email": "j@x.com",
+    "firstname": "José",
+    "lastname": "Álvarez"
+   }
+  },
+  {
+   "crm_type": "hubspot",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "company": "Éco Ünïcode",
+    "email": "j@x.com",
+    "firstname": "José",
+    "lastname": "Álvarez"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "a@x.com",
+    "Phone": "+1",
+    "Title": "CTO"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "Acme",
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "Lovelace",
+    "Rating": "80"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "a@x.com",
+    "Phone": "+1",
+    "Title": "CTO"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "full",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "phone": "+1",
+    "website": "https://a.x",
+    "city": "Pune",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://l/in/a",
+    "score": 80
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "a@x.com",
+    "Phone": "+1",
+    "Title": "CTO"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "c@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "c@x.com",
+    "Name": "Cher"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "c@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "c@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "single_name",
+   "lead_data": {
+    "contact_person": "Cher",
+    "email": "c@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "c@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "a@x.com",
+    "FirstName": "Ada",
+    "LastName": "B. Lovelace Jr"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "multi_space_name",
+   "lead_data": {
+    "contact_person": "Ada B. Lovelace Jr",
+    "email": "a@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "a@x.com",
+    "FirstName": "",
+    "LastName": "Ada Lovelace "
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "padded_name",
+   "lead_data": {
+    "contact_person": " Ada Lovelace ",
+    "email": "a@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "a@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "empty_values",
+   "lead_data": {
+    "company": "",
+    "email": null,
+    "phone": "",
+    "contact_person": ""
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "z@x.com",
+    "Phone": "0"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "False",
+    "Email": "z@x.com",
+    "Rating": "0"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "z@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "z@x.com",
+    "Phone": "0"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "zero_and_false",
+   "lead_data": {
+    "score": 0,
+    "phone": 0,
+    "company": false,
+    "email": "z@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "z@x.com",
+    "Phone": "0"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "n@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Email": "n@x.com",
+    "Rating": "55"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "n@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "n@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "numeric_score",
+   "lead_data": {
+    "score": 55,
+    "email": "n@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "n@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "none_lead",
+   "lead_data": {},
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {}
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "default_map",
+   "cfg": {},
+   "value": {
+    "Email": "j@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "custom_map",
+   "cfg": {
+    "field_map": {
+     "company": "Company",
+     "email": "Email",
+     "contact_person": "Name",
+     "score": "Rating"
+    }
+   },
+   "value": {
+    "Company": "Éco Ünïcode",
+    "Email": "j@x.com",
+    "FirstName": "José",
+    "LastName": "Álvarez"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "custom_map_unknown_lead_field",
+   "cfg": {
+    "field_map": {
+     "nope": "X",
+     "email": "Email"
+    }
+   },
+   "value": {
+    "Email": "j@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "empty_field_map_is_default",
+   "cfg": {
+    "field_map": {}
+   },
+   "value": {
+    "Email": "j@x.com"
+   }
+  },
+  {
+   "crm_type": "salesforce",
+   "lead": "unicode",
+   "lead_data": {
+    "company": "Éco Ünïcode",
+    "contact_person": "José Álvarez",
+    "email": "j@x.com"
+   },
+   "cfg_name": "null_field_map_is_default",
+   "cfg": {
+    "field_map": null
+   },
+   "value": {
+    "Email": "j@x.com"
+   }
+  }
+ ],
+ "push_flow": [
+  {
+   "name": "unsupported_crm",
+   "cfg": {
+    "type": "pipedrive"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "unsupported crm 'pipedrive'"
+   }
+  },
+  {
+   "name": "not_connected_hubspot",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": false,
+   "update_result": null,
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HubSpot not connected"
+   }
+  },
+  {
+   "name": "not_connected_salesforce",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": false,
+   "update_result": null,
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "Salesforce not connected"
+   }
+  },
+  {
+   "name": "default_type_is_hubspot_create",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "type_case_insensitive",
+   "cfg": {
+    "type": "HubSpot"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "type_null_is_hubspot",
+   "cfg": {
+    "type": null
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "create_returns_updated_action",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "updated",
+    "hubspot_id": "501"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: updated 501",
+    "error": null
+   }
+  },
+  {
+   "name": "create_success_without_action_or_id",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: synced",
+    "error": null
+   }
+  },
+  {
+   "name": "create_success_empty_id",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": ""
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created",
+    "error": null
+   }
+  },
+  {
+   "name": "create_failure_with_error",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": false,
+    "error": "HTTP 409: conflict"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HTTP 409: conflict"
+   }
+  },
+  {
+   "name": "create_failure_without_error",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": false
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HubSpot push failed"
+   }
+  },
+  {
+   "name": "create_failure_without_error_salesforce",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": false
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "Salesforce push failed"
+   }
+  },
+  {
+   "name": "salesforce_create",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "salesforce_id": "00Q1"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: created 00Q1",
+    "error": null
+   }
+  },
+  {
+   "name": "field_map_passed_through",
+   "cfg": {
+    "field_map": {
+     "company": "company"
+    }
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": {
+       "company": "company"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_update_by_external_id",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true,
+    "action": "updated",
+    "hubspot_id": "501"
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: updated 501",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_update_external_id_numeric",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": 501,
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: updated 501",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_update_external_id_padded",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "  501  ",
+    "crm_type": " HubSpot "
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: updated 501",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_update_with_custom_field_map",
+   "cfg": {
+    "field_map": {
+     "company": "company",
+     "contact_person": "firstname"
+    }
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "firstname": "Ada",
+       "lastname": "Lovelace"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: updated 501",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_update_error_surfaces",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "error": "HTTP 500: boom"
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HTTP 500: boom"
+   }
+  },
+  {
+   "name": "hubspot_update_error_without_message",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HubSpot update failed"
+   }
+  },
+  {
+   "name": "hubspot_update_no_fields_error",
+   "cfg": {},
+   "lead_data": {
+    "crm_external_id": "501",
+    "crm_type": "hubspot",
+    "company": "NoMappedFields"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "error": "no mapped fields to update"
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "NoMappedFields"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "no mapped fields to update"
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_and_store_id",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true,
+    "error": "contact 501 not found in HubSpot"
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "_store_row_crm_id",
+     "args": {
+      "workbook_id": "wb-1",
+      "lead_id": 7,
+      "crm_type": "hubspot",
+      "old_ext_id": "501",
+      "new_id": "901",
+      "new_object": "contact"
+     }
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_store_fails_still_success",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": false,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "_store_row_crm_id",
+     "args": {
+      "workbook_id": "wb-1",
+      "lead_id": 7,
+      "crm_type": "hubspot",
+      "old_ext_id": "501",
+      "new_id": "901",
+      "new_object": "contact"
+     }
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_without_workbook_id_skips_store",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": null,
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_lead_id_none_skips_store",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": null,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_lead_id_zero_stores",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 0,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "_store_row_crm_id",
+     "args": {
+      "workbook_id": "wb-1",
+      "lead_id": 0,
+      "crm_type": "hubspot",
+      "old_ext_id": "501",
+      "new_id": "901",
+      "new_object": "contact"
+     }
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_without_new_id_skips_store",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created",
+    "error": null
+   }
+  },
+  {
+   "name": "hubspot_404_recreate_fails",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": false,
+    "error": "HTTP 409: dup"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_contact_by_id",
+     "args": {
+      "contact_id": "501",
+      "properties": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "firstname": "Ada",
+       "lastname": "Lovelace",
+       "jobtitle": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HTTP 409: dup"
+   }
+  },
+  {
+   "name": "salesforce_update_contact_default_object",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Contact",
+      "record_id": "003A",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: updated 003A",
+    "error": null
+   }
+  },
+  {
+   "name": "salesforce_update_lead_object",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "00Q1",
+    "crm_type": "salesforce",
+    "crm_object": "lead"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Lead",
+      "record_id": "00Q1",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: updated 00Q1",
+    "error": null
+   }
+  },
+  {
+   "name": "salesforce_update_unknown_object_is_contact",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce",
+    "crm_object": "account"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Contact",
+      "record_id": "003A",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: updated 003A",
+    "error": null
+   }
+  },
+  {
+   "name": "salesforce_update_object_case_insensitive",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "00Q1",
+    "crm_type": "salesforce",
+    "crm_object": "LEAD"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": true
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Lead",
+      "record_id": "00Q1",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: updated 00Q1",
+    "error": null
+   }
+  },
+  {
+   "name": "salesforce_404_recreate_stores_lead_object",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "not_found": true
+   },
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "salesforce_id": "00Q1"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Contact",
+      "record_id": "003A",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    },
+    {
+     "fn": "_store_row_crm_id",
+     "args": {
+      "workbook_id": "wb-1",
+      "lead_id": 7,
+      "crm_type": "salesforce",
+      "old_ext_id": "003A",
+      "new_id": "00Q1",
+      "new_object": "lead"
+     }
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "Salesforce: created 00Q1",
+    "error": null
+   }
+  },
+  {
+   "name": "salesforce_update_error",
+   "cfg": {
+    "type": "salesforce"
+   },
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce"
+   },
+   "crm_connected": true,
+   "update_result": {
+    "success": false,
+    "error": "HTTP 400: bad"
+   },
+   "push_result": null,
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "update_record",
+     "args": {
+      "sobject": "Contact",
+      "record_id": "003A",
+      "fields": {
+       "Email": "a@x.com",
+       "Phone": "+1",
+       "Title": "CTO"
+      }
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": "",
+    "error": "HTTP 400: bad"
+   }
+  },
+  {
+   "name": "external_id_but_other_crm_goes_to_create",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "003A",
+    "crm_type": "salesforce"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "external_id_without_crm_type_goes_to_create",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "501"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "blank_external_id_goes_to_create",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": "   ",
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  },
+  {
+   "name": "none_external_id_goes_to_create",
+   "cfg": {},
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "contact_person": "Ada Lovelace",
+    "phone": "+1",
+    "contact_title": "CTO",
+    "crm_external_id": null,
+    "crm_type": "hubspot"
+   },
+   "crm_connected": true,
+   "update_result": null,
+   "push_result": {
+    "success": true,
+    "action": "created",
+    "hubspot_id": "901"
+   },
+   "workbook_id": "wb-1",
+   "lead_id": 7,
+   "store_returns": true,
+   "calls": [
+    {
+     "fn": "push_lead_as_contact",
+     "args": {
+      "lead": {
+       "company": "Acme",
+       "email": "a@x.com",
+       "phone": "+1",
+       "contact_person": "Ada Lovelace",
+       "contact_title": "CTO",
+       "score_tier": "unqualified",
+       "status": "new"
+      },
+      "field_map": null
+     },
+     "workspace_id": "ws-1"
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": "HubSpot: created 901",
+    "error": null
+   }
+  }
+ ],
+ "row_id": [
+  {
+   "name": "matched_by_lead_id",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "901",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "matched_by_row_id_when_lead_id_null",
+   "rows": [
+    {
+     "lead_id": null,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": {
+     "row_index": 0
+    },
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "901",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "stale_key_mismatch_returns_false",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "999",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": false,
+   "final_data": [
+    {
+     "crm_external_id": "501",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "crm_type_mismatch_returns_false",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "salesforce",
+    "old": "501",
+    "new": "00Q1",
+    "object": "lead"
+   },
+   "returns": false,
+   "final_data": [
+    {
+     "crm_external_id": "501",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "crm_type_compared_case_insensitively",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "HubSpot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "901",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "external_id_compared_as_string",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": 501,
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "901",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "no_matching_row_returns_false",
+   "rows": [
+    {
+     "lead_id": 8,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": false,
+   "final_data": [
+    {
+     "crm_external_id": "501",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "first_matching_candidate_wins",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    },
+    {
+     "lead_id": null,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "901",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "901",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    },
+    {
+     "crm_external_id": "501",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "salesforce_recreate_becomes_lead",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "003A",
+      "crm_type": "salesforce",
+      "crm_object": "contact",
+      "company": "Acme"
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "salesforce",
+    "old": "003A",
+    "new": "00Q1",
+    "object": "lead"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "00Q1",
+     "crm_type": "salesforce",
+     "crm_object": "lead",
+     "company": "Acme"
+    }
+   ]
+  },
+  {
+   "name": "other_data_keys_preserved",
+   "rows": [
+    {
+     "lead_id": 7,
+     "data": {
+      "crm_external_id": "501",
+      "crm_type": "hubspot",
+      "crm_object": "contact",
+      "company": "Acme",
+      "city": "Pune",
+      "nested": {
+       "a": [
+        1,
+        2
+       ]
+      }
+     }
+    }
+   ],
+   "args": {
+    "lead_id": 7,
+    "crm_type": "hubspot",
+    "old": "501",
+    "new": "902",
+    "object": "contact"
+   },
+   "returns": true,
+   "final_data": [
+    {
+     "crm_external_id": "902",
+     "crm_type": "hubspot",
+     "crm_object": "contact",
+     "company": "Acme",
+     "city": "Pune",
+     "nested": {
+      "a": [
+       1,
+       2
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,71 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?since=2030-01-02&limit=3"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "actor_role": "owner",
+          "actor_user_id": 1,
+          "created_at": "2030-01-03T03:00:00",
+          "id": "11111111-0000-4000-8000-000000000052",
+          "metadata": {
+            "error": "audit retention must be 90..3650 days"
+          },
+          "method": "PUT",
+          "outcome": "error",
+          "request_id": "req-gov-a-052",
+          "resource_path": "/api/governance/retention",
+          "response_status": 422,
+          "route": "/api/governance/retention"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-03T02:00:00",
+          "id": "11111111-0000-4000-8000-000000000051",
+          "metadata": {},
+          "method": "DELETE",
+          "outcome": "success",
+          "request_id": "req-gov-a-051",
+          "resource_path": "/api/audiences/aud-gov-1",
+          "response_status": 204,
+          "route": "/api/audiences/{audience_id}"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2030-01-03T01:00:00",
+          "id": "11111111-0000-4000-8000-000000000050",
+          "metadata": {
+            "action": "playbook.patch",
+            "fields": [
+              "name",
+              "enabled"
+            ]
+          },
+          "method": "PATCH",
+          "outcome": "success",
+          "request_id": "req-gov-a-050",
+          "resource_path": "/api/research-playbooks/pb-gov-multi",
+          "response_status": 200,
+          "route": "/api/research-playbooks/{playbook_id}"
+        }
+      ],
+      "has_more": true,
+      "limit": 3,
+      "next_before": "2030-01-03T01:00:00",
+      "next_cursor": "WyIyMDMwLTAxLTAzVDAxOjAwOjAwIiwiMTExMTExMTEtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDUwIl0"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

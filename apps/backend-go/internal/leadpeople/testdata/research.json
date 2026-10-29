@@ -1,0 +1,2045 @@
+[
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "partnerships",
+     "strategic partnerships",
+     "alliances",
+     "business development",
+     "partner ecosystem"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "failures": 0,
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 3
+  },
+  "function": "Partnerships",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 2,
+    "function_evidence_missing": 1
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 6,
+   "function": "Partnerships",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "location": "",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "retrieved_at": "2026-10-28",
+     "title": "Head of Partnerships",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.72,
+     "email": null,
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "location": "",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_summary_plus_experience"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "location": "",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb",
+     "retrieved_at": "2026-10-28",
+     "title": "Partner Development",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "location": "",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657",
+     "retrieved_at": "2026-10-28",
+     "title": "VP",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+     "location": "",
+     "name": "Ana Aoe",
+     "person_id": "person_d22376e8cd25485f90775ecd",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/raj-roy",
+     "location": "",
+     "name": "Raj Roy",
+     "person_id": "person_2e5362a4a3ad7415a9d1a7aa",
+     "retrieved_at": "2026-10-28",
+     "title": "Director",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_df48f26096a3a336dc510867",
+   "search_failures": 0,
+   "searches_used": 3,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "San Francisco",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "Head of Partnerships"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 1
+  },
+  "function": "Partnerships",
+  "limit": 3,
+  "location": "San Francisco",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 1,
+    "function_evidence_missing": 1
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 3,
+   "function": "Partnerships",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "location": "San Francisco",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "retrieved_at": "2026-10-28",
+     "title": "Head of Partnerships",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.72,
+     "email": null,
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "location": "San Francisco",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_summary_plus_experience"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "location": "San Francisco",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb",
+     "retrieved_at": "2026-10-28",
+     "title": "Partner Development",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_308b12d4f1311c738ff17010",
+   "search_failures": 0,
+   "searches_used": 1,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [
+   "Head of Partnerships"
+  ],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 45,
+    "delay": 0.2,
+    "geo": "NYC",
+    "max_people": 45,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 5
+  },
+  "function": "Partnerships",
+  "limit": 100,
+  "location": "  NYC  ",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 2,
+    "function_evidence_missing": 1
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 6,
+   "function": "Partnerships",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "location": "NYC",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "retrieved_at": "2026-10-28",
+     "title": "Head of Partnerships",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.72,
+     "email": null,
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "location": "NYC",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_summary_plus_experience"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "location": "NYC",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb",
+     "retrieved_at": "2026-10-28",
+     "title": "Partner Development",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "location": "NYC",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657",
+     "retrieved_at": "2026-10-28",
+     "title": "VP",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+     "location": "NYC",
+     "name": "Ana Aoe",
+     "person_id": "person_d22376e8cd25485f90775ecd",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/raj-roy",
+     "location": "NYC",
+     "name": "Raj Roy",
+     "person_id": "person_2e5362a4a3ad7415a9d1a7aa",
+     "retrieved_at": "2026-10-28",
+     "title": "Director",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_df48f26096a3a336dc510867",
+   "search_failures": 0,
+   "searches_used": 5,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [
+   "a",
+   "b",
+   "c",
+   "d",
+   "e",
+   "f"
+  ],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "partnerships",
+     "strategic partnerships",
+     "alliances",
+     "business development",
+     "partner ecosystem"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 2
+  },
+  "function": "Partnerships",
+  "limit": 0,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 2,
+    "function_evidence_missing": 1
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 6,
+   "function": "Partnerships",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "location": "",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "retrieved_at": "2026-10-28",
+     "title": "Head of Partnerships",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.72,
+     "email": null,
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "location": "",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_summary_plus_experience"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "location": "",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb",
+     "retrieved_at": "2026-10-28",
+     "title": "Partner Development",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "location": "",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657",
+     "retrieved_at": "2026-10-28",
+     "title": "VP",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+     "location": "",
+     "name": "Ana Aoe",
+     "person_id": "person_d22376e8cd25485f90775ecd",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_headline"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/raj-roy",
+     "location": "",
+     "name": "Raj Roy",
+     "person_id": "person_2e5362a4a3ad7415a9d1a7aa",
+     "retrieved_at": "2026-10-28",
+     "title": "Director",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_df48f26096a3a336dc510867",
+   "search_failures": 0,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "partnerships",
+     "strategic partnerships",
+     "alliances",
+     "business development",
+     "partner ecosystem"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 2
+  },
+  "function": "Partnerships",
+  "limit": -4,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 0,
+    "function_evidence_missing": 0
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 1,
+   "function": "Partnerships",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "stripe.com",
+      "company": "Stripe",
+      "confidence": 0.9,
+      "entity_id": "Q1",
+      "source": "wikidata",
+      "status": "resolved",
+      "website": "https://stripe.com"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "function": "Partnerships",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "location": "",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "retrieved_at": "2026-10-28",
+     "title": "Head of Partnerships",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_ca0f610e633a53d372213880",
+   "search_failures": 0,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe, Inc.",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "business development",
+     "partnerships"
+    ]
+   }
+  ],
+  "company": "Stripe, Inc.",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 2
+  },
+  "function": "business   development",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 8,
+    "function_evidence_missing": 0
+   },
+   "company": "Stripe, Inc.",
+   "company_resolution": {
+    "canonical_domain": "",
+    "company": "Stripe, Inc.",
+    "status": "ambiguous"
+   },
+   "count": 1,
+   "function": "business development",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "",
+     "company": "Stripe, Inc.",
+     "company_resolution": {
+      "canonical_domain": "",
+      "company": "Stripe, Inc.",
+      "status": "ambiguous"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "function": "business development",
+     "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+     "location": "",
+     "name": "Ana Aoe",
+     "person_id": "person_d22376e8cd25485f90775ecd",
+     "retrieved_at": "2026-10-28",
+     "title": "",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_9c9e7001774415bf9689cb09",
+   "search_failures": 0,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "",
+   "status": "ambiguous"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "CEO",
+     "founder",
+     "vice president",
+     "director"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    },
+    {
+     "evidence_snippet": "Works on partnerships.",
+     "evidence_title": "Pat Poe - Partnership Manager at Stripe Theory | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/pat-poe",
+     "linkedin": "https://www.linkedin.com/in/pat-poe",
+     "name": "Pat Poe",
+     "title": "N/A"
+    },
+    {
+     "evidence_snippet": "Business development and alliances. Experience: Stripe · Alliances",
+     "evidence_title": "Sam Soe - Stripe",
+     "evidence_url": "https://www.linkedin.com/in/sam-soe",
+     "linkedin": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "title": "Stripe"
+    },
+    {
+     "evidence_snippet": "I lead the partnership ecosystem.",
+     "evidence_title": "Lee Loe - Partner Development Lead - Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/lee-loe",
+     "linkedin": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "title": "Partner Development"
+    },
+    {
+     "evidence_snippet": "x",
+     "evidence_title": "Kim Koe | VP Partnership | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/kim-koe",
+     "linkedin": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "title": "VP"
+    },
+    {
+     "evidence_snippet": "Experience: Stripe, Inc.",
+     "evidence_title": "Ana Aoe - Strategic Partnerships at Stripe Inc.",
+     "evidence_url": "https://www.linkedin.com/in/ana-aoe",
+     "linkedin": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "title": ""
+    },
+    {
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "linkedin": "https://www.linkedin.com/in/raj-roy",
+     "name": "Raj Roy",
+     "title": "Director"
+    },
+    {
+     "evidence_snippet": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssspartnership",
+     "evidence_title": "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ at Stripe partnership",
+     "evidence_url": "https://www.linkedin.com/in/zed-zoe",
+     "linkedin": "https://www.linkedin.com/in/zed-zoe",
+     "name": "Zed Zoe",
+     "title": "CEO"
+    }
+   ],
+   "searches": 2
+  },
+  "function": "Executive",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 2,
+    "function_evidence_missing": 6
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "",
+    "company": "Stripe",
+    "status": "resolver_unavailable"
+   },
+   "count": 1,
+   "function": "Executive",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "",
+     "company": "Stripe",
+     "company_resolution": {
+      "canonical_domain": "",
+      "company": "Stripe",
+      "status": "resolver_unavailable"
+     },
+     "confidence": 0.78,
+     "email": null,
+     "evidence_snippet": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+     "evidence_title": "Raj Roy - Director, Alliances | Stripe",
+     "evidence_url": "https://www.linkedin.com/in/raj-roy",
+     "function": "Executive",
+     "linkedin_url": "https://www.linkedin.com/in/raj-roy",
+     "location": "",
+     "name": "Raj Roy",
+     "person_id": "person_2e5362a4a3ad7415a9d1a7aa",
+     "retrieved_at": "2026-10-28",
+     "title": "Director",
+     "verification_status": "profile_headline"
+    }
+   ],
+   "result_set_id": "people_7ed462df8b78c0d5c077d328",
+   "search_failures": 0,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "",
+   "status": "resolver_unavailable"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "stripe.com",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "head of sales",
+     "sales director",
+     "vice president sales"
+    ]
+   }
+  ],
+  "company": "stripe.com",
+  "crosslinked": {
+   "failures": 2,
+   "people": [],
+   "searches": 2
+  },
+  "function": "Sales",
+  "limit": 5,
+  "location": "",
+  "raises": null,
+  "result": {
+   "company": "stripe.com",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "stripe.com",
+    "confidence": 1.0,
+    "evidence_url": "https://stripe.com",
+    "observed_at": "2026-10-28",
+    "source": "user_supplied_domain",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "error": "people_search_unavailable",
+   "function": "Sales",
+   "message": "Public people search failed for every query. No people were ruled out; retry later or configure a search backend.",
+   "ok": false,
+   "people": [],
+   "search_failures": 2,
+   "searches_used": 2
+  },
+  "titles": [],
+  "wikidata": null
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "head of sales",
+     "sales director",
+     "vice president sales"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "failures": 1,
+   "people": [],
+   "searches": 2
+  },
+  "function": "Sales",
+  "limit": 5,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 0,
+    "function_evidence_missing": 0
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "function": "Sales",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [],
+   "result_set_id": "people_675007c0165e21969edbf21b",
+   "search_failures": 1,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "head of sales",
+     "sales director",
+     "vice president sales"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "failures": 0,
+   "people": [],
+   "searches": 0
+  },
+  "function": "Sales",
+  "limit": 5,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 0,
+    "function_evidence_missing": 0
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "function": "Sales",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [],
+   "result_set_id": "people_675007c0165e21969edbf21b",
+   "search_failures": 0,
+   "searches_used": 0,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 15,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 15,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "head of sales",
+     "sales director",
+     "vice president sales"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "failures": 2,
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    },
+    {
+     "evidence_snippet": "Wrote a post about partnership strategy.",
+     "evidence_title": "John Roe - Software Engineer at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/john-roe",
+     "linkedin": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "title": "Engineer"
+    }
+   ],
+   "searches": 2
+  },
+  "function": "Sales",
+  "limit": 5,
+  "location": "",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 0,
+    "function_evidence_missing": 2
+   },
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "function": "Sales",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [],
+   "result_set_id": "people_675007c0165e21969edbf21b",
+   "search_failures": 2,
+   "searches_used": 2,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "partnerships",
+     "strategic partnerships",
+     "alliances",
+     "business development",
+     "partner ecosystem"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "raise": "timeout"
+  },
+  "function": "Partnerships",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "Stripe",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "error": "people_research_timeout",
+   "function": "Partnerships",
+   "message": "Targeted people research exceeded its 45-second safety limit.",
+   "ok": false,
+   "people": []
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [],
+  "company": "",
+  "crosslinked": {
+   "people": [],
+   "searches": 0
+  },
+  "function": "Partnerships",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "count": 0,
+   "error": "company_required",
+   "ok": false,
+   "people": []
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [],
+  "company": "Stripe",
+  "crosslinked": {
+   "people": [],
+   "searches": 0
+  },
+  "function": "   ",
+  "limit": 8,
+  "location": "",
+  "raises": null,
+  "result": {
+   "count": 0,
+   "error": "function_required",
+   "ok": false,
+   "people": []
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+    ]
+   }
+  ],
+  "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+  "crosslinked": {
+   "people": [
+    {
+     "evidence_snippet": "Leads strategic partnerships. Experience: Stripe",
+     "evidence_title": "Jane Doe - Head of Partnerships at Stripe | LinkedIn",
+     "evidence_url": "https://www.linkedin.com/in/jane-doe",
+     "linkedin": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "searches": 1
+  },
+  "function": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+  "limit": 8,
+  "location": "LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL",
+  "raises": null,
+  "result": {
+   "candidates_rejected": {
+    "company_relationship_missing": 1,
+    "function_evidence_missing": 0
+   },
+   "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+   "company_resolution": {
+    "canonical_domain": "stripe.com",
+    "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "confidence": 0.9,
+    "entity_id": "Q1",
+    "source": "wikidata",
+    "status": "resolved",
+    "website": "https://stripe.com"
+   },
+   "count": 0,
+   "function": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+   "methodology": "Public LinkedIn-profile search results; exact target-company employment and function terms are both required. No email addresses are guessed.",
+   "ok": true,
+   "people": [],
+   "result_set_id": "people_5ff8b071334346f2a5226e30",
+   "search_failures": 0,
+   "searches_used": 1,
+   "warning": "Public profile snippets can be stale. Treat matches as research candidates and re-check the profile before outreach."
+  },
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ },
+ {
+  "calls": [
+   {
+    "company_name": "Stripe",
+    "ctor_max_people": 24,
+    "delay": 0.2,
+    "geo": "",
+    "max_people": 24,
+    "max_searches": 5,
+    "results_per_search": 12,
+    "titles": [
+     "partnerships",
+     "strategic partnerships",
+     "alliances",
+     "business development",
+     "partner ecosystem"
+    ]
+   }
+  ],
+  "company": "Stripe",
+  "crosslinked": {
+   "raise": "value"
+  },
+  "function": "Partnerships",
+  "limit": 8,
+  "location": "",
+  "raises": "ValueError",
+  "result": null,
+  "titles": [],
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  }
+ }
+]

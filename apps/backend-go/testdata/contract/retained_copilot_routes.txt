@@ -1,0 +1,9 @@
+# Copilot and person intel routes that stay on FastAPI (plan 12). One "METHOD /path/{param}" per line.
+# NONE: all 12 routes (7 in routers/copilotkit.py, 5 in routers/person_intel.py) are ported. Parity is pinned by
+# internal/api/copilot_coverage_test.go (TestEveryCopilotAndPersonRouteIsPorted).
+#
+# What stays on Python is *tools and pre-routes*, not routes: they run behind POST /internal/copilot/{tool,preroute,
+# llm,describe,system-prompt} (decision D1, D4, D5). The tool list lives in internal/copilot/catalog.json with
+# "executor": "python" (collection, enrichment, workbook creation, plan execution, outreach drafting, AmbitionBox,
+# people research and verification); only search_leads, get_lead_detail, get_lead_stats and update_lead_status are
+# native in Go.

@@ -1,0 +1,35 @@
+{
+ "vendor": "hubspot",
+ "scenario": "status_5xx",
+ "call": {
+  "function": "test_connection",
+  "args": {}
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/account-info/v3/details",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 502,
+    "headers": {
+     "content-type": "text/html"
+    },
+    "body": "<html><body>Bad gateway</body></html>"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "connected": false,
+  "error": "HTTP 502: <html><body>Bad gateway</body></html>"
+ }
+}

@@ -1,0 +1,2606 @@
+[
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Jane Doe",
+     "email": "Jane.Doe@Stripe.com",
+     "email_match_method": "linkedin"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Partnerships",
+  "name": "prospeo_wins",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_ca0f610e633a53d372213880:1f75bec81a2682de",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "Partnerships",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "linkedin",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "jane.doe@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "jane.doe@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_ca0f610e633a53d372213880",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 1
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "jane.doe@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "hunter_io",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "hunter_io": {
+    "confidence": 0.77777,
+    "duration_ms": 410.4,
+    "fields": {
+     "contact_person": "",
+     "email": "jane@mail.stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": "ODbL-1.0",
+    "success": true
+   },
+   "prospeo": {
+    "duration_ms": 12.5,
+    "error": "No API key configured",
+    "success": false
+   }
+  },
+  "function": "Partnerships",
+  "name": "fallback_hunter",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_ca0f610e633a53d372213880:1f75bec81a2682de",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "Partnerships",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "provider_not_configured",
+        "duration_ms": 12,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "unavailable"
+       },
+       {
+        "confidence": 0.7778,
+        "detail": "exact_name",
+        "duration_ms": 410,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.7778,
+      "email": "jane@mail.stripe.com",
+      "exhausted": false,
+      "finder_provider": "hunter_io",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "jane@mail.stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_ca0f610e633a53d372213880",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 1
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "jane@mail.stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "hunter_io",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "John Roe",
+    "contact_title": "Engineer",
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "John Roe",
+    "contact_title": "Engineer",
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "provider": "hunter_io",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Pat Poe",
+    "contact_title": "",
+    "linkedin_url": "",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Pat Poe",
+    "contact_title": "",
+    "linkedin_url": "",
+    "provider": "hunter_io",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Sam Soe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Sam Soe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+    "provider": "hunter_io",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Lee Loe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Lee Loe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+    "provider": "hunter_io",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Kim Koe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "provider": "prospeo",
+    "timeout": 45.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "hunter_io|Jane Doe": {
+    "raise": "timeout"
+   },
+   "hunter_io|John Roe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Someone Else",
+     "email": "john@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   },
+   "hunter_io|Lee Loe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "lee@stripe.com.evil.io",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   },
+   "hunter_io|Pat Poe": {
+    "error": "HTTP 429 rate limited",
+    "success": false
+   },
+   "hunter_io|Sam Soe": null,
+   "prospeo|Jane Doe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Jane Doe",
+     "email": "jane@stripe.com",
+     "email_match_method": "pattern_guess"
+    },
+    "license": null,
+    "success": true
+   },
+   "prospeo|John Roe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "John Roe",
+     "email": "john@gmail.com",
+     "email_match_method": "linkedin"
+    },
+    "license": null,
+    "success": true
+   },
+   "prospeo|Kim Koe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Kim  KOE",
+     "email": "kim@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   },
+   "prospeo|Lee Loe": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Lee Loe",
+     "email": "lee@evilstripe.com",
+     "email_match_method": "linkedin"
+    },
+    "license": null,
+    "success": true
+   },
+   "prospeo|Pat Poe": {
+    "raise": "value"
+   },
+   "prospeo|Sam Soe": {
+    "error": "weird",
+    "success": false
+   }
+  },
+  "function": "Partnerships",
+  "name": "matrix",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "Engineer"
+   },
+   {
+    "canonical_company_domain": "stripe.com",
+    "linkedin_url": "",
+    "name": "Pat Poe",
+    "title": ""
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+    "name": "Sam Soe"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+    "name": "Lee Loe"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "name": "Kim Koe"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 100.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_68fd84417309e301933cc7bf:3132623cb54f9351",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 6,
+   "function": "Partnerships",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "non_exact_match_method",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "rejected"
+       },
+       {
+        "detail": "provider_timeout",
+        "duration_ms": 250,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "timeout"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "company_domain_mismatch",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "rejected"
+       },
+       {
+        "detail": "person_identity_mismatch",
+        "duration_ms": 322,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "rejected"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer"
+    },
+    {
+     "canonical_company_domain": "stripe.com",
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "ValueError",
+        "duration_ms": 250,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "error"
+       },
+       {
+        "detail": "rate_limited",
+        "duration_ms": 250,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "error"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "",
+     "name": "Pat Poe",
+     "person_id": "person_71ad7b44422bcdfe45c713b1",
+     "title": ""
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "no_exact_email",
+        "duration_ms": 250,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "no_data"
+       },
+       {
+        "detail": "provider_unavailable",
+        "duration_ms": 250,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "unavailable"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "company_domain_mismatch",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "rejected"
+       },
+       {
+        "detail": "company_domain_mismatch",
+        "duration_ms": 322,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "rejected"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "syntax",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "invalid"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": null,
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": true,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "invalid",
+      "verification_confidence": 0.0,
+      "verification_status": "invalid",
+      "verifier_provider": "syntax"
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_68fd84417309e301933cc7bf",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f",
+    "person_7199c1c6915b8ee789191534",
+    "person_71ad7b44422bcdfe45c713b1",
+    "person_46983fdfea25390cd397bb70",
+    "person_7817e619d84fbdee35c024cb",
+    "person_41e5ae6151fa98ec3aef1657"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 1,
+    "risky": 0,
+    "unavailable": 5,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   },
+   "kim@stripe.com": {
+    "attempts": [],
+    "confidence": "",
+    "is_disposable": true,
+    "is_free": false,
+    "is_role": false,
+    "source": "syntax",
+    "status": "invalid",
+    "verification_confidence": 0.0
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "kim@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "act-1",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Sam Soe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Lee Loe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Kim Koe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Ana Aoe",
+    "contact_title": "",
+    "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "hunter_io": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "a@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   },
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "a@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "verify_statuses",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+    "name": "Sam Soe"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+    "name": "Lee Loe"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+    "name": "Kim Koe"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+    "name": "Ana Aoe"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "act-1",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 4,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "catch_all"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": true,
+      "is_role": true,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "catch_all",
+      "verification_confidence": 0.5,
+      "verification_status": "catch_all",
+      "verifier_provider": "reacher"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/sam-soe",
+     "name": "Sam Soe",
+     "person_id": "person_46983fdfea25390cd397bb70"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "catch_all"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": true,
+      "is_role": true,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "catch_all",
+      "verification_confidence": 0.5,
+      "verification_status": "catch_all",
+      "verifier_provider": "reacher"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/lee-loe",
+     "name": "Lee Loe",
+     "person_id": "person_7817e619d84fbdee35c024cb"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "catch_all"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": true,
+      "is_role": true,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "catch_all",
+      "verification_confidence": 0.5,
+      "verification_status": "catch_all",
+      "verifier_provider": "reacher"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/kim-koe",
+     "name": "Kim Koe",
+     "person_id": "person_41e5ae6151fa98ec3aef1657"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "catch_all"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": true,
+      "is_role": true,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "catch_all",
+      "verification_confidence": 0.5,
+      "verification_status": "catch_all",
+      "verifier_provider": "reacher"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/ana-aoe",
+     "name": "Ana Aoe",
+     "person_id": "person_d22376e8cd25485f90775ecd"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_7960c7c5f9a00d5d0c48624a",
+   "reused": false,
+   "selected_person_ids": [
+    "person_46983fdfea25390cd397bb70",
+    "person_7817e619d84fbdee35c024cb",
+    "person_41e5ae6151fa98ec3aef1657",
+    "person_d22376e8cd25485f90775ecd"
+   ],
+   "summary": {
+    "catch_all": 4,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [],
+    "confidence": "risky",
+    "is_disposable": false,
+    "is_free": true,
+    "is_role": true,
+    "source": "reacher",
+    "status": "catch_all",
+    "verification_confidence": 0.5
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Jane Doe",
+     "email": "jane@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "verify_unknown",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_9aaadf97c7a9385d032eb2c5:1f75bec81a2682de",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "",
+        "provider": "verification_cascade",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "jane@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "risky",
+      "verification_confidence": 0.0,
+      "verification_status": "unknown",
+      "verifier_provider": "verification_cascade"
+     },
+     "email": "jane@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_9aaadf97c7a9385d032eb2c5",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 1,
+    "unavailable": 0,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "confidence": "unknown",
+    "source": "",
+    "status": "unknown",
+    "verification_confidence": 0.0
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "jane@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Jane Doe",
+     "email": "jane@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "verify_raises",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_9aaadf97c7a9385d032eb2c5:1f75bec81a2682de",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "RuntimeError",
+        "provider": "verification_cascade",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "error"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "jane@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "risky",
+      "verification_confidence": 0.0,
+      "verification_status": "unknown",
+      "verifier_provider": "verification_cascade"
+     },
+     "email": "jane@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_9aaadf97c7a9385d032eb2c5",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 1,
+    "unavailable": 0,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "raise": 1
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "jane@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [],
+  "company": "Stripe",
+  "discovery": {},
+  "function": "Sales",
+  "name": "no_domain",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "Engineer"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "",
+   "status": "ambiguous"
+  },
+  "result": {
+   "action_id": "people-contacts:people_d101229fb3019bfc63395346:eed0ea479db4827d",
+   "canonical_company_domain": "",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "",
+    "status": "ambiguous"
+   },
+   "count": 2,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "canonical_company_unresolved",
+        "provider": "company_identity",
+        "source_license": "unknown",
+        "stage": "precondition",
+        "status": "blocked"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "canonical_company_unresolved",
+        "provider": "company_identity",
+        "source_license": "unknown",
+        "stage": "precondition",
+        "status": "blocked"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_d101229fb3019bfc63395346",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f",
+    "person_7199c1c6915b8ee789191534"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 2,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Pat Poe",
+    "contact_title": "",
+    "linkedin_url": "",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "Pat Poe",
+     "email": "pat@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "domain_from_person",
+  "people": [
+   {
+    "canonical_company_domain": "stripe.com",
+    "linkedin_url": "",
+    "name": "Pat Poe",
+    "title": ""
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {},
+  "result": {
+   "action_id": "people-contacts:people_0bc165b14a87b2921c5174b3:9d52829f2e958c70",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {},
+   "count": 1,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "pat@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "pat@stripe.com",
+     "linkedin_url": "",
+     "name": "Pat Poe",
+     "person_id": "person_71ad7b44422bcdfe45c713b1",
+     "title": ""
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_0bc165b14a87b2921c5174b3",
+   "reused": false,
+   "selected_person_ids": [
+    "person_71ad7b44422bcdfe45c713b1"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 1
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "pat@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Pat Poe",
+    "contact_title": "",
+    "linkedin_url": "",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "x@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "selection",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "Engineer"
+   },
+   {
+    "canonical_company_domain": "stripe.com",
+    "linkedin_url": "",
+    "name": "Pat Poe",
+    "title": ""
+   }
+  ],
+  "person_ids": [
+   "person_71ad7b44422bcdfe45c713b1",
+   "person_a49dfdb5576800d5a41d7c3f",
+   "person_71ad7b44422bcdfe45c713b1"
+  ],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_7a538df3d570de08196b6787:25c072078f4f91ea",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 2,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "canonical_company_domain": "stripe.com",
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "x@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "x@stripe.com",
+     "linkedin_url": "",
+     "name": "Pat Poe",
+     "person_id": "person_71ad7b44422bcdfe45c713b1",
+     "title": ""
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "x@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "x@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_7a538df3d570de08196b6787",
+   "reused": false,
+   "selected_person_ids": [
+    "person_71ad7b44422bcdfe45c713b1",
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 2
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "x@stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "email": "x@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [],
+  "company": "Stripe",
+  "discovery": {},
+  "function": "Sales",
+  "name": "unknown_selection",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "Engineer"
+   }
+  ],
+  "person_ids": [
+   "person_nope",
+   "person_a49dfdb5576800d5a41d7c3f",
+   "person_zip"
+  ],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "error": "Unknown people selection",
+   "ok": false,
+   "unknown_person_ids": [
+    "person_nope",
+    "person_zip"
+   ]
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [],
+  "company": "Stripe",
+  "discovery": {},
+  "function": "Sales",
+  "name": "no_people",
+  "people": [],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "count": 0,
+   "error": "No people selected",
+   "ok": false,
+   "people": []
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "John Roe",
+    "contact_title": "Engineer",
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "a@stripe.com",
+     "email_match_method": "exact_name"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "Sales",
+  "name": "dedup_people",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   },
+   "junk",
+   {
+    "linkedin_url": "https://www.linkedin.com/in/john-roe",
+    "name": "John Roe",
+    "title": "Engineer"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_d101229fb3019bfc63395346:eed0ea479db4827d",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 2,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    },
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "exact_name",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "a@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "a@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/john-roe",
+     "name": "John Roe",
+     "person_id": "person_7199c1c6915b8ee789191534",
+     "title": "Engineer"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_d101229fb3019bfc63395346",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f",
+    "person_7199c1c6915b8ee789191534"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 2
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "email": "a@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 1.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   },
+   {
+    "company": "Stripe",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "hunter_io",
+    "timeout": 1.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "Stripe",
+  "discovery": {
+   "hunter_io": null,
+   "prospeo": null
+  },
+  "function": "Sales",
+  "name": "timeout_clamp_low",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 0.2,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_9aaadf97c7a9385d032eb2c5:1f75bec81a2682de",
+   "canonical_company_domain": "stripe.com",
+   "company": "Stripe",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "Sales",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "detail": "provider_unavailable",
+        "duration_ms": 250,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "unavailable"
+       },
+       {
+        "detail": "provider_unavailable",
+        "duration_ms": 250,
+        "provider": "hunter_io",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "unavailable"
+       }
+      ],
+      "discovery_confidence": 0.0,
+      "email": null,
+      "exhausted": true,
+      "finder_provider": "",
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "unavailable",
+      "verification_status": "not_run",
+      "verifier_provider": ""
+     },
+     "email": null,
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_a49dfdb5576800d5a41d7c3f",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_9aaadf97c7a9385d032eb2c5",
+   "reused": false,
+   "selected_person_ids": [
+    "person_a49dfdb5576800d5a41d7c3f"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 1,
+    "verified": 0
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [],
+  "workspace_id": "ws1"
+ },
+ {
+  "action_id": "",
+  "calls": [
+   {
+    "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+    "contact_person": "Jane Doe",
+    "contact_title": "Head of Partnerships",
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "provider": "prospeo",
+    "timeout": 20.0,
+    "website": "https://stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+  "discovery": {
+   "prospeo": {
+    "confidence": 0.9,
+    "duration_ms": 321.5,
+    "fields": {
+     "contact_person": "",
+     "email": "jane@stripe.com",
+     "email_match_method": "linkedin"
+    },
+    "license": null,
+    "success": true
+   }
+  },
+  "function": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+  "name": "long_names",
+  "people": [
+   {
+    "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+    "name": "Jane Doe",
+    "title": "Head of Partnerships"
+   }
+  ],
+  "person_ids": [],
+  "provider_timeout": 20.0,
+  "resolution": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "result": {
+   "action_id": "people-contacts:people_2870617eb8f8b976593a65ed:142cb9f847667864",
+   "canonical_company_domain": "stripe.com",
+   "company": "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+   "company_resolution": {
+    "canonical_domain": "https://www.Stripe.com/",
+    "company": "Stripe",
+    "status": "resolved"
+   },
+   "count": 1,
+   "function": "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+   "methodology": "Exact-person email discovery followed by an independent deliverability check. Finder claims alone never receive verified status.",
+   "observed_at": "2026-10-28T12:00:00+00:00",
+   "ok": true,
+   "people": [
+    {
+     "contactability": {
+      "attempts": [
+       {
+        "confidence": 0.9,
+        "detail": "linkedin",
+        "duration_ms": 322,
+        "provider": "prospeo",
+        "source_license": "proprietary-api",
+        "stage": "discovery",
+        "status": "found"
+       },
+       {
+        "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "provider": "smtp",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "valid"
+       },
+       {
+        "detail": "",
+        "provider": "reacher",
+        "source_license": "unknown",
+        "stage": "verification",
+        "status": "unknown"
+       }
+      ],
+      "discovery_confidence": 0.9,
+      "email": "jane@stripe.com",
+      "exhausted": false,
+      "finder_provider": "prospeo",
+      "is_disposable": false,
+      "is_free": false,
+      "is_role": false,
+      "observed_at": "2026-10-28T12:00:00+00:00",
+      "status": "verified",
+      "verification_confidence": 0.9346,
+      "verification_status": "valid",
+      "verifier_provider": "smtp"
+     },
+     "email": "jane@stripe.com",
+     "linkedin_url": "https://www.linkedin.com/in/jane-doe",
+     "name": "Jane Doe",
+     "person_id": "person_167d85e1f6599f1f25bd0655",
+     "title": "Head of Partnerships"
+    }
+   ],
+   "provider_order": [
+    "prospeo",
+    "hunter_io"
+   ],
+   "result_set_id": "people_2870617eb8f8b976593a65ed",
+   "reused": false,
+   "selected_person_ids": [
+    "person_167d85e1f6599f1f25bd0655"
+   ],
+   "summary": {
+    "catch_all": 0,
+    "invalid": 0,
+    "risky": 0,
+    "unavailable": 0,
+    "verified": 1
+   },
+   "workspace_id": "ws1"
+  },
+  "verify": {
+   "*": {
+    "attempts": [
+     {
+      "detail": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "provider": "smtp",
+      "status": "valid"
+     },
+     {
+      "detail": "",
+      "provider": "reacher",
+      "status": "unknown"
+     },
+     "junk"
+    ],
+    "confidence": "verified",
+    "is_disposable": false,
+    "is_free": false,
+    "is_role": false,
+    "source": "smtp",
+    "status": "valid",
+    "verification_confidence": 0.93456
+   }
+  },
+  "verify_calls": [
+   {
+    "email": "jane@stripe.com",
+    "workspace_id": "ws1"
+   }
+  ],
+  "workspace_id": "ws1"
+ }
+]

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "email": "valid.person@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "confidence": 0.95,
+      "deliverable": true,
+      "detail": "250 recipient ok",
+      "email": "valid.person@example.com",
+      "source": "smtp_probe",
+      "status": "valid",
+      "valid": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

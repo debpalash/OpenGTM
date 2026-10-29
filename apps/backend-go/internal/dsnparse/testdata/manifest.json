@@ -1,0 +1,703 @@
+{
+  "count": 59,
+  "files": [
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "gmail_dsn_user_unknown",
+      "note": "Gmail-style 5.1.1 failure, original as message/rfc822",
+      "python_error": null,
+      "records": 1,
+      "sha256": "26e6303405a94d3accc7673476ece16e9b469bb4dde909df2b16d50db030dcc5",
+      "size": 1108
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "gmail_dsn_text_rfc822_headers",
+      "note": "Gmail-style failure, original as text/rfc822-headers",
+      "python_error": null,
+      "records": 1,
+      "sha256": "6a620b2ddf3f393b60e1f7c8e558a7398a088f3b3ca7d8f15188f4788c770bc2",
+      "size": 928
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "soft"
+      ],
+      "name": "gmail_dsn_mailbox_full_soft",
+      "note": "4.2.2 (soft) mailbox full",
+      "python_error": null,
+      "records": 1,
+      "sha256": "dd3d56389a70b944373065ec6fd73b33f2465e3dbccb057bb3293a19c782db4c",
+      "size": 940
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "soft"
+      ],
+      "name": "gmail_dsn_delayed_warning",
+      "note": "Action delayed, Status 4.4.1 (delay warning)",
+      "python_error": null,
+      "records": 1,
+      "sha256": "0030b6debf9cbc56f87d98a834937998575b4dace1b7bbd5aaca54addbe21fa5",
+      "size": 903
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "outlook_dsn_5_1_10_recipient_not_found",
+      "note": "Exchange Online RESOLVER.ADR.RecipientNotFound",
+      "python_error": null,
+      "records": 1,
+      "sha256": "087ceb192eaecadbfe01ccda186aab9512eb29fd12e05371e4f108b2ebbb82dd",
+      "size": 1104
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "outlook_dsn_5_4_1_access_denied",
+      "note": "5.4.1 Recipient address rejected: Access denied",
+      "python_error": null,
+      "records": 1,
+      "sha256": "de49b7d61205d10bcba15024119d609484c078338fb31fda49ef1afa0f4133ae",
+      "size": 929
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "outlook_dsn_no_status_action_failed",
+      "note": "No Status field: Action failed is classified hard",
+      "python_error": null,
+      "records": 1,
+      "sha256": "d4b571af4fbaa591ff9319b28fa18e2f62157b70b9d360fc58fef98c6a87ed01",
+      "size": 884
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard",
+        "soft"
+      ],
+      "name": "postfix_dsn_multi_recipient",
+      "note": "Three recipients: failed 5.1.1, deferred 4.2.0 (delayed), relayed 2.0.0",
+      "python_error": null,
+      "records": 2,
+      "sha256": "bd29452a417f88e533a4a6348057a7df5e460bcf732b2d97e46598c40d7e7e34",
+      "size": 1479
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "postfix_dsn_headers_only_original",
+      "note": "Postfix returns only headers (text/rfc822-headers)",
+      "python_error": null,
+      "records": 1,
+      "sha256": "afbd1920840363f5417a25e93f36e68e953e578a787909b5618316c92e3372e9",
+      "size": 880
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "postfix_dsn_original_recipient_only",
+      "note": "Block has Original-Recipient but no Final-Recipient",
+      "python_error": null,
+      "records": 1,
+      "sha256": "726ae8fc4c4320bed0d086a9734e5b749a282b3ef52d31cdf9a5289124a385db",
+      "size": 897
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "postfix_dsn_lf_line_endings",
+      "note": "same as postfix_dsn_multi_recipient layout but LF endings",
+      "python_error": null,
+      "records": 1,
+      "sha256": "5d7ac7aae8a1b8e1d19cf2f0b88fc5bf6deaf70e1c8d94c969332ae1fdb428d6",
+      "size": 857
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "exim_dsn_multi_recipient",
+      "note": "Exim: two failed recipients and a per-message block",
+      "python_error": null,
+      "records": 2,
+      "sha256": "7b4aebcbab21813211409e7b2bfee3203a2e47abf8f84f7e35b21e260b2829a1",
+      "size": 1229
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "exim_dsn_relayed_only",
+      "note": "Action relayed (not a failure): DSN yields nothing, heuristic finds no bounce marker",
+      "python_error": null,
+      "records": 1,
+      "sha256": "a5454a32075056dbbcff0ae2936d4708aaf96ab791e07a5022fa31f040de3588",
+      "size": 865
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "exim_text_only_failure",
+      "note": "Exim plain-text failure notice (no MIME report): heuristic hard",
+      "python_error": null,
+      "records": 1,
+      "sha256": "50190df9a71bc2ca8b9550739ec72a63c5f6f8fbdc4abc45749d00f128935cdd",
+      "size": 666
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_abuse_original_rcpt",
+      "note": "ARF abuse report with Original-Rcpt-To",
+      "python_error": null,
+      "records": 1,
+      "sha256": "da7f09674f399611e847cdc48f8d844797c0691ec0054004cf337fc9e2f93f86",
+      "size": 845
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_no_original_rcpt_embedded_to",
+      "note": "No Original-Rcpt-To: recipient from the embedded To header",
+      "python_error": null,
+      "records": 1,
+      "sha256": "d48e4f69cc8b2d29e5e3b599c123be35e775c4006c95ea5f20ec9809147226a9",
+      "size": 808
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_headers_only_no_recipient",
+      "note": "No Original-Rcpt-To and headers-only original: empty recipient",
+      "python_error": null,
+      "records": 1,
+      "sha256": "b48259578de63390c3b673e67b416fc8b3aac2c38d924e6190a41cd5d7553058",
+      "size": 799
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_not_spam_feedback_type",
+      "note": "Feedback-Type not-spam is still a complaint record",
+      "python_error": null,
+      "records": 1,
+      "sha256": "4b8809750e10e0c5d8aaf48d42259ce4d3ea1fa4fd9c19a3a62ecf9c81c5dff1",
+      "size": 848
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_no_embedded_original",
+      "note": "ARF without any original message part",
+      "python_error": null,
+      "records": 1,
+      "sha256": "03eac5573761234477b2d8b33e617baeeea38500fc23a7acf65ddd6d10839fbb",
+      "size": 584
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_uppercase_recipient",
+      "note": "Original-Rcpt-To with upper case and angle brackets",
+      "python_error": null,
+      "records": 1,
+      "sha256": "10459a51ae6df42479cd32d6acea24f493c84ba6d5c8313d8299e37b59aa58ed",
+      "size": 851
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "complaint"
+      ],
+      "name": "arf_report_type_uppercase",
+      "note": "report-type=FEEDBACK-REPORT (matched case-insensitively)",
+      "python_error": null,
+      "records": 1,
+      "sha256": "c2e25b60986b40551b59e9ed89b38a07b813b16abfebf9c4d2969da07008b418",
+      "size": 845
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_550_user_unknown",
+      "note": "Plain text 550 user unknown",
+      "python_error": null,
+      "records": 1,
+      "sha256": "f9db306f915fd41003b892842263506c6458ff83ed01768ac36f5f8fa19e762b",
+      "size": 339
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "heuristic_bounce_marker_without_hard_token",
+      "note": "Bounce-shaped but no hard token: kind unknown",
+      "python_error": null,
+      "records": 1,
+      "sha256": "6363b03b57cbcca48b417de1d6719ed0631f9f377351aec9cdfae253f9fa25da",
+      "size": 289
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_message_id_header_in_body",
+      "note": "Original Message-ID found through a Message-ID: header line in the body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "2c53ebc1f985f49be3de3302f3b9202964312845ecd197e65c81ec423077f6b5",
+      "size": 344
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_message_id_bare_in_body",
+      "note": "Original Message-ID found as a bare <id@host> token",
+      "python_error": null,
+      "records": 1,
+      "sha256": "1d7130a3f0993c6303b329689c29f9a0b58c66a3fff2a21800142234b7300398",
+      "size": 285
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "heuristic_out_of_office_not_a_bounce",
+      "note": "Out of office autoresponder: no records",
+      "python_error": null,
+      "records": 0,
+      "sha256": "976c2e6c1e33a5781e296258bd20bbccd4d0407b7f44ac7e3a70ed46052856c4",
+      "size": 303
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "heuristic_marketing_550_false_positive",
+      "note": "F24: '550' inside ordinary text is not a hard bounce (was a recorded Python quirk)",
+      "python_error": null,
+      "records": 0,
+      "sha256": "cfdb2bb6f90e382772c19ee204d1d4141aa163ed3ab8c14c7c09e1c2137936cb",
+      "size": 279
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_html_only_part",
+      "note": "Only a text/html part: no text/plain body, the subject alone decides",
+      "python_error": null,
+      "records": 1,
+      "sha256": "4294ac10f92d676831307ceb6ec99230df764effc36bfb25e9d53f40ecf7dbf3",
+      "size": 279
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_base64_text_part",
+      "note": "multipart/alternative with a base64 text/plain part",
+      "python_error": null,
+      "records": 1,
+      "sha256": "8f2d9da2619ebb7180873b3236ae18f06d7d075b00dc4dc4d572f3487b1bf3b8",
+      "size": 375
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_latin1_quoted_printable",
+      "note": "ISO-8859-1 quoted-printable body with a hard token",
+      "python_error": null,
+      "records": 1,
+      "sha256": "2fb3f59ec67044d27286809fe1bf2efc4aadae33625da828820d781c513a9b10",
+      "size": 305
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "heuristic_recipient_before_message_id",
+      "note": "Recipient and Message-ID both present in the body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "baf467557417f143460802aae2cf75e3c30387111cf369a4a06198fcc80696ce",
+      "size": 322
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "heuristic_reply_mentions_does_not_exist",
+      "note": "F24: a human reply containing 'does not exist' is not a bounce (was a recorded Python quirk)",
+      "python_error": null,
+      "records": 0,
+      "sha256": "ede013bc670af811432e170f154eb4484a9ea8db98504a5d8d22a618564ab57e",
+      "size": 280
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "dsn_2_0_0_delivered_falls_to_heuristic",
+      "note": "Status 2.x with Action delivered: no DSN record, heuristic marker 'delivery status notification'",
+      "python_error": null,
+      "records": 1,
+      "sha256": "f9bf07df94f660404bd36e548bda1e162bc6998389e89011f3003c9066aa7cc5",
+      "size": 887
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_diagnostic_truncated_500",
+      "note": "Diagnostic-Code over 500 characters is cut to 500",
+      "python_error": null,
+      "records": 1,
+      "sha256": "7571b5e8a489433a2d97975f5eb613dcbc0a27c14322fce358969106227ad54b",
+      "size": 1917
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_folded_diagnostic",
+      "note": "Diagnostic-Code folded over continuation lines",
+      "python_error": null,
+      "records": 1,
+      "sha256": "d7add5aba0d99d1b361390aef2dc53eb71cc8f56e057f6262b9c0a600054830f",
+      "size": 930
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_recipient_angle_and_case",
+      "note": "Final-Recipient with angle brackets and upper case",
+      "python_error": null,
+      "records": 1,
+      "sha256": "aa1e559581ae6bcdfb55f2814ddb0cac65c123ab3e3ba4518c0fcf5bc1c10c07",
+      "size": 856
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_final_recipient_without_prefix",
+      "note": "Final-Recipient without the rfc822; address-type prefix",
+      "python_error": null,
+      "records": 1,
+      "sha256": "d77eb9a2be7bf12a6608ff6fea97762b6879df1f39e0724d35adc458453496c4",
+      "size": 844
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_final_recipient_x400_type",
+      "note": "Final-Recipient with an x400 address type",
+      "python_error": null,
+      "records": 1,
+      "sha256": "e456be69dbd2f8dd216b3b8f441f73ddcbe0e54ef06d3f4ef019a9b535398754",
+      "size": 864
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "dsn_reporting_mta_block_only",
+      "note": "Only the per-message block: no per-recipient blocks, falls to the heuristic",
+      "python_error": null,
+      "records": 1,
+      "sha256": "8afe864799bee84681ca147abca2a04a22b62e236fe905c7f7e4733de6cf2f64",
+      "size": 776
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "dsn_utf8_diagnostic",
+      "note": "UTF-8 diagnostic text and recipient",
+      "python_error": "AttributeError",
+      "records": 0,
+      "sha256": "e2fa5b6113d78908194a8c6a9b2cffbc724c0e7294e5ff9edad5e13dfc5d788b",
+      "size": 918
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_status_without_dots",
+      "note": "Garbage Status value: neither 4. nor 5.: falls back to Action",
+      "python_error": null,
+      "records": 1,
+      "sha256": "40f3794631287c3b4f8e04516d267bf95c1eba4288cfc5044ab0bb78e36b5387",
+      "size": 851
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "dsn_action_expanded_no_status",
+      "note": "Action expanded without Status: skipped",
+      "python_error": null,
+      "records": 1,
+      "sha256": "e655bfa3cc7592793a73e27675f499bf77f6836bbdf0e2608546b1eee5d3023e",
+      "size": 835
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "dsn_original_message_without_message_id",
+      "note": "Embedded original has no Message-ID: empty original id",
+      "python_error": null,
+      "records": 1,
+      "sha256": "edef9eed1536c0dcf53e6d9e5b56fc8ac697eb20375b31387f4e70676d17b27c",
+      "size": 799
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_missing_closing_boundary",
+      "note": "multipart/report whose closing boundary is missing",
+      "python_error": null,
+      "records": 1,
+      "sha256": "7fb70fff384762a2512bb29b34293437423c1e50ef8415394eda38e8aa2917c2",
+      "size": 869
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_report_without_status_part",
+      "note": "report-type=delivery-status but no message/delivery-status part: heuristic",
+      "python_error": null,
+      "records": 1,
+      "sha256": "be072e7fb48979862f3b40c866f04d3e0ecd786dd59237dae7818d23e6fac7a6",
+      "size": 246
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "malformed_garbage_status_block",
+      "note": "message/delivery-status payload is binary noise",
+      "python_error": null,
+      "records": 1,
+      "sha256": "0ac526b05807f2eb18799e8fc137f71172de698113bc64b188ecb25ff7d2ce4e",
+      "size": 266
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "malformed_empty_file",
+      "note": "zero bytes",
+      "python_error": null,
+      "records": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "unknown"
+      ],
+      "name": "malformed_headers_only",
+      "note": "headers without a blank line or body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "a012a5bc02bc385ee16d4d3280407779caf97cf84f477f79e8e05d1aa91b951a",
+      "size": 80
+    },
+    {
+      "go_bounded": false,
+      "kinds": [],
+      "name": "malformed_binary_noise",
+      "note": "random-looking bytes with high bit set",
+      "python_error": null,
+      "records": 0,
+      "sha256": "9e1c936f1a61671484eed46c09637ce38afa0097dfee58c55926819db01a7d0a",
+      "size": 600
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_multipart_without_boundary_param",
+      "note": "Content-Type multipart/report with no boundary parameter",
+      "python_error": null,
+      "records": 1,
+      "sha256": "7f5d8c87a8aa6bd04835042cdf074cc75a1920e44bd5d64090e67eae4a2233ab",
+      "size": 163
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_rfc822_part_without_headers",
+      "note": "message/rfc822 part with an empty body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "ebc080f3c65bea5c1940246089fd33c8bc7ead75109ad18fc83b05b659635173",
+      "size": 324
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_nul_bytes_in_headers",
+      "note": "NUL bytes inside header values",
+      "python_error": null,
+      "records": 1,
+      "sha256": "9b99defcc36b91631baa9933c9ebf42ea3ad27b26227f9357e15b6a61b5b250a",
+      "size": 71
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "malformed_unterminated_quoted_boundary",
+      "note": "boundary parameter with an unterminated quote",
+      "python_error": null,
+      "records": 1,
+      "sha256": "8221828d73c59326311bb08abbd05258fe2d4e47efc648d2c7100d819d7473c0",
+      "size": 209
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "huge_single_header_200kb",
+      "note": "One 200 KB Subject header followed by a bounce body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "a2b8eac2c7ceb85e24173a18d48262f7559b5c0689e39a8b8f1e855e93a53fa5",
+      "size": 200146
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "huge_many_headers_5000",
+      "note": "5000 distinct X- headers",
+      "python_error": null,
+      "records": 1,
+      "sha256": "286f61b3399b3195d4d4be445c19fe73708d83a0edac1aa5ef62a33e58adcd13",
+      "size": 82881
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard",
+        "soft"
+      ],
+      "name": "huge_dsn_100_recipients",
+      "note": "DSN with 100 per-recipient blocks",
+      "python_error": null,
+      "records": 100,
+      "sha256": "b8810957a20b165dbf952b8313a7360d86e1fd18c8635173bf8a690503a75954",
+      "size": 13672
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "huge_body_100kb_heuristic",
+      "note": "100 KB plain text bounce body",
+      "python_error": null,
+      "records": 1,
+      "sha256": "c05757b000ca7b571797ea5116dad51321515ce07c48c8d73e739a050f221592",
+      "size": 105235
+    },
+    {
+      "go_bounded": false,
+      "kinds": [
+        "hard"
+      ],
+      "name": "deep_nesting_depth_4",
+      "note": "DSN nested inside 4 multipart/mixed wrappers (within the Go depth bound of 8)",
+      "python_error": null,
+      "records": 1,
+      "sha256": "a8401812cce411040e97e82f1f635a52e53133848a561cbe512425399d265a54",
+      "size": 1041
+    },
+    {
+      "go_bounded": true,
+      "kinds": [
+        "hard"
+      ],
+      "name": "deep_nesting_depth_12",
+      "note": "DSN nested inside 12 wrappers: Python walks it, Go refuses beyond depth 8 (D6)",
+      "python_error": null,
+      "records": 1,
+      "sha256": "92e87aed277e4af0c1109e14176b54843ad5ff3cd1e61b9d75c3e363beff1e5c",
+      "size": 1655
+    }
+  ]
+}

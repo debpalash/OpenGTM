@@ -1,0 +1,62 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/entities/company"
+  },
+  "response": {
+    "body": {
+      "entities": [
+        {
+          "canonical_name": "Acme Corporation",
+          "corroboration_count": 1,
+          "fields": {
+            "name": "Acme Corporation"
+          },
+          "id": "ent-alpha-1",
+          "identity_keys": {
+            "domain": "acme01.example.com"
+          },
+          "observation_count": 1,
+          "primary_city": null,
+          "primary_domain": "acme01.example.com",
+          "primary_email": null,
+          "primary_phone": null,
+          "source_agreement": {},
+          "sources": [
+            "seed"
+          ],
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "canonical_name": "Acme Corp",
+          "corroboration_count": 1,
+          "fields": {
+            "name": "Acme Corp"
+          },
+          "id": "ent-alpha-2",
+          "identity_keys": {
+            "domain": "acme-corp.example.com"
+          },
+          "observation_count": 1,
+          "primary_city": null,
+          "primary_domain": "acme-corp.example.com",
+          "primary_email": null,
+          "primary_phone": null,
+          "source_agreement": {},
+          "sources": [
+            "seed"
+          ],
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

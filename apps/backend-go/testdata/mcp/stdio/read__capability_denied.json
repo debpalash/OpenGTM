@@ -1,0 +1,28 @@
+{
+  "seq": 78,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "stdin": "Content-Length: 118\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 79, \"method\": \"tools/call\", \"params\": {\"name\": \"create_lead\", \"arguments\": {\"company\": \"x\"}}}"
+  },
+  "response": {
+    "stdout": "Content-Length: 171\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 79, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\\"error\\\": \\\"capability not granted\\\", \\\"required\\\": \\\"leads:write\\\"}\"}], \"isError\": false}}",
+    "exit_code": 0
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-read",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "x"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "capability not granted",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

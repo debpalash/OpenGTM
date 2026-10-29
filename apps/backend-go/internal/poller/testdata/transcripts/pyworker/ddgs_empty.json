@@ -1,0 +1,31 @@
+{
+ "description": "no rows -> success with an empty list",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:ddgs_empty:0",
+  "input": {
+   "max_results": 8,
+   "query": "\"Nobody\" site:linkedin.com/in"
+  },
+  "provider": "ddgs_search",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": null,
+  "output": {
+   "billing_evidence": null,
+   "confidence": 1.0,
+   "error": "",
+   "fields": {
+    "results": []
+   },
+   "license": "unknown",
+   "provider": "ddgs_search",
+   "success": true
+  },
+  "status": "ok"
+ },
+ "scenario": "ddgs_empty"
+}

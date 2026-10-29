@@ -1,0 +1,524 @@
+// Command worker is the job executor: it claims executor='go' jobs (every job since the plan 15 cutover) from the
+// Postgres queue, heartbeats leases, and finalizes outcomes. Every replica also runs the stale-claim reaper
+// (queue.RunReaper), which recovers the claims of dead workers through the normal retry/failure path.
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"os"
+	"os/signal"
+	"runtime/debug"
+	"strconv"
+	"strings"
+	"sync"
+	"syscall"
+	"time"
+
+	"log/slog"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionbox"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/ambitionimport"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachinbound"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/outreachsend"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/progress"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/refresh"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/runplan"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/signalscan"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/telemetry"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/workbook"
+)
+
+const (
+	idleSleep      = time.Second
+	cancelInterval = 2 * time.Second
+)
+
+// claimNext claims one job using the shared per-workspace cap from cfg.
+func claimNext(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, workerID string) (*queue.Claim, error) {
+	return queue.ClaimNext(ctx, pool, workerID, cfg.MaxActivePerWorkspace)
+}
+
+// runner executes a claimed job; a nil error means completed.
+type runner func(ctx context.Context, c *queue.Claim) error
+
+func main() {
+	if err := run(); err != nil {
+		fmt.Fprintln(os.Stderr, "worker:", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	cfg, err := config.Load()
+	if err != nil {
+		return err
+	}
+	if err := config.CheckSecretKey(cfg.SecretKey, cfg.AppEnv); err != nil {
+		return err
+	}
+	log := telemetry.NewLogger(os.Stdout)
+	log.Info("starting worker", "config", cfg)
+	config.LogIgnoredRetired(log, os.Getenv)
+	logAutomationFlags(log, cfg)
+
+	rootCtx, stop := context.WithCancel(context.Background())
+	defer stop()
+
+	pcfg, err := poolConfig(cfg)
+	if err != nil {
+		return err
+	}
+	pool, err := pgxpool.NewWithConfig(rootCtx, pcfg)
+	if err != nil {
+		return err
+	}
+	defer pool.Close()
+	if err := migrate.CheckSchema(rootCtx, pool, config.RequiredGoSchemaVersion); err != nil {
+		return err
+	}
+	if err := checkDBRole(rootCtx, pool, requireSafeRole(os.Getenv), log); err != nil {
+		return err
+	}
+	if _, err := telemetry.StartDebugServer(rootCtx, cfg.DebugAddr); err != nil {
+		return err
+	}
+
+	// claimCtx stops claiming on SIGTERM/SIGINT; jobCtx is cancelled only
+	// after the shutdown grace expires.
+	claimCtx, stopClaiming := signal.NotifyContext(rootCtx, syscall.SIGTERM, syscall.SIGINT)
+	defer stopClaiming()
+	jobCtx, cancelJobs := context.WithCancel(rootCtx)
+	defer cancelJobs()
+
+	workerID := fmt.Sprintf("go-%s-%d", hostname(), os.Getpid())
+	rn, closeDeps, err := buildRunner(cfg, pool, log)
+	if err != nil {
+		return err
+	}
+	defer closeDeps()
+	// Every replica runs the stale-claim reaper (queue.RunReaper: rows locked FOR UPDATE SKIP LOCKED, so replicas
+	// share the work). It lives here, not in the scheduler, because the failure hooks it calls are registered by
+	// buildRunner in this process; it starts after them and stops with claiming.
+	reaperDone := make(chan struct{})
+	go func() {
+		defer close(reaperDone)
+		queue.RunReaper(claimCtx, pool, log.With("component", "reaper"), queue.DefaultReapInterval,
+			queue.ReaperStaleAfter(cfg.HeartbeatInterval))
+	}()
+	defer func() { stopClaiming(); <-reaperDone }()
+	var wg sync.WaitGroup
+	for i := 0; i < cfg.WorkerConcurrency; i++ {
+		wg.Add(1)
+		go func(slot int) {
+			defer wg.Done()
+			slotLoop(claimCtx, jobCtx, pool, cfg, log.With("slot", slot), workerID, rn)
+		}(i)
+	}
+	done := make(chan struct{})
+	go func() { wg.Wait(); close(done) }()
+
+	select {
+	case <-done:
+	case <-claimCtx.Done():
+		log.Info("shutdown: draining", "grace", cfg.ShutdownGrace)
+		select {
+		case <-done:
+		case <-time.After(cfg.ShutdownGrace):
+			log.Warn("shutdown grace expired; cancelling jobs, leaving their rows for the stale-claim reaper (queue.RunReaper)")
+			cancelJobs()
+			<-done
+		}
+	}
+	return nil
+}
+
+// requireSafeRole reads PG_RLS_REQUIRE_SAFE_ROLE (default true; only an
+// explicit false value downgrades, anything else stays strict).
+func requireSafeRole(get func(string) string) bool {
+	switch strings.ToLower(strings.TrimSpace(get("PG_RLS_REQUIRE_SAFE_ROLE"))) {
+	case "false", "0", "no", "off", "f", "n":
+		return false
+	}
+	return true
+}
+
+// checkDBRole refuses a superuser/BYPASSRLS role (RLS would be silently inert
+// for every job handler), like api/mcp/scheduler/seed; strict=false
+// (PG_RLS_REQUIRE_SAFE_ROLE=false) downgrades the refusal to a CRITICAL log.
+func checkDBRole(ctx context.Context, pool *pgxpool.Pool, strict bool, log *slog.Logger) error {
+	safe, err := queue.AssertSafeRole(ctx, pool, strict)
+	if err != nil {
+		return err
+	}
+	if !safe {
+		log.Error("CRITICAL: database role is superuser/BYPASSRLS; Row-Level Security is inert (PG_RLS_REQUIRE_SAFE_ROLE=false)")
+	}
+	return nil
+}
+
+// Session limits on every pooled connection: a stuck lock or runaway statement
+// must fail the one query, not hold a slot (and its lease) forever.
+const (
+	dbLockTimeout      = "30s"
+	dbStatementTimeout = "60s"
+	finalizeTimeout    = 30 * time.Second
+	defaultJobTimeout  = 1800 * time.Second
+)
+
+// poolConfig is the pgx pool configuration for cfg.
+func poolConfig(cfg config.Config) (*pgxpool.Config, error) {
+	pcfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse DATABASE_URL: %w", err)
+	}
+	pcfg.MaxConns = int32(cfg.DBMaxConns)
+	if pcfg.ConnConfig.RuntimeParams == nil {
+		pcfg.ConnConfig.RuntimeParams = map[string]string{}
+	}
+	pcfg.ConnConfig.RuntimeParams["lock_timeout"] = dbLockTimeout
+	pcfg.ConnConfig.RuntimeParams["statement_timeout"] = dbStatementTimeout
+	pcfg.ConnConfig.RuntimeParams["TimeZone"] = "UTC" // naive timestamps (DEFAULT now(), casts) are UTC whatever the server zone
+	return pcfg, nil
+}
+
+// Job types this worker executes besides run_workbook and ambitionbox_import.
+const (
+	jobRefreshWorkbook = "refresh_workbook"
+	jobSignalScan      = "signal_scan"
+	// sourceWait bounds how long one refresh cycle waits for its source_workbook
+	// jobs before enriching the rows found so far (the refresh_workbook limit is 900s).
+	sourceWait = 600 * time.Second
+)
+
+// jobLimit is the wall-clock limit per job type: Python JOB_TIMEOUTS
+// (run_workbook 1800 configurable, ambitionbox_import 900, refresh_workbook 900,
+// signal_scan 300).
+func jobLimit(cfg config.Config, jobType string) time.Duration {
+	if d, ok := governanceLimit(jobType); ok {
+		return d
+	}
+	if d, ok := audienceLimit(jobType); ok {
+		return d
+	}
+	if d, ok := leadgenLimit(jobType); ok {
+		return d
+	}
+	switch jobType {
+	case ambitionimport.JobType:
+		return ambitionimport.JobTimeout
+	case jobRefreshWorkbook:
+		return 900 * time.Second
+	case jobSignalScan:
+		return 300 * time.Second
+	case jobTriggerEval, jobWatchPoll:
+		return automationTimeout
+	case jobSend:
+		return outreachsend.DefaultJobTimeout // Python JOB_TIMEOUTS["send"]
+	case outreachinbound.JobType:
+		return outreachInboundTimeout
+	}
+	return cfg.JobTimeout
+}
+
+// dispatch routes a claim to the handler of its type. A type without a handler
+// fails permanently (ClaimNext only claims registered types, so this is a
+// backstop).
+func dispatch(handlers map[string]runner) runner {
+	return func(ctx context.Context, c *queue.Claim) error {
+		h, ok := handlers[c.Type]
+		if !ok {
+			return &queue.PermanentError{Err: fmt.Errorf("worker: no handler for job type %q", c.Type)}
+		}
+		return h(ctx, c)
+	}
+}
+
+// signalCaps maps the SIGNAL_SCAN_* settings to the scan caps.
+func signalCaps(e config.ExecutorSettings) signalscan.Caps {
+	return signalscan.Caps{HotLeads: e.SignalHotLeads, WarmLeads: e.SignalWarmLeads,
+		PerWorkspace: e.SignalPerWorkspace, Global: e.SignalGlobal}
+}
+
+// runWithDeadline runs rn under the per-job wall-clock limit (Python:
+// JOB_TIMEOUTS[type]). When the limit, not a cancel from above, ends
+// the run, the error is "job timed out ...": a failed attempt through the
+// normal retry path, like a Python job timeout.
+func runWithDeadline(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim, limit time.Duration) error {
+	if limit <= 0 {
+		limit = defaultJobTimeout
+	}
+	tctx, cancel := context.WithTimeout(ctx, limit)
+	defer cancel()
+	err := guarded(tctx, log, rn, c)
+	if err != nil && tctx.Err() == context.DeadlineExceeded && ctx.Err() == nil {
+		return fmt.Errorf("job timed out after %s", limit)
+	}
+	return err
+}
+
+// guarded runs rn and converts a panic into a failed-job error. The stack is
+// logged (no payload or secrets in it); the error carries only the panic value,
+// truncated, so the process survives and the job fails through the normal
+// retry path.
+func guarded(ctx context.Context, log *slog.Logger, rn runner, c *queue.Claim) (err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Error("job panicked", "stack", string(debug.Stack()))
+			msg := "panic: " + fmt.Sprint(r)
+			if rs := []rune(msg); len(rs) > 200 {
+				msg = string(rs[:200])
+			}
+			err = errors.New(msg)
+		}
+	}()
+	return rn(ctx, c)
+}
+
+func hostname() string {
+	h, err := os.Hostname()
+	if err != nil || h == "" {
+		return "unknown"
+	}
+	return h
+}
+
+func slotLoop(claimCtx, jobCtx context.Context, pool *pgxpool.Pool, cfg config.Config, log *slog.Logger, workerID string, rn runner) {
+	for claimCtx.Err() == nil {
+		c, err := claimNext(claimCtx, pool, cfg, workerID)
+		if err != nil {
+			if claimCtx.Err() == nil {
+				log.Error("claim failed", "err", err)
+			}
+		}
+		if err != nil || c == nil {
+			select {
+			case <-claimCtx.Done():
+				return
+			case <-time.After(idleSleep):
+			}
+			continue
+		}
+		processJob(jobCtx, pool, cfg, telemetry.JobLogger(log, c.ID, c.WorkspaceID, c.LeaseToken), c, rn)
+	}
+}
+
+// processJob runs one claim with a heartbeat/cancel watcher, then finalizes.
+// If the job context is cancelled by shutdown it returns without finalizing.
+func processJob(ctx context.Context, pool *pgxpool.Pool, cfg config.Config, log *slog.Logger, c *queue.Claim, rn runner) {
+	jctx, cancel := context.WithCancelCause(ctx)
+	defer cancel(nil)
+	errLeaseLost := errors.New("lease lost or job cancelled")
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		hb := time.NewTicker(cfg.HeartbeatInterval)
+		cc := time.NewTicker(cancelInterval)
+		defer hb.Stop()
+		defer cc.Stop()
+		for {
+			select {
+			case <-jctx.Done():
+				return
+			case <-hb.C:
+				active, err := queue.Heartbeat(jctx, pool, c)
+				if err != nil {
+					log.Warn("heartbeat failed", "err", err)
+				} else if !active {
+					log.Warn("lease lost")
+					cancel(errLeaseLost)
+					return
+				}
+			case <-cc.C:
+				if cancelled, err := queue.IsCancelled(jctx, pool, c); err == nil && cancelled {
+					log.Info("job cancelled externally")
+					cancel(errLeaseLost)
+					return
+				}
+			}
+		}
+	}()
+
+	runErr := runWithDeadline(jctx, log, rn, c, jobLimit(cfg, c.Type))
+	cancel(nil)
+	wg.Wait()
+
+	if ctx.Err() != nil {
+		log.Warn("shutdown: leaving claim for the stale-claim reaper (queue.RunReaper)")
+		return
+	}
+	if context.Cause(jctx) == errLeaseLost {
+		// Lease lost: Finalize is fenced and would no-op; a cancelled row
+		// still needs ownership cleared, which Finalize handles.
+		runErr = errLeaseLost
+	}
+	out := queue.Outcome{Status: "completed"}
+	if runErr != nil {
+		// A permanent failure (e.g. run not found) skips the retry budget.
+		out = queue.Outcome{Status: "failed", Error: runErr.Error(), NoRetry: queue.IsPermanent(runErr)}
+	}
+	fctx, fcancel := context.WithTimeout(context.WithoutCancel(ctx), finalizeTimeout)
+	defer fcancel()
+	persisted, err := queue.FinalizeAndNotify(fctx, pool, log, c, out)
+	if err != nil {
+		log.Error("finalize failed", "err", err)
+		return
+	}
+	log.Info("finalized", "status", out.Status, "persisted", persisted)
+}
+
+// buildRunner wires every job handler. GO_WORKER_TEST_BLOCK_SECONDS blocks a job before it runs, honored only
+// when APP_ENV=test (interop tests SIGKILL the worker during the block). Since the plan 15 cutover this worker is
+// the only executor: every job type is registered unconditionally, nothing is handed back, and a job this process
+// cannot run (a missing browser service, master key or emitter) fails permanently with the reason.
+func buildRunner(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger) (runner, func(), error) {
+	sh, err := newWorkerShared(cfg, pool)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Manifests come from the worker's own connector index; their auth.env_var set is the allow-list for
+	// in-process credential resolution.
+	allow := credentials.NewManifestAllow(localManifests(connectorIndex))
+	deps := workbook.Deps{
+		Pool:   pool,
+		Client: egress.NewClientForEnv(cfg.AppEnv, cfg.EgressAllowHosts),
+		URLCheck: func(raw string) error {
+			return egress.CheckURLFor(cfg.AppEnv, cfg.EgressAllowHosts, raw, true)
+		},
+		Creds:     credentials.NewLocal(sh.local, allow.Allowed, nil),
+		Manifests: allow,
+		Log:       log,
+	}
+	runConcurrency := envInt("WORKBOOK_RUN_CONCURRENCY", 12)
+	deps.PlanGoBlock = goBlockPlanner(pool, connectorIndex, runConcurrency, func() runplan.Config {
+		return runplan.Config{ProvenanceTracking: config.LoadWbExec(config.Getenv).ProvenanceTracking,
+			AutomationsEnabled: cfg.Flags.AutomationsEnabled}
+	})
+	// Every provider runs in process (providerrun: settings, cache, stats ledger; declarative manifests from the
+	// connector index); there is no Python worker.
+	provRunner := workerProviderRunner(cfg, pool, sh.local, sh.app.Get, log)
+	deps.Runner = provRunner
+	provRPC, err := providerRPC(cfg, pool, log, sh.local, provRunner)
+	if err != nil {
+		return nil, nil, err
+	}
+	deps.AIBatch = workbook.BatchConfig{Enabled: envBool("GO_AI_BATCH_ENABLED"), MinRows: envInt("WORKBOOK_BATCH_MIN_ROWS", 20)}
+	closeFn := func() {}
+	var prog progress.Publisher
+	if cfg.RedisURL != "" {
+		pub, err := progress.NewRedis(cfg.RedisURL, log)
+		if err != nil {
+			return nil, nil, err
+		}
+		deps.Progress = pub
+		prog = pub
+		closeFn = func() { _ = pub.Close() }
+	}
+	// One emitter for every Go write site: run-end on_rows_changed, poller signals, ambitionbox
+	// rows and signal scan all enqueue trigger_eval (F7).
+	emitter := automationEmitter(cfg, log)
+	deps.Emitter = emitter
+	if err := wireFullRun(&deps, cfg, pool, log, sh.local); err != nil {
+		return nil, nil, err
+	}
+	aiResearcher := wireAICols(&deps, cfg, pool, log, sh)
+	handle := workbook.Handler(deps)
+	// ambitionbox_import: the client is built on the SSRF-guarded egress client;
+	// the failure hook reconciles run and workbook after a persisted failure.
+	abDeps := ambitionimport.Deps{Pool: pool, Fetcher: ambitionbox.NewEgress(cfg.AppEnv, cfg.EgressAllowHosts),
+		Hook: emitter, Progress: prog, Log: log}
+	queue.AllowJobType(ambitionimport.JobType)
+	ambitionimport.RegisterFailureHook(abDeps)
+	block := time.Duration(0)
+	if cfg.AppEnv == "test" {
+		if s, err := strconv.Atoi(os.Getenv("GO_WORKER_TEST_BLOCK_SECONDS")); err == nil && s > 0 {
+			block = time.Duration(s) * time.Second
+		}
+	}
+	rfDeps := refresh.Deps{Pool: pool, SourceWait: sourceWait}
+	ssDeps := signalscan.Deps{Pool: pool, Hook: abDeps.Hook, Log: log, Caps: ptr(signalCaps(cfg.Executor))}
+	if provRPC != nil {
+		ssDeps.Py = provRPC
+	}
+	refresh.RegisterFailureHook(rfDeps) // a refresh job that exhausts its retries re-seeds the chain
+	queue.AllowJobType(jobRefreshWorkbook)
+	queue.AllowJobType(jobSignalScan)
+	handlers := map[string]runner{
+		queue.JobTypeRunWorkbook: handle,
+		ambitionimport.JobType:   func(ctx context.Context, c *queue.Claim) error { return ambitionimport.Handle(ctx, abDeps, c) },
+		jobRefreshWorkbook:       func(ctx context.Context, c *queue.Claim) error { return refresh.Handle(ctx, rfDeps, c) },
+		jobSignalScan:            func(ctx context.Context, c *queue.Claim) error { return signalscan.HandleScan(ctx, ssDeps, c) },
+	}
+	for typ, h := range buildAutomations(cfg, pool, log, deps, sh.local, provRPC, emitter) {
+		handlers[typ] = h
+	}
+	for typ, h := range buildOutreach(cfg, pool, log, sh.local, outreachOpts{}) {
+		handlers[typ] = h
+	}
+	for typ, h := range governanceHandlers(cfg, pool, log, governanceOpts{researcher: aiResearcher}) {
+		handlers[typ] = h
+	}
+	for typ, h := range audienceHandlers(cfg, pool, log, sh.local, emitter, audienceOpts{}) {
+		handlers[typ] = h
+	}
+	// The collect pipeline is built once and shared by collect, bulk_enrich, the source_health probes and the
+	// collection-query source workbooks (plan 15 WP-CUTOVER: it used to be wired twice).
+	cd, web, cerr := liveCollectDeps(cfg, pool, log, config.Getenv, provRPC, sh)
+	if cerr != nil {
+		log.Error("collect pipeline not wired: collect, bulk_enrich, source_health_check and collection-query source workbooks will fail", "err", cerr)
+	}
+	for typ, h := range leadgenHandlers(cfg, pool, log, leadgenOpts{prober: nativeProber(web), why: errText(cerr)}) {
+		handlers[typ] = h
+	}
+	for typ, h := range collectHandlers(pool, log, collectOpts{deps: cd, why: errText(cerr)}) {
+		handlers[typ] = h
+	}
+	for typ, h := range sourcewbHandlers(pool, log, prog, emitter, sh.local, sourcewbOpts{collectDeps: cd}) {
+		handlers[typ] = h
+	}
+	route := dispatch(handlers)
+	return func(ctx context.Context, c *queue.Claim) error {
+		if block > 0 {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+			case <-time.After(block):
+			}
+		}
+		return route(ctx, c)
+	}, closeFn, nil
+}
+
+func errText(err error) string {
+	if err == nil {
+		return ""
+	}
+	return err.Error()
+}
+
+func ptr[T any](v T) *T { return &v }
+
+func envBool(key string) bool {
+	switch strings.ToLower(strings.TrimSpace(config.Getenv(key))) {
+	case "1", "true", "yes", "on":
+		return true
+	}
+	return false
+}
+
+func envInt(key string, def int) int {
+	if n, err := strconv.Atoi(strings.TrimSpace(config.Getenv(key))); err == nil && n > 0 {
+		return n
+	}
+	return def
+}

@@ -1,0 +1,99 @@
+# Generator for retention_vectors.json (run from legacy/python; save as .py to run).
+#   cd legacy/python && TZ=UTC DATABASE_URL=postgresql+psycopg://postgres:postgres@127.0.0.1:55480/<private clone> \
+#     uv run python /path/to/gen_vectors.py > apps/backend-go/internal/retention/testdata/retention_vectors.json
+# The clone is a throwaway CREATE DATABASE ... TEMPLATE opengtm_test; drop it afterwards.
+# Expectations come from Python's normalized_days / _targets / preview_retention, run against a
+# real Postgres under three session TimeZones (replica role skips FKs for the seeded rows).
+import json, os, sys
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from apps.api.services.governance import retention as R
+
+URL = os.environ["DATABASE_URL"]
+NOW = datetime(2026, 6, 15, 12, 0, 0, tzinfo=timezone.utc)
+AGES = [29.9, 30.1, 89.9, 90.1, 179.9, 180.1, 364.9, 365.1]
+TABLES = ["governance_audit_events", "llm_usage_daily", "signals", "destination_deliveries",
+          "destination_inbound_receipts", "audience_membership_events", "playbook_results", "outreach_sends"]
+WS = ["wsA", "wsB"]
+rows = [{"table": t, "ws": w, "age_days": a} for t in TABLES for w in WS for a in AGES]
+
+
+def naive(age):
+    return (NOW - timedelta(days=age)).replace(tzinfo=None).isoformat(sep=" ", timespec="microseconds")
+
+
+def insert(conn, i, r):
+    t, w, age = r["table"], r["ws"], r["age_days"]
+    p = {"i": i, "w": w, "n": naive(age), "d": (NOW - timedelta(days=age)).date().isoformat(), "e": (NOW - timedelta(days=age)).timestamp(), "a": (NOW - timedelta(days=age)).isoformat()}
+    sql = {
+        "governance_audit_events": "INSERT INTO governance_audit_events (id,workspace_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json,created_at) VALUES ('g'||:i,:w,'admin','POST','/r','/p',200,'success','rid','{}',:n)",
+        "llm_usage_daily": "INSERT INTO llm_usage_daily (workspace_id,provider,date,updated_at) VALUES (:w,'p'||:i,:d,'x')",
+        "signals": "INSERT INTO signals (id,workspace_id,created_at) VALUES ('s'||:i,:w,:e)",
+        "destination_deliveries": "INSERT INTO destination_deliveries (workspace_id,run_id,destination_id,lead_id,operation,idempotency_key,payload_fingerprint,status,attempts,created_at) VALUES (:w,'r','d',:i,'upsert','k'||:i,'f','sent',0,:n)",
+        "destination_inbound_receipts": "INSERT INTO destination_inbound_receipts (id,workspace_id,destination_id,provider,external_event_id,status,conflict_policy,applied_fields,ignored_fields,payload_fingerprint,created_at) VALUES ('i'||:i,:w,'d','p','e'||:i,'ok','x','{}','{}','f',:n)",
+        "audience_membership_events": "INSERT INTO audience_membership_events (workspace_id,audience_id,lead_id,event_type,snapshot,created_at) VALUES (:w,'a',:i,'enter','{}',:n)",
+        "playbook_results": "INSERT INTO playbook_results (workspace_id,run_id,lead_id,status,value,result_metadata,attempts,created_at) VALUES (:w,'r',:i,'ok','v','{}',0,:n)",
+        "outreach_sends": "INSERT INTO outreach_sends (workspace_id,to_email,idempotency_key,created_at) VALUES (:w,'a@b.c','k'||:i,:a)",
+    }[t]
+    conn.execute(text(sql), p)
+
+
+admin = create_engine(URL)
+with admin.begin() as c:
+    c.execute(text("SET session_replication_role = replica"))
+    for t in TABLES:
+        c.execute(text(f"DELETE FROM {t} WHERE workspace_id IN ('wsA','wsB')"))
+    for i, r in enumerate(rows):
+        insert(c, i, r)
+
+CASES = {
+    "minimums": {"audit": 90, "llm_usage": 30, "signals": 30, "activation": 30, "audience_history": 30, "agent_results": 30, "outreach_history": 30},
+    "defaults": dict(R.DEFAULT_DAYS),
+    "mixed": {"audit": 365, "activation": 90, "signals": 180},
+}
+out = {"now": NOW.isoformat(), "rows": rows, "cases": []}
+for name, days in CASES.items():
+    norm = R.normalized_days(days)
+    cutoffs = {}
+    for category, model, column, storage in [("audit", "governance_audit_events", None, "datetime"), ("llm_usage", "llm_usage_daily", None, "date"), ("signals", "signals", None, "epoch"), ("activation", "destination_deliveries", None, "datetime"), ("activation", "destination_inbound_receipts", None, "datetime"), ("audience_history", "audience_membership_events", None, "datetime"), ("agent_results", "playbook_results", None, "datetime"), ("outreach_history", "outreach_sends", None, "datetime")]:
+        cutoff = NOW - timedelta(days=norm[category])
+        cutoffs[model] = cutoff.timestamp() if storage == "epoch" else cutoff.date().isoformat() if storage == "date" else cutoff.isoformat()
+    exp = {}
+    for tz in ["UTC", "Asia/Kolkata", "America/New_York"]:
+        eng = create_engine(URL, connect_args={"options": f"-c timezone={tz}"})
+        with sessionmaker(eng)() as db:
+            exp[tz] = {w: R.preview_retention(db, w, days, NOW) for w in WS}
+    out["cases"].append({"name": name, "days": days, "normalized": norm, "cutoffs": cutoffs, "expected": exp})
+
+errs = []
+for v in [{"bogus": 1}, {"zeta": 1, "alpha": 2}, {"audit": 89}, {"audit": 3651}, {"llm_usage": 29}, {"outreach_history": 30}, {"audit": 90}, {"signals": 3650}, {}, {"audit": 90.0}]:
+    try:
+        errs.append({"in": v, "out": R.normalized_days(v)})
+    except ValueError as e:
+        errs.append({"in": v, "error": str(e)})
+out["normalize"] = errs
+
+from apps.api.services.governance.models import RetentionPolicy, RetentionSchedule
+from apps.api.models import Job
+sched = []
+for tz in ["UTC", "Asia/Kolkata"]:
+    eng = create_engine(URL, connect_args={"options": f"-c timezone={tz}"})
+    for scenario, enabled, hold in [("enabled", True, False), ("disabled", False, False), ("hold", True, True)]:
+        ws = "wsSched"
+        with admin.begin() as c:
+            c.execute(text("SET session_replication_role = replica"))
+            c.execute(text("DELETE FROM retention_policies WHERE workspace_id IN ('wsSched','wsSched2')"))
+            c.execute(text("DELETE FROM retention_schedules WHERE workspace_id IN ('wsSched','wsSched2')"))
+            c.execute(text("DELETE FROM jobs WHERE fire_key LIKE 'retention:wsSched%'"))
+            c.execute(text("INSERT INTO jobs (type,status,fire_key,payload,executor) VALUES ('retention_enforce','pending','retention:wsSched:2020-01-01','{}','python'),('retention_enforce','processing','retention:wsSched:2020-01-02','{}','python'),('retention_enforce','pending','retention:wsSched2:2020-01-01','{}','python'),('other','pending','retention:wsSched:2020-01-03','{}','python')"))
+        with sessionmaker(eng)() as db:
+            pol = RetentionPolicy(workspace_id=ws, enabled=enabled, legal_hold=hold, retention_days=R.normalized_days({}), updated_by=7)
+            db.add(pol)
+            nxt = R.schedule_policy(db, pol, now=NOW)
+            db.refresh(pol)
+            mirror = db.query(RetentionSchedule).filter(RetentionSchedule.workspace_id == ws).one()
+            jobs = [{"type": j.type, "status": j.status, "fire_key": j.fire_key, "payload": j.payload, "executor": j.executor, "priority": j.priority, "max_retries": j.max_retries, "next_run_at": j.next_run_at.isoformat() if j.next_run_at else None, "workspace_id": j.workspace_id} for j in db.query(Job).filter(Job.fire_key.like("retention:wsSched%")).order_by(Job.fire_key).all()]
+            sched.append({"tz": tz, "scenario": scenario, "returned": nxt.isoformat() if nxt else None, "policy_next_run_at": pol.next_run_at.isoformat() if pol.next_run_at else None, "mirror": {"enabled": mirror.enabled, "next_run_at": mirror.next_run_at.isoformat() if mirror.next_run_at else None}, "jobs": jobs})
+out["schedule"] = sched
+json.dump(out, sys.stdout, indent=1)

@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-b-01"
+  },
+  "response": {
+    "body": {
+      "config": {},
+      "consecutive_failures": 0,
+      "created_at": "2026-08-29T09:20:00+00:00",
+      "cursor": {
+        "bootstrapped": true
+      },
+      "enabled": true,
+      "id": "watch-b-01",
+      "interval": "daily",
+      "kind": "funding",
+      "last_error": null,
+      "last_polled_at": null,
+      "lead_id": 16,
+      "next_poll_at": "2026-08-30T09:20:00+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "company_funded"
+      ],
+      "target": "Initech Two",
+      "workspace_id": "ws-beta"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

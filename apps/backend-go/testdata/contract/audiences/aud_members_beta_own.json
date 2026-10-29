@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-beta-act/members"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 13,
+        "joined_at": "2026-08-27T09:35:00",
+        "last_seen_at": "2026-08-27T09:35:00",
+        "lead_id": 17,
+        "snapshot": {
+          "city": "Mumbai",
+          "company": "Zenith Robotics Pvt Ltd",
+          "contact_person": "",
+          "contact_title": "Director",
+          "email": "beta@zenithrobotics.example.com",
+          "id": 17,
+          "phone": "",
+          "score": 70,
+          "score_tier": "warm",
+          "status": "new",
+          "website": "https://zenithrobotics.example.com"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

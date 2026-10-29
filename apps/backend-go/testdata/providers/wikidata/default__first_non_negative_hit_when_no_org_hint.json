@@ -1,0 +1,56 @@
+{
+ "provider": "wikidata",
+ "input_name": "default",
+ "scenario": "first_non_negative_hit_when_no_org_hint",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Acme+Corporation&language=en&type=item&format=json&limit=7",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"search\":[{\"id\":\"Q7\",\"label\":\"Acme\",\"description\":\"fictional brand\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q7&props=claims%7Cdescriptions&languages=en&format=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"entities\":{\"Q7\":{\"descriptions\":{\"en\":{\"value\":\"fictional brand\"}},\"claims\":{}}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "wikidata",
+  "success": true,
+  "fields": {
+   "description": "fictional brand"
+  },
+  "confidence": 0.6,
+  "error": ""
+ }
+}

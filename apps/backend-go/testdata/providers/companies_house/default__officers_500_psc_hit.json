@@ -1,0 +1,104 @@
+{
+ "provider": "companies_house",
+ "input_name": "default",
+ "scenario": "officers_500_psc_hit",
+ "input": {
+  "company": "Acme Ltd"
+ },
+ "secrets": {
+  "COMPANIES_HOUSE_API_KEY": "ctk_ch_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.company-information.service.gov.uk/search/companies?q=Acme+Ltd&items_per_page=20",
+    "headers": {
+     "accept": "application/json",
+     "authorization": "Basic {{b64secret:COMPANIES_HOUSE_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"items\":[{\"company_number\":\"01234567\",\"company_status\":\"dissolved\"},{\"company_number\":\"07654321\",\"company_status\":\"active\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.company-information.service.gov.uk/company/07654321",
+    "headers": {
+     "accept": "application/json",
+     "authorization": "Basic {{b64secret:COMPANIES_HOUSE_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"company_number\":\"07654321\",\"company_status\":\"active\",\"date_of_creation\":\"2010-04-21\",\"registered_office_address\":{\"premises\":\"1\",\"address_line_1\":\"High Street\",\"locality\":\"London\",\"postal_code\":\"EC1A 1BB\",\"country\":\"England\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.company-information.service.gov.uk/company/07654321/officers?items_per_page=35",
+    "headers": {
+     "accept": "application/json",
+     "authorization": "Basic {{b64secret:COMPANIES_HOUSE_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 500,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><body>Internal Server Error</body></html>"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.company-information.service.gov.uk/company/07654321/persons-with-significant-control?items_per_page=35",
+    "headers": {
+     "accept": "application/json",
+     "authorization": "Basic {{b64secret:COMPANIES_HOUSE_API_KEY}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"items\":[{\"name\":\"Ada Lovelace\",\"notified_on\":\"2016-04-06\"},{\"name\":\"Ceased Person\",\"ceased_on\":\"2019-01-01\"}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "companies_house",
+  "success": true,
+  "fields": {
+   "company_number": "07654321",
+   "company_status": "active",
+   "incorporation_date": "2010-04-21",
+   "founded_year": "2010",
+   "registered_address": "1, High Street, London, EC1A 1BB, England",
+   "address": "1, High Street, London, EC1A 1BB, England",
+   "decision_makers": "[{\"name\": \"Ada Lovelace\", \"title\": \"Beneficial Owner\", \"role\": \"beneficial-owner\", \"source\": \"psc\", \"appointed_on\": \"2016-04-06\"}]",
+   "contact_person": "Ada Lovelace",
+   "contact_title": "Beneficial Owner"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

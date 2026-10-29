@@ -1,0 +1,42 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Users?filter=USERNAME%20eq%20%22DAVE.example%22"
+  },
+  "response": {
+    "body": {
+      "Resources": [
+        {
+          "active": true,
+          "displayName": "Dave",
+          "externalId": "ext-1",
+          "id": "4",
+          "meta": {
+            "created": "2026-10-26T07:13:12.998543+00:00",
+            "lastModified": "2026-10-26T07:13:12.998543+00:00",
+            "location": "/scim/v2/alpha/Users/4",
+            "resourceType": "User"
+          },
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:User"
+          ],
+          "userName": "dave.example"
+        }
+      ],
+      "itemsPerPage": 1,
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      ],
+      "startIndex": 1,
+      "totalResults": 1
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

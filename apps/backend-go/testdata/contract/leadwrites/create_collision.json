@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "city": "Mumbai",
+      "company": "Zenith Robotics Pvt Ltd",
+      "email": "new@x.example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "lead_id": 6,
+        "message": "A lead already exists for this company and city. Update the existing lead instead."
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

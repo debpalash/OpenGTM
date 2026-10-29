@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "client_id": "cid2",
+      "default_role": "member",
+      "enabled": false,
+      "issuer": "https://login.example.test"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "allowed_domains": [],
+      "auto_provision": false,
+      "client_id": "cid2",
+      "client_secret_configured": true,
+      "default_role": "member",
+      "enabled": false,
+      "enforce_sso": false,
+      "issuer": "https://login.example.test",
+      "owner_password_fallback": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

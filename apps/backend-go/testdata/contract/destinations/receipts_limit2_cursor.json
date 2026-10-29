@@ -1,0 +1,56 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-hubspot/inbound-receipts?limit=2&cursor=WyIyMDI2LTA4LTI4VDEwOjAwOjAwIiwicmNwLWh1Yi01Il0"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "WyIyMDI2LTA4LTI4VDA5OjAwOjAwIiwicmNwLWh1Yi0zIl0",
+      "offset": null,
+      "receipts": [
+        {
+          "applied_fields": [
+            "phone"
+          ],
+          "conflict_policy": "fill_missing",
+          "created_at": "2026-08-28T10:00:00",
+          "destination_id": "dst-act-hubspot",
+          "error": null,
+          "external_event_id": "evt-0004",
+          "external_record_id": "hs-10",
+          "id": "rcp-hub-4",
+          "ignored_fields": [],
+          "lead_id": 10,
+          "provider": "hubspot",
+          "status": "applied"
+        },
+        {
+          "applied_fields": [],
+          "conflict_policy": "fill_missing",
+          "created_at": "2026-08-28T09:00:00",
+          "destination_id": "dst-act-hubspot",
+          "error": "No workspace lead matched the callback",
+          "external_event_id": "evt-0003",
+          "external_record_id": "hs-999",
+          "id": "rcp-hub-3",
+          "ignored_fields": [
+            "company"
+          ],
+          "lead_id": null,
+          "provider": "hubspot",
+          "status": "unmatched"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

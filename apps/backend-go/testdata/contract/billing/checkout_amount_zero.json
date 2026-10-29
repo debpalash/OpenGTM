@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "amount_usd": 0
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/billing/checkout"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "gt": 0.0
+          },
+          "input": 0,
+          "loc": [
+            "body",
+            "amount_usd"
+          ],
+          "msg": "Input should be greater than 0",
+          "type": "greater_than"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

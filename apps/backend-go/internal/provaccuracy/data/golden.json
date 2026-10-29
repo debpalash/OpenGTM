@@ -1,0 +1,51 @@
+{
+  "_about": "Golden dataset for the provider accuracy/freshness eval harness. Each case is a known-good ground truth for a lead identity. The scorer compares recorded provider outputs against `expected` to learn a per-provider CORRECTNESS prior (separate from hit-rate). Values are public, stable facts about well-known companies; keep them conservative and verifiable. `expected_asof` is the date the fact was last verified — used for the freshness signal.",
+  "version": 1,
+  "cases": [
+    {
+      "id": "spacex",
+      "input": {"company": "SpaceX", "domain": "spacex.com", "website": "https://www.spacex.com"},
+      "expected": {
+        "website": "spacex.com",
+        "linkedin_url": "https://www.linkedin.com/company/spacex",
+        "twitter_url": "https://twitter.com/spacex",
+        "founding_year": "2002",
+        "industry_tags": "aerospace"
+      },
+      "expected_asof": "2025-01-01"
+    },
+    {
+      "id": "stripe",
+      "input": {"company": "Stripe", "domain": "stripe.com", "website": "https://stripe.com"},
+      "expected": {
+        "website": "stripe.com",
+        "linkedin_url": "https://www.linkedin.com/company/stripe",
+        "twitter_url": "https://twitter.com/stripe",
+        "founding_year": "2010",
+        "industry_tags": "fintech"
+      },
+      "expected_asof": "2025-01-01"
+    },
+    {
+      "id": "github",
+      "input": {"company": "GitHub", "domain": "github.com", "website": "https://github.com"},
+      "expected": {
+        "website": "github.com",
+        "linkedin_url": "https://www.linkedin.com/company/github",
+        "twitter_url": "https://twitter.com/github",
+        "founding_year": "2008"
+      },
+      "expected_asof": "2025-01-01"
+    },
+    {
+      "id": "mongodb",
+      "input": {"company": "MongoDB", "domain": "mongodb.com", "website": "https://www.mongodb.com"},
+      "expected": {
+        "website": "mongodb.com",
+        "linkedin_url": "https://www.linkedin.com/company/mongodbinc",
+        "founding_year": "2007"
+      },
+      "expected_asof": "2025-01-01"
+    }
+  ]
+}

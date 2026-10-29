@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "enabled": true
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: governance.manage"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

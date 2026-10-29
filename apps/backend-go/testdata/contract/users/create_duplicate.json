@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "password": "whatever-1",
+      "username": "bob"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/admin/users"
+  },
+  "response": {
+    "body": {
+      "detail": "Username already registered"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

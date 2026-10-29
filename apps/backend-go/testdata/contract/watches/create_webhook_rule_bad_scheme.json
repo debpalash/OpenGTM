@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "create_webhook_rule": true,
+      "kind": "funding",
+      "target": "x",
+      "webhook_url": "ftp://hooks.example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "webhook_url: only http/https allowed"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

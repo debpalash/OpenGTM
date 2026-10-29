@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "inbound_conflict_policy": "crm_wins"
+      },
+      "destination_type": "hubspot",
+      "field_map": {
+        "company": "name"
+      },
+      "name": "Created hubspot"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "inbound_conflict_policy": "crm_wins"
+      },
+      "created_at": "2026-10-26T17:05:47.569169",
+      "destination_type": "hubspot",
+      "enabled": true,
+      "field_map": {
+        "company": "name"
+      },
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002081",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Created hubspot",
+      "updated_at": "2026-10-26T17:05:47.569169"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

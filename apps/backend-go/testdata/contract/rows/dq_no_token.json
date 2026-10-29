@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "x",
+      "expected_count": 1
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

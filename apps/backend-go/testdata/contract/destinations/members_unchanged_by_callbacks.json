@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members?limit=1"
+  },
+  "response": {
+    "body": [
+      {
+        "id": 12,
+        "joined_at": "2026-08-27T08:35:00",
+        "last_seen_at": "2026-08-28T10:00:00",
+        "lead_id": 16,
+        "snapshot": {
+          "city": "Austin",
+          "company": "=SUM(1,2) Spreadsheet Inc",
+          "contact_person": "@mallory",
+          "contact_title": "",
+          "email": "+cmd@sheet.example.com",
+          "id": 16,
+          "phone": "+91 (22) 123-4567",
+          "score": 50,
+          "score_tier": "cold",
+          "status": "new",
+          "website": "https://sheet.example.com"
+        }
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

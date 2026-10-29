@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/cost"
+  },
+  "response": {
+    "body": {
+      "accounting_basis": "catalog_estimates_and_recorded_charges",
+      "budget_max_usd": 0.0,
+      "budget_spent_usd": 0.0,
+      "remaining_usd": null,
+      "reserved_usd": 0.002,
+      "uncertain_usd": 1e-06,
+      "unlimited": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

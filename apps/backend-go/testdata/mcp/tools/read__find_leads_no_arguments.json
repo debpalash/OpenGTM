@@ -1,0 +1,28 @@
+{
+  "seq": 18,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 17,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads"
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 17,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [\n    {\n      \"id\": 1,\n      \"company\": \"Acme Robotics\",\n      \"city\": \"Berlin\",\n      \"email\": \"info@acme.example.com\",\n      \"phone\": \"+49 30 555 0101\",\n      \"score\": 80,\n      \"tier\": \"hot\",\n      \"status\": \"new\",\n      \"website\": \"https://acme.example.com\",\n      \"specialization\": \"Robotics\",\n      \"company_size\": \"51-200\",\n      \"contact_person\": \"Ada Lovelace\"\n    },\n    {\n      \"id\": 2,\n      \"company\": \"Globex Corp\",\n      \"city\": \"Austin\",\n      \"email\": \"hello@globex.example.com\",\n      \"phone\": \"+1 512 555 0102\",\n      \"score\": 65,\n      \"tier\": \"warm\",\n      \"status\": \"contacted\",\n      \"website\": \"https://globex.example.com\",\n      \"specialization\": \"Energy\",\n      \"company_size\": \"201-500\",\n      \"contact_person\": \"Hank Scorpio\"\n    },\n    {\n      \"id\": 6,\n      \"company\": \"\\u6771\\u4eac\\u30c6\\u30c3\\u30af\",\n      \"city\": \"\\u6771\\u4eac\",\n      \"email\": \"hi@tokyo.example.com\",\n      \"phone\": \"\",\n      \"score\": 55,\n      \"tier\": \"warm\",\n      \"status\": \"qualified\",\n      \"website\": \"https://tokyo.example.com\",\n      \"specialization\": \"Software\",\n      \"company_size\": \"11-50\",\n      \"contact_person\": \"\"\n    },\n    {\n      \"id\": 3,\n      \"company\": \"\\u00c9co Solutions\",\n      \"city\": \"Pune\",\n      \"email\": \"\",\n      \"phone\": \"\",\n      \"score\": 40,\n      \"tier\": \"cold\",\n      \"status\": \"new\",\n      \"website\": \"https://eco.example.com\",\n      \"specialization\": \"Sustainability\",\n      \"company_size\": \"11-50\",\n      \"contact_person\": \"Isha Rao\"\n    },\n    {\n      \"id\": 4,\n      \"company\": \"Suppressed Inc\",\n      \"city\": \"Oslo\",\n      \"email\": \"stop@sup.example.com\",\n      \"phone\": \"\",\n      \"score\": 30,\n      \"tier\": \"cold\",\n      \"status\": \"new\",\n      \"website\": \"https://sup.example.com\",\n      \"specialization\": \"Retail\",\n      \"company_size\": \"1-10\",\n      \"contact_person\": \"\"\n    },\n    {\n      \"id\": 5,\n      \"company\": \"Delete Me Ltd\",\n      \"city\": \"Lyon\",\n      \"email\": \"bye@delete.example.com\",\n      \"phone\": \"\",\n      \"score\": 10,\n      \"tier\": \"unqualified\",\n      \"status\": \"new\",\n      \"website\": \"\",\n      \"specialization\": \"\",\n      \"company_size\": \"\",\n      \"contact_person\": \"\"\n    }\n  ],\n  \"count\": 6\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

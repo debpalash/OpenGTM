@@ -1,0 +1,86 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/templates/gallery?category=signals"
+  },
+  "response": {
+    "body": {
+      "categories": {
+        "crm-hygiene": {
+          "color": "text-emerald-400",
+          "icon": "sparkles",
+          "label": "CRM Hygiene"
+        },
+        "list-building": {
+          "color": "text-blue-400",
+          "icon": "radar",
+          "label": "List Building"
+        },
+        "outbound": {
+          "color": "text-violet-400",
+          "icon": "send",
+          "label": "Outbound"
+        },
+        "research": {
+          "color": "text-amber-400",
+          "icon": "search",
+          "label": "Research"
+        },
+        "signals": {
+          "color": "text-rose-400",
+          "icon": "activity",
+          "label": "Signals"
+        }
+      },
+      "recipes": [
+        {
+          "category": "signals",
+          "column_types": {
+            "lead_field": 2,
+            "research": 1,
+            "waterfall": 4
+          },
+          "columns_count": 7,
+          "description": "Track funding stage, last round, investors and recent news across your accounts, and research one cited, recent signal per company.",
+          "icon": "banknote",
+          "name": "Funding-round watch",
+          "slug": "funding-round-watch"
+        },
+        {
+          "category": "signals",
+          "column_types": {
+            "ai_formula": 1,
+            "lead_field": 2,
+            "output": 1,
+            "waterfall": 1
+          },
+          "columns_count": 5,
+          "description": "Detect open roles across your accounts from public ATS boards, then turn each hiring signal into a concrete outreach angle \u2014 pushed to your webhook.",
+          "icon": "radar",
+          "name": "Hiring-signals radar",
+          "slug": "hiring-signals-radar"
+        },
+        {
+          "category": "signals",
+          "column_types": {
+            "lead_field": 2,
+            "source": 1,
+            "waterfall": 3
+          },
+          "columns_count": 6,
+          "description": "Source companies actively posting on Naukri, Indeed and Shine \u2014 a spend-signal \u2014 then find an HR/hiring contact and a verified email.",
+          "icon": "briefcase",
+          "name": "Job-board intent (India)",
+          "slug": "job-board-intent-india"
+        }
+      ],
+      "total": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

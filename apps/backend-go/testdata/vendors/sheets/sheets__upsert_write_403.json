@@ -1,0 +1,68 @@
+{
+ "vendor": "sheets",
+ "scenario": "upsert_write_403",
+ "call": {
+  "function": "upsert_row",
+  "args": {
+   "spreadsheet_id": "sheet-contract-01",
+   "values": [
+    "a"
+   ],
+   "idempotency_key": "k"
+  }
+ },
+ "secrets": {
+  "GOOGLE_SHEETS_TOKEN": "ctk_sheets_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-contract-01/values/Sheet1%21A%3AZZ?majorDimension=ROWS",
+    "headers": {
+     "authorization": "Bearer {{secret:GOOGLE_SHEETS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-contract-01/values/Sheet1%21A%3AZZ:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+    "headers": {
+     "authorization": "Bearer {{secret:GOOGLE_SHEETS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"values\":[[\"k\",\"a\"]]}",
+    "json": {
+     "values": [
+      [
+       "k",
+       "a"
+      ]
+     ]
+    }
+   },
+   "response": {
+    "status": 403,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"error\":{\"code\":403}}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HTTP 403: {\"error\":{\"code\":403}}"
+ }
+}

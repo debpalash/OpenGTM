@@ -1,0 +1,12 @@
+{
+  "seq": 4,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "method": "notifications/initialized"
+  },
+  "response": null,
+  "audit": [],
+  "effects": {}
+}

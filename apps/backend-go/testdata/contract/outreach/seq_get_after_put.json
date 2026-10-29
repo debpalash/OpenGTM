@@ -1,0 +1,51 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/sequences/00000000-0000-4000-8000-000000001000"
+  },
+  "response": {
+    "body": {
+      "auto_paused": false,
+      "bounce_count": 0,
+      "complaint_count": 0,
+      "consent_basis": "contract",
+      "created_at": "2026-10-26T14:15:09.287668+00:00",
+      "daily_limit": 5,
+      "description": "new",
+      "id": "00000000-0000-4000-8000-000000001000",
+      "name": "Renamed",
+      "send_window_end": 2,
+      "send_window_start": 1,
+      "send_window_tz": "Asia/Kolkata",
+      "stats": {
+        "auto_paused": 0,
+        "bounce_count": 0,
+        "bounced": 0,
+        "complaint_count": 0,
+        "completed": 0,
+        "emails_sent": 0,
+        "failed": 0,
+        "opened": 0,
+        "pending": 0,
+        "replied": 0,
+        "scheduled": 0,
+        "sent": 0,
+        "skipped": 0,
+        "suppressed": 0,
+        "total": 0
+      },
+      "status": "active",
+      "steps": [],
+      "updated_at": "2026-10-26T14:15:09.639850+00:00",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

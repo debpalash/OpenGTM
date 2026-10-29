@@ -1,0 +1,485 @@
+{
+ "ratio": [
+  {
+   "a": "Acme Corp",
+   "b": "acme corp",
+   "out": 100
+  },
+  {
+   "a": "Acme Corporation",
+   "b": "Corporation Acme",
+   "out": 100
+  },
+  {
+   "a": "Café Ü",
+   "b": "cafe u",
+   "out": 67
+  },
+  {
+   "a": "",
+   "b": "",
+   "out": 100
+  },
+  {
+   "a": "a",
+   "b": "",
+   "out": 0
+  },
+  {
+   "a": "ĀB ab",
+   "b": "ab",
+   "out": 57
+  },
+  {
+   "a": "Infosys Ltd",
+   "b": "Infosys Limited",
+   "out": 85
+  },
+  {
+   "a": "TCS",
+   "b": "TCS Ltd",
+   "out": 60
+  },
+  {
+   "a": "Tata Consultancy Services",
+   "b": "Tata Consulting Services",
+   "out": 90
+  },
+  {
+   "a": "Wipro",
+   "b": "Wipro Technologies",
+   "out": 43
+  },
+  {
+   "a": "  x--y  ",
+   "b": "y x",
+   "out": 100
+  },
+  {
+   "a": "Zeta-Labs",
+   "b": "zeta labs",
+   "out": 100
+  },
+  {
+   "a": "ab",
+   "b": "abc",
+   "out": 80
+  },
+  {
+   "a": "abcd",
+   "b": "abce",
+   "out": 75
+  },
+  {
+   "a": "Ølstad AS",
+   "b": "olstad as",
+   "out": 94
+  }
+ ],
+ "dedup": [
+  {
+   "in": [
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "email": "email0",
+     "linkedin_url": "linkedin_url0"
+    },
+    {
+     "company": "Team Lease Services",
+     "website": "website1",
+     "email": "email1",
+     "linkedin_url": "linkedin_url1"
+    },
+    {
+     "company": "acme corporation",
+     "email": "email2",
+     "phone": "phone2"
+    },
+    {
+     "company": "Olaa",
+     "email": "email3",
+     "phone": "phone3",
+     "contact_person": "contact_person3"
+    },
+    {
+     "company": "Freshworks",
+     "website": "website4",
+     "email": "email4",
+     "phone": "phone4",
+     "contact_person": "contact_person4"
+    }
+   ],
+   "out": [
+    "Freshworks|website4|email4",
+    "Team Lease Services|website1|email1",
+    "Olaa||email3",
+    "Zeta Labs Pvt Ltd||email0",
+    "acme corporation||email2"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Olaa",
+     "linkedin_url": "linkedin_url0",
+     "contact_person": "contact_person0"
+    },
+    {
+     "company": "Infosys Ltd"
+    },
+    {
+     "company": "Quess",
+     "website": "website2",
+     "linkedin_url": "linkedin_url2"
+    },
+    {
+     "company": "Team Lease Services",
+     "email": "email3",
+     "contact_person": "contact_person3"
+    },
+    {
+     "company": "Team Lease Services",
+     "phone": "phone4",
+     "contact_person": "contact_person4"
+    },
+    {
+     "company": "ACME CORP",
+     "linkedin_url": "linkedin_url5"
+    },
+    {
+     "company": "Ol a",
+     "phone": "phone6",
+     "linkedin_url": "linkedin_url6",
+     "contact_person": "contact_person6"
+    },
+    {
+     "company": "ACME CORP",
+     "website": "website7"
+    },
+    {
+     "company": "Tata Consultancy",
+     "phone": "phone8"
+    }
+   ],
+   "out": [
+    "Ol a||",
+    "Olaa||",
+    "Quess|website2|",
+    "Team Lease Services||email3",
+    "ACME CORP||",
+    "Tata Consultancy||",
+    "Infosys Ltd||"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Zeta Labs",
+     "email": "email0",
+     "phone": "phone0"
+    },
+    {
+     "company": "Teamlease",
+     "website": "website1"
+    },
+    {
+     "company": "Ola",
+     "website": "website2"
+    },
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "website": "website3",
+     "email": "email3",
+     "linkedin_url": "linkedin_url3"
+    },
+    {
+     "company": "Infosys",
+     "website": "website4",
+     "email": "email4"
+    },
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "contact_person": "contact_person5"
+    },
+    {
+     "company": "Ola",
+     "phone": "phone6",
+     "contact_person": "contact_person6"
+    },
+    {
+     "company": "ACME CORP",
+     "phone": "phone7",
+     "contact_person": "contact_person7"
+    },
+    {
+     "company": "Olaa",
+     "website": "website8",
+     "email": "email8",
+     "linkedin_url": "linkedin_url8"
+    }
+   ],
+   "out": [
+    "Zeta Labs Pvt Ltd|website3|email3",
+    "Olaa|website8|email8",
+    "Zeta Labs||email0",
+    "Infosys|website4|email4",
+    "ACME CORP||",
+    "Teamlease|website1|"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Mphasis",
+     "website": "website0",
+     "email": "email0",
+     "phone": "phone0",
+     "contact_person": "contact_person0"
+    },
+    {
+     "company": "Teamlease",
+     "linkedin_url": "linkedin_url1",
+     "contact_person": "contact_person1"
+    },
+    {
+     "company": "Quess Corp",
+     "contact_person": "contact_person2"
+    },
+    {
+     "company": "Team Lease Services",
+     "contact_person": "contact_person3"
+    },
+    {
+     "company": "ACME CORP",
+     "email": "email4",
+     "linkedin_url": "linkedin_url4"
+    },
+    {
+     "company": "Ola"
+    },
+    {
+     "company": "Infosys Ltd",
+     "linkedin_url": "linkedin_url6"
+    },
+    {
+     "company": "Quess",
+     "contact_person": "contact_person7"
+    },
+    {
+     "company": "Ol a"
+    }
+   ],
+   "out": [
+    "Mphasis|website0|email0",
+    "Teamlease||",
+    "ACME CORP||email4",
+    "Quess Corp||",
+    "Team Lease Services||",
+    "Infosys Ltd||",
+    "Quess||",
+    "Ola||",
+    "Ol a||"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "ACME CORP",
+     "website": "website0",
+     "email": "email0",
+     "phone": "phone0",
+     "linkedin_url": "linkedin_url0"
+    },
+    {
+     "company": "Ol a",
+     "contact_person": "contact_person1"
+    },
+    {
+     "company": "Zeta Labs",
+     "contact_person": "contact_person2"
+    },
+    {
+     "company": "Quess Corp",
+     "website": "website3"
+    },
+    {
+     "company": "ACME CORP",
+     "email": "email4",
+     "phone": "phone4",
+     "linkedin_url": "linkedin_url4"
+    }
+   ],
+   "out": [
+    "ACME CORP|website0|email0",
+    "Ol a||",
+    "Zeta Labs||",
+    "Quess Corp|website3|"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Ol a"
+    },
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "website": "website1",
+     "linkedin_url": "linkedin_url1"
+    }
+   ],
+   "out": [
+    "Zeta Labs Pvt Ltd|website1|",
+    "Ol a||"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Freshworks",
+     "email": "email0",
+     "linkedin_url": "linkedin_url0",
+     "contact_person": "contact_person0"
+    },
+    {
+     "company": "Team Lease Services",
+     "website": "website1",
+     "phone": "phone1",
+     "contact_person": "contact_person1"
+    }
+   ],
+   "out": [
+    "Freshworks||email0",
+    "Team Lease Services|website1|"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Fresh Works"
+    },
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "phone": "phone1",
+     "contact_person": "contact_person1"
+    },
+    {
+     "company": "Acme Corp",
+     "email": "email2",
+     "phone": "phone2",
+     "contact_person": "contact_person2"
+    },
+    {
+     "company": "acme corporation",
+     "website": "website3",
+     "contact_person": "contact_person3"
+    },
+    {
+     "company": "Ola",
+     "website": "website4",
+     "email": "email4",
+     "phone": "phone4",
+     "linkedin_url": "linkedin_url4"
+    }
+   ],
+   "out": [
+    "Ola|website4|email4",
+    "Acme Corp||email2",
+    "Zeta Labs Pvt Ltd||",
+    "acme corporation|website3|",
+    "Fresh Works||"
+   ]
+  },
+  {
+   "in": [],
+   "out": []
+  },
+  {
+   "in": [
+    {
+     "company": "Fresh Works",
+     "website": "website0",
+     "linkedin_url": "linkedin_url0",
+     "contact_person": "contact_person0"
+    }
+   ],
+   "out": [
+    "Fresh Works|website0|"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Ola",
+     "phone": "phone0"
+    },
+    {
+     "company": "TCS",
+     "phone": "phone1"
+    },
+    {
+     "company": "Mphasis",
+     "email": "email2",
+     "phone": "phone2",
+     "linkedin_url": "linkedin_url2"
+    },
+    {
+     "company": "Zeta Labs",
+     "email": "email3",
+     "contact_person": "contact_person3"
+    },
+    {
+     "company": "Zeta Labs Pvt Ltd",
+     "email": "email4"
+    },
+    {
+     "company": "Wipro",
+     "website": "website5",
+     "linkedin_url": "linkedin_url5",
+     "contact_person": "contact_person5"
+    },
+    {
+     "company": "Quess Corp",
+     "website": "website6",
+     "phone": "phone6"
+    },
+    {
+     "company": "Mphasis",
+     "website": "website7",
+     "linkedin_url": "linkedin_url7"
+    }
+   ],
+   "out": [
+    "Mphasis||email2",
+    "Wipro|website5|",
+    "Zeta Labs||email3",
+    "Quess Corp|website6|",
+    "Ola||",
+    "TCS||",
+    "Zeta Labs Pvt Ltd||email4"
+   ]
+  },
+  {
+   "in": [
+    {
+     "company": "Zeta Labs",
+     "website": "website0",
+     "email": "email0",
+     "linkedin_url": "linkedin_url0"
+    },
+    {
+     "company": "Freshworks"
+    },
+    {
+     "company": "Team Lease Services",
+     "phone": "phone2",
+     "linkedin_url": "linkedin_url2"
+    }
+   ],
+   "out": [
+    "Zeta Labs|website0|email0",
+    "Team Lease Services||",
+    "Freshworks||"
+   ]
+  }
+ ]
+}

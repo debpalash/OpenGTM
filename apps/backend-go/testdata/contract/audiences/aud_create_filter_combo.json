@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "city": "Mumbai",
+        "has_email": true,
+        "min_score": 60
+      },
+      "name": "Filter combo"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:45.236087",
+      "description": "",
+      "filters": {
+        "city": "Mumbai",
+        "has_email": true,
+        "min_score": 60
+      },
+      "id": "00000000-0000-4000-8000-000000002044",
+      "last_refresh_error": null,
+      "member_count": 1,
+      "name": "Filter combo",
+      "next_refresh_at": "2026-10-26T18:05:45.275768",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:45.251343",
+      "updated_at": "2026-10-26T17:05:45.274119"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

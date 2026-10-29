@@ -1,0 +1,183 @@
+{
+ "provider": "ats_hiring",
+ "input_name": "default",
+ "scenario": "http_401",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://www.acme.com"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/acme/jobs",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.lever.co/v0/postings/acme?mode=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.ashbyhq.com/posting-api/job-board/acme",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/acmeinc/jobs",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.lever.co/v0/postings/acmeinc?mode=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.ashbyhq.com/posting-api/job-board/acmeinc",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/acme-inc/jobs",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.lever.co/v0/postings/acme-inc?mode=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.ashbyhq.com/posting-api/job-board/acme-inc",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; YupchaBot/1.0)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 401,
+    "headers": {
+     "content-type": "application/json",
+     "www-authenticate": "Bearer"
+    },
+    "body": "{\"error\":{\"code\":\"unauthorized\",\"message\":\"Invalid credentials\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_board"
+ }
+}

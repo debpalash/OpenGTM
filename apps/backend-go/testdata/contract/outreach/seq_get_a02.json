@@ -1,0 +1,51 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/sequences/seq-out-a-02"
+  },
+  "response": {
+    "body": {
+      "auto_paused": false,
+      "bounce_count": 0,
+      "complaint_count": 0,
+      "consent_basis": "",
+      "created_at": "2026-08-29T07:00:00+00:00",
+      "daily_limit": 25,
+      "description": "",
+      "id": "seq-out-a-02",
+      "name": "Draft without consent",
+      "send_window_end": 17,
+      "send_window_start": 8,
+      "send_window_tz": "Europe/Berlin",
+      "stats": {
+        "auto_paused": 0,
+        "bounce_count": 0,
+        "bounced": 0,
+        "complaint_count": 0,
+        "completed": 0,
+        "emails_sent": 0,
+        "failed": 0,
+        "opened": 0,
+        "pending": 0,
+        "replied": 0,
+        "scheduled": 0,
+        "sent": 0,
+        "skipped": 0,
+        "suppressed": 0,
+        "total": 0
+      },
+      "status": "draft",
+      "steps": [],
+      "updated_at": "2026-08-29T07:00:00+00:00",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

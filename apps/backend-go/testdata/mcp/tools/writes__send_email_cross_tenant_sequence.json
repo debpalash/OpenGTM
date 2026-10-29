@@ -1,0 +1,61 @@
+{
+  "seq": 79,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 79,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 2,
+        "sequence_id": "seq-beta-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 79,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"failed\", \"summary\": \"\", \"skip_reason\": \"not_connected\", \"error\": \"sequence not found in workspace\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 2,
+        "sequence_id": "seq-beta-1"
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "sequence not found in workspace",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 61,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000008b",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

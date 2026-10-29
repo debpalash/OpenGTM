@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-05/signals"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1787999640.0,
+          "description": "Poller job_change event #9",
+          "id": "sig-p-09",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "job_change",
+          "source": "ddg_linkedin",
+          "source_url": "https://signals.example.com/p/9",
+          "title": "job_change 9",
+          "weight": 9,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Analytical Engines",
+          "created_at": 1787999580.0,
+          "description": "Poller job_change event #10",
+          "id": "sig-p-10",
+          "lead_id": 0,
+          "read": 0,
+          "signal_type": "job_change",
+          "source": "ddg_linkedin",
+          "source_url": "https://signals.example.com/p/10",
+          "title": "job_change 10",
+          "weight": 9,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

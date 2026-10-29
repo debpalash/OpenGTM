@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "max_usd": 3.25
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-beta-1/budget"
+  },
+  "response": {
+    "body": {
+      "budget_max_usd": 3.25,
+      "budget_spent_usd": 0.0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

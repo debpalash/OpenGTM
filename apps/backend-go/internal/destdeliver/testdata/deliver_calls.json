@@ -1,0 +1,3618 @@
+{
+  "note": "engine._deliver(destination, lead_id, snapshot, idem) against scripted collaborators. calls = every collaborator invocation in order (JSON-safe copies); result = the returned dict, raises = the exception (the engine turns it into error=str(exc)[:500]). The destinations warehouse_http/meta_ads/google_ads/linkedin_ads are NOT delivered through _deliver (batch paths): it answers 'unsupported destination'.",
+  "cases": [
+    {
+      "name": "webhook_success",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST"
+        },
+        "field_map": {
+          "company": "account_name",
+          "email": "email"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "POST 202"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "account_name": "Acme",
+                "email": "ada@acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "POST 202",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_no_field_map",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_headers_merged",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST",
+          "headers": {
+            "X-A": "1",
+            "Idempotency-Key": "old"
+          }
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "X-A": "1",
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_headers_non_dict",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST",
+          "headers": "x"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [],
+      "raises": "ValueError: dictionary update sequence element #0 has length 1; 2 is required"
+    },
+    {
+      "name": "webhook_headers_null",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST",
+          "headers": null
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_failure",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": false,
+            "error": "HTTP 500"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "HTTP 500"
+      }
+    },
+    {
+      "name": "webhook_config_null",
+      "destination": {
+        "type": "webhook",
+        "config": null,
+        "field_map": null
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_stub_raises",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "raise": "boom"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "id": 5,
+                "company": "Acme",
+                "email": "ada@acme.test",
+                "contact_person": "Ada",
+                "city": "Austin",
+                "phone": "",
+                "score": 80,
+                "website": "https://acme.test"
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "raises": "RuntimeError: boom"
+    },
+    {
+      "name": "webhook_body_overrides_config_body",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST",
+          "body": {
+            "x": 1
+          }
+        },
+        "field_map": {
+          "company": "n"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {
+                "n": "Acme"
+              }
+            },
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "webhook_empty_mapped_values",
+      "destination": {
+        "type": "webhook",
+        "config": {
+          "url": "https://hooks.example.test/x",
+          "method": "POST"
+        },
+        "field_map": {
+          "phone": "p",
+          "city": "c"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "phone": "",
+        "city": null
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.example.test/x",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "event": "audience.member.upsert",
+              "audience_id": "aud-1",
+              "destination_id": "dest-1",
+              "lead_id": 5,
+              "data": {}
+            }
+          },
+          "lead_data": {
+            "phone": "",
+            "city": null
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "hubspot_success",
+      "destination": {
+        "type": "hubspot",
+        "config": {
+          "inbound_conflict_policy": "fill_missing"
+        },
+        "field_map": {
+          "company": "name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "pushed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "inbound_conflict_policy": "fill_missing",
+            "type": "hubspot",
+            "field_map": {
+              "company": "name"
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "pushed",
+        "error": null
+      }
+    },
+    {
+      "name": "hubspot_failure",
+      "destination": {
+        "type": "hubspot",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": false,
+            "error": "crm down"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "hubspot",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "crm down"
+      }
+    },
+    {
+      "name": "hubspot_config_type_override",
+      "destination": {
+        "type": "hubspot",
+        "config": {
+          "type": "other",
+          "field_map": {
+            "a": "b"
+          }
+        },
+        "field_map": {
+          "company": "name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "hubspot",
+            "field_map": {
+              "company": "name"
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "hubspot_config_null",
+      "destination": {
+        "type": "hubspot",
+        "config": null,
+        "field_map": null
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "hubspot",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "hubspot_raises",
+      "destination": {
+        "type": "hubspot",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "raise": "xxxxxxxxxx"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "hubspot",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "raises": "RuntimeError: xxxxxxxxxx"
+    },
+    {
+      "name": "salesforce_success",
+      "destination": {
+        "type": "salesforce",
+        "config": {
+          "inbound_conflict_policy": "fill_missing"
+        },
+        "field_map": {
+          "company": "name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "pushed"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "inbound_conflict_policy": "fill_missing",
+            "type": "salesforce",
+            "field_map": {
+              "company": "name"
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "pushed",
+        "error": null
+      }
+    },
+    {
+      "name": "salesforce_failure",
+      "destination": {
+        "type": "salesforce",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": false,
+            "error": "crm down"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "salesforce",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "crm down"
+      }
+    },
+    {
+      "name": "salesforce_config_type_override",
+      "destination": {
+        "type": "salesforce",
+        "config": {
+          "type": "other",
+          "field_map": {
+            "a": "b"
+          }
+        },
+        "field_map": {
+          "company": "name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "salesforce",
+            "field_map": {
+              "company": "name"
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "salesforce_config_null",
+      "destination": {
+        "type": "salesforce",
+        "config": null,
+        "field_map": null
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "salesforce",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "salesforce_raises",
+      "destination": {
+        "type": "salesforce",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "_act_push_crm": [
+          {
+            "raise": "xxxxxxxxxx"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "_act_push_crm",
+          "workspace_id": "ws-vec",
+          "config": {
+            "type": "salesforce",
+            "field_map": {}
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": [],
+          "lead_id": 5
+        }
+      ],
+      "raises": "RuntimeError: xxxxxxxxxx"
+    },
+    {
+      "name": "instantly_success",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {
+          "email": "email",
+          "company": "company_name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true,
+            "lead_id": "il-1"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "email": "ada@acme.test",
+              "company_name": "Acme"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": "il-1"
+      }
+    },
+    {
+      "name": "instantly_duplicate",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true,
+            "duplicate": true,
+            "lead_id": "il-1"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead already in campaign",
+        "error": null,
+        "external_id": "il-1"
+      }
+    },
+    {
+      "name": "instantly_duplicate_failure_flag",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": false,
+            "duplicate": true,
+            "error": "dup"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "Lead already in campaign",
+        "error": "dup",
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_failure",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": false,
+            "error": "quota"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "quota",
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_failure_no_error",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": false
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_skip_default",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "c"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "c",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_skip_false",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "c",
+          "skip_if_in_campaign": false
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "c",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            false,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_skip_zero",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "c",
+          "skip_if_in_campaign": 0
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "c",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            false,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_campaign_missing",
+      "destination": {
+        "type": "instantly",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_campaign_int",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": 5
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "5",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "instantly_truthy_success",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "success": 1,
+            "lead_id": 7
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null,
+        "external_id": 7
+      }
+    },
+    {
+      "name": "instantly_raises",
+      "destination": {
+        "type": "instantly",
+        "config": {
+          "campaign_id": "camp-1",
+          "skip_if_in_campaign": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "instantly": [
+          {
+            "raise": "net"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "instantly.add_lead_to_campaign",
+          "args": [
+            "camp-1",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "raises": "RuntimeError: net"
+    },
+    {
+      "name": "smartlead_success",
+      "destination": {
+        "type": "smartlead",
+        "config": {
+          "campaign_id": "42",
+          "settings": {
+            "ignore": true
+          }
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "smartlead": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "smartlead.add_lead_to_campaign",
+          "args": [
+            "42",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            {
+              "ignore": true
+            },
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null
+      }
+    },
+    {
+      "name": "smartlead_duplicate",
+      "destination": {
+        "type": "smartlead",
+        "config": {
+          "campaign_id": "42",
+          "settings": {
+            "ignore": true
+          }
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "smartlead": [
+          {
+            "success": true,
+            "duplicate": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "smartlead.add_lead_to_campaign",
+          "args": [
+            "42",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            {
+              "ignore": true
+            },
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead already in campaign",
+        "error": null
+      }
+    },
+    {
+      "name": "smartlead_failure",
+      "destination": {
+        "type": "smartlead",
+        "config": {
+          "campaign_id": "42",
+          "settings": {
+            "ignore": true
+          }
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "smartlead": [
+          {
+            "success": false,
+            "error": "bad"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "smartlead.add_lead_to_campaign",
+          "args": [
+            "42",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            {
+              "ignore": true
+            },
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "bad"
+      }
+    },
+    {
+      "name": "smartlead_no_settings",
+      "destination": {
+        "type": "smartlead",
+        "config": {
+          "campaign_id": "42"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "smartlead": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "smartlead.add_lead_to_campaign",
+          "args": [
+            "42",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            null,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null
+      }
+    },
+    {
+      "name": "smartlead_ignores_external_id",
+      "destination": {
+        "type": "smartlead",
+        "config": {
+          "campaign_id": "42",
+          "settings": {
+            "ignore": true
+          }
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "smartlead": [
+          {
+            "success": true,
+            "lead_id": "ignored"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "smartlead.add_lead_to_campaign",
+          "args": [
+            "42",
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            {
+              "ignore": true
+            },
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Lead added to campaign",
+        "error": null
+      }
+    },
+    {
+      "name": "sheets_success",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "sheet-1",
+          "range": "Tab!A:D",
+          "columns": [
+            "company",
+            "email",
+            "city",
+            "missing"
+          ]
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true,
+            "operation": "updated",
+            "range": "Tab!A5:D5"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "sheet-1",
+            [
+              "Acme",
+              "ada@acme.test",
+              "Austin",
+              ""
+            ],
+            "dest:dest-1:lead:5",
+            "Tab!A:D",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row updated",
+        "error": null,
+        "external_id": "Tab!A5:D5"
+      }
+    },
+    {
+      "name": "sheets_default_range",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "s",
+          "columns": [
+            "company"
+          ]
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true,
+            "operation": "appended",
+            "range": "Sheet1!A2:A2"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "s",
+            [
+              "Acme"
+            ],
+            "dest:dest-1:lead:5",
+            "Sheet1!A:ZZ",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row appended",
+        "error": null,
+        "external_id": "Sheet1!A2:A2"
+      }
+    },
+    {
+      "name": "sheets_mapped_columns",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "s",
+          "columns": [
+            "name",
+            "mail"
+          ]
+        },
+        "field_map": {
+          "company": "name",
+          "email": "mail"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true,
+            "operation": "appended"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "s",
+            [
+              "Acme",
+              "ada@acme.test"
+            ],
+            "dest:dest-1:lead:5",
+            "Sheet1!A:ZZ",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row appended",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "sheets_failure",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "sheet-1",
+          "range": "Tab!A:D",
+          "columns": [
+            "company",
+            "email",
+            "city",
+            "missing"
+          ]
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": false,
+            "error": "403"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "sheet-1",
+            [
+              "Acme",
+              "ada@acme.test",
+              "Austin",
+              ""
+            ],
+            "dest:dest-1:lead:5",
+            "Tab!A:D",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "403",
+        "external_id": null
+      }
+    },
+    {
+      "name": "sheets_no_columns",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "s"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true,
+            "operation": "x"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "s",
+            [],
+            "dest:dest-1:lead:5",
+            "Sheet1!A:ZZ",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row x",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "sheets_null_values",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "s",
+          "columns": [
+            "a",
+            "b",
+            "c"
+          ]
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "a": null,
+        "b": 0,
+        "c": false
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true,
+            "operation": "x"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "s",
+            [
+              null,
+              0,
+              false
+            ],
+            "dest:dest-1:lead:5",
+            "Sheet1!A:ZZ",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row x",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "sheets_success_no_operation",
+      "destination": {
+        "type": "google_sheets",
+        "config": {
+          "spreadsheet_id": "sheet-1",
+          "range": "Tab!A:D",
+          "columns": [
+            "company",
+            "email",
+            "city",
+            "missing"
+          ]
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "sheets": [
+          {
+            "success": true
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "sheets.upsert_row",
+          "args": [
+            "sheet-1",
+            [
+              "Acme",
+              "ada@acme.test",
+              "Austin",
+              ""
+            ],
+            "dest:dest-1:lead:5",
+            "Tab!A:D",
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Sheet row None",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "airtable_success",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "app1",
+          "table": "Leads",
+          "idempotency_field": "OpenGTM ID",
+          "typecast": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": true,
+            "operation": "created",
+            "record_id": "rec1"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            "app1",
+            "Leads",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Airtable record created",
+        "error": null,
+        "external_id": "rec1"
+      }
+    },
+    {
+      "name": "airtable_defaults",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "b",
+          "table": "t"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": true,
+            "operation": "updated",
+            "record_id": "rec2"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            "b",
+            "t",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Airtable record updated",
+        "error": null,
+        "external_id": "rec2"
+      }
+    },
+    {
+      "name": "airtable_typecast_false",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "app1",
+          "table": "Leads",
+          "idempotency_field": "OpenGTM ID",
+          "typecast": false
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": true,
+            "operation": "updated"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            "app1",
+            "Leads",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            false,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Airtable record updated",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "airtable_empty_idem_field",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "app1",
+          "table": "Leads",
+          "idempotency_field": "",
+          "typecast": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": true,
+            "operation": "created"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            "app1",
+            "Leads",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Airtable record created",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "airtable_failure",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "app1",
+          "table": "Leads",
+          "idempotency_field": "OpenGTM ID",
+          "typecast": true
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": false,
+            "error": "422"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "id": 5,
+              "company": "Acme",
+              "email": "ada@acme.test",
+              "contact_person": "Ada",
+              "city": "Austin",
+              "phone": "",
+              "score": 80,
+              "website": "https://acme.test"
+            },
+            "app1",
+            "Leads",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "422",
+        "external_id": null
+      }
+    },
+    {
+      "name": "airtable_mapped",
+      "destination": {
+        "type": "airtable",
+        "config": {
+          "base_id": "app1",
+          "table": "Leads",
+          "idempotency_field": "OpenGTM ID",
+          "typecast": true
+        },
+        "field_map": {
+          "company": "Name"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "airtable": [
+          {
+            "success": true,
+            "operation": "created"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "airtable.upsert_record",
+          "args": [
+            {
+              "Name": "Acme"
+            },
+            "app1",
+            "Leads",
+            "dest:dest-1:lead:5",
+            "OpenGTM ID",
+            true,
+            "ws-vec"
+          ]
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "Airtable record created",
+        "error": null,
+        "external_id": null
+      }
+    },
+    {
+      "name": "unsupported_warehouse_http",
+      "destination": {
+        "type": "warehouse_http",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'warehouse_http'"
+      }
+    },
+    {
+      "name": "unsupported_meta_ads",
+      "destination": {
+        "type": "meta_ads",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'meta_ads'"
+      }
+    },
+    {
+      "name": "unsupported_google_ads",
+      "destination": {
+        "type": "google_ads",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'google_ads'"
+      }
+    },
+    {
+      "name": "unsupported_linkedin_ads",
+      "destination": {
+        "type": "linkedin_ads",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'linkedin_ads'"
+      }
+    },
+    {
+      "name": "unsupported_bogus",
+      "destination": {
+        "type": "bogus",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'bogus'"
+      }
+    },
+    {
+      "name": "unsupported_empty",
+      "destination": {
+        "type": "",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination ''"
+      }
+    },
+    {
+      "name": "unsupported_WEBHOOK",
+      "destination": {
+        "type": "WEBHOOK",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {},
+      "calls": [],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "unsupported destination 'WEBHOOK'"
+      }
+    },
+    {
+      "name": "slack_default_template",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        },
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "SLACK_WEBHOOK",
+            ""
+          ]
+        },
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.slack.test/services/T/B/placeholder",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "text": "New audience member: Acme Ada ada@acme.test",
+              "metadata": {
+                "event_type": "opengtm_audience_member",
+                "event_payload": {
+                  "destination_id": "dest-1",
+                  "lead_id": 5
+                }
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "slack_secret_missing",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": "NOPE"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        }
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "NOPE",
+            ""
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "Slack webhook secret not found"
+      }
+    },
+    {
+      "name": "slack_ref_blank",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": ""
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        }
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "",
+            ""
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "Slack webhook secret not found"
+      }
+    },
+    {
+      "name": "slack_ref_missing_key",
+      "destination": {
+        "type": "slack",
+        "config": {},
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        }
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "",
+            ""
+          ]
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "Slack webhook secret not found"
+      }
+    },
+    {
+      "name": "slack_failure",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        },
+        "_act_webhook": [
+          {
+            "success": false,
+            "error": "no_service"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "SLACK_WEBHOOK",
+            ""
+          ]
+        },
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.slack.test/services/T/B/placeholder",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "text": "New audience member: Acme Ada ada@acme.test",
+              "metadata": {
+                "event_type": "opengtm_audience_member",
+                "event_payload": {
+                  "destination_id": "dest-1",
+                  "lead_id": 5
+                }
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": false,
+        "summary": "",
+        "error": "no_service"
+      }
+    },
+    {
+      "name": "slack_mapped_fields",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": "SLACK_WEBHOOK",
+          "message_template": "{name} at {mail}"
+        },
+        "field_map": {
+          "company": "name",
+          "email": "mail"
+        }
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        },
+        "_act_webhook": [
+          {
+            "success": true,
+            "summary": "ok"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "SLACK_WEBHOOK",
+            ""
+          ]
+        },
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.slack.test/services/T/B/placeholder",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "text": "Acme at ada@acme.test",
+              "metadata": {
+                "event_type": "opengtm_audience_member",
+                "event_payload": {
+                  "destination_id": "dest-1",
+                  "lead_id": 5
+                }
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "result": {
+        "success": true,
+        "summary": "ok",
+        "error": null
+      }
+    },
+    {
+      "name": "slack_stub_raises",
+      "destination": {
+        "type": "slack",
+        "config": {
+          "webhook_secret_ref": "SLACK_WEBHOOK"
+        },
+        "field_map": {}
+      },
+      "lead_id": 5,
+      "snapshot": {
+        "id": 5,
+        "company": "Acme",
+        "email": "ada@acme.test",
+        "contact_person": "Ada",
+        "city": "Austin",
+        "phone": "",
+        "score": 80,
+        "website": "https://acme.test"
+      },
+      "idempotency_key": "dest:dest-1:lead:5:abc",
+      "script": {
+        "secrets": {
+          "SLACK_WEBHOOK": "https://hooks.slack.test/services/T/B/placeholder"
+        },
+        "_act_webhook": [
+          {
+            "raise": "slack down"
+          }
+        ]
+      },
+      "calls": [
+        {
+          "fn": "get_secret",
+          "args": [
+            "ws-vec",
+            "SLACK_WEBHOOK",
+            ""
+          ]
+        },
+        {
+          "fn": "_act_webhook",
+          "workspace_id": "ws-vec",
+          "config": {
+            "url": "https://hooks.slack.test/services/T/B/placeholder",
+            "method": "POST",
+            "headers": {
+              "Idempotency-Key": "dest:dest-1:lead:5:abc"
+            },
+            "body": {
+              "text": "New audience member: Acme Ada ada@acme.test",
+              "metadata": {
+                "event_type": "opengtm_audience_member",
+                "event_payload": {
+                  "destination_id": "dest-1",
+                  "lead_id": 5
+                }
+              }
+            }
+          },
+          "lead_data": {
+            "id": 5,
+            "company": "Acme",
+            "email": "ada@acme.test",
+            "contact_person": "Ada",
+            "city": "Austin",
+            "phone": "",
+            "score": 80,
+            "website": "https://acme.test"
+          },
+          "columns_config": []
+        }
+      ],
+      "raises": "RuntimeError: slack down"
+    }
+  ]
+}

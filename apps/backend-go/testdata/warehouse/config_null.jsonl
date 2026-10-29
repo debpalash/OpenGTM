@@ -1,0 +1,2 @@
+{"_manifest":{"audience_id":"aud-1","dataset":"opengtm_audience","destination_id":"dest-1","mode":"snapshot","records_sha256":"83ae99b64aff084790d1f77b7094613a88f1703f99e39b21012507c87b52d990","row_count":1,"run_id":"run-1","type":"opengtm.audience.export","version":1,"workspace_id":"ws-vec"}}
+{"_opengtm_lead_id":1,"company":"Acme","email":"a@b.co","score":80}

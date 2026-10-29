@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "lead_id": 14
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

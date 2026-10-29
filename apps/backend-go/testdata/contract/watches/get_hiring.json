@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/watch-a-02"
+  },
+  "response": {
+    "body": {
+      "config": {},
+      "consecutive_failures": 0,
+      "created_at": "2026-08-29T09:02:00+00:00",
+      "cursor": {
+        "bootstrapped": true,
+        "hiring_band": "growing",
+        "hiring_band_week": "2026-W35",
+        "known_tech": {
+          "snowflake": "uses"
+        }
+      },
+      "enabled": true,
+      "id": "watch-a-02",
+      "interval": "hourly",
+      "kind": "hiring",
+      "last_error": null,
+      "last_polled_at": "2026-08-29T09:02:30+00:00",
+      "lead_id": 14,
+      "next_poll_at": "2026-08-29T10:02:00+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "hiring_surge",
+        "new_tech_adopted"
+      ],
+      "target": "Hot Pursuit Labs",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

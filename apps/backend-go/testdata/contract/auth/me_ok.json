@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/auth/me"
+  },
+  "response": {
+    "body": {
+      "created_at": "2026-08-29T10:40:00",
+      "id": 1,
+      "is_active": true,
+      "is_admin": true,
+      "last_login": "2026-10-26T06:43:02.888558",
+      "profile_image": null,
+      "role": "admin",
+      "username": "alice"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

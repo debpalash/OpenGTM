@@ -5,10 +5,10 @@ set -u
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 portless_bin="$(command -v portless 2>/dev/null || true)"
 if [ -z "$portless_bin" ]; then
-  portless_bin="$repo_root/node_modules/.bin/portless"
+  portless_bin="$repo_root/apps/web/node_modules/.bin/portless"
 fi
 if [ ! -x "$portless_bin" ]; then
-  echo "portless not found. Run 'bun install' at the repo root first." >&2
+  echo "portless not found. Run 'bun install' in apps/web first." >&2
   exit 1
 fi
 

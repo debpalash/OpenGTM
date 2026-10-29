@@ -1,0 +1,1386 @@
+{
+ "vectors": [
+  {
+   "name": "all_sources_ok_bootstraps_and_reschedules",
+   "watch": {
+    "kind": "company",
+    "signal_types": [
+     "company_funded",
+     "executive_hired",
+     "hiring_surge",
+     "new_tech_adopted"
+    ]
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding_exec",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    },
+    {
+     "src": "hiring",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    },
+    {
+     "src": "tech",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "failure_in_one_source_backoff_and_error_kept",
+   "watch": {
+    "kind": "company",
+    "last_error": "old",
+    "signal_types": [
+     "company_funded",
+     "hiring_surge"
+    ]
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {
+    "hiring": false
+   },
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    },
+    {
+     "src": "hiring",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 1,
+     "last_error": "old",
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "collector_failure_flag_is_failure",
+   "watch": {
+    "kind": "account_group",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {
+    "account_group": [
+     1,
+     0,
+     true
+    ]
+   },
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "account_group",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 1,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "none_result_is_neutral",
+   "watch": {
+    "kind": "feed",
+    "signal_types": [
+     "news"
+    ],
+    "target": "https://f.example.com/x.xml"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {
+    "feed": null
+   },
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "feed",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "success_clears_last_error_and_failures",
+   "watch": {
+    "kind": "feed",
+    "signal_types": [
+     "news"
+    ],
+    "last_error": "http_500",
+    "consecutive_failures": 4,
+    "target": "https://f.example.com/x.xml"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "feed",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "failure_at_threshold_auto_disables",
+   "watch": {
+    "kind": "feed",
+    "signal_types": [
+     "news"
+    ],
+    "consecutive_failures": 11,
+    "target": "https://f.example.com/x.xml"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {
+    "feed": false
+   },
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "feed",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": false,
+     "consecutive_failures": 12,
+     "last_error": "auto_disabled",
+     "next_poll_at": null,
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": false,
+     "next_poll_at": null
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "attempt_count_increments",
+   "watch": {
+    "kind": "feed",
+    "signal_types": [
+     "news"
+    ],
+    "cursor": {
+     "bootstrapped": true,
+     "attempt_count": 4
+    },
+    "target": "https://f.example.com/x.xml"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "feed",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 5
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "ambiguous_lead_records_error_no_sources",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    "ambiguous_lead"
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": "ambiguous_lead",
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "lead_passed_to_sources",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    14,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": 14,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "backfill_flag_passed",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "budget_unlimited_when_zero",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "budget_within_limit_runs",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 1,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "budget_exceeded_reschedules_without_sources",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 1,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": [
+    1,
+    0
+   ],
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 2,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "budget_exceeded_does_not_count_as_failure",
+   "watch": {
+    "kind": "funding",
+    "consecutive_failures": 2,
+    "last_error": "x"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 3,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": [
+    3,
+    0
+   ],
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": "x",
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 4,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "poll_now_counts_both_counters",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1",
+    "poll_now": true
+   },
+   "budget": 5,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 1
+    }
+   ]
+  },
+  {
+   "name": "poll_now_over_shared_budget_blocked_too",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1",
+    "poll_now": true
+   },
+   "budget": 2,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": [
+    2,
+    1
+   ],
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 3,
+     "n_poll_now": 2
+    }
+   ]
+  },
+  {
+   "name": "poll_now_unlimited_budget_zero",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1",
+    "poll_now": true
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": [
+    100,
+    5
+   ],
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 101,
+     "n_poll_now": 6
+    }
+   ]
+  },
+  {
+   "name": "disabled_watch_exits_and_drops_mirror",
+   "watch": {
+    "kind": "funding",
+    "enabled": false
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": false,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": null,
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [],
+   "jobs": [],
+   "ledger": []
+  },
+  {
+   "name": "missing_watch_exits",
+   "watch": {},
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": true,
+   "sources_called": [],
+   "watches": [],
+   "mirror": [],
+   "jobs": [],
+   "ledger": []
+  },
+  {
+   "name": "poller_disabled_noop",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": false,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": null,
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": null
+    }
+   ],
+   "jobs": [],
+   "ledger": []
+  },
+  {
+   "name": "pg_store_required",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": false,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": null,
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": null
+    }
+   ],
+   "jobs": [],
+   "ledger": []
+  },
+  {
+   "name": "payload_missing_watch_id",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": ""
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": null,
+     "last_polled_set": false,
+     "cursor": {
+      "bootstrapped": false
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": null
+    }
+   ],
+   "jobs": [],
+   "ledger": []
+  },
+  {
+   "name": "default_fire_key_is_job_id",
+   "watch": {
+    "kind": "funding"
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1",
+    "fire_key": ""
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "funding",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  },
+  {
+   "name": "hiring_two_sources_both_ok",
+   "watch": {
+    "kind": "hiring",
+    "signal_types": [
+     "hiring_surge",
+     "new_tech_adopted"
+    ]
+   },
+   "payload": {
+    "workspace_id": "ws-1",
+    "watch_id": "w-1"
+   },
+   "budget": 0,
+   "source_results": {},
+   "lead": [
+    null,
+    null
+   ],
+   "ledger_before": null,
+   "pg_store": true,
+   "enabled": true,
+   "missing": false,
+   "sources_called": [
+    {
+     "src": "hiring",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    },
+    {
+     "src": "tech",
+     "fire_key": "job:5",
+     "lead_id": null,
+     "backfill": false
+    }
+   ],
+   "watches": [
+    {
+     "id": "w-1",
+     "enabled": true,
+     "consecutive_failures": 0,
+     "last_error": null,
+     "next_poll_at": "2026-08-30T08:00:00+00:00",
+     "last_polled_set": true,
+     "cursor": {
+      "bootstrapped": true,
+      "attempt_count": 1
+     },
+     "resolved_cik": null
+    }
+   ],
+   "mirror": [
+    {
+     "watch_id": "w-1",
+     "enabled": true,
+     "next_poll_at": "2026-08-30T08:00:00+00:00"
+    }
+   ],
+   "jobs": [],
+   "ledger": [
+    {
+     "workspace_id": "ws-1",
+     "day": "2026-08-29",
+     "n": 1,
+     "n_poll_now": 0
+    }
+   ]
+  }
+ ],
+ "now": "2026-08-29T10:40:00+00:00"
+}

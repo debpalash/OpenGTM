@@ -1,0 +1,58 @@
+{
+  "seq": 74,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 71,
+      "method": "tools/call",
+      "params": {
+        "name": "create_lead",
+        "arguments": {
+          "company": "x"
+        }
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 71,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"error\": \"capability not granted\", \"required\": \"leads:write\"}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-read",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "x"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "capability not granted",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "decision": "banana",
+      "pair_id": 3
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "status": "rejected"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

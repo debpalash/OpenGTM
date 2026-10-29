@@ -1,0 +1,17 @@
+{
+ "vendor": "hubspot",
+ "scenario": "fetch_no_token",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 5
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "No HubSpot token configured"
+ }
+}

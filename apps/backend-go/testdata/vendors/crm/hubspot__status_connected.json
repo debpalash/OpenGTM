@@ -1,0 +1,36 @@
+{
+ "vendor": "hubspot",
+ "scenario": "status_connected",
+ "call": {
+  "function": "test_connection",
+  "args": {}
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/account-info/v3/details",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"portalId\":4242424,\"timeZone\":\"UTC\",\"accountType\":\"STANDARD\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "connected": true,
+  "portal_id": 4242424,
+  "time_zone": "UTC"
+ }
+}

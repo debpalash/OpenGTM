@@ -1,0 +1,90 @@
+{
+ "events": [
+  {
+   "raw": "{\"type\": \"progress\", \"job_id\": \"abc\", \"pct\": 50}",
+   "encoded": "{\"type\": \"progress\", \"job_id\": \"abc\", \"pct\": 50}",
+   "frame": "data: {\"type\": \"progress\", \"job_id\": \"abc\", \"pct\": 50}\n\n"
+  },
+  {
+   "raw": "{\"type\":\"progress\",\"pct\":1.0,\"ratio\":1e-05,\"big\":1e22,\"neg\":-0.0}",
+   "encoded": "{\"type\": \"progress\", \"pct\": 1.0, \"ratio\": 1e-05, \"big\": 1e+22, \"neg\": -0.0}",
+   "frame": "data: {\"type\": \"progress\", \"pct\": 1.0, \"ratio\": 1e-05, \"big\": 1e+22, \"neg\": -0.0}\n\n"
+  },
+  {
+   "raw": "{\"type\":\"log\",\"message\":\"héllo wörld \\u00e9 東京 \\ud83d\\ude00\",\"emoji\":\"😀\"}",
+   "encoded": "{\"type\": \"log\", \"message\": \"h\\u00e9llo w\\u00f6rld \\u00e9 \\u6771\\u4eac \\ud83d\\ude00\", \"emoji\": \"\\ud83d\\ude00\"}",
+   "frame": "data: {\"type\": \"log\", \"message\": \"h\\u00e9llo w\\u00f6rld \\u00e9 \\u6771\\u4eac \\ud83d\\ude00\", \"emoji\": \"\\ud83d\\ude00\"}\n\n"
+  },
+  {
+   "raw": "{\"z\":1,\"a\":{\"y\":[1,2,{\"k\":null}],\"b\":true},\"m\":\"x\"}",
+   "encoded": "{\"z\": 1, \"a\": {\"y\": [1, 2, {\"k\": null}], \"b\": true}, \"m\": \"x\"}",
+   "frame": "data: {\"z\": 1, \"a\": {\"y\": [1, 2, {\"k\": null}], \"b\": true}, \"m\": \"x\"}\n\n"
+  },
+  {
+   "raw": "{\"type\":\"html\",\"message\":\"<b>a</b> & \\\"q\\\" 's' \\u2028 \\u2029 / \\\\ \\b\\f\\n\\r\\t \\u0001\"}",
+   "encoded": "{\"type\": \"html\", \"message\": \"<b>a</b> & \\\"q\\\" 's' \\u2028 \\u2029 / \\\\ \\b\\f\\n\\r\\t \\u0001\"}",
+   "frame": "data: {\"type\": \"html\", \"message\": \"<b>a</b> & \\\"q\\\" 's' \\u2028 \\u2029 / \\\\ \\b\\f\\n\\r\\t \\u0001\"}\n\n"
+  },
+  {
+   "raw": "{\"a\":1,\"a\":2,\"b\":3}",
+   "encoded": "{\"a\": 2, \"b\": 3}",
+   "frame": "data: {\"a\": 2, \"b\": 3}\n\n"
+  },
+  {
+   "raw": "{\"n\":100000000000000000000,\"f\":1E5,\"g\":1.0e+2,\"h\":0.1,\"i\":123456789012345678}",
+   "encoded": "{\"n\": 100000000000000000000, \"f\": 100000.0, \"g\": 100.0, \"h\": 0.1, \"i\": 123456789012345678}",
+   "frame": "data: {\"n\": 100000000000000000000, \"f\": 100000.0, \"g\": 100.0, \"h\": 0.1, \"i\": 123456789012345678}\n\n"
+  },
+  {
+   "raw": "{\"type\":\"nan\",\"x\":NaN,\"y\":Infinity,\"z\":-Infinity}",
+   "encoded": "{\"type\": \"nan\", \"x\": NaN, \"y\": Infinity, \"z\": -Infinity}",
+   "frame": "data: {\"type\": \"nan\", \"x\": NaN, \"y\": Infinity, \"z\": -Infinity}\n\n"
+  },
+  {
+   "raw": "{\"type\":\"empty\"}",
+   "encoded": "{\"type\": \"empty\"}",
+   "frame": "data: {\"type\": \"empty\"}\n\n"
+  },
+  {
+   "raw": "[1, 2, 3]",
+   "encoded": "[1, 2, 3]",
+   "frame": "data: [1, 2, 3]\n\n"
+  },
+  {
+   "raw": "\"just a string\"",
+   "encoded": "\"just a string\"",
+   "frame": "data: \"just a string\"\n\n"
+  },
+  {
+   "raw": "{\"type\":\"unicode_keys\",\"é\":1,\"東京\":{\"ß\":\"ſ\"}}",
+   "encoded": "{\"type\": \"unicode_keys\", \"\\u00e9\": 1, \"\\u6771\\u4eac\": {\"\\u00df\": \"\\u017f\"}}",
+   "frame": "data: {\"type\": \"unicode_keys\", \"\\u00e9\": 1, \"\\u6771\\u4eac\": {\"\\u00df\": \"\\u017f\"}}\n\n"
+  },
+  {
+   "raw": "{\"type\": \"progress\", \"pct\": 0.30000000000000004, \"eta\": 2.5e-07, \"t\": 1788000000.123456}",
+   "encoded": "{\"type\": \"progress\", \"pct\": 0.30000000000000004, \"eta\": 2.5e-07, \"t\": 1788000000.123456}",
+   "frame": "data: {\"type\": \"progress\", \"pct\": 0.30000000000000004, \"eta\": 2.5e-07, \"t\": 1788000000.123456}\n\n"
+  }
+ ],
+ "invalid": [
+  {
+   "raw": "not json",
+   "python": "json.loads raises ValueError (handler drops the Redis subscription and falls back)"
+  },
+  {
+   "raw": "{\"unterminated\": ",
+   "python": "json.loads raises ValueError (handler drops the Redis subscription and falls back)"
+  },
+  {
+   "raw": "",
+   "python": "json.loads raises ValueError (handler drops the Redis subscription and falls back)"
+  }
+ ],
+ "heartbeat_frame": "data: {\"type\": \"heartbeat\"}\n\n",
+ "headers": {
+  "Content-Type": "text/event-stream; charset=utf-8",
+  "Cache-Control": "no-cache",
+  "X-Accel-Buffering": "no"
+ },
+ "channel_format": "leadgen:progress:<workspace_id>"
+}

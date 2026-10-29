@@ -1,0 +1,3022 @@
+{
+ "brief_ids": [
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "id": "accounts_e1d216d3d49e131916ffe053"
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "id": "accounts_7223c2d8879e88ff54852f59"
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_ce1a94516afd17dbc921ccd0",
+    "company_types": [
+     "logistics"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Germany"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "source 100 logistics businesses in Germany using SAP",
+    "requested_count": 100,
+    "schema_version": "1.0",
+    "technologies": [
+     "SAP"
+    ]
+   },
+   "id": "accounts_ce1a94516afd17dbc921ccd0"
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_831a132ce4c33952fe69dce9",
+    "company_types": [
+     "dental"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "New York"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "List 15 dental accounts in New York, NY.",
+    "requested_count": 15,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "id": "accounts_831a132ce4c33952fe69dce9"
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_cfc010ed82809d0f42629bd7",
+    "company_types": [
+     "retail"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "the UK"
+    ],
+    "hiring_roles": [
+     "AEs"
+    ],
+    "missing_fields": [],
+    "original_query": "show 7 retail companies in the UK which are hiring AEs",
+    "requested_count": 7,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "id": "accounts_cfc010ed82809d0f42629bd7"
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_deff7c13433ab54010d8e1a2",
+    "company_types": [
+     "of 30 B2B software"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Canada"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "Build me a list of 30 B2B software companies in Canada",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "id": "accounts_deff7c13433ab54010d8e1a2"
+  },
+  {
+   "brief": {},
+   "id": "accounts_43bb98e24942783a09a98e9f"
+  },
+  {
+   "brief": {
+    "company_types": [
+     "a"
+    ],
+    "extra": 1,
+    "requested_count": "12"
+   },
+   "id": "accounts_95592d90927234cc9813cdc9"
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Café"
+    ],
+    "geographies": [
+     "Zürich"
+    ]
+   },
+   "id": "accounts_d95c16da50135312d2adf34c"
+  }
+ ],
+ "briefs": [
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+   "request": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 20 fintech companies",
+   "request": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_ce1a94516afd17dbc921ccd0",
+    "company_types": [
+     "logistics"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Germany"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "source 100 logistics businesses in Germany using SAP",
+    "requested_count": 100,
+    "schema_version": "1.0",
+    "technologies": [
+     "SAP"
+    ]
+   },
+   "query": "source 100 logistics businesses in Germany using SAP",
+   "request": {
+    "brief_id": "accounts_ce1a94516afd17dbc921ccd0",
+    "company_types": [
+     "logistics"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Germany"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "source 100 logistics businesses in Germany using SAP",
+    "requested_count": 100,
+    "schema_version": "1.0",
+    "technologies": [
+     "SAP"
+    ]
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_831a132ce4c33952fe69dce9",
+    "company_types": [
+     "dental"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "New York"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "List 15 dental accounts in New York, NY.",
+    "requested_count": 15,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "List 15 dental accounts in New York, NY.",
+   "request": {
+    "brief_id": "accounts_831a132ce4c33952fe69dce9",
+    "company_types": [
+     "dental"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "New York"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "List 15 dental accounts in New York, NY.",
+    "requested_count": 15,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_cfc010ed82809d0f42629bd7",
+    "company_types": [
+     "retail"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "the UK"
+    ],
+    "hiring_roles": [
+     "AEs"
+    ],
+    "missing_fields": [],
+    "original_query": "show 7 retail companies in the UK which are hiring AEs",
+    "requested_count": 7,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "show 7 retail companies in the UK which are hiring AEs",
+   "request": {
+    "brief_id": "accounts_cfc010ed82809d0f42629bd7",
+    "company_types": [
+     "retail"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "the UK"
+    ],
+    "hiring_roles": [
+     "AEs"
+    ],
+    "missing_fields": [],
+    "original_query": "show 7 retail companies in the UK which are hiring AEs",
+    "requested_count": 7,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_deff7c13433ab54010d8e1a2",
+    "company_types": [
+     "of 30 B2B software"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Canada"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "Build me a list of 30 B2B software companies in Canada",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "Build me a list of 30 B2B software companies in Canada",
+   "request": {
+    "brief_id": "accounts_deff7c13433ab54010d8e1a2",
+    "company_types": [
+     "of 30 B2B software"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Canada"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "Build me a list of 30 B2B software companies in Canada",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_deff7c13433ab54010d8e1a2",
+    "company_types": [
+     "of 30 B2B software"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Canada"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "build a list of 30 B2B software companies in Canada",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "build a list of 30 B2B software companies in Canada",
+   "request": {
+    "brief_id": "accounts_deff7c13433ab54010d8e1a2",
+    "company_types": [
+     "of 30 B2B software"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Canada"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "build a list of 30 B2B software companies in Canada",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_a45ec6999bade669b8da7763",
+    "company_types": [
+     "healthcare"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "nurse practitioners"
+    ],
+    "missing_fields": [],
+    "original_query": "build 12 healthcare accounts hiring for nurse practitioners",
+    "requested_count": 12,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "build 12 healthcare accounts hiring for nurse practitioners",
+   "request": {
+    "brief_id": "accounts_a45ec6999bade669b8da7763",
+    "company_types": [
+     "healthcare"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "nurse practitioners"
+    ],
+    "missing_fields": [],
+    "original_query": "build 12 healthcare accounts hiring for nurse practitioners",
+    "requested_count": 12,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_9cd2339fab17dda4e56c46a9",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Paris"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "original_query": "find companies in Paris",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find companies in Paris",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_67bdb581ed342c99c9d7af79",
+    "company_types": [
+     "insurance"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 3000 insurance companies",
+    "requested_count": 500,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 3000 insurance companies",
+   "request": {
+    "brief_id": "accounts_67bdb581ed342c99c9d7af79",
+    "company_types": [
+     "insurance"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 3000 insurance companies",
+    "requested_count": 500,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_67bdb581ed342c99c9d7af79",
+    "company_types": [
+     "insurance"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 9999 insurance companies",
+    "requested_count": 500,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 9999 insurance companies",
+   "request": {
+    "brief_id": "accounts_67bdb581ed342c99c9d7af79",
+    "company_types": [
+     "insurance"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 9999 insurance companies",
+    "requested_count": 500,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_8ee8c2ffb0e3b917c4645812",
+    "company_types": [
+     "insurance"
+    ],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count"
+    ],
+    "original_query": "find 0 insurance companies",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 0 insurance companies",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_2093137073df32fd934bfd5a",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "data engineers"
+    ],
+    "missing_fields": [],
+    "original_query": "find 25 SaaS companies powered by Postgres and hiring data engineers jobs.",
+    "requested_count": 25,
+    "schema_version": "1.0",
+    "technologies": [
+     "Postgres"
+    ]
+   },
+   "query": "find 25 SaaS companies powered by Postgres and hiring data engineers jobs.",
+   "request": {
+    "brief_id": "accounts_2093137073df32fd934bfd5a",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "data engineers"
+    ],
+    "missing_fields": [],
+    "original_query": "find 25 SaaS companies powered by Postgres and hiring data engineers jobs.",
+    "requested_count": 25,
+    "schema_version": "1.0",
+    "technologies": [
+     "Postgres"
+    ]
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_b34baee213099e558ceccb21",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Berlin"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "Find 40 agencies using HubSpot, in Berlin!",
+    "requested_count": 40,
+    "schema_version": "1.0",
+    "technologies": [
+     "HubSpot"
+    ]
+   },
+   "query": "Find 40 agencies using HubSpot, in Berlin!",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_65b9c4bbd44714545a971571",
+    "company_types": [
+     "biotech"
+    ],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Boston"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count"
+    ],
+    "original_query": "I want 40 biotech companies in Boston who use CRISPR kits",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": [
+     "CRISPR kits"
+    ]
+   },
+   "query": "I want 40 biotech companies in Boston who use CRISPR kits",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_539d625db9fc45c710d55d72",
+    "company_types": [
+     "cloud"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "San Francisco"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 50 cloud companies in San Francisco with AWS",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find  50   cloud   companies   in  San  Francisco   with  AWS",
+   "request": {
+    "brief_id": "accounts_539d625db9fc45c710d55d72",
+    "company_types": [
+     "cloud"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "San Francisco"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 50 cloud companies in San Francisco with AWS",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_82af7ddbf1cf39743b587de7",
+    "company_types": [
+     "manufacturing"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "the Midwest"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "list 8 manufacturing businesses in the Midwest and are located nearby",
+    "requested_count": 8,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "list 8 manufacturing businesses in the Midwest and are located nearby",
+   "request": {
+    "brief_id": "accounts_82af7ddbf1cf39743b587de7",
+    "company_types": [
+     "manufacturing"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "the Midwest"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "list 8 manufacturing businesses in the Midwest and are located nearby",
+    "requested_count": 8,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_1c31284d1de40d0c0e12e006",
+    "company_types": [
+     "hiring"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "companies"
+    ],
+    "missing_fields": [],
+    "original_query": "show 10 hiring companies",
+    "requested_count": 10,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "show 10 hiring companies",
+   "request": {
+    "brief_id": "accounts_1c31284d1de40d0c0e12e006",
+    "company_types": [
+     "hiring"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "companies"
+    ],
+    "missing_fields": [],
+    "original_query": "show 10 hiring companies",
+    "requested_count": 10,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_43bb98e24942783a09a98e9f",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "original_query": "hello world",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "hello world",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_43bb98e24942783a09a98e9f",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "original_query": "",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_b8931d9390340fcd2185650b",
+    "company_types": [
+     "AI startups"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "ML engineers"
+    ],
+    "missing_fields": [],
+    "original_query": "find 5 AI startups companies in Zürich, hiring for ML engineers positions.",
+    "requested_count": 5,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 5 AI startups companies in Zürich, hiring for ML engineers positions.",
+   "request": {
+    "brief_id": "accounts_b8931d9390340fcd2185650b",
+    "company_types": [
+     "AI startups"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "ML engineers"
+    ],
+    "missing_fields": [],
+    "original_query": "find 5 AI startups companies in Zürich, hiring for ML engineers positions.",
+    "requested_count": 5,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_01cbb93dcb99bd14e609a03f",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "sales development reps"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "find 30 startups hiring for sales development reps",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 30 startups hiring for sales development reps",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_b30e218ecd5d73eeb50528a4",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "for"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "find 30 startups are hiring for for roles.",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 30 startups are hiring for for roles.",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_b30e218ecd5d73eeb50528a4",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [
+     "for"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "find 30 startups hiring for",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 30 startups hiring for",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_29ff641090bca921eed6698d",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "find 30 firms use",
+    "requested_count": 30,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 30 firms use ",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_2c1dadde68add3326a44c4f8",
+    "company_types": [
+     "retail"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Texas"
+    ],
+    "hiring_roles": [
+     "SDRs"
+    ],
+    "missing_fields": [],
+    "original_query": "find 14 retail companies in Texas using Shopify while hiring SDRs",
+    "requested_count": 14,
+    "schema_version": "1.0",
+    "technologies": [
+     "Shopify"
+    ]
+   },
+   "query": "find 14 retail companies in Texas using Shopify while hiring SDRs",
+   "request": {
+    "brief_id": "accounts_2c1dadde68add3326a44c4f8",
+    "company_types": [
+     "retail"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Texas"
+    ],
+    "hiring_roles": [
+     "SDRs"
+    ],
+    "missing_fields": [],
+    "original_query": "find 14 retail companies in Texas using Shopify while hiring SDRs",
+    "requested_count": 14,
+    "schema_version": "1.0",
+    "technologies": [
+     "Shopify"
+    ]
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_1884c9b2ce7135cc1c4745fa",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "trainers"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "original_query": "Find 22 gyms in Austin that use Mindbody. They are hiring for trainers.",
+    "requested_count": 22,
+    "schema_version": "1.0",
+    "technologies": [
+     "Mindbody"
+    ]
+   },
+   "query": "Find 22 gyms in Austin that use Mindbody. They are hiring for trainers.",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_17c3ba829f24d6e126743b58",
+    "company_types": [
+     "food"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Mexico City"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 9 food businesses in Mexico City.",
+    "requested_count": 9,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 9 food businesses in Mexico City.",
+   "request": {
+    "brief_id": "accounts_17c3ba829f24d6e126743b58",
+    "company_types": [
+     "food"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Mexico City"
+    ],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 9 food businesses in Mexico City.",
+    "requested_count": 9,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_43bb98e24942783a09a98e9f",
+    "company_types": [],
+    "complete": false,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "original_query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "requested_count": 0,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx find 10 saas companies",
+   "request": null
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_b15571349e2ef7158ebed748",
+    "company_types": [
+     "saas"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 10 saas companies xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "requested_count": 10,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "query": "find 10 saas companies xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "request": {
+    "brief_id": "accounts_b15571349e2ef7158ebed748",
+    "company_types": [
+     "saas"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 10 saas companies xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "requested_count": 10,
+    "schema_version": "1.0",
+    "technologies": []
+   }
+  }
+ ],
+ "fits": [
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "acme.io",
+    "company": "Acme",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": true,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": true,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": true,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://directory.example.com/acme",
+     "https://www.acme.io/about"
+    ],
+    "field_confidence": 0.82,
+    "fit_reasons": [
+     "Company type evidence matches SaaS",
+     "Geography evidence matches Austin",
+     "Technology evidence matches Salesforce",
+     "Hiring evidence matches SDR"
+    ],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-10-01T00:00:00Z"
+   },
+   "lead": {
+    "address": "1 Main St",
+    "city": "Austin",
+    "company": "Acme",
+    "description": "A SaaS company",
+    "hiring_signals": [
+     {
+      "title": "SDR roles open"
+     }
+    ],
+    "industry_tags": [
+     "B2B",
+     "Software"
+    ],
+    "score": 82,
+    "source_url": "https://directory.example.com/acme",
+    "specialization": "SaaS platform",
+    "state": "Texas",
+    "technographics": {
+     "crm": "Salesforce"
+    },
+    "technologies": [
+     "Salesforce",
+     "AWS"
+    ],
+    "updated_at": "2026-10-01T00:00:00Z",
+    "website": "https://www.acme.io/about"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "beta.com",
+    "company": "Beta",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "https://beta.com",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "https://beta.com",
+      "matched": false,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://beta.com"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "geography_missing",
+     "technology_evidence_missing",
+     "hiring_evidence_missing",
+     "evidence_url_missing"
+    ],
+    "retrieved_at": "2026-09-01"
+   },
+   "lead": {
+    "city": "Dallas",
+    "company": "Beta",
+    "created_at": "2026-09-01",
+    "score": true,
+    "source_url": "ftp://x",
+    "specialization": "Retail",
+    "website": "beta.com"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "",
+    "company": "",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "geography_missing",
+     "technology_evidence_missing",
+     "hiring_evidence_missing",
+     "company_name_missing",
+     "canonical_domain_missing",
+     "evidence_url_missing",
+     "retrieval_time_missing"
+    ],
+    "retrieved_at": ""
+   },
+   "lead": {
+    "company": "",
+    "score": "90",
+    "website": ""
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "gamma.dev",
+    "company": "Gamma",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": true,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": true,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": true,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/g",
+     "http://gamma.dev"
+    ],
+    "field_confidence": 1.0,
+    "fit_reasons": [
+     "Company type evidence matches SaaS",
+     "Geography evidence matches Austin",
+     "Technology evidence matches Salesforce",
+     "Hiring evidence matches SDR"
+    ],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-01-01"
+   },
+   "lead": {
+    "city": "Austin",
+    "company": "Gamma",
+    "created_at": "2026-01-01",
+    "hiring_signals": "We hire SDR",
+    "industry_tags": "SaaS",
+    "score": 250.5,
+    "source_url": "https://s.example.com/g",
+    "state": "TX",
+    "technologies": "salesforce crm",
+    "website": "http://gamma.dev"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "delta.org",
+    "company": "Delta",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": true,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": true,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": true,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/d",
+     "https://delta.org"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [
+     "Company type evidence matches SaaS",
+     "Geography evidence matches Austin",
+     "Technology evidence matches Salesforce",
+     "Hiring evidence matches SDR"
+    ],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-02-02"
+   },
+   "lead": {
+    "address": "Austin, Texas",
+    "company": "Delta",
+    "description": "software-as-a-service SaaS",
+    "hiring_signals": {
+     "roles": [
+      "SDR"
+     ]
+    },
+    "score": -5,
+    "source_url": "https://s.example.com/d",
+    "technographics": [
+     "Salesforce"
+    ],
+    "updated_at": "2026-02-02",
+    "website": "delta.org"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_e1d216d3d49e131916ffe053",
+    "company_types": [
+     "SaaS"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [
+     "Austin"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "missing_fields": [],
+    "original_query": "Find 50 SaaS companies in Austin, Texas that use Salesforce and are hiring for SDR roles.",
+    "requested_count": 50,
+    "schema_version": "1.0",
+    "technologies": [
+     "Salesforce"
+    ]
+   },
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "epsilon.com",
+    "company": "Epsilon",
+    "criteria_evidence": {
+     "company_type:SaaS": {
+      "evidence_url": "https://e.example.com",
+      "matched": true,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Austin": {
+      "evidence_url": "https://e.example.com",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     },
+     "hiring:SDR": {
+      "evidence_url": "https://e.example.com",
+      "matched": true,
+      "source_fields": [
+       "hiring_signals"
+      ]
+     },
+     "technology:Salesforce": {
+      "evidence_url": "https://e.example.com",
+      "matched": true,
+      "source_fields": [
+       "technologies",
+       "technographics"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://e.example.com",
+     "https://epsilon.com/path"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [
+     "Company type evidence matches SaaS",
+     "Geography evidence matches Austin",
+     "Technology evidence matches Salesforce",
+     "Hiring evidence matches SDR"
+    ],
+    "rejection_reasons": [],
+    "retrieved_at": "x"
+   },
+   "lead": {
+    "city": "austin",
+    "company": "Epsilon",
+    "description": "saas companies",
+    "hiring_signals": "sdr",
+    "score": 0,
+    "source_url": "https://e.example.com",
+    "state": "texas",
+    "technologies": [
+     "Salesforce"
+    ],
+    "updated_at": "x",
+    "website": "epsilon.com/path"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "acme.io",
+    "company": "Acme",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://directory.example.com/acme",
+     "https://www.acme.io/about"
+    ],
+    "field_confidence": 0.82,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "2026-10-01T00:00:00Z"
+   },
+   "lead": {
+    "address": "1 Main St",
+    "city": "Austin",
+    "company": "Acme",
+    "description": "A SaaS company",
+    "hiring_signals": [
+     {
+      "title": "SDR roles open"
+     }
+    ],
+    "industry_tags": [
+     "B2B",
+     "Software"
+    ],
+    "score": 82,
+    "source_url": "https://directory.example.com/acme",
+    "specialization": "SaaS platform",
+    "state": "Texas",
+    "technographics": {
+     "crm": "Salesforce"
+    },
+    "technologies": [
+     "Salesforce",
+     "AWS"
+    ],
+    "updated_at": "2026-10-01T00:00:00Z",
+    "website": "https://www.acme.io/about"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "beta.com",
+    "company": "Beta",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "https://beta.com",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://beta.com"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "evidence_url_missing"
+    ],
+    "retrieved_at": "2026-09-01"
+   },
+   "lead": {
+    "city": "Dallas",
+    "company": "Beta",
+    "created_at": "2026-09-01",
+    "score": true,
+    "source_url": "ftp://x",
+    "specialization": "Retail",
+    "website": "beta.com"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "",
+    "company": "",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "company_name_missing",
+     "canonical_domain_missing",
+     "evidence_url_missing",
+     "retrieval_time_missing"
+    ],
+    "retrieved_at": ""
+   },
+   "lead": {
+    "company": "",
+    "score": "90",
+    "website": ""
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "gamma.dev",
+    "company": "Gamma",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/g",
+     "http://gamma.dev"
+    ],
+    "field_confidence": 1.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "2026-01-01"
+   },
+   "lead": {
+    "city": "Austin",
+    "company": "Gamma",
+    "created_at": "2026-01-01",
+    "hiring_signals": "We hire SDR",
+    "industry_tags": "SaaS",
+    "score": 250.5,
+    "source_url": "https://s.example.com/g",
+    "state": "TX",
+    "technologies": "salesforce crm",
+    "website": "http://gamma.dev"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "delta.org",
+    "company": "Delta",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/d",
+     "https://delta.org"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "2026-02-02"
+   },
+   "lead": {
+    "address": "Austin, Texas",
+    "company": "Delta",
+    "description": "software-as-a-service SaaS",
+    "hiring_signals": {
+     "roles": [
+      "SDR"
+     ]
+    },
+    "score": -5,
+    "source_url": "https://s.example.com/d",
+    "technographics": [
+     "Salesforce"
+    ],
+    "updated_at": "2026-02-02",
+    "website": "delta.org"
+   }
+  },
+  {
+   "brief": {
+    "brief_id": "accounts_7223c2d8879e88ff54852f59",
+    "company_types": [
+     "fintech"
+    ],
+    "complete": true,
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "exclusions": [],
+    "geographies": [],
+    "hiring_roles": [],
+    "missing_fields": [],
+    "original_query": "find 20 fintech companies",
+    "requested_count": 20,
+    "schema_version": "1.0",
+    "technologies": []
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "epsilon.com",
+    "company": "Epsilon",
+    "criteria_evidence": {
+     "company_type:fintech": {
+      "evidence_url": "https://e.example.com",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://e.example.com",
+     "https://epsilon.com/path"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "x"
+   },
+   "lead": {
+    "city": "austin",
+    "company": "Epsilon",
+    "description": "saas companies",
+    "hiring_signals": "sdr",
+    "score": 0,
+    "source_url": "https://e.example.com",
+    "state": "texas",
+    "technologies": [
+     "Salesforce"
+    ],
+    "updated_at": "x",
+    "website": "epsilon.com/path"
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "acme.io",
+    "company": "Acme",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://directory.example.com/acme",
+     "https://www.acme.io/about"
+    ],
+    "field_confidence": 0.82,
+    "fit_reasons": [],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-10-01T00:00:00Z"
+   },
+   "lead": {
+    "address": "1 Main St",
+    "city": "Austin",
+    "company": "Acme",
+    "description": "A SaaS company",
+    "hiring_signals": [
+     {
+      "title": "SDR roles open"
+     }
+    ],
+    "industry_tags": [
+     "B2B",
+     "Software"
+    ],
+    "score": 82,
+    "source_url": "https://directory.example.com/acme",
+    "specialization": "SaaS platform",
+    "state": "Texas",
+    "technographics": {
+     "crm": "Salesforce"
+    },
+    "technologies": [
+     "Salesforce",
+     "AWS"
+    ],
+    "updated_at": "2026-10-01T00:00:00Z",
+    "website": "https://www.acme.io/about"
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "beta.com",
+    "company": "Beta",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://beta.com"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "evidence_url_missing"
+    ],
+    "retrieved_at": "2026-09-01"
+   },
+   "lead": {
+    "city": "Dallas",
+    "company": "Beta",
+    "created_at": "2026-09-01",
+    "score": true,
+    "source_url": "ftp://x",
+    "specialization": "Retail",
+    "website": "beta.com"
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "",
+    "company": "",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_name_missing",
+     "canonical_domain_missing",
+     "evidence_url_missing",
+     "retrieval_time_missing"
+    ],
+    "retrieved_at": ""
+   },
+   "lead": {
+    "company": "",
+    "score": "90",
+    "website": ""
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "gamma.dev",
+    "company": "Gamma",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/g",
+     "http://gamma.dev"
+    ],
+    "field_confidence": 1.0,
+    "fit_reasons": [],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-01-01"
+   },
+   "lead": {
+    "city": "Austin",
+    "company": "Gamma",
+    "created_at": "2026-01-01",
+    "hiring_signals": "We hire SDR",
+    "industry_tags": "SaaS",
+    "score": 250.5,
+    "source_url": "https://s.example.com/g",
+    "state": "TX",
+    "technologies": "salesforce crm",
+    "website": "http://gamma.dev"
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "delta.org",
+    "company": "Delta",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/d",
+     "https://delta.org"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [],
+    "retrieved_at": "2026-02-02"
+   },
+   "lead": {
+    "address": "Austin, Texas",
+    "company": "Delta",
+    "description": "software-as-a-service SaaS",
+    "hiring_signals": {
+     "roles": [
+      "SDR"
+     ]
+    },
+    "score": -5,
+    "source_url": "https://s.example.com/d",
+    "technographics": [
+     "Salesforce"
+    ],
+    "updated_at": "2026-02-02",
+    "website": "delta.org"
+   }
+  },
+  {
+   "brief": {},
+   "fit": {
+    "accepted": true,
+    "canonical_domain": "epsilon.com",
+    "company": "Epsilon",
+    "criteria_evidence": {},
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://e.example.com",
+     "https://epsilon.com/path"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [],
+    "retrieved_at": "x"
+   },
+   "lead": {
+    "city": "austin",
+    "company": "Epsilon",
+    "description": "saas companies",
+    "hiring_signals": "sdr",
+    "score": 0,
+    "source_url": "https://e.example.com",
+    "state": "texas",
+    "technologies": [
+     "Salesforce"
+    ],
+    "updated_at": "x",
+    "website": "epsilon.com/path"
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "acme.io",
+    "company": "Acme",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "https://directory.example.com/acme",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://directory.example.com/acme",
+     "https://www.acme.io/about"
+    ],
+    "field_confidence": 0.82,
+    "fit_reasons": [
+     "Geography evidence matches Texas"
+    ],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "2026-10-01T00:00:00Z"
+   },
+   "lead": {
+    "address": "1 Main St",
+    "city": "Austin",
+    "company": "Acme",
+    "description": "A SaaS company",
+    "hiring_signals": [
+     {
+      "title": "SDR roles open"
+     }
+    ],
+    "industry_tags": [
+     "B2B",
+     "Software"
+    ],
+    "score": 82,
+    "source_url": "https://directory.example.com/acme",
+    "specialization": "SaaS platform",
+    "state": "Texas",
+    "technographics": {
+     "crm": "Salesforce"
+    },
+    "technologies": [
+     "Salesforce",
+     "AWS"
+    ],
+    "updated_at": "2026-10-01T00:00:00Z",
+    "website": "https://www.acme.io/about"
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "beta.com",
+    "company": "Beta",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "https://beta.com",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "https://beta.com",
+      "matched": false,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://beta.com"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "geography_missing",
+     "evidence_url_missing"
+    ],
+    "retrieved_at": "2026-09-01"
+   },
+   "lead": {
+    "city": "Dallas",
+    "company": "Beta",
+    "created_at": "2026-09-01",
+    "score": true,
+    "source_url": "ftp://x",
+    "specialization": "Retail",
+    "website": "beta.com"
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "",
+    "company": "",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "",
+      "matched": false,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [],
+    "field_confidence": 0.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "geography_missing",
+     "company_name_missing",
+     "canonical_domain_missing",
+     "evidence_url_missing",
+     "retrieval_time_missing"
+    ],
+    "retrieved_at": ""
+   },
+   "lead": {
+    "company": "",
+    "score": "90",
+    "website": ""
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "gamma.dev",
+    "company": "Gamma",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "https://s.example.com/g",
+      "matched": false,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/g",
+     "http://gamma.dev"
+    ],
+    "field_confidence": 1.0,
+    "fit_reasons": [],
+    "rejection_reasons": [
+     "company_type_missing",
+     "geography_missing"
+    ],
+    "retrieved_at": "2026-01-01"
+   },
+   "lead": {
+    "city": "Austin",
+    "company": "Gamma",
+    "created_at": "2026-01-01",
+    "hiring_signals": "We hire SDR",
+    "industry_tags": "SaaS",
+    "score": 250.5,
+    "source_url": "https://s.example.com/g",
+    "state": "TX",
+    "technologies": "salesforce crm",
+    "website": "http://gamma.dev"
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "delta.org",
+    "company": "Delta",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "https://s.example.com/d",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://s.example.com/d",
+     "https://delta.org"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [
+     "Geography evidence matches Texas"
+    ],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "2026-02-02"
+   },
+   "lead": {
+    "address": "Austin, Texas",
+    "company": "Delta",
+    "description": "software-as-a-service SaaS",
+    "hiring_signals": {
+     "roles": [
+      "SDR"
+     ]
+    },
+    "score": -5,
+    "source_url": "https://s.example.com/d",
+    "technographics": [
+     "Salesforce"
+    ],
+    "updated_at": "2026-02-02",
+    "website": "delta.org"
+   }
+  },
+  {
+   "brief": {
+    "company_types": [
+     "Sass"
+    ],
+    "geographies": [
+     "Texas"
+    ]
+   },
+   "fit": {
+    "accepted": false,
+    "canonical_domain": "epsilon.com",
+    "company": "Epsilon",
+    "criteria_evidence": {
+     "company_type:Sass": {
+      "evidence_url": "https://e.example.com",
+      "matched": false,
+      "source_fields": [
+       "specialization",
+       "industry_tags",
+       "description"
+      ]
+     },
+     "geography:Texas": {
+      "evidence_url": "https://e.example.com",
+      "matched": true,
+      "source_fields": [
+       "city",
+       "state",
+       "address"
+      ]
+     }
+    },
+    "evaluated_at": "2026-10-28T12:00:00+00:00",
+    "evidence_urls": [
+     "https://e.example.com",
+     "https://epsilon.com/path"
+    ],
+    "field_confidence": 0.0,
+    "fit_reasons": [
+     "Geography evidence matches Texas"
+    ],
+    "rejection_reasons": [
+     "company_type_missing"
+    ],
+    "retrieved_at": "x"
+   },
+   "lead": {
+    "city": "austin",
+    "company": "Epsilon",
+    "description": "saas companies",
+    "hiring_signals": "sdr",
+    "score": 0,
+    "source_url": "https://e.example.com",
+    "state": "texas",
+    "technologies": [
+     "Salesforce"
+    ],
+    "updated_at": "x",
+    "website": "epsilon.com/path"
+   }
+  }
+ ]
+}

@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "status": "new"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/abc/status"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "abc",
+          "loc": [
+            "path",
+            "lead_id"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

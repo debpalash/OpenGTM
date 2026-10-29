@@ -1,0 +1,1289 @@
+{
+ "backoff_delays_max": [
+  19.5,
+  39.0,
+  78.0,
+  156.0,
+  312.0,
+  624.0,
+  900.0,
+  900.0
+ ],
+ "backoff_delays_zero": [
+  15.0,
+  30.0,
+  60.0,
+  120.0,
+  240.0,
+  480.0,
+  900.0,
+  900.0
+ ],
+ "block_signals": [
+  {
+   "block": false,
+   "msg": "No results found.",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "https://x 202 Ratelimit",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "x",
+   "type": "RatelimitException"
+  },
+  {
+   "block": true,
+   "msg": "",
+   "type": "TimeoutException"
+  },
+  {
+   "block": true,
+   "msg": "Read timed out",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "HTTP 403",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "captcha",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "Too Many Requests",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "blocked by peer",
+   "type": "E"
+  },
+  {
+   "block": false,
+   "msg": "connection reset",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "RATE LIMIT",
+   "type": "E"
+  },
+  {
+   "block": true,
+   "msg": "4290 things",
+   "type": "E"
+  }
+ ],
+ "cache_keys": [
+  {
+   "backends": "duckduckgo, google, bing, brave, mojeek, yahoo",
+   "key": "c0af938eadfc85d24e5da5669d69dd0c5ed265f8",
+   "max_results": 10,
+   "method": "text",
+   "query": "Acme  Staffing",
+   "salt": ""
+  },
+  {
+   "backends": "duckduckgo, google, bing, brave, mojeek, yahoo",
+   "key": "ae71c4828c181c90d58940a163f0873ec1d120b5",
+   "max_results": 10,
+   "method": "text",
+   "query": "  acme STAFFING ",
+   "salt": "ws-1"
+  },
+  {
+   "backends": "",
+   "key": "ec509e25d68b40a2172760e344d61459bf27a71b",
+   "max_results": null,
+   "method": "news",
+   "query": "acme",
+   "salt": ""
+  },
+  {
+   "backends": "bing",
+   "key": "a6f9a3aca57a0b9b2c95a41356635dc7458319a5",
+   "max_results": 15,
+   "method": "text",
+   "query": "Ünïcode  ÄÖ ß",
+   "salt": ""
+  },
+  {
+   "backends": "",
+   "key": "42027874566d27756b0774775f6f44e0d2e1d9e8",
+   "max_results": 5,
+   "method": "text",
+   "query": "tab\tand\nnewline nbsp",
+   "salt": ""
+  },
+  {
+   "backends": "x",
+   "key": "5bf3d49104fa5405e9edd5cdef5b84f7dcb91876",
+   "max_results": 0,
+   "method": "text",
+   "query": "",
+   "salt": "w"
+  }
+ ],
+ "cache_ops": [
+  {
+   "empty": false,
+   "key": "a",
+   "op": "put",
+   "t": 0
+  },
+  {
+   "empty": true,
+   "key": "b",
+   "op": "put",
+   "t": 1
+  },
+  {
+   "hit": true,
+   "key": "a",
+   "len": 2,
+   "op": "get",
+   "t": 59
+  },
+  {
+   "hit": true,
+   "key": "b",
+   "len": 2,
+   "op": "get",
+   "t": 60
+  },
+  {
+   "hit": false,
+   "key": "b",
+   "len": 1,
+   "op": "get",
+   "t": 61.5
+  },
+  {
+   "empty": false,
+   "key": "c",
+   "op": "put",
+   "t": 62
+  },
+  {
+   "empty": false,
+   "key": "d",
+   "op": "put",
+   "t": 63
+  },
+  {
+   "hit": true,
+   "key": "a",
+   "len": 3,
+   "op": "get",
+   "t": 64
+  },
+  {
+   "empty": false,
+   "key": "e",
+   "op": "put",
+   "t": 65
+  },
+  {
+   "hit": false,
+   "key": "c",
+   "len": 3,
+   "op": "get",
+   "t": 66
+  },
+  {
+   "hit": true,
+   "key": "a",
+   "len": 3,
+   "op": "get",
+   "t": 600
+  },
+  {
+   "hit": false,
+   "key": "a",
+   "len": 2,
+   "op": "get",
+   "t": 600.5
+  },
+  {
+   "hit": false,
+   "key": "d",
+   "len": 1,
+   "op": "get",
+   "t": 664
+  }
+ ],
+ "ddgs_backed_off": {
+  "ddgs_calls": 0,
+  "results": [
+   {
+    "body": "d",
+    "href": "https://br.example/",
+    "title": "Br"
+   }
+  ]
+ },
+ "ddgs_chain": [
+  {
+   "cache_size": 1,
+   "ddgs_blocked": false,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 0,
+   "keyed_requests": 0,
+   "method": "text",
+   "name": "direct_hit",
+   "proxy": "socks5://9.9.9.9:1080",
+   "proxy_reports": [],
+   "results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ],
+   "second_call_ddgs_calls": 0,
+   "second_results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ]
+  },
+  {
+   "cache_size": 1,
+   "ddgs_blocked": false,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    },
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": "socks5://9.9.9.9:1080",
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 0,
+   "keyed_requests": 0,
+   "method": "text",
+   "name": "direct_empty_proxy_hit",
+   "proxy": "socks5://9.9.9.9:1080",
+   "proxy_reports": [
+    [
+     "9.9.9.9",
+     1080,
+     true
+    ]
+   ],
+   "results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ],
+   "second_call_ddgs_calls": 0,
+   "second_results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ]
+  },
+  {
+   "cache_size": 1,
+   "ddgs_blocked": false,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    },
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": "socks5://9.9.9.9:1080",
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 0,
+   "keyed_requests": 0,
+   "method": "text",
+   "name": "direct_ratelimit_proxy_hit",
+   "proxy": "socks5://9.9.9.9:1080",
+   "proxy_reports": [
+    [
+     "9.9.9.9",
+     1080,
+     true
+    ]
+   ],
+   "results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ],
+   "second_call_ddgs_calls": 0,
+   "second_results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ]
+  },
+  {
+   "cache_size": 1,
+   "ddgs_blocked": false,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 0,
+   "keyed_requests": 1,
+   "method": "text",
+   "name": "no_proxy_empty_keyed",
+   "proxy": null,
+   "proxy_reports": [],
+   "results": [
+    {
+     "body": "sa",
+     "href": "https://a.example/",
+     "title": "A & B"
+    },
+    {
+     "body": "",
+     "href": "https://b.example/",
+     "title": ""
+    }
+   ],
+   "second_call_ddgs_calls": 0,
+   "second_results": [
+    {
+     "body": "sa",
+     "href": "https://a.example/",
+     "title": "A & B"
+    },
+    {
+     "body": "",
+     "href": "https://b.example/",
+     "title": ""
+    }
+   ]
+  },
+  {
+   "cache_size": 1,
+   "ddgs_blocked": true,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    },
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "text",
+     "proxy": "http://8.8.8.8:3128",
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 1,
+   "keyed_requests": 0,
+   "method": "text",
+   "name": "both_fail_no_keys",
+   "proxy": "http://8.8.8.8:3128",
+   "proxy_reports": [
+    [
+     "8.8.8.8",
+     3128,
+     false
+    ]
+   ],
+   "results": [],
+   "second_call_ddgs_calls": 0,
+   "second_results": []
+  },
+  {
+   "cache_size": 1,
+   "ddgs_blocked": false,
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "backend": "duckduckgo, google, bing, brave, mojeek, yahoo",
+      "max_results": 7
+     },
+     "method": "news",
+     "proxy": null,
+     "query": "acme staffing"
+    }
+   ],
+   "ddgs_consecutive": 0,
+   "keyed_requests": 0,
+   "method": "news",
+   "name": "news_no_keyed",
+   "proxy": null,
+   "proxy_reports": [],
+   "results": [],
+   "second_call_ddgs_calls": 0,
+   "second_results": []
+  }
+ ],
+ "fallback_orders": [
+  {
+   "configured": [
+    "serpapi",
+    "bing",
+    "google_cse",
+    "brave",
+    "serpingapi",
+    "serply"
+   ],
+   "order": null,
+   "unset": []
+  },
+  {
+   "configured": [
+    "brave",
+    "serpapi",
+    "bing"
+   ],
+   "order": "brave, serpapi,unknown,,bing",
+   "unset": []
+  },
+  {
+   "configured": [
+    "bing",
+    "brave",
+    "serpingapi",
+    "serply"
+   ],
+   "order": null,
+   "unset": [
+    "SERPAPI_KEY",
+    "GOOGLE_CSE_KEY"
+   ]
+  },
+  {
+   "configured": [],
+   "order": "",
+   "unset": []
+  }
+ ],
+ "gosom": {
+  "requests": [
+   {
+    "body": "{\"name\":\"cafes in pune / xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"keywords\":[\"cafes in pune\",\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\"],\"lang\":\"en\",\"zoom\":15,\"depth\":1,\"max_time\":3600}",
+    "headers": {
+     "accept": "*/*",
+     "content-length": "341",
+     "content-type": "application/json"
+    },
+    "method": "POST",
+    "url": "http://gmaps:8080/api/v1/jobs"
+   },
+   {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "http://gmaps:8080/api/v1/jobs/job-1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "http://gmaps:8080/api/v1/jobs/job-1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "http://gmaps:8080/api/v1/jobs/job-1"
+   },
+   {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "http://gmaps:8080/api/v1/jobs/job-1/download"
+   }
+  ],
+  "rows": [
+   {
+    "emails": "a@acme.in, b@acme.in",
+    "phone": "+91 98765 43210",
+    "title": "Acme, Inc",
+    "website": "https://acme.in"
+   },
+   {
+    "emails": "",
+    "phone": "",
+    "title": "Beta",
+    "website": ""
+   }
+  ]
+ },
+ "gosom_create_failed": {
+  "rows": []
+ },
+ "gosom_failed": {
+  "requests": 2,
+  "rows": []
+ },
+ "gosom_timeout": {
+  "rows": []
+ },
+ "keyed_engines": [
+  {
+   "engine": "serpapi",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "https://serpapi.com/search.json?engine=google&q=acme+staffing+%26+co%2F%C3%BC&num=3&api_key=serp-k"
+   },
+   "results": [
+    {
+     "body": "sa",
+     "href": "https://a.example/",
+     "title": "A & B"
+    },
+    {
+     "body": "",
+     "href": "https://b.example/",
+     "title": ""
+    }
+   ]
+  },
+  {
+   "engine": "serpapi",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "https://serpapi.com/search.json?engine=google&q=acme+staffing+%26+co%2F%C3%BC&num=50&api_key=serp-k"
+   },
+   "results": [
+    {
+     "body": "sa",
+     "href": "https://a.example/",
+     "title": "A & B"
+    },
+    {
+     "body": "",
+     "href": "https://b.example/",
+     "title": ""
+    }
+   ]
+  },
+  {
+   "engine": "serpapi",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "serpapi",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  },
+  {
+   "engine": "bing",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "ocp-apim-subscription-key": "bing-k"
+    },
+    "method": "GET",
+    "url": "https://api.bing.microsoft.com/v7.0/search?q=acme+staffing+%26+co%2F%C3%BC&count=3&responseFilter=Webpages"
+   },
+   "results": [
+    {
+     "body": "s",
+     "href": "https://n.example/",
+     "title": "N"
+    }
+   ]
+  },
+  {
+   "engine": "bing",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "ocp-apim-subscription-key": "bing-k"
+    },
+    "method": "GET",
+    "url": "https://api.bing.microsoft.com/v7.0/search?q=acme+staffing+%26+co%2F%C3%BC&count=50&responseFilter=Webpages"
+   },
+   "results": [
+    {
+     "body": "s",
+     "href": "https://n.example/",
+     "title": "N"
+    }
+   ]
+  },
+  {
+   "engine": "bing",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "bing",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  },
+  {
+   "engine": "google_cse",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "https://www.googleapis.com/customsearch/v1?q=acme+staffing+%26+co%2F%C3%BC&cx=cse-id&key=cse-k&num=3"
+   },
+   "results": [
+    {
+     "body": "",
+     "href": "https://g.example/",
+     "title": "G"
+    }
+   ]
+  },
+  {
+   "engine": "google_cse",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*"
+    },
+    "method": "GET",
+    "url": "https://www.googleapis.com/customsearch/v1?q=acme+staffing+%26+co%2F%C3%BC&cx=cse-id&key=cse-k&num=10"
+   },
+   "results": [
+    {
+     "body": "",
+     "href": "https://g.example/",
+     "title": "G"
+    }
+   ]
+  },
+  {
+   "engine": "google_cse",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "google_cse",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  },
+  {
+   "engine": "brave",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "application/json",
+     "x-subscription-token": "brave-k"
+    },
+    "method": "GET",
+    "url": "https://api.search.brave.com/res/v1/web/search?q=acme+staffing+%26+co%2F%C3%BC&count=3"
+   },
+   "results": [
+    {
+     "body": "d",
+     "href": "https://br.example/",
+     "title": "Br"
+    }
+   ]
+  },
+  {
+   "engine": "brave",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "application/json",
+     "x-subscription-token": "brave-k"
+    },
+    "method": "GET",
+    "url": "https://api.search.brave.com/res/v1/web/search?q=acme+staffing+%26+co%2F%C3%BC&count=20"
+   },
+   "results": [
+    {
+     "body": "d",
+     "href": "https://br.example/",
+     "title": "Br"
+    }
+   ]
+  },
+  {
+   "engine": "brave",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "brave",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  },
+  {
+   "engine": "serpingapi",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "x-api-key": "sping-k"
+    },
+    "method": "GET",
+    "url": "https://api.serpingapi.com/v1/search?q=acme+staffing+%26+co%2F%C3%BC&num=3"
+   },
+   "results": [
+    {
+     "body": "ss",
+     "href": "https://s.example/",
+     "title": "S"
+    }
+   ]
+  },
+  {
+   "engine": "serpingapi",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "x-api-key": "sping-k"
+    },
+    "method": "GET",
+    "url": "https://api.serpingapi.com/v1/search?q=acme+staffing+%26+co%2F%C3%BC&num=50"
+   },
+   "results": [
+    {
+     "body": "ss",
+     "href": "https://s.example/",
+     "title": "S"
+    }
+   ]
+  },
+  {
+   "engine": "serpingapi",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "serpingapi",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  },
+  {
+   "engine": "serply",
+   "max_results": 3,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "user-agent": "OpenGTM",
+     "x-api-key": "serply-k"
+    },
+    "method": "GET",
+    "url": "https://api.serply.io/v1/search?q=acme+staffing+%26+co%2F%C3%BC&num=3"
+   },
+   "results": [
+    {
+     "body": "yd",
+     "href": "http://y.example/",
+     "title": "Y2"
+    }
+   ]
+  },
+  {
+   "engine": "serply",
+   "max_results": 50,
+   "request": {
+    "body": "",
+    "headers": {
+     "accept": "*/*",
+     "user-agent": "OpenGTM",
+     "x-api-key": "serply-k"
+    },
+    "method": "GET",
+    "url": "https://api.serply.io/v1/search?q=acme+staffing+%26+co%2F%C3%BC&num=10"
+   },
+   "results": [
+    {
+     "body": "yd",
+     "href": "http://y.example/",
+     "title": "Y2"
+    }
+   ]
+  },
+  {
+   "engine": "serply",
+   "max_results": 5,
+   "results": [],
+   "status": 429
+  },
+  {
+   "engine": "serply",
+   "invalid_json": true,
+   "max_results": 5,
+   "results": [],
+   "status": 200
+  }
+ ],
+ "proxy_manager": {
+  "proxies": [
+   "socks5://1.1.1.1:1080",
+   "http://2.2.2.2:8080",
+   "http://3.3.3.3:1081",
+   "socks5://1.1.1.1:1080",
+   "http://2.2.2.2:8080",
+   "socks5://1.1.1.1:1080"
+  ],
+  "requests": [
+   {
+    "body": "",
+    "headers": {
+     "Accept": "application/json"
+    },
+    "method": "GET",
+    "timeout": 3,
+    "url": "http://localhost:3050/api/proxy?limit=20&maxLatency=4000"
+   },
+   {
+    "body": "",
+    "headers": {
+     "Accept": "application/json"
+    },
+    "method": "GET",
+    "timeout": 3,
+    "url": "http://localhost:3050/api/proxy?limit=20&maxLatency=4000"
+   },
+   {
+    "body": "",
+    "headers": {
+     "Accept": "application/json"
+    },
+    "method": "GET",
+    "timeout": 3,
+    "url": "http://localhost:3050/api/proxy?limit=20&maxLatency=4000"
+   },
+   {
+    "body": "",
+    "headers": {
+     "Accept": "application/json"
+    },
+    "method": "GET",
+    "timeout": 3,
+    "url": "http://localhost:3050/api/proxy?limit=20&maxLatency=4000"
+   },
+   {
+    "body": "{\"host\": \"1.1.1.1\", \"port\": 1080, \"status\": \"success\"}",
+    "headers": {
+     "Content-type": "application/json"
+    },
+    "method": "POST",
+    "timeout": 2,
+    "url": "http://localhost:3050/api/report"
+   },
+   {
+    "body": "{\"host\": \"2.2.2.2\", \"port\": 8080, \"status\": \"failure\"}",
+    "headers": {
+     "Content-type": "application/json"
+    },
+    "method": "POST",
+    "timeout": 2,
+    "url": "http://localhost:3050/api/report"
+   }
+  ]
+ },
+ "proxy_pool": [
+  {
+   "op": "all",
+   "result": [
+    "http://1.1.1.1:8080",
+    "http://u:p@2.2.2.2:3128",
+    "http://4.4.4.4:80",
+    "socks5://socks5-host.example:1080",
+    "socks4://3.3.3.3:1080socks4"
+   ]
+  },
+  {
+   "domain": "a.in",
+   "op": "get",
+   "result": "http://1.1.1.1:8080",
+   "tier": 2
+  },
+  {
+   "domain": "a.in",
+   "op": "get",
+   "result": "http://1.1.1.1:8080",
+   "tier": 3
+  },
+  {
+   "domain": "b.in",
+   "op": "get",
+   "result": "socks5://socks5-host.example:1080",
+   "tier": 3
+  },
+  {
+   "domain": "a.in",
+   "op": "blocked",
+   "proxy": "http://1.1.1.1:8080"
+  },
+  {
+   "domain": "a.in",
+   "op": "get",
+   "result": "http://u:p@2.2.2.2:3128",
+   "tier": 2
+  },
+  {
+   "op": "stats",
+   "result": {
+    "blocked": 1,
+    "domain_assignments": 2,
+    "http": 3,
+    "socks4": 1,
+    "socks5": 1,
+    "total": 5
+   }
+  },
+  {
+   "domain": "c.in",
+   "op": "get",
+   "result": "http://1.1.1.1:8080",
+   "tier": 2
+  },
+  {
+   "op": "stats",
+   "result": {
+    "blocked": 0,
+    "domain_assignments": 3,
+    "http": 3,
+    "socks4": 1,
+    "socks5": 1,
+    "total": 5
+   }
+  }
+ ],
+ "proxy_pool_empty_stats": {
+  "blocked": 0,
+  "domain_assignments": 0,
+  "http": 0,
+  "socks4": 0,
+  "socks5": 0,
+  "total": 0
+ },
+ "rate_limiter": [
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": true,
+   "rpm": 3,
+   "t": 0
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": true,
+   "rpm": 3,
+   "t": 0
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": true,
+   "rpm": 3,
+   "t": 0
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": false,
+   "rpm": 3,
+   "t": 0
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": false,
+   "rpm": 3,
+   "t": 10
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "try",
+   "result": true,
+   "rpm": 3,
+   "t": 20
+  },
+  {
+   "domain": "maps.google.com",
+   "op": "wait",
+   "result": 20.0,
+   "rpm": 3,
+   "t": 20
+  },
+  {
+   "domain": "www.linkedin.com",
+   "op": "try",
+   "result": true,
+   "rpm": 2,
+   "t": 0
+  },
+  {
+   "domain": "acme.in",
+   "op": "try",
+   "result": true,
+   "rpm": 10,
+   "t": 0
+  },
+  {
+   "domain": "acme.in",
+   "op": "wait",
+   "result": 0,
+   "rpm": 10,
+   "t": 0
+  },
+  {
+   "domain": "notgoogle.com",
+   "op": "try",
+   "result": true,
+   "rpm": 10,
+   "t": 0
+  },
+  {
+   "domain": "evilg2.com",
+   "op": "try",
+   "result": true,
+   "rpm": 10,
+   "t": 0
+  },
+  {
+   "domain": "acme.in",
+   "op": "fail",
+   "result": false,
+   "t": 100
+  },
+  {
+   "domain": "acme.in",
+   "op": "fail",
+   "result": false,
+   "t": 101
+  },
+  {
+   "domain": "acme.in",
+   "op": "fail",
+   "result": false,
+   "t": 102
+  },
+  {
+   "domain": "acme.in",
+   "op": "fail",
+   "result": false,
+   "t": 103
+  },
+  {
+   "domain": "acme.in",
+   "op": "fail",
+   "result": true,
+   "t": 104
+  },
+  {
+   "domain": "acme.in",
+   "op": "blocked",
+   "result": true,
+   "t": 1004
+  },
+  {
+   "domain": "acme.in",
+   "op": "blocked",
+   "result": false,
+   "t": 1004.5
+  },
+  {
+   "domain": "b.in",
+   "op": "blocked",
+   "result": false,
+   "t": 2000
+  }
+ ],
+ "rate_limiter_stats": {
+  "tracked_domains": 6,
+  "tripped_domains": []
+ },
+ "search_fallback": {
+  "requests": [
+   "https://serpapi.com/search.json",
+   "https://api.bing.microsoft.com/v7.0/search",
+   "https://www.googleapis.com/customsearch/v1"
+  ],
+  "results": [
+   {
+    "body": "",
+    "href": "https://g.example/",
+    "title": "G"
+   }
+  ]
+ },
+ "searx": [
+  {
+   "ddgs_calls": [],
+   "name": "pool_hit",
+   "requests": [
+    "http://localhost:8889/search?q=acme+staffing&n=4"
+   ],
+   "results": [
+    {
+     "body": "pc",
+     "href": "https://p.example/",
+     "title": "P"
+    },
+    {
+     "body": "hb",
+     "href": "https://h.example/",
+     "title": "H"
+    }
+   ]
+  },
+  {
+   "ddgs_calls": [],
+   "name": "pool_empty_direct_hit",
+   "requests": [
+    "http://localhost:8889/search?q=acme+staffing&n=4",
+    "http://localhost:8888/search?q=acme+staffing&format=json&engines=bing%2Cqwant%2Cyahoo"
+   ],
+   "results": [
+    {
+     "body": "",
+     "href": "https://d.example/",
+     "title": null
+    }
+   ]
+  },
+  {
+   "ddgs_calls": [
+    {
+     "kwargs": {
+      "max_results": 2
+     },
+     "method": "text",
+     "proxy": null,
+     "query": "acme staffing"
+    }
+   ],
+   "name": "pool_500_direct_bad_json",
+   "requests": [
+    "http://localhost:8889/search?q=acme+staffing&n=4",
+    "http://localhost:8888/search?q=acme+staffing&format=json&engines=bing%2Cqwant%2Cyahoo"
+   ],
+   "results": [
+    {
+     "body": "B",
+     "href": "https://h.example/",
+     "title": "T"
+    }
+   ]
+  }
+ ],
+ "system_stats": {
+  "proxy_pool": {
+   "blocked": 0,
+   "domain_assignments": 0,
+   "http": 0,
+   "socks4": 0,
+   "socks5": 0,
+   "total": 0
+  },
+  "rate_limiter": {
+   "tracked_domains": 0,
+   "tripped_domains": []
+  }
+ }
+}

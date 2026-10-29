@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "name": "Refresh disabled",
+      "refresh_enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:45.597062",
+      "description": "",
+      "filters": {},
+      "id": "00000000-0000-4000-8000-000000002056",
+      "last_refresh_error": null,
+      "member_count": 15,
+      "name": "Refresh disabled",
+      "next_refresh_at": null,
+      "refresh_enabled": false,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:45.610666",
+      "updated_at": "2026-10-26T17:05:45.619922"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

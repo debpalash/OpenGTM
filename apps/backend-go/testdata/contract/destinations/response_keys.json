@@ -1,0 +1,141 @@
+{
+  "note": "key order of the destination JSON shapes (recorded fixtures are key-sorted; Python dict order is the contract)",
+  "shapes": {
+    "destination": [
+      "id",
+      "audience_id",
+      "name",
+      "destination_type",
+      "enabled",
+      "config",
+      "field_map",
+      "health_status",
+      "last_error",
+      "last_success_at",
+      "created_at",
+      "updated_at"
+    ],
+    "destination_list_item": [
+      "id",
+      "audience_id",
+      "name",
+      "destination_type",
+      "enabled",
+      "config",
+      "field_map",
+      "health_status",
+      "last_error",
+      "last_success_at",
+      "created_at",
+      "updated_at",
+      "latest_run"
+    ],
+    "run": [
+      "id",
+      "destination_id",
+      "status",
+      "attempted",
+      "succeeded",
+      "failed",
+      "skipped",
+      "error",
+      "started_at",
+      "finished_at",
+      "created_at"
+    ],
+    "delivery": [
+      "id",
+      "run_id",
+      "destination_id",
+      "lead_id",
+      "operation",
+      "status",
+      "attempts",
+      "external_id",
+      "summary",
+      "error",
+      "delivered_at",
+      "created_at"
+    ],
+    "receipt": [
+      "id",
+      "destination_id",
+      "provider",
+      "external_event_id",
+      "external_record_id",
+      "lead_id",
+      "status",
+      "conflict_policy",
+      "applied_fields",
+      "ignored_fields",
+      "error",
+      "created_at"
+    ],
+    "inbound_callback_response": [
+      "id",
+      "destination_id",
+      "provider",
+      "external_event_id",
+      "external_record_id",
+      "lead_id",
+      "status",
+      "conflict_policy",
+      "applied_fields",
+      "ignored_fields",
+      "error",
+      "created_at",
+      "replay"
+    ],
+    "runs_page": [
+      "runs",
+      "limit",
+      "offset",
+      "has_more",
+      "next_cursor"
+    ],
+    "receipts_page": [
+      "receipts",
+      "limit",
+      "offset",
+      "has_more",
+      "next_cursor"
+    ],
+    "health": [
+      "destination_id",
+      "health_status",
+      "last_error",
+      "last_success_at",
+      "run_counts",
+      "delivery_counts",
+      "success_rate",
+      "consecutive_unhealthy_runs",
+      "recent_failures",
+      "latest_run"
+    ],
+    "health_delivery_counts": [
+      "total",
+      "succeeded",
+      "failed"
+    ],
+    "inbound_token_rotate": [
+      "token",
+      "prefix",
+      "created_at",
+      "expires_at",
+      "warning"
+    ],
+    "inbound_token_status_none": [
+      "active"
+    ],
+    "inbound_token_status": [
+      "active",
+      "expired",
+      "prefix",
+      "created_at",
+      "expires_at",
+      "last_used_at",
+      "created_by"
+    ],
+    "note_destination_config": "to_api() drops config keys token/api_key/secret at the TOP level only (other nested or 'password' keys are kept); config key order is the stored order"
+  }
+}

@@ -1,0 +1,111 @@
+// Package testpg prepares a Postgres database for integration tests: it
+// creates the non-superuser, NOBYPASSRLS login role used to exercise FORCE RLS
+// (mirrors legacy/python/tests/pg_rls_support.py) and returns a pool for it.
+package testpg
+
+import (
+	"context"
+	"fmt"
+	"net/url"
+	"os"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
+)
+
+const (
+	AppLoginRole     = "app_rls_test"
+	appLoginPassword = "rls_test_only"
+)
+
+// NewAppPool reads TEST_DATABASE_URL (owner credentials, schema already
+// migrated), provisions the RLS test role, and returns a pool connected as that
+// role with the given MaxConns. The test is skipped when the variable is unset.
+func NewAppPool(t testing.TB, maxConns int32) *pgxpool.Pool {
+	t.Helper()
+	ownerURL := os.Getenv("TEST_DATABASE_URL")
+	if ownerURL == "" {
+		t.Skip("TEST_DATABASE_URL not set")
+	}
+	ctx := context.Background()
+	owner, err := pgxpool.New(ctx, ownerURL)
+	if err != nil {
+		t.Fatalf("owner pool: %v", err)
+	}
+	// Test packages run in parallel against one database and share tables
+	// (jobs) and the login role: hold a session advisory lock for the whole
+	// test so integration tests serialize across packages.
+	lockConn, err := owner.Acquire(ctx)
+	if err != nil {
+		t.Fatalf("acquire lock conn: %v", err)
+	}
+	if _, err := lockConn.Exec(ctx, `SELECT pg_advisory_lock(7770001)`); err != nil {
+		t.Fatalf("advisory lock: %v", err)
+	}
+	t.Cleanup(func() {
+		_, _ = lockConn.Exec(context.Background(), `SELECT pg_advisory_unlock(7770001)`)
+		lockConn.Release()
+		owner.Close()
+	})
+	stmts := []string{
+		`DO $$ BEGIN
+		   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='yupcha_app') THEN CREATE ROLE yupcha_app NOLOGIN; END IF;
+		   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname='` + AppLoginRole + `') THEN
+		     CREATE ROLE ` + AppLoginRole + ` LOGIN NOSUPERUSER NOBYPASSRLS; END IF;
+		 END $$`,
+		fmt.Sprintf(`ALTER ROLE %s PASSWORD '%s'`, AppLoginRole, appLoginPassword),
+		`GRANT yupcha_app TO ` + AppLoginRole,
+		`GRANT USAGE ON SCHEMA public TO ` + AppLoginRole,
+		`GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO ` + AppLoginRole,
+		`GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO ` + AppLoginRole,
+		// schema.sql grants this only when yupcha_app already exists (PUBLIC is revoked), so a fresh cluster needs it here
+		`DO $$ BEGIN
+		   IF to_regprocedure('public.outreach_send_by_message_id(text)') IS NOT NULL THEN
+		     GRANT EXECUTE ON FUNCTION public.outreach_send_by_message_id(text) TO yupcha_app; END IF;
+		 END $$`,
+	}
+	for _, s := range stmts {
+		if err := execRetrying(ctx, owner, s); err != nil {
+			t.Fatalf("setup %q: %v", s, err)
+		}
+	}
+	if err := raiseSeqFloor(ctx, owner); err != nil {
+		t.Fatalf("sequence floor: %v", err)
+	}
+	u, err := url.Parse(ownerURL)
+	if err != nil {
+		t.Fatalf("parse TEST_DATABASE_URL: %v", err)
+	}
+	u.User = url.UserPassword(AppLoginRole, appLoginPassword)
+	cfg, err := pgxpool.ParseConfig(u.String())
+	if err != nil {
+		t.Fatalf("pool config: %v", err)
+	}
+	cfg.MaxConns = maxConns
+	pool, err := pgxpool.NewWithConfig(ctx, cfg)
+	if err != nil {
+		t.Fatalf("app pool: %v", err)
+	}
+	t.Cleanup(pool.Close)
+	return pool
+}
+
+// execRetrying runs a cluster-global catalog statement (ALTER ROLE, GRANT role).
+// The advisory lock above is per database, so suites running against different
+// databases of one cluster can update the same pg_authid row at once and one gets
+// "tuple concurrently updated" (XX000). That is transient: retry with a short backoff.
+func execRetrying(ctx context.Context, owner *pgxpool.Pool, sql string) error {
+	var err error
+	for attempt := 0; attempt < 30; attempt++ {
+		if _, err = owner.Exec(ctx, sql); err == nil {
+			return nil
+		}
+		if !strings.Contains(err.Error(), "tuple concurrently updated") {
+			return err
+		}
+		time.Sleep(time.Duration(20+attempt*10) * time.Millisecond)
+	}
+	return err
+}

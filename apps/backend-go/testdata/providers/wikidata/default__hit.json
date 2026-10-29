@@ -1,0 +1,81 @@
+{
+ "provider": "wikidata",
+ "input_name": "default",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Acme+Corporation&language=en&type=item&format=json&limit=7",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"search\":[{\"id\":\"Q999\",\"label\":\"Acme Award\",\"description\":\"annual prize\"},{\"id\":\"Q123\",\"label\":\"Acme Corporation\",\"description\":\"American manufacturing company\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q123&props=claims%7Cdescriptions&languages=en&format=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"entities\":{\"Q123\":{\"descriptions\":{\"en\":{\"value\":\"American manufacturing company\"}},\"claims\":{\"P856\":[{\"mainsnak\":{\"datavalue\":{\"value\":\"https://acme.example\"}}}],\"P2002\":[{\"mainsnak\":{\"datavalue\":{\"value\":\"@acme\"}}}],\"P2013\":[{\"mainsnak\":{\"datavalue\":{\"value\":\"acme\"}}}],\"P4264\":[{\"mainsnak\":{\"datavalue\":{\"value\":\"acme-corp\"}}}],\"P571\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"time\":\"+1950-01-01T00:00:00Z\"}}}}],\"P1128\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"amount\":\"+350\"}}}}],\"P452\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"id\":\"Q10\"}}}}],\"P159\":[{\"mainsnak\":{\"datavalue\":{\"value\":{\"id\":\"Q20\"}}}}]}}}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q10%7CQ20&props=labels&languages=en&format=json",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"entities\":{\"Q10\":{\"labels\":{\"en\":{\"value\":\"manufacturing\"}}},\"Q20\":{\"labels\":{\"en\":{\"value\":\"Springfield\"}}}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "wikidata",
+  "success": true,
+  "fields": {
+   "description": "American manufacturing company",
+   "website": "https://acme.example",
+   "twitter_url": "https://twitter.com/acme",
+   "facebook_url": "https://www.facebook.com/acme",
+   "linkedin_url": "https://www.linkedin.com/company/acme-corp",
+   "founded_year": "1950",
+   "company_size": "201-500",
+   "industry_tags": "manufacturing",
+   "address": "Springfield"
+  },
+  "confidence": 0.6,
+  "error": ""
+ }
+}

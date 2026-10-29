@@ -1,0 +1,37 @@
+{
+ "provider": "wikidata",
+ "input_name": "default",
+ "scenario": "malformed_json",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.wikidata.org/w/api.php?action=wbsearchentities&search=Acme+Corporation&language=en&type=item&format=json&limit=7",
+    "headers": {
+     "user-agent": "Mozilla/5.0 (compatible; yupcha-enrichment/1.0; +https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "<html><body>not json {"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "wikidata",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

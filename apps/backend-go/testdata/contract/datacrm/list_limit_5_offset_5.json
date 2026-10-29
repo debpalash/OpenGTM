@@ -1,0 +1,76 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?limit=5&offset=5"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": "2026-07-30T10:55:00+00:00",
+          "email": "User55@ACME.io",
+          "id": 55,
+          "is_used": false,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-28T17:06:00+00:00",
+          "email": "User54@Example.COM",
+          "id": 54,
+          "is_used": true,
+          "name": null,
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 24,
+          "source_url": "https://source24.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-02T00:17:00+00:00",
+          "email": "User53@acme.io",
+          "id": 53,
+          "is_used": false,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 23,
+          "source_url": "https://source23.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-06T07:28:00.057772+00:00",
+          "email": "User52@ExAmPlE.org",
+          "id": 52,
+          "is_used": false,
+          "name": "\u0141ukasz Nowak",
+          "notes": null,
+          "source_link_id": 22,
+          "source_url": "https://source22.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-09T14:39:00+00:00",
+          "email": "User51@mail.Example.com",
+          "id": 51,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        }
+      ],
+      "total": 60
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

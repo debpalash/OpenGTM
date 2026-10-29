@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/rows/101/cells/cyc_a/run"
+  },
+  "response": {
+    "body": {
+      "error": "dependency_cycle",
+      "forced": false,
+      "provider": null,
+      "research": null,
+      "skipped": false,
+      "status": "error",
+      "value": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

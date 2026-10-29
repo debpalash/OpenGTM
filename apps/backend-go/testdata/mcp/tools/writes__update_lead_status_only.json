@@ -1,0 +1,177 @@
+{
+  "seq": 16,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "method": "tools/call",
+    "params": {
+      "name": "update_lead",
+      "arguments": {
+        "lead_id": 2,
+        "status": "dead"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"updated\", \"lead_id\": 2, \"fields\": [\"status\"]}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "update_lead",
+      "arguments_redacted": {
+        "lead_id": 2,
+        "status": "dead"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000013",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "leads": {
+      "changed": [
+        {
+          "before": {
+            "id": 2,
+            "city": "Austin",
+            "email": "hello@globex.example.com",
+            "notes": null,
+            "phone": "+1 512 555 0102",
+            "score": 65,
+            "state": null,
+            "source": "mcp-seed",
+            "status": "contacted",
+            "address": null,
+            "company": "Globex Corp",
+            "website": "https://globex.example.com",
+            "investors": null,
+            "score_tier": "warm",
+            "source_url": null,
+            "description": null,
+            "recent_news": null,
+            "twitter_url": null,
+            "company_need": null,
+            "company_size": "201-500",
+            "email_verify": null,
+            "facebook_url": null,
+            "founded_year": null,
+            "linkedin_url": null,
+            "technologies": null,
+            "workspace_id": "ws-alpha",
+            "contact_title": null,
+            "founding_year": null,
+            "funding_stage": null,
+            "google_rating": null,
+            "industry_tags": null,
+            "revenue_range": null,
+            "contact_person": "Hank Scorpio",
+            "email_presence": null,
+            "email_provider": null,
+            "hiring_signals": null,
+            "phone_provider": null,
+            "specialization": "Energy",
+            "technographics": null,
+            "decision_makers": null,
+            "email_confidence": null,
+            "field_provenance": null,
+            "glassdoor_rating": null,
+            "revenue_estimate": null,
+            "secondary_emails": null,
+            "secondary_phones": null,
+            "collection_job_id": null,
+            "yupcha_value_prop": null,
+            "company_size_basis": "",
+            "enrichment_attempts": null,
+            "last_funding_amount": null,
+            "employee_count_exact": null,
+            "enrichment_waterfall": null
+          },
+          "after": {
+            "id": 2,
+            "city": "Austin",
+            "email": "hello@globex.example.com",
+            "notes": null,
+            "phone": "+1 512 555 0102",
+            "score": 65,
+            "state": null,
+            "source": "mcp-seed",
+            "status": "dead",
+            "address": null,
+            "company": "Globex Corp",
+            "website": "https://globex.example.com",
+            "investors": null,
+            "score_tier": "warm",
+            "source_url": null,
+            "description": null,
+            "recent_news": null,
+            "twitter_url": null,
+            "company_need": null,
+            "company_size": "201-500",
+            "email_verify": null,
+            "facebook_url": null,
+            "founded_year": null,
+            "linkedin_url": null,
+            "technologies": null,
+            "workspace_id": "ws-alpha",
+            "contact_title": null,
+            "founding_year": null,
+            "funding_stage": null,
+            "google_rating": null,
+            "industry_tags": null,
+            "revenue_range": null,
+            "contact_person": "Hank Scorpio",
+            "email_presence": null,
+            "email_provider": null,
+            "hiring_signals": null,
+            "phone_provider": null,
+            "specialization": "Energy",
+            "technographics": null,
+            "decision_makers": null,
+            "email_confidence": null,
+            "field_provenance": null,
+            "glassdoor_rating": null,
+            "revenue_estimate": null,
+            "secondary_emails": null,
+            "secondary_phones": null,
+            "collection_job_id": null,
+            "yupcha_value_prop": null,
+            "company_size_basis": "",
+            "enrichment_attempts": null,
+            "last_funding_amount": null,
+            "employee_count_exact": null,
+            "enrichment_waterfall": null
+          }
+        }
+      ]
+    },
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 10,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000013",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

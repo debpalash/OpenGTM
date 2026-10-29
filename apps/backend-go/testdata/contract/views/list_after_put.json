@@ -1,0 +1,113 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "total": 5,
+      "views": [
+        {
+          "config": {
+            "filters": [
+              {
+                "column": "city",
+                "op": "equals",
+                "value": "Berlin"
+              }
+            ],
+            "hidden_columns": [],
+            "sort": []
+          },
+          "created_at": "2026-08-29T10:00:00",
+          "id": "view-alpha-1",
+          "name": "Berlin only",
+          "updated_at": "2026-08-29T10:00:00",
+          "workbook_id": "wb-alpha-2"
+        },
+        {
+          "config": {
+            "filters": [],
+            "hidden_columns": [
+              "phone"
+            ],
+            "sort": [
+              {
+                "column": "company",
+                "dir": "asc"
+              }
+            ]
+          },
+          "created_at": "2026-08-29T10:00:00",
+          "id": "view-alpha-2",
+          "name": "Sorted by company",
+          "updated_at": "2026-08-29T10:00:00",
+          "workbook_id": "wb-alpha-2"
+        },
+        {
+          "config": {
+            "filters": [],
+            "hidden_columns": [
+              "email"
+            ],
+            "sort": [
+              {
+                "column": "city",
+                "dir": "asc"
+              }
+            ]
+          },
+          "created_at": "2026-10-26T10:45:11.864121",
+          "id": "c543c7d2-4f27-4ab1-ba34-b00c104be7dd",
+          "name": "Both",
+          "updated_at": "2026-10-26T10:45:12.511992",
+          "workbook_id": "wb-alpha-2"
+        },
+        {
+          "config": {
+            "filters": [],
+            "hidden_columns": [],
+            "sort": []
+          },
+          "created_at": "2026-10-26T10:45:11.885185",
+          "id": "a8ac8d37-9db4-4463-93d5-a2bb63bbc269",
+          "name": "Plain",
+          "updated_at": "2026-10-26T10:45:11.885185",
+          "workbook_id": "wb-alpha-2"
+        },
+        {
+          "config": {
+            "filters": [
+              {
+                "column": "city",
+                "op": "contains",
+                "value": null
+              }
+            ],
+            "hidden_columns": [],
+            "sort": [
+              {
+                "column": "city",
+                "dir": "asc"
+              }
+            ]
+          },
+          "created_at": "2026-10-26T10:45:11.906478",
+          "id": "9082c9a0-c530-4e29-bc83-dcbebe742ba0",
+          "name": "Nullv",
+          "updated_at": "2026-10-26T10:45:11.906478",
+          "workbook_id": "wb-alpha-2"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "kind": "funding",
+      "target": "LimA"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "max watches per workspace reached (2)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

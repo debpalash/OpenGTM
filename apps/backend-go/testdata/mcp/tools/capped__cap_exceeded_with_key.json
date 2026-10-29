@@ -1,0 +1,49 @@
+{
+  "seq": 9,
+  "profile": "capped",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "Cap Four",
+        "city": "D",
+        "idempotency_key": "cap-4"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 9,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"mcp write cap exceeded\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "Cap Four",
+        "city": "D",
+        "idempotency_key": "cap-4"
+      },
+      "idempotency_key": null,
+      "result_status": "capped",
+      "error": "daily MCP write cap exceeded",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

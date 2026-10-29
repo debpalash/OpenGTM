@@ -1,0 +1,63 @@
+{
+  "request": {
+    "body": {
+      "query": "stripe.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "clarification_kind": "bare_domain",
+      "clarification_required": true,
+      "domain": "stripe.com",
+      "entity": "Stripe",
+      "intent": "company_research",
+      "message": "A domain is a company target, not a market-search specification.",
+      "ok": false,
+      "options": [
+        {
+          "description": "Build one evidence-backed company profile; do not create page-title leads.",
+          "draft": "Research the company at stripe.com. Build one evidence-backed company profile with products, market, size, leadership, customers, recent signals, and cited sources.",
+          "intent": "company_research",
+          "key": "company_research",
+          "label": "Research Stripe",
+          "route": "/chat"
+        },
+        {
+          "description": "Find named decision-makers who are demonstrably associated with this company.",
+          "draft": "Find decision-makers at the company stripe.com. Return named people with title, LinkedIn evidence, and only company-attributable contact data.",
+          "intent": "people_at_company",
+          "key": "people_at_company",
+          "label": "Find people at Stripe",
+          "route": "/chat"
+        },
+        {
+          "description": "Find actual companies using the product; keep list vendors and articles as evidence only.",
+          "draft": "Find companies that use the technology or product represented by stripe.com. Return actual customer companies, not directories or list vendors, and include evidence for each relationship.",
+          "intent": "technology_users",
+          "key": "technology_users",
+          "label": "Find Stripe users",
+          "route": "/chat"
+        },
+        {
+          "description": "Create a watch for company, hiring, product, pricing, and leadership changes.",
+          "draft": "stripe.com",
+          "intent": "signal_monitor",
+          "key": "signal_monitor",
+          "label": "Monitor Stripe",
+          "route": "/watches"
+        }
+      ],
+      "query": "stripe.com",
+      "reason": "A domain is a company target, not a market-search specification."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

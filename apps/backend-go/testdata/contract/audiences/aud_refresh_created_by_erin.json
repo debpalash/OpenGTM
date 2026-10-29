@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences/00000000-0000-4000-8000-000000002058/refresh"
+  },
+  "response": {
+    "body": {
+      "audience": {
+        "consecutive_refresh_failures": 0,
+        "created_at": "2026-10-26T17:05:45.642302",
+        "description": "",
+        "filters": {},
+        "id": "00000000-0000-4000-8000-000000002058",
+        "last_refresh_error": null,
+        "member_count": 15,
+        "name": "Erin audience",
+        "next_refresh_at": "2026-10-26T18:05:45.670851",
+        "refresh_enabled": true,
+        "refresh_health": "healthy",
+        "refresh_interval_minutes": 60,
+        "refreshed_at": "2026-10-26T17:05:47.179529",
+        "updated_at": "2026-10-26T17:05:47.170078"
+      },
+      "changed": 0,
+      "entered": 0,
+      "exited": 0,
+      "unchanged": 15
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

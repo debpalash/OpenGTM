@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/export.csv?row_ids=1&row_ids=x&row_ids=2.5"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "x",
+          "loc": [
+            "query",
+            "row_ids",
+            1
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        },
+        {
+          "input": "2.5",
+          "loc": [
+            "query",
+            "row_ids",
+            2
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

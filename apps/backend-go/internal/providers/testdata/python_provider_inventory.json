@@ -1,0 +1,1131 @@
+{
+ "providers": [
+  {
+   "module": "abstract_api",
+   "classes": [
+    {
+     "class": "AbstractAPIProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "abstract_api",
+     "capabilities": [
+      "email_verify"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.9
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 109,
+   "sha256": "4b22a34712f4a37e32629f33827c6994e55822f44d0c4f6a0ca13073a22c65d4",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "apollo_io",
+   "classes": [
+    {
+     "class": "ApolloProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "apollo_io",
+     "capabilities": [
+      "email",
+      "phone",
+      "contact_person",
+      "contact_title",
+      "linkedin_url",
+      "company_size"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 148,
+   "sha256": "2fbaf0d7f6cf94f8fde0e0b0db1163423df7665d57bb76a015cabaf219f31236",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "ats_hiring",
+   "classes": [
+    {
+     "class": "AtsHiringProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "ats_hiring",
+     "capabilities": [
+      "hiring_signals",
+      "open_roles"
+     ],
+     "cost_per_lookup": 0.0,
+     "default_confidence": 0.8
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 166,
+   "sha256": "f1bb9d55771ad137aacf14da3732fb439e4eaaa7e3c8cb41fdee214f6b2bbe51",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "companies_house",
+   "classes": [
+    {
+     "class": "CompaniesHouseProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "companies_house",
+     "capabilities": [
+      "decision_makers",
+      "contact_person",
+      "contact_title",
+      "address",
+      "founded_year"
+     ],
+     "cost_per_lookup": 0.0,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 340,
+   "sha256": "447eb19422b0e8e75da050640c6ce9e30ff0d95fdb0ad927e68a62780eed951e",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "company_intel",
+   "classes": [
+    {
+     "class": "CompanyIntelProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "company_intel",
+     "capabilities": [
+      "company_size",
+      "industry_tags",
+      "description",
+      "founding_year"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.68
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "bs4",
+    "httpx"
+   ],
+   "non_http_third_party": [
+    "bs4"
+   ],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 236,
+   "sha256": "f902854b1bbb6e6d9ec009035def731987d26397f29973ea91b57c1f337cd2c3",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "company_size_heuristic",
+   "classes": [
+    {
+     "class": "CompanySizeHeuristicProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "company_size_heuristic",
+     "capabilities": [
+      "company_size"
+     ],
+     "cost_per_lookup": 0.0,
+     "default_confidence": 0.4
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 59,
+   "sha256": "18891cbe873dcfb5dd1d21980779ccab36b3026f3511dc6b3157000ffbb9a905",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "crosslinked",
+   "classes": [
+    {
+     "class": "CrossLinkedProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "crosslinked",
+     "capabilities": [
+      "decision_makers",
+      "contact_person",
+      "contact_title"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.6
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 387,
+   "sha256": "551d60137c3845e17d2581773867e62112f1bbbd7b548b75510ee7b265d91c4b",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "ddg_company_provider",
+   "classes": [
+    {
+     "class": "DDGCompanyProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "ddg_company",
+     "capabilities": [
+      "website",
+      "phone",
+      "email",
+      "description"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.5
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 139,
+   "sha256": "24ed1cc1272f3c6fda1d809fc00834d2512d2158436d289bbbf704aa973f0f53",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "ddg_email_provider",
+   "classes": [
+    {
+     "class": "DDGEmailProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "ddg_email",
+     "capabilities": [
+      "email"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.6
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 108,
+   "sha256": "2d6ceb5c450f2b4600ed5d6d609564be5fa2724bb4c962bc9758b232a0de8615",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "debounce",
+   "classes": [
+    {
+     "class": "DebounceProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "debounce",
+     "capabilities": [
+      "email_verify"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.92
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 116,
+   "sha256": "fbd9d1eef55d2020ce901d7f9ed230e1e91674a4f9fa37a1d15ba4e7924a6d98",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "decision_maker_provider",
+   "classes": [
+    {
+     "class": "DecisionMakerProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "decision_maker",
+     "capabilities": [
+      "contact_person",
+      "contact_title",
+      "decision_makers",
+      "linkedin_url"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.5
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 78,
+   "sha256": "bd9319d7910e1020fdaf2454618fbb03e47348805c5c26f7ad678ca1fb260f49",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "deep_scraper",
+   "classes": [
+    {
+     "class": "DeepScraperProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "deep_scraper",
+     "capabilities": [
+      "email",
+      "phone",
+      "description",
+      "company_size",
+      "founding_year",
+      "industry_tags",
+      "address",
+      "contact_person",
+      "contact_title",
+      "decision_makers",
+      "linkedin_url",
+      "twitter_url",
+      "facebook_url"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.7
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "bs4",
+    "httpx"
+   ],
+   "non_http_third_party": [
+    "bs4"
+   ],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 689,
+   "sha256": "bc4cf271b983957aa3ff54fb81f60525aad8c5a3510b5d93791749271ceecac9",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "email_harvester",
+   "classes": [
+    {
+     "class": "EmailHarvesterProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "email_harvester",
+     "capabilities": [
+      "email",
+      "contact_person"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.72
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 235,
+   "sha256": "1854710fb3c3b53e67c0ac720fe7e09f9b5635b9f6d1a871b835390fd56ac0cf",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "facebook_pages",
+   "classes": [
+    {
+     "class": "FacebookPageProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "facebook_pages",
+     "capabilities": [
+      "phone",
+      "email",
+      "address"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.5
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 143,
+   "sha256": "298dc19bfe8d4955a787045effcfc8774db87c4399e32ee68f4a2720beab6fed",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "gleif",
+   "classes": [
+    {
+     "class": "_RateLimiter",
+     "bases": [],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "GleifProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "gleif",
+     "capabilities": [
+      "lei",
+      "legal_name",
+      "country",
+      "city",
+      "region",
+      "entity_status",
+      "registration_authority",
+      "jurisdiction",
+      "parent_lei",
+      "ultimate_parent_lei",
+      "ultimate_parent_name",
+      "corporate_hierarchy"
+     ],
+     "cost_per_lookup": 0.0,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 323,
+   "sha256": "02fb1f377812331b0e5f36b4cc14e2d77571a59d550b1ec29fc6a1d042a992cc",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "google_maps",
+   "classes": [
+    {
+     "class": "GoogleMapsProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "google_maps",
+     "capabilities": [
+      "phone",
+      "address",
+      "description",
+      "industry_tags",
+      "company_size"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.9
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 166,
+   "sha256": "3867d40be1587fe152bdbd718b46940b480849fc30fd3df10ed3aca589dd5207",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "holehe_verify",
+   "classes": [
+    {
+     "class": "HoleheProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "holehe",
+     "capabilities": [
+      "email_verify"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "holehe",
+    "httpx"
+   ],
+   "non_http_third_party": [
+    "holehe"
+   ],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 144,
+   "sha256": "b93b5d864b323c56316b235f24864b766f00a0fa06aeb0e6f26085e0612a3583",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "hunter_io",
+   "classes": [
+    {
+     "class": "HunterProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "hunter_io",
+     "capabilities": [
+      "email"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.8
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 152,
+   "sha256": "c263878f5e0d905789695a7bad5a962744e0dc70988490a0db7ce6be9da2d665",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "ipinfo",
+   "classes": [
+    {
+     "class": "IPInfoProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "ipinfo",
+     "capabilities": [
+      "company_data",
+      "org",
+      "location",
+      "asn"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.7
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": true,
+   "line_count": 103,
+   "sha256": "528f2ea6fb5076c365129a2907259a052e9eb33d72c3ae1512d38523d64ad902",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "job_tech_intent",
+   "classes": [],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 310,
+   "sha256": "2c098ec077040493105aefd30e710846e49341f891171f83581b3d3dc13943ce",
+   "registered_in_workbook_registry": false
+  },
+  {
+   "module": "jobspy_signals",
+   "classes": [
+    {
+     "class": "JobSpySignalProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "jobspy",
+     "capabilities": [
+      "hiring_signals",
+      "technologies"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.7
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 230,
+   "sha256": "5fb80c784dbee3cbecdee2eb1f273ab6248e619482a72b52b683cd58b6a1dd72",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "jsonld_firmographics",
+   "classes": [
+    {
+     "class": "_MetadataHTMLParser",
+     "bases": [
+      "HTMLParser"
+     ],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "JsonLdFirmographicsProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "jsonld_firmographics",
+     "capabilities": [
+      "company",
+      "address",
+      "phone",
+      "email",
+      "city",
+      "state",
+      "founded_year",
+      "founding_year",
+      "linkedin_url",
+      "twitter_url",
+      "facebook_url",
+      "description"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "httpx"
+   ],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 270,
+   "sha256": "dbc5548c7bdb7ad29851ee59bd8547ac320b0e15abc2d5e6bb53dad86a680f86",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "lead_scorer_provider",
+   "classes": [
+    {
+     "class": "LeadScorerProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "lead_scorer",
+     "capabilities": [
+      "score",
+      "score_tier"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.95
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 45,
+   "sha256": "e56a1784e23ffa142fc1e2bc1eb43427d77512e1aa75730775b1828281bd382b",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "local_business",
+   "classes": [
+    {
+     "class": "LocalBusinessProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "local_business",
+     "capabilities": [
+      "phone",
+      "address",
+      "industry_tags"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.65
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "bs4"
+   ],
+   "non_http_third_party": [
+    "bs4"
+   ],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 165,
+   "sha256": "48f202da788205db49ab51e902949eb77b2d40667bd3ec663994d1b5930586c8",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "mailscout_verify",
+   "classes": [
+    {
+     "class": "MailScoutVerifyProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "mailscout",
+     "capabilities": [
+      "email",
+      "email_confidence"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.95
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 155,
+   "sha256": "9a00c873279a354309e4d4005ce4b2ae63c0c933b8a55ee05963600039531246",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "mca_registry",
+   "classes": [
+    {
+     "class": "MCARegistryProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "mca_registry",
+     "capabilities": [
+      "address",
+      "founded_year",
+      "industry_tags",
+      "description"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 224,
+   "sha256": "83b4c0f5b5d58601984be638bd740d788b5bd46489ca6c1ff62aef1a8f6e0786",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "numverify",
+   "classes": [
+    {
+     "class": "NumVerifyProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "numverify",
+     "capabilities": [
+      "phone_verify",
+      "phone_carrier",
+      "phone_line_type"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.85
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 93,
+   "sha256": "6f4e1ce571e2d7ee8291d6f5b04297c0cebe3197f1deb47a5286ade7c615b237",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "people_data_labs",
+   "classes": [
+    {
+     "class": "PeopleDataLabsProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "people_data_labs",
+     "capabilities": [
+      "email",
+      "phone",
+      "contact_person",
+      "contact_title",
+      "linkedin_url",
+      "company_size",
+      "industry_tags",
+      "description"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.88
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 173,
+   "sha256": "c9c8cd673e0776161606a82492ce35594cfc6bdf3a2affe0a34bf5f49ed3c106",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "prospeo",
+   "classes": [
+    {
+     "class": "ProspeoProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "prospeo",
+     "capabilities": [
+      "email",
+      "email_verify"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.82
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 142,
+   "sha256": "96e0528e66e1435fc8852abd184d7c1830884fa0ca236cff964348922d7e71b0",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "reacher_verify",
+   "classes": [
+    {
+     "class": "_CircuitBreaker",
+     "bases": [],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "ReacherClient",
+     "bases": [],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "ReacherVerifier",
+     "bases": [
+      "Verifier"
+     ],
+     "name": "reacher",
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "httpx"
+   ],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 306,
+   "sha256": "25d9953db87b7fbe6017f01e8c082836a4e42a4c561432ca94e3a0eee8429006",
+   "registered_in_workbook_registry": false
+  },
+  {
+   "module": "sec_edgar",
+   "classes": [
+    {
+     "class": "_RateLimiter",
+     "bases": [],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "FormDFiling",
+     "bases": [],
+     "name": null,
+     "capabilities": null,
+     "cost_per_lookup": null,
+     "default_confidence": null
+    },
+    {
+     "class": "SecEdgarProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "sec_edgar",
+     "capabilities": [
+      "funding_amount",
+      "funding_date",
+      "funding_stage_signal",
+      "decision_makers",
+      "industry",
+      "sec_cik"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.8
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 445,
+   "sha256": "4914b91b91d2174515f5e5702695704cab245ab63e96fc4b45af15a60d3a8c67",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "snovio",
+   "classes": [
+    {
+     "class": "SnovioProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "snovio",
+     "capabilities": [
+      "email",
+      "contact_person",
+      "contact_title"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.8
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 147,
+   "sha256": "595b31776eb102602cfdf19101281d5e767d1bbf11c198fe1a98dc69e00574ca",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "social_finder_provider",
+   "classes": [
+    {
+     "class": "SocialFinderProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "social_finder",
+     "capabilities": [
+      "linkedin_url",
+      "twitter_url"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.55
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 106,
+   "sha256": "f7062525c0dea0719b79bafeb4a3de38560238b837b4dfd267e7cb8bb12757ba",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "staffspy_provider",
+   "classes": [
+    {
+     "class": "StaffSpyRosterProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "staffspy",
+     "capabilities": [
+      "decision_makers",
+      "contact_person",
+      "contact_title"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.8
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "staffspy"
+   ],
+   "non_http_third_party": [
+    "staffspy"
+   ],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 150,
+   "sha256": "46f080bc69caaebfa719e74bce3b2b7cf98f896b7cdec952ceee9bb24893c959",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "tech_stack_provider",
+   "classes": [
+    {
+     "class": "TechStackProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "tech_stack",
+     "capabilities": [
+      "technologies"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": null
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [
+    "httpx"
+   ],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 421,
+   "sha256": "8e61d284a301548fc5a3f5002fcefc38dde2f0cb90ce72219673ba741fc96659",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "website_scraper_provider",
+   "classes": [
+    {
+     "class": "WebsiteScraperProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "website_scraper",
+     "capabilities": [
+      "email",
+      "phone",
+      "description",
+      "linkedin_url",
+      "twitter_url",
+      "facebook_url"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.65
+    }
+   ],
+   "imports_top_level": [],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": false,
+   "uses_smtp_or_dns": false,
+   "line_count": 97,
+   "sha256": "b71e36ddd2a6e4e3ae8d07188ddba58a660fc67dc784c469e1e64d0b7165c6a9",
+   "registered_in_workbook_registry": true
+  },
+  {
+   "module": "wikidata_provider",
+   "classes": [
+    {
+     "class": "WikidataProvider",
+     "bases": [
+      "EnrichmentProvider"
+     ],
+     "name": "wikidata",
+     "capabilities": [
+      "description",
+      "website",
+      "industry_tags",
+      "founded_year",
+      "company_size",
+      "address",
+      "linkedin_url",
+      "twitter_url",
+      "facebook_url"
+     ],
+     "cost_per_lookup": null,
+     "default_confidence": 0.6
+    }
+   ],
+   "imports_top_level": [
+    "httpx"
+   ],
+   "imports_nested": [],
+   "non_http_third_party": [],
+   "uses_httpx": true,
+   "uses_smtp_or_dns": false,
+   "line_count": 281,
+   "sha256": "c7fe6e3e5ec518526fb89c9be9df5736241b63069d05ad9d210ec1feebb54686",
+   "registered_in_workbook_registry": true
+  }
+ ]
+}

@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "city": "Pune",
+        "company": "Full Fit Staffing",
+        "company_size": "201-500",
+        "contact_person": "Asha Rao",
+        "decision_makers": "[{\"name\": \"A\"}, {\"name\": \"B\"}]",
+        "email": "hr@fullfit.example.com",
+        "founded_year": "2009",
+        "glassdoor_rating": "4.1",
+        "industry_tags": "IT Staffing, Talent Acquisition, Recruitment Process Outsourcing",
+        "linkedin_url": "https://linkedin.com/company/fullfit",
+        "phone": "+91 99999 00000",
+        "revenue_range": "$1M-5M",
+        "specialization": "IT Staffing",
+        "twitter_url": "https://twitter.com/fullfit",
+        "website": "https://fullfit.example.com"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Full Fit Staffing",
+      "lead_id": null,
+      "score": 100,
+      "tier": "hot"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

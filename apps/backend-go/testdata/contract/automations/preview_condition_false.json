@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-10/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 0,
+      "projected_total_usd": 0.0,
+      "sample": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

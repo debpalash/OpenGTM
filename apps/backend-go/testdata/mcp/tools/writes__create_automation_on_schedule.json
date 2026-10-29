@@ -1,0 +1,133 @@
+{
+  "seq": 62,
+  "profile": "writes",
+  "token": "adminrole",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 62,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "Daily sweep",
+        "trigger_type": "on_schedule",
+        "trigger_config": {
+          "interval": "daily"
+        },
+        "actions": [
+          {
+            "type": "webhook",
+            "config": {
+              "url": "https://hooks.example.com/{company}"
+            }
+          }
+        ],
+        "enabled": false,
+        "stop_on_error": true,
+        "max_spend_usd_per_day": 1.5,
+        "max_actions_per_day": 20,
+        "scope_workbook_ids": [
+          "wb-alpha-1"
+        ]
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 62,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"created\", \"automation_id\": \"00000000-0000-4000-8000-000000000069\", \"automation\": {\"id\": \"00000000-0000-4000-8000-000000000069\", \"workspace_id\": \"ws-alpha\", \"name\": \"Daily sweep\", \"enabled\": false, \"trigger_type\": \"on_schedule\", \"trigger_config\": {\"interval\": \"daily\"}, \"condition\": \"\", \"actions\": [{\"type\": \"webhook\", \"config\": {\"url\": \"https://hooks.example.com/{company}\"}}], \"scope_workbook_ids\": [\"wb-alpha-1\"], \"stop_on_error\": true, \"max_spend_usd_per_day\": 1.5, \"max_actions_per_day\": 20, \"next_run_at\": null, \"schedule_anchor\": \"<volatile>\", \"last_fired_at\": null, \"created_by\": \"6\", \"created_at\": \"<volatile>\", \"updated_at\": \"<volatile>\"}}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-adminrole",
+      "user_id": 6,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "Daily sweep",
+        "trigger_type": "on_schedule",
+        "trigger_config": {
+          "interval": "daily"
+        },
+        "actions": [
+          {
+            "type": "webhook",
+            "config": {
+              "url": "https://hooks.example.com/{company}"
+            }
+          }
+        ],
+        "enabled": false,
+        "stop_on_error": true,
+        "max_spend_usd_per_day": 1.5,
+        "max_actions_per_day": 20,
+        "scope_workbook_ids": [
+          "wb-alpha-1"
+        ]
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000068",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "triggers": {
+      "added": [
+        {
+          "id": "00000000-0000-4000-8000-000000000069",
+          "name": "Daily sweep",
+          "actions": [
+            {
+              "type": "webhook",
+              "config": {
+                "url": "https://hooks.example.com/{company}"
+              }
+            }
+          ],
+          "enabled": false,
+          "condition": "",
+          "created_by": "6",
+          "trigger_type": "on_schedule",
+          "workspace_id": "ws-alpha",
+          "stop_on_error": true,
+          "trigger_config": {
+            "interval": "daily"
+          },
+          "scope_workbook_ids": [
+            "wb-alpha-1"
+          ],
+          "max_actions_per_day": 20,
+          "max_spend_usd_per_day": 1.5
+        }
+      ]
+    },
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 45,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000068",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  },
+  "volatile": [
+    "$.automation.created_at",
+    "$.automation.updated_at",
+    "$.automation.schedule_anchor",
+    "$.automation.next_run_at"
+  ]
+}

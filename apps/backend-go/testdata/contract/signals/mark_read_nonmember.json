@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "signal_ids": [
+        "sig-b-01"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/signals/mark-read"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace access denied"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

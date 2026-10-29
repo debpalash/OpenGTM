@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "conversation_id": "conv-ed-2",
+      "messages": [
+        {
+          "content": "Draft a short partnership email to the best verified contact. Do not send it.",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"conv-ed-2\"}\n\ndata: {\"content\": \"I can save a short draft for **Jane Partner** at **Stripe** using the saved **verified** address and public role evidence. The draft action has no send capability.\"}\n\ndata: {\"confirmation_required\": {\"confirmation_id\": \"0000046d000040008000000000000000\", \"tool_call\": {\"id\": \"0000046d000040008000000000000000\", \"type\": \"function\", \"function\": {\"name\": \"draft_grounded_outreach\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-ed-2\\\", \\\"source_action_id\\\": \\\"contacts-action-seed-1\\\", \\\"person_id\\\": \\\"person_seed_jane\\\", \\\"allow_risky\\\": false, \\\"idempotency_key\\\": \\\"chat-draft:conv-ed-2:4c60fc050ffbea65\\\"}\"}}, \"name\": \"draft_grounded_outreach\", \"args\": {\"conversation_id\": \"conv-ed-2\", \"source_action_id\": \"contacts-action-seed-1\", \"person_id\": \"person_seed_jane\", \"allow_risky\": false, \"idempotency_key\": \"chat-draft:conv-ed-2:4c60fc050ffbea65\"}, \"description\": \"Create Grounded Draft\\nPersists a draft for one exact saved contact. This action cannot send messages.\\nConversation: conv-ed-2 \\u00b7 Person: person_seed_jane \\u00b7 Risky address approved: False \\u00b7 Send: disabled\", \"level\": \"medium\", \"label\": \"Create Grounded Draft\"}}\n\ndata: {\"awaiting_confirmation\": true}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

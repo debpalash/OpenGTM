@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/crm/hubspot/status"
+  },
+  "response": {
+    "body": {
+      "connected": false,
+      "error": "HTTP 401: {\"status\":\"error\",\"message\":\"The OAuth token used to make this call expired.\",\"category\":\"EXPIRED_AUTHENTICATION\"}"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

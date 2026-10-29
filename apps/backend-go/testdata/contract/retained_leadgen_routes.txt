@@ -1,0 +1,6 @@
+# Leadgen routes that stay on FastAPI after plan 14. One "METHOD /path/{param}" per line.
+# None after plan 15 WP-ROUTES-B: GET /api/v2/search/unified (the academic source registry, internal/unisearch) and
+# POST /api/v2/scraper/scrape (the browser tier, via internal/browserclient) are served by internal/api/{unifiedsearch,
+# scrape}.go behind GO_SCRAPE_ROUTES_ENABLED (default off); nginx still pins both paths to api_backend until
+# WP-RETIRE-INFRA. Plan 06's GET /api/workbooks/{workbook_id}/sources/{col_id}/preview is retained in
+# retained_enrichment_routes.txt and is not repeated here.

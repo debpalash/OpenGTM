@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "A": "b"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/integrations/nope"
+  },
+  "response": {
+    "body": {
+      "detail": "Integration not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

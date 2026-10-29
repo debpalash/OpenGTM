@@ -1,0 +1,48 @@
+{
+ "area": "rss",
+ "scenario": "status_204_no_content",
+ "description": "204 is not 200 -> http_204",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 204,
+    "headers": {},
+    "body": ""
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 204,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "http_204",
+  "entries": []
+ }
+}

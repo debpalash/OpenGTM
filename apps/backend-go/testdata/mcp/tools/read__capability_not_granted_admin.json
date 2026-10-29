@@ -1,0 +1,45 @@
+{
+  "seq": 51,
+  "profile": "read",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 50,
+    "method": "tools/call",
+    "params": {
+      "name": "delete_lead",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 50,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"capability not granted\", \"required\": \"leads:delete\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "delete_lead",
+      "arguments_redacted": {
+        "lead_id": 1
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "capability not granted",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "company",
+            "op": "contains",
+            "value": "ac"
+          }
+        ]
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/v2/workbooks/wb-alpha-2/views/c543c7d2-4f27-4ab1-ba34-b00c104be7dd"
+  },
+  "response": {
+    "body": {
+      "config": {
+        "filters": [
+          {
+            "column": "company",
+            "op": "contains",
+            "value": "ac"
+          }
+        ],
+        "hidden_columns": [],
+        "sort": []
+      },
+      "created_at": "2026-10-26T10:45:11.864121",
+      "id": "c543c7d2-4f27-4ab1-ba34-b00c104be7dd",
+      "name": "Renamed",
+      "updated_at": "2026-10-26T10:45:12.444787",
+      "workbook_id": "wb-alpha-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

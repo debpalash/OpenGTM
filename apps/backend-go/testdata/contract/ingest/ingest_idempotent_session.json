@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "Company": "Idem Two"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "Idempotency-Key": "contract-idem-2",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-enrich-1/rows/ingest"
+  },
+  "response": {
+    "body": {
+      "added": 1,
+      "row_ids": [
+        1274
+      ],
+      "skipped_duplicates": 0,
+      "skipped_empty": 0,
+      "total_rows": 12,
+      "unmapped_keys": [],
+      "workbook_id": "wb-enrich-1"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

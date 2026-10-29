@@ -1,0 +1,1493 @@
+{
+ "briefs": [
+  {
+   "query": "find 50 IT staffing companies in Pune",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 50 IT staffing companies in Pune",
+    "requested_count": 50,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_c5fdb120517fd6e172fc4f00"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 50 IT staffing companies in Pune",
+    "requested_count": 50,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_c5fdb120517fd6e172fc4f00"
+   }
+  },
+  {
+   "query": "Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles",
+    "requested_count": 25,
+    "company_types": [
+     "fintech"
+    ],
+    "geographies": [
+     "Berlin"
+    ],
+    "technologies": [
+     "Stripe"
+    ],
+    "hiring_roles": [
+     "partnerships"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_2a914de0fe18892069adcb2f"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles",
+    "requested_count": 25,
+    "company_types": [
+     "fintech"
+    ],
+    "geographies": [
+     "Berlin"
+    ],
+    "technologies": [
+     "Stripe"
+    ],
+    "hiring_roles": [
+     "partnerships"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_2a914de0fe18892069adcb2f"
+   }
+  },
+  {
+   "query": "source 10 SaaS accounts in New York using HubSpot",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "source 10 SaaS accounts in New York using HubSpot",
+    "requested_count": 10,
+    "company_types": [
+     "SaaS"
+    ],
+    "geographies": [
+     "New York"
+    ],
+    "technologies": [
+     "HubSpot"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_bcc98bcb2776a412a364c468"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "source 10 SaaS accounts in New York using HubSpot",
+    "requested_count": 10,
+    "company_types": [
+     "SaaS"
+    ],
+    "geographies": [
+     "New York"
+    ],
+    "technologies": [
+     "HubSpot"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_bcc98bcb2776a412a364c468"
+   }
+  },
+  {
+   "query": "list 100 cybersecurity businesses in London, UK",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "list 100 cybersecurity businesses in London, UK",
+    "requested_count": 100,
+    "company_types": [
+     "cybersecurity"
+    ],
+    "geographies": [
+     "London"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_77e23b94c7a05a97dbbf03ff"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "list 100 cybersecurity businesses in London, UK",
+    "requested_count": 100,
+    "company_types": [
+     "cybersecurity"
+    ],
+    "geographies": [
+     "London"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_77e23b94c7a05a97dbbf03ff"
+   }
+  },
+  {
+   "query": "build me a list of 30 logistics companies in Mumbai which are hiring sales",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "build me a list of 30 logistics companies in Mumbai which are hiring sales",
+    "requested_count": 30,
+    "company_types": [
+     "of 30 logistics"
+    ],
+    "geographies": [
+     "Mumbai"
+    ],
+    "technologies": [],
+    "hiring_roles": [
+     "sales"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_8ff1dcf9fe3e0d0b7d2de02a"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "build me a list of 30 logistics companies in Mumbai which are hiring sales",
+    "requested_count": 30,
+    "company_types": [
+     "of 30 logistics"
+    ],
+    "geographies": [
+     "Mumbai"
+    ],
+    "technologies": [],
+    "hiring_roles": [
+     "sales"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_8ff1dcf9fe3e0d0b7d2de02a"
+   }
+  },
+  {
+   "query": "build a list of 12 healthcare companies in Delhi",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "build a list of 12 healthcare companies in Delhi",
+    "requested_count": 12,
+    "company_types": [
+     "of 12 healthcare"
+    ],
+    "geographies": [
+     "Delhi"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e1a1a667fb59427abda6542b"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "build a list of 12 healthcare companies in Delhi",
+    "requested_count": 12,
+    "company_types": [
+     "of 12 healthcare"
+    ],
+    "geographies": [
+     "Delhi"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e1a1a667fb59427abda6542b"
+   }
+  },
+  {
+   "query": "show 5 B2B companies",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "show 5 B2B companies",
+    "requested_count": 5,
+    "company_types": [
+     "B2B"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_9902ba796dba3e885dc4e0c1"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "show 5 B2B companies",
+    "requested_count": 5,
+    "company_types": [
+     "B2B"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_9902ba796dba3e885dc4e0c1"
+   }
+  },
+  {
+   "query": "find companies in Pune",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find companies in Pune",
+    "requested_count": 0,
+    "company_types": [],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "complete": false,
+    "brief_id": "accounts_b309e911bbb5688de6129619"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 0 widget companies",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 0 widget companies",
+    "requested_count": 0,
+    "company_types": [
+     "widget"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "requested_count"
+    ],
+    "complete": false,
+    "brief_id": "accounts_420ebbf8f378891e9eac90d2"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 9999 widget companies in Goa",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 9999 widget companies in Goa",
+    "requested_count": 500,
+    "company_types": [
+     "widget"
+    ],
+    "geographies": [
+     "Goa"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_b9580e90ff25939c9126d35a"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 9999 widget companies in Goa",
+    "requested_count": 500,
+    "company_types": [
+     "widget"
+    ],
+    "geographies": [
+     "Goa"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_b9580e90ff25939c9126d35a"
+   }
+  },
+  {
+   "query": "find 600 widget companies",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 600 widget companies",
+    "requested_count": 500,
+    "company_types": [
+     "widget"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_18a57eacf2baef190837fe86"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 600 widget companies",
+    "requested_count": 500,
+    "company_types": [
+     "widget"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_18a57eacf2baef190837fe86"
+   }
+  },
+  {
+   "query": "please find 20 retail companies in São Paulo",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "please find 20 retail companies in São Paulo",
+    "requested_count": 20,
+    "company_types": [
+     "retail"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_91889498d04de2856931292b"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "please find 20 retail companies in São Paulo",
+    "requested_count": 20,
+    "company_types": [
+     "retail"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_91889498d04de2856931292b"
+   }
+  },
+  {
+   "query": "Find 20 ed-tech companies in bangalore that are using AWS and hiring for data engineers",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "Find 20 ed-tech companies in bangalore that are using AWS and hiring for data engineers",
+    "requested_count": 20,
+    "company_types": [
+     "ed-tech"
+    ],
+    "geographies": [
+     "bangalore"
+    ],
+    "technologies": [
+     "AWS"
+    ],
+    "hiring_roles": [
+     "data engineers"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_8764762d42bae51f76297509"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "Find 20 ed-tech companies in bangalore that are using AWS and hiring for data engineers",
+    "requested_count": 20,
+    "company_types": [
+     "ed-tech"
+    ],
+    "geographies": [
+     "bangalore"
+    ],
+    "technologies": [
+     "AWS"
+    ],
+    "hiring_roles": [
+     "data engineers"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_8764762d42bae51f76297509"
+   }
+  },
+  {
+   "query": "find 15 companies",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 15 companies",
+    "requested_count": 15,
+    "company_types": [
+     "15"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_212f34a789d62878d00c729e"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 15 companies",
+    "requested_count": 15,
+    "company_types": [
+     "15"
+    ],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_212f34a789d62878d00c729e"
+   }
+  },
+  {
+   "query": "list 40 manufacturing businesses in Ohio with ISO certification",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "list 40 manufacturing businesses in Ohio with ISO certification",
+    "requested_count": 40,
+    "company_types": [
+     "manufacturing"
+    ],
+    "geographies": [
+     "Ohio"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e3a19b6468625260ab1f1100"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "list 40 manufacturing businesses in Ohio with ISO certification",
+    "requested_count": 40,
+    "company_types": [
+     "manufacturing"
+    ],
+    "geographies": [
+     "Ohio"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e3a19b6468625260ab1f1100"
+   }
+  },
+  {
+   "query": "source 7 agencies in Paris",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "source 7 agencies in Paris",
+    "requested_count": 7,
+    "company_types": [],
+    "geographies": [
+     "Paris"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "complete": false,
+    "brief_id": "accounts_9af09b149706ee3e35d610c3"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 3 D2C brands companies powered by Shopify in Toronto.",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 3 D2C brands companies powered by Shopify in Toronto.",
+    "requested_count": 3,
+    "company_types": [
+     "D2C brands"
+    ],
+    "geographies": [
+     "Toronto"
+    ],
+    "technologies": [
+     "Shopify in Toronto"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_7a26c1ec8b2bc05c7913ede6"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 3 D2C brands companies powered by Shopify in Toronto.",
+    "requested_count": 3,
+    "company_types": [
+     "D2C brands"
+    ],
+    "geographies": [
+     "Toronto"
+    ],
+    "technologies": [
+     "Shopify in Toronto"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_7a26c1ec8b2bc05c7913ede6"
+   }
+  },
+  {
+   "query": "who are the partnerships people at Stripe",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "who are the partnerships people at Stripe",
+    "requested_count": 0,
+    "company_types": [],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "requested_count",
+     "company_type"
+    ],
+    "complete": false,
+    "brief_id": "accounts_43bb98e24942783a09a98e9f"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 20 IT staffing companies in Pune!",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune!",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune!",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   }
+  },
+  {
+   "query": "find   8   solar   companies   in   Austin",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 8 solar companies in Austin",
+    "requested_count": 8,
+    "company_types": [
+     "solar"
+    ],
+    "geographies": [
+     "Austin"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_b4a0ae985e083a6ce2c3b206"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 8 solar companies in Austin",
+    "requested_count": 8,
+    "company_types": [
+     "solar"
+    ],
+    "geographies": [
+     "Austin"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_b4a0ae985e083a6ce2c3b206"
+   }
+  },
+  {
+   "query": "FIND 11 HR COMPANIES IN CHENNAI WHO ARE HIRING RECRUITERS",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "FIND 11 HR COMPANIES IN CHENNAI WHO ARE HIRING RECRUITERS",
+    "requested_count": 11,
+    "company_types": [
+     "HR"
+    ],
+    "geographies": [
+     "CHENNAI"
+    ],
+    "technologies": [],
+    "hiring_roles": [
+     "RECRUITERS"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_bf2171deebbdb55f324135d7"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "FIND 11 HR COMPANIES IN CHENNAI WHO ARE HIRING RECRUITERS",
+    "requested_count": 11,
+    "company_types": [
+     "HR"
+    ],
+    "geographies": [
+     "CHENNAI"
+    ],
+    "technologies": [],
+    "hiring_roles": [
+     "RECRUITERS"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_bf2171deebbdb55f324135d7"
+   }
+  },
+  {
+   "query": "find ٥٠ textile companies in Cairo",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find ٥٠ textile companies in Cairo",
+    "requested_count": 50,
+    "company_types": [
+     "textile"
+    ],
+    "geographies": [
+     "Cairo"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_edde425f1e20371e7ee589b6"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find ٥٠ textile companies in Cairo",
+    "requested_count": 50,
+    "company_types": [
+     "textile"
+    ],
+    "geographies": [
+     "Cairo"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_edde425f1e20371e7ee589b6"
+   }
+  },
+  {
+   "query": "find 50 İstanbul logistics companies in İzmir",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 50 İstanbul logistics companies in İzmir",
+    "requested_count": 50,
+    "company_types": [
+     "İstanbul logistics"
+    ],
+    "geographies": [
+     "İzmir"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e5a0984dea9dc1746afc62c7"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 50 İstanbul logistics companies in İzmir",
+    "requested_count": 50,
+    "company_types": [
+     "İstanbul logistics"
+    ],
+    "geographies": [
+     "İzmir"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_e5a0984dea9dc1746afc62c7"
+   }
+  },
+  {
+   "query": "build 60 accounts",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "build 60 accounts",
+    "requested_count": 60,
+    "company_types": [],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "complete": false,
+    "brief_id": "accounts_fd5b526ed0d3b1e0ef39e121"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 20 IT staffing companies in Pune using salesforce and hiring for SDR roles",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune using salesforce and hiring for SDR roles",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [
+     "salesforce"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_4c8960367d7c4a5ac0ca9767"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune using salesforce and hiring for SDR roles",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [
+     "salesforce"
+    ],
+    "hiring_roles": [
+     "SDR"
+    ],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_4c8960367d7c4a5ac0ca9767"
+   }
+  },
+  {
+   "query": "find 20 IT staffing companies in Pune and are hiring",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune and are hiring",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune and are hiring",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   }
+  },
+  {
+   "query": "find 20 IT staffing companies in Pune, and in Mumbai",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune, and in Mumbai",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 20 IT staffing companies in Pune, and in Mumbai",
+    "requested_count": 20,
+    "company_types": [
+     "IT staffing"
+    ],
+    "geographies": [
+     "Pune"
+    ],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_25de2862e8c49e768743be5b"
+   }
+  },
+  {
+   "query": "source 1 company in a",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "source 1 company in a",
+    "requested_count": 1,
+    "company_types": [],
+    "geographies": [],
+    "technologies": [],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [
+     "company_type"
+    ],
+    "complete": false,
+    "brief_id": "accounts_54c95735f85fdcf865ff2589"
+   },
+   "extract": null
+  },
+  {
+   "query": "find 22 marketing agencies businesses in Los Angeles that use Webflow",
+   "brief": {
+    "schema_version": "1.0",
+    "original_query": "find 22 marketing agencies businesses in Los Angeles that use Webflow",
+    "requested_count": 22,
+    "company_types": [
+     "marketing agencies"
+    ],
+    "geographies": [
+     "Los Angeles"
+    ],
+    "technologies": [
+     "Webflow"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_616e4bb26789a8a36a2eb501"
+   },
+   "extract": {
+    "schema_version": "1.0",
+    "original_query": "find 22 marketing agencies businesses in Los Angeles that use Webflow",
+    "requested_count": 22,
+    "company_types": [
+     "marketing agencies"
+    ],
+    "geographies": [
+     "Los Angeles"
+    ],
+    "technologies": [
+     "Webflow"
+    ],
+    "hiring_roles": [],
+    "exclusions": [],
+    "evidence_requirements": [
+     "canonical_company_domain",
+     "criterion_evidence",
+     "evidence_url",
+     "retrieved_at",
+     "field_confidence"
+    ],
+    "missing_fields": [],
+    "complete": true,
+    "brief_id": "accounts_616e4bb26789a8a36a2eb501"
+   }
+  }
+ ],
+ "tracking": [
+  {
+   "text": "track these accounts for funding",
+   "request": {
+    "original_query": "track these accounts for funding",
+    "cadence": "weekly",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "Track these accounts daily for partnership hiring and leadership changes",
+   "request": {
+    "original_query": "Track these accounts daily for partnership hiring and leadership changes",
+    "cadence": "daily",
+    "signal_types": [
+     "partnership_hiring",
+     "leadership_change"
+    ]
+   }
+  },
+  {
+   "text": "track the accounts hourly for pricing page changes",
+   "request": {
+    "original_query": "track the accounts hourly for pricing page changes",
+    "cadence": "hourly",
+    "signal_types": [
+     "pricing_page_change"
+    ]
+   }
+  },
+  {
+   "text": "track my account weekly",
+   "request": null
+  },
+  {
+   "text": "track those accounts for executive changes and fundraising",
+   "request": {
+    "original_query": "track those accounts for executive changes and fundraising",
+    "cadence": "weekly",
+    "signal_types": [
+     "leadership_change",
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "please track these accounts",
+   "request": null
+  },
+  {
+   "text": "track these accounts for funding daily weekly",
+   "request": {
+    "original_query": "track these accounts for funding daily weekly",
+    "cadence": "daily",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "track these accounts for partnership jobs",
+   "request": {
+    "original_query": "track these accounts for partnership jobs",
+    "cadence": "weekly",
+    "signal_types": [
+     "partnership_hiring"
+    ]
+   }
+  },
+  {
+   "text": "track these accounts for pricing",
+   "request": null
+  },
+  {
+   "text": "I want to track the accounts for funding",
+   "request": {
+    "original_query": "I want to track the accounts for funding",
+    "cadence": "weekly",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "track accounts for funding",
+   "request": null
+  },
+  {
+   "text": "TRACK THESE ACCOUNTS FOR FUNDING HOURLY",
+   "request": {
+    "original_query": "TRACK THESE ACCOUNTS FOR FUNDING HOURLY",
+    "cadence": "hourly",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "track these accounts biweekly for funding",
+   "request": {
+    "original_query": "track these accounts biweekly for funding",
+    "cadence": "weekly",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "  track these accounts for funding  ",
+   "request": {
+    "original_query": "track these accounts for funding",
+    "cadence": "weekly",
+    "signal_types": [
+     "funding"
+    ]
+   }
+  },
+  {
+   "text": "track these accountsfor funding",
+   "request": null
+  }
+ ]
+}

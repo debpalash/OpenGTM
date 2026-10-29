@@ -1,0 +1,13 @@
+{
+  "name": "postfix_dsn_lf_line_endings",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 User unknown",
+      "kind": "hard",
+      "original_message_id": "<orig-0011@contract.example.com>",
+      "recipient": "lf@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0011@mx.example.net>"
+}

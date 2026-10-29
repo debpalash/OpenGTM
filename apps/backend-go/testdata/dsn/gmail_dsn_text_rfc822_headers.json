@@ -1,0 +1,13 @@
+{
+  "name": "gmail_dsn_text_rfc822_headers",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550-5.1.1 No such user here",
+      "kind": "hard",
+      "original_message_id": "<orig-0002@contract.example.com>",
+      "recipient": "ghost@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0002@mx.example.net>"
+}

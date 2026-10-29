@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "userName": "someone-else"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": {
+      "detail": "userName cannot be changed after provisioning"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

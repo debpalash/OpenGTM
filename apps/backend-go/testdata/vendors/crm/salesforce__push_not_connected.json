@@ -1,0 +1,28 @@
+{
+ "vendor": "salesforce",
+ "scenario": "push_not_connected",
+ "call": {
+  "function": "push_lead_as_contact",
+  "args": {
+   "lead": {
+    "id": 11,
+    "company": "Acme 01",
+    "email": "info@acme01.example.com",
+    "phone": "+1-555-0101",
+    "website": "https://acme01.example.com",
+    "city": "Austin",
+    "contact_person": "Ada Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://linkedin.com/in/ada",
+    "score": 80
+   }
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Salesforce not connected (set SALESFORCE_INSTANCE_URL + SALESFORCE_ACCESS_TOKEN)"
+ }
+}

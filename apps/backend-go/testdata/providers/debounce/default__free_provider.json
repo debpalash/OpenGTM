@@ -1,0 +1,41 @@
+{
+ "provider": "debounce",
+ "input_name": "default",
+ "scenario": "free_provider",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "DEBOUNCE_API_KEY": "ctk_debounce_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.debounce.io/v1/?api={{secret:DEBOUNCE_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"debounce\":{\"code\":\"5\",\"result\":\"Safe to Send\",\"reason\":\"Deliverable\",\"send_transactional\":\"1\",\"free_email\":\"true\",\"disposable_email\":\"false\",\"role\":\"false\"},\"success\":\"1\"}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "debounce",
+  "success": true,
+  "fields": {
+   "email": "ada@acme.com",
+   "email_verify": "valid",
+   "email_type": "free_provider"
+  },
+  "confidence": 0.95,
+  "error": ""
+ }
+}

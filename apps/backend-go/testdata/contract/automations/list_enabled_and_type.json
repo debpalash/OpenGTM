@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers?enabled=false&trigger_type=on_schedule"
+  },
+  "response": {
+    "body": [
+      {
+        "actions": [
+          {
+            "config": {
+              "url": "https://hooks.example.com/weekly"
+            },
+            "type": "webhook"
+          }
+        ],
+        "condition": "",
+        "created_at": "2026-08-29T08:06:00+00:00",
+        "created_by": "1",
+        "enabled": false,
+        "id": "trg-a-06",
+        "last_fired_at": null,
+        "max_actions_per_day": null,
+        "max_spend_usd_per_day": null,
+        "name": "Weekly sweep paused",
+        "next_run_at": null,
+        "schedule_anchor": "2026-08-29T08:06:00+00:00",
+        "scope_workbook_ids": [],
+        "stop_on_error": false,
+        "trigger_config": {
+          "interval": "weekly"
+        },
+        "trigger_type": "on_schedule",
+        "updated_at": "2026-08-29T08:06:00+00:00",
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

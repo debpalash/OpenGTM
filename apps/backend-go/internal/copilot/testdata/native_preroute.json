@@ -1,0 +1,1019 @@
+{
+ "workspace_id": "ws-1",
+ "user_id": 7,
+ "conversation_id": "conv-1",
+ "uuid_hex_sequence": [
+  "00000000000000000000000000000001",
+  "00000000000000000000000000000002",
+  "00000000000000000000000000000003"
+ ],
+ "cases": [
+  {
+   "name": "market",
+   "message": "find 50 IT staffing companies in Pune",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I parsed this as 50 accounts with company type IT staffing, geography Pune. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_source_workbook\", \"arguments\": \"{\\\"icp_description\\\": \\\"find 50 IT staffing companies in Pune\\\", \\\"name\\\": \\\"50 IT staffing Accounts in Pune\\\", \\\"target_rows\\\": 50, \\\"auto_run\\\": true, \\\"auto_enrich\\\": false, \\\"account_discovery\\\": true, \\\"idempotency_key\\\": \\\"chat-accounts:conv-1:accounts_c5fdb120517fd6e172fc4f00\\\"}\"}}, \"name\": \"create_source_workbook\", \"args\": {\"icp_description\": \"find 50 IT staffing companies in Pune\", \"name\": \"50 IT staffing Accounts in Pune\", \"target_rows\": 50, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_c5fdb120517fd6e172fc4f00\"}, \"description\": \"\\ud83d\\udcda Create and Source Workbook\\nCreates persistent data and launches a background sourcing workflow.\\nTarget rows: 50 \\u00b7 Query: find 50 IT staffing companies in Pune\", \"level\": \"high\", \"label\": \"\\ud83d\\udcda Create and Source Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I parsed this as 50 accounts with company type IT staffing, geography Pune. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_source_workbook",
+       "arguments": "{\"icp_description\": \"find 50 IT staffing companies in Pune\", \"name\": \"50 IT staffing Accounts in Pune\", \"target_rows\": 50, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_c5fdb120517fd6e172fc4f00\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "market_approved",
+   "message": "find 50 IT staffing companies in Pune",
+   "approved": true,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "accounts_full",
+   "message": "Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I parsed this as 25 accounts with company type fintech, geography Berlin, technology Stripe, hiring partnerships. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_source_workbook\", \"arguments\": \"{\\\"icp_description\\\": \\\"Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles\\\", \\\"name\\\": \\\"25 fintech Accounts in Berlin\\\", \\\"target_rows\\\": 25, \\\"auto_run\\\": true, \\\"auto_enrich\\\": false, \\\"account_discovery\\\": true, \\\"idempotency_key\\\": \\\"chat-accounts:conv-1:accounts_2a914de0fe18892069adcb2f\\\"}\"}}, \"name\": \"create_source_workbook\", \"args\": {\"icp_description\": \"Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles\", \"name\": \"25 fintech Accounts in Berlin\", \"target_rows\": 25, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_2a914de0fe18892069adcb2f\"}, \"description\": \"\\ud83d\\udcda Create and Source Workbook\\nCreates persistent data and launches a background sourcing workflow.\\nTarget rows: 25 \\u00b7 Query: Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles\", \"level\": \"high\", \"label\": \"\\ud83d\\udcda Create and Source Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I parsed this as 25 accounts with company type fintech, geography Berlin, technology Stripe, hiring partnerships. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_source_workbook",
+       "arguments": "{\"icp_description\": \"Find 25 fintech companies in Berlin that use Stripe and are hiring for partnerships roles\", \"name\": \"25 fintech Accounts in Berlin\", \"target_rows\": 25, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_2a914de0fe18892069adcb2f\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "accounts_no_geo",
+   "message": "show 5 B2B companies",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I parsed this as 5 accounts with company type B2B. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_source_workbook\", \"arguments\": \"{\\\"icp_description\\\": \\\"show 5 B2B companies\\\", \\\"name\\\": \\\"5 B2B Accounts\\\", \\\"target_rows\\\": 5, \\\"auto_run\\\": true, \\\"auto_enrich\\\": false, \\\"account_discovery\\\": true, \\\"idempotency_key\\\": \\\"chat-accounts:conv-1:accounts_9902ba796dba3e885dc4e0c1\\\"}\"}}, \"name\": \"create_source_workbook\", \"args\": {\"icp_description\": \"show 5 B2B companies\", \"name\": \"5 B2B Accounts\", \"target_rows\": 5, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_9902ba796dba3e885dc4e0c1\"}, \"description\": \"\\ud83d\\udcda Create and Source Workbook\\nCreates persistent data and launches a background sourcing workflow.\\nTarget rows: 5 \\u00b7 Query: show 5 B2B companies\", \"level\": \"high\", \"label\": \"\\ud83d\\udcda Create and Source Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I parsed this as 5 accounts with company type B2B. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_source_workbook",
+       "arguments": "{\"icp_description\": \"show 5 B2B companies\", \"name\": \"5 B2B Accounts\", \"target_rows\": 5, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_9902ba796dba3e885dc4e0c1\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "team_clarify",
+   "message": "Stripe partnerships team",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"**Stripe partnerships team** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"intent_clarification\": {\"ok\": false, \"query\": \"Stripe partnerships team\", \"intent\": \"people_at_company\", \"domain\": \"\", \"entity\": \"Stripe\", \"clarification_kind\": \"company_team\", \"clarification_required\": true, \"reason\": \"\\u201cStripe partnerships team\\u201d can mean people on the team, partner companies, or an overview of the organization.\", \"options\": [{\"key\": \"team_people\", \"intent\": \"people_at_company\", \"label\": \"People on Partnerships\", \"description\": \"Find named people at Stripe and require public evidence of both current employment and a partnerships remit.\", \"route\": \"/chat\", \"draft\": \"Find named people currently working on Stripe's partnerships team. Require evidence for current employment and their partnerships remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.\"}, {\"key\": \"partner_ecosystem\", \"intent\": \"company_research\", \"label\": \"Stripe partner ecosystem\", \"description\": \"Find organizations with documented Stripe partner relationships, not people or lookalike companies.\", \"route\": \"/chat\", \"draft\": \"Research Stripe's partner ecosystem. Return organizations with a documented partnership with Stripe, the relationship type, evidence URL, evidence date, and confidence. Reject directories and unsupported claims.\"}, {\"key\": \"team_overview\", \"intent\": \"company_research\", \"label\": \"Overview of Partnerships\", \"description\": \"Explain how Stripe's partnerships organization and programs appear to work.\", \"route\": \"/chat\", \"draft\": \"Build an evidence-backed overview of Stripe's partnerships organization and programs. Separate verified facts from inference and cite every material claim.\"}], \"message\": \"\\u201cStripe partnerships team\\u201d can mean people on the team, partner companies, or an overview of the organization.\"}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "**Stripe partnerships team** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "team_clarify_approved",
+   "message": "Stripe partnerships team",
+   "approved": true,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "team_domain",
+   "message": "find stripe.com sales leaders",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"**stripe.com e.com sales leaders** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"intent_clarification\": {\"ok\": false, \"query\": \"find stripe.com sales leaders\", \"intent\": \"people_at_company\", \"domain\": \"stripe.com\", \"entity\": \"stripe.com\", \"clarification_kind\": \"company_team\", \"clarification_required\": true, \"reason\": \"\\u201cfind stripe.com sales leaders\\u201d can mean people on the team, partner companies, or an overview of the organization.\", \"options\": [{\"key\": \"team_people\", \"intent\": \"people_at_company\", \"label\": \"People on Sales\", \"description\": \"Find named people at stripe.com and require public evidence of both current employment and a sales remit.\", \"route\": \"/chat\", \"draft\": \"Find named people currently working on stripe.com's sales team. Require evidence for current employment and their sales remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.\"}, {\"key\": \"partner_ecosystem\", \"intent\": \"company_research\", \"label\": \"stripe.com partner ecosystem\", \"description\": \"Find organizations with documented stripe.com partner relationships, not people or lookalike companies.\", \"route\": \"/chat\", \"draft\": \"Research stripe.com's partner ecosystem. Return organizations with a documented partnership with stripe.com, the relationship type, evidence URL, evidence date, and confidence. Reject directories and unsupported claims.\"}, {\"key\": \"team_overview\", \"intent\": \"company_research\", \"label\": \"Overview of Sales\", \"description\": \"Explain how stripe.com's sales organization and programs appear to work.\", \"route\": \"/chat\", \"draft\": \"Build an evidence-backed overview of stripe.com's sales organization and programs. Separate verified facts from inference and cite every material claim.\"}], \"message\": \"\\u201cfind stripe.com sales leaders\\u201d can mean people on the team, partner companies, or an overview of the organization.\"}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "**stripe.com e.com sales leaders** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "explicit_people",
+   "message": "Find people currently working on Stripe's partnerships team.",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"**people currently working on Stripe's ipe's partnerships team.** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"intent_clarification\": {\"ok\": false, \"query\": \"Find people currently working on Stripe's partnerships team.\", \"intent\": \"people_at_company\", \"domain\": \"\", \"entity\": \"people currently working on Stripe's\", \"clarification_kind\": \"company_team\", \"clarification_required\": true, \"reason\": \"\\u201cFind people currently working on Stripe's partnerships team.\\u201d can mean people on the team, partner companies, or an overview of the organization.\", \"options\": [{\"key\": \"team_people\", \"intent\": \"people_at_company\", \"label\": \"People on Partnerships\", \"description\": \"Find named people at people currently working on Stripe's and require public evidence of both current employment and a partnerships remit.\", \"route\": \"/chat\", \"draft\": \"Find named people currently working on people currently working on Stripe's's partnerships team. Require evidence for current employment and their partnerships remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.\"}, {\"key\": \"partner_ecosystem\", \"intent\": \"company_research\", \"label\": \"people currently working on Stripe's partner ecosystem\", \"description\": \"Find organizations with documented people currently working on Stripe's partner relationships, not people or lookalike companies.\", \"route\": \"/chat\", \"draft\": \"Research people currently working on Stripe's's partner ecosystem. Return organizations with a documented partnership with people currently working on Stripe's, the relationship type, evidence URL, evidence date, and confidence. Reject directories and unsupported claims.\"}, {\"key\": \"team_overview\", \"intent\": \"company_research\", \"label\": \"Overview of Partnerships\", \"description\": \"Explain how people currently working on Stripe's's partnerships organization and programs appear to work.\", \"route\": \"/chat\", \"draft\": \"Build an evidence-backed overview of people currently working on Stripe's's partnerships organization and programs. Separate verified facts from inference and cite every material claim.\"}], \"message\": \"\\u201cFind people currently working on Stripe's partnerships team.\\u201d can mean people on the team, partner companies, or an overview of the organization.\"}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "**people currently working on Stripe's ipe's partnerships team.** can mean three different GTM jobs. Choose the result you want below. I haven't queued a collection task.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "explicit_people_card",
+   "message": "Find named people currently working on Stripe's partnerships team. Require evidence for current employment and their partnerships remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"find_people_at_company\", \"args\": {\"company\": \"Stripe\", \"function\": \"partnerships\", \"limit\": 8}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"find_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_research_unavailable\", \"detail\": \"people research is stubbed in the recorder\", \"company\": \"Stripe\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I couldn't verify any **partnerships** people at **Stripe** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "find_people_at_company result",
+     "tool_data": "{\"name\": \"find_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_research_unavailable\", \"detail\": \"people research is stubbed in the recorder\", \"company\": \"Stripe\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I couldn't verify any **partnerships** people at **Stripe** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "explicit_people_card_approved",
+   "message": "Find named people currently working on Stripe's partnerships team.",
+   "approved": true,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "contacts_no_prior",
+   "message": "find their work emails",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "contacts",
+   "message": "find their work emails",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "company": "Acme",
+     "function": "partnerships",
+     "people": [
+      {
+       "name": "Ann Lee",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP"
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can look for work emails for the exact 2 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"enrich_people_contacts\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"person_ids\\\": [\\\"person_f5b2ccd8a48b7f5048332611\\\", \\\"person_45ce6752d9c0e16eae125346\\\"], \\\"idempotency_key\\\": \\\"chat-contacts:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\\\"}\"}}, \"name\": \"enrich_people_contacts\", \"args\": {\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_45ce6752d9c0e16eae125346\"], \"idempotency_key\": \"chat-contacts:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\"}, \"description\": \"Find and Verify Work Emails\\nUses configured email-finder and verification providers for the exact saved people selection.\\nConversation: conv-1 \\u00b7 People: 2\", \"level\": \"medium\", \"label\": \"Find and Verify Work Emails\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can look for work emails for the exact 2 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "enrich_people_contacts",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_45ce6752d9c0e16eae125346\"], \"idempotency_key\": \"chat-contacts:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "verify",
+   "message": "verify them",
+   "approved": false,
+   "priors": {
+    "verify_people_at_company": {
+     "company": "Acme",
+     "function": "partnerships",
+     "people": [
+      {
+       "name": "Ann Lee",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP"
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"verify_people_at_company\", \"args\": {\"company\": \"Acme\", \"function\": \"partnerships\", \"people_count\": 2}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"verify_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_verification_unavailable\", \"detail\": \"people research is stubbed in the recorder\", \"company\": \"Acme\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"There are no saved people candidates in this conversation to verify.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "verify_people_at_company result",
+     "tool_data": "{\"name\": \"verify_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_verification_unavailable\", \"detail\": \"people research is stubbed in the recorder\", \"company\": \"Acme\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "There are no saved people candidates in this conversation to verify.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "workbook",
+   "message": "make a workbook with them",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "company": "Acme",
+     "function": "partnerships",
+     "people": [
+      {
+       "name": "Ann Lee",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP"
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can create **Acme \\u2014 Partnerships People** with the exact 2 people already stored in this conversation. This will not run a new lead search.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_people_workbook\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"name\\\": \\\"Acme \\\\u2014 Partnerships People\\\", \\\"person_ids\\\": [\\\"person_f5b2ccd8a48b7f5048332611\\\", \\\"person_45ce6752d9c0e16eae125346\\\"], \\\"idempotency_key\\\": \\\"chat-people:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\\\"}\"}}, \"name\": \"create_people_workbook\", \"args\": {\"conversation_id\": \"conv-1\", \"name\": \"Acme \\u2014 Partnerships People\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_45ce6752d9c0e16eae125346\"], \"idempotency_key\": \"chat-people:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\"}, \"description\": \"\\ud83d\\udccb Create People Workbook\\nCreates a workbook and snapshots the people already found in this conversation.\\nConversation: conv-1 \\u00b7 People: 2 \\u00b7 Workbook: Acme \\u2014 Partnerships People\", \"level\": \"medium\", \"label\": \"\\ud83d\\udccb Create People Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can create **Acme — Partnerships People** with the exact 2 people already stored in this conversation. This will not run a new lead search.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_people_workbook",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"name\": \"Acme \\u2014 Partnerships People\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_45ce6752d9c0e16eae125346\"], \"idempotency_key\": \"chat-people:conv-1:people_59c7fc0753d33cb5b574bb1a:975c7814ab0026a6\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "draft",
+   "message": "draft an email to the verified contact but do not send",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. No draft was created and no message was sent.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"draft_blocked\": {\"error\": \"No saved contact has an eligible evidence-backed address for drafting\", \"contact_flags\": [], \"send_performed\": false}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. No draft was created and no message was sent.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "draft_no_send_word",
+   "message": "draft an email to the verified contact",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track_disabled",
+   "message": "track these accounts daily for funding",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": false,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"Intent signal tracking is disabled in this deployment. I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "Intent signal tracking is disabled in this deployment. I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track_no_pg",
+   "message": "track these accounts daily for funding",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": false
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"Intent signal tracking requires the Postgres lead store. I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "Intent signal tracking requires the Postgres lead store. I have not created a schedule. Enable Intent Watches and its Postgres dependency, then retry.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track_no_workbook",
+   "message": "track these accounts daily for funding",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I cannot bind **these accounts** to a saved account selection yet. Create or finish sourcing an account workbook in this conversation, then ask me to track it. I have not created a schedule.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I cannot bind **these accounts** to a saved account selection yet. Create or finish sourcing an account workbook in this conversation, then ask me to track it. I have not created a schedule.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track_empty_workbook",
+   "message": "track these accounts daily for funding",
+   "approved": false,
+   "priors": {
+    "create_source_workbook": {
+     "workbook_id": "wb-1"
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I cannot bind **these accounts** to a saved account selection yet. Create or finish sourcing an account workbook in this conversation, then ask me to track it. I have not created a schedule.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I cannot bind **these accounts** to a saved account selection yet. Create or finish sourcing an account workbook in this conversation, then ask me to track it. I have not created a schedule.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track",
+   "message": "Track these accounts daily for partnership hiring and funding",
+   "approved": false,
+   "priors": {
+    "create_source_workbook": {
+     "workbook_id": "wb-1"
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {
+    "wb-1": [
+     "acct_b",
+     "acct_a"
+    ]
+   },
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can create one **daily** schedule for the exact **2 accounts** saved in the workbook, covering partnership_hiring, funding. Repeating this request will update or return the same schedule.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"track_account_signals\", \"arguments\": \"{\\\"workbook_id\\\": \\\"wb-1\\\", \\\"account_ids\\\": [\\\"acct_b\\\", \\\"acct_a\\\"], \\\"cadence\\\": \\\"daily\\\", \\\"signal_types\\\": [\\\"partnership_hiring\\\", \\\"funding\\\"], \\\"idempotency_key\\\": \\\"chat-signals:conv-1:edf07835da4bf164\\\"}\"}}, \"name\": \"track_account_signals\", \"args\": {\"workbook_id\": \"wb-1\", \"account_ids\": [\"acct_b\", \"acct_a\"], \"cadence\": \"daily\", \"signal_types\": [\"partnership_hiring\", \"funding\"], \"idempotency_key\": \"chat-signals:conv-1:edf07835da4bf164\"}, \"description\": \"Track Account Signals\\nCreates or updates a recurring collector schedule for an exact saved account selection.\\nWorkbook: wb-1 \\u00b7 Accounts: 2 \\u00b7 Cadence: daily \\u00b7 Signals: partnership_hiring, funding\", \"level\": \"medium\", \"label\": \"Track Account Signals\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can create one **daily** schedule for the exact **2 accounts** saved in the workbook, covering partnership_hiring, funding. Repeating this request will update or return the same schedule.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "track_account_signals",
+       "arguments": "{\"workbook_id\": \"wb-1\", \"account_ids\": [\"acct_b\", \"acct_a\"], \"cadence\": \"daily\", \"signal_types\": [\"partnership_hiring\", \"funding\"], \"idempotency_key\": \"chat-signals:conv-1:edf07835da4bf164\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "track_approved",
+   "message": "track these accounts daily for funding",
+   "approved": true,
+   "priors": {
+    "create_source_workbook": {
+     "workbook_id": "wb-1"
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {
+    "wb-1": [
+     "acct_a"
+    ]
+   },
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "track_no_signals",
+   "message": "track these accounts",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "plain",
+   "message": "hello there",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "empty",
+   "message": "",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "none"
+    }
+   ],
+   "approvals": []
+  },
+  {
+   "name": "accounts_unicode",
+   "message": "find 20 retail companies in São Paulo using Shopify",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I parsed this as 20 accounts with company type retail, technology Shopify. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_source_workbook\", \"arguments\": \"{\\\"icp_description\\\": \\\"find 20 retail companies in S\\\\u00e3o Paulo using Shopify\\\", \\\"name\\\": \\\"20 retail Accounts\\\", \\\"target_rows\\\": 20, \\\"auto_run\\\": true, \\\"auto_enrich\\\": false, \\\"account_discovery\\\": true, \\\"idempotency_key\\\": \\\"chat-accounts:conv-1:accounts_352039da79c40e315b44bd58\\\"}\"}}, \"name\": \"create_source_workbook\", \"args\": {\"icp_description\": \"find 20 retail companies in S\\u00e3o Paulo using Shopify\", \"name\": \"20 retail Accounts\", \"target_rows\": 20, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_352039da79c40e315b44bd58\"}, \"description\": \"\\ud83d\\udcda Create and Source Workbook\\nCreates persistent data and launches a background sourcing workflow.\\nTarget rows: 20 \\u00b7 Query: find 20 retail companies in S\\u00e3o Paulo using Shopify\", \"level\": \"high\", \"label\": \"\\ud83d\\udcda Create and Source Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I parsed this as 20 accounts with company type retail, technology Shopify. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_source_workbook",
+       "arguments": "{\"icp_description\": \"find 20 retail companies in S\\u00e3o Paulo using Shopify\", \"name\": \"20 retail Accounts\", \"target_rows\": 20, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_352039da79c40e315b44bd58\"}"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "accounts_tech_hiring",
+   "message": "source 10 SaaS accounts in New York using HubSpot and are hiring for SDR roles",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I parsed this as 10 accounts with company type SaaS, geography New York, technology HubSpot, hiring SDR. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_source_workbook\", \"arguments\": \"{\\\"icp_description\\\": \\\"source 10 SaaS accounts in New York using HubSpot and are hiring for SDR roles\\\", \\\"name\\\": \\\"10 SaaS Accounts in New York\\\", \\\"target_rows\\\": 10, \\\"auto_run\\\": true, \\\"auto_enrich\\\": false, \\\"account_discovery\\\": true, \\\"idempotency_key\\\": \\\"chat-accounts:conv-1:accounts_2b15b66ae11aa0a5db152fbb\\\"}\"}}, \"name\": \"create_source_workbook\", \"args\": {\"icp_description\": \"source 10 SaaS accounts in New York using HubSpot and are hiring for SDR roles\", \"name\": \"10 SaaS Accounts in New York\", \"target_rows\": 10, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_2b15b66ae11aa0a5db152fbb\"}, \"description\": \"\\ud83d\\udcda Create and Source Workbook\\nCreates persistent data and launches a background sourcing workflow.\\nTarget rows: 10 \\u00b7 Query: source 10 SaaS accounts in New York using HubSpot and are hiring for SDR roles\", \"level\": \"high\", \"label\": \"\\ud83d\\udcda Create and Source Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I parsed this as 10 accounts with company type SaaS, geography New York, technology HubSpot, hiring SDR. I can create and run an evidence-gated sourcing workbook. Rows must prove every requested filter; any shortfall will be reported as partial.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_source_workbook",
+       "arguments": "{\"icp_description\": \"source 10 SaaS accounts in New York using HubSpot and are hiring for SDR roles\", \"name\": \"10 SaaS Accounts in New York\", \"target_rows\": 10, \"auto_run\": true, \"auto_enrich\": false, \"account_discovery\": true, \"idempotency_key\": \"chat-accounts:conv-1:accounts_2b15b66ae11aa0a5db152fbb\"}"
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,2617 @@
+{
+ "normalize_company": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "  ",
+   "out": ""
+  },
+  {
+   "in": "Acme Inc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme, Inc.",
+   "out": "acme"
+  },
+  {
+   "in": "ACME INCORPORATED",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corp",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corporation",
+   "out": "acme"
+  },
+  {
+   "in": "Acme LLC",
+   "out": "acme"
+  },
+  {
+   "in": "Acme L.L.C",
+   "out": "acme l l c"
+  },
+  {
+   "in": "Acme LLP",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Limited",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pvt Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Private Limited",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pte Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pty Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme GmbH",
+   "out": "acme"
+  },
+  {
+   "in": "Acme AG",
+   "out": "acme"
+  },
+  {
+   "in": "Acme S.A.",
+   "out": "acme s a"
+  },
+  {
+   "in": "Acme SARL",
+   "out": "acme"
+  },
+  {
+   "in": "Acme BV",
+   "out": "acme"
+  },
+  {
+   "in": "Acme NV",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Oy",
+   "out": "acme"
+  },
+  {
+   "in": "Acme AB",
+   "out": "acme"
+  },
+  {
+   "in": "Acme KK",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Holdings",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Group",
+   "out": "acme"
+  },
+  {
+   "in": "The Acme Company",
+   "out": "acme"
+  },
+  {
+   "in": "Acme & Sons",
+   "out": "acme sons"
+  },
+  {
+   "in": "Acme-Co",
+   "out": "acme"
+  },
+  {
+   "in": "Cointreau",
+   "out": "cointreau"
+  },
+  {
+   "in": "Incognito",
+   "out": "incognito"
+  },
+  {
+   "in": "Ltdco",
+   "out": "ltdco"
+  },
+  {
+   "in": "Google LLC",
+   "out": "google"
+  },
+  {
+   "in": "Alphabet Inc.",
+   "out": "alphabet"
+  },
+  {
+   "in": "Microsoft Corporation",
+   "out": "microsoft"
+  },
+  {
+   "in": "Éco Solutions Pvt Ltd",
+   "out": "solutions"
+  },
+  {
+   "in": "東京テック株式会社",
+   "out": ""
+  },
+  {
+   "in": "A.B.C. Co.",
+   "out": "a b c"
+  },
+  {
+   "in": "   spaced   out   Inc  ",
+   "out": "spaced out"
+  },
+  {
+   "in": "Acme (UK) Ltd",
+   "out": "acme uk"
+  },
+  {
+   "in": "Acme Technologies, Inc",
+   "out": "acme technologies"
+  },
+  {
+   "in": "Acme plc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme SA",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Co",
+   "out": "acme"
+  },
+  {
+   "in": "the group",
+   "out": ""
+  },
+  {
+   "in": "Inc",
+   "out": ""
+  },
+  {
+   "in": "123 Corp",
+   "out": "123"
+  }
+ ],
+ "linkedin_handle": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "https://www.linkedin.com/in/ada-lovelace",
+   "out": "ada-lovelace"
+  },
+  {
+   "in": "HTTPS://WWW.LINKEDIN.COM/IN/Ada-Lovelace/",
+   "out": "ada-lovelace"
+  },
+  {
+   "in": "linkedin.com/in/ada",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/in/ada?trk=x",
+   "out": "ada"
+  },
+  {
+   "in": "https://linkedin.com/in/ada/details",
+   "out": "ada"
+  },
+  {
+   "in": "https://uk.linkedin.com/in/ada_l",
+   "out": "ada_l"
+  },
+  {
+   "in": "https://linkedin.com/in/%C3%A9l",
+   "out": "%c3%a9l"
+  },
+  {
+   "in": "https://linkedin.com/in/",
+   "out": ""
+  },
+  {
+   "in": "https://linkedin.com/company/acme",
+   "out": ""
+  },
+  {
+   "in": "https://example.com/linkedin.com/in/ada",
+   "out": "ada"
+  },
+  {
+   "in": "  https://linkedin.com/in/ada  ",
+   "out": "ada"
+  },
+  {
+   "in": "linkedin.com/in/a.b-c_d",
+   "out": "a.b-c_d"
+  },
+  {
+   "in": "https://linkedin.com/in/ada/",
+   "out": "ada"
+  }
+ ],
+ "contact_key": [
+  {
+   "contact": {
+    "lead_id": 14
+   },
+   "key": "lead:14"
+  },
+  {
+   "contact": {
+    "lead_id": 0,
+    "name": "Ada",
+    "company": "Eng Inc"
+   },
+   "key": "nm:ada|eng"
+  },
+  {
+   "contact": {
+    "lead_id": 14,
+    "linkedin_url": "https://linkedin.com/in/ada"
+   },
+   "key": "lead:14"
+  },
+  {
+   "contact": {
+    "linkedin_url": "https://linkedin.com/in/ada"
+   },
+   "key": "li:ada"
+  },
+  {
+   "contact": {
+    "name": "Ada Lovelace",
+    "company": "Analytical Engines Ltd"
+   },
+   "key": "nm:ada lovelace|analytical engines"
+  },
+  {
+   "contact": {
+    "name": "  Ada   Lovelace  ",
+    "company": "Analytical Engines, Ltd."
+   },
+   "key": "nm:ada lovelace|analytical engines"
+  },
+  {
+   "contact": {
+    "name": "ÉLOÏSE",
+    "company": ""
+   },
+   "key": "nm:lo se|"
+  },
+  {
+   "contact": {
+    "name": "",
+    "company": "X"
+   },
+   "key": "nm:|x"
+  },
+  {
+   "contact": {},
+   "key": "nm:|"
+  },
+  {
+   "contact": {
+    "name": "A. B.",
+    "company": "C"
+   },
+   "key": "nm:a b|c"
+  },
+  {
+   "contact": {
+    "lead_id": "7"
+   },
+   "key": "lead:7"
+  },
+  {
+   "contact": {
+    "name": "Grace",
+    "linkedin_url": "https://linkedin.com/company/x"
+   },
+   "key": "nm:grace|"
+  }
+ ],
+ "build_query": [
+  {
+   "name": "Ada Lovelace",
+   "linkedin_url": "",
+   "company": "",
+   "query": "\"Ada Lovelace\" site:linkedin.com/in"
+  },
+  {
+   "name": "Ada Lovelace",
+   "linkedin_url": "https://linkedin.com/in/ada-l",
+   "company": "Engines",
+   "query": "\"Ada Lovelace\" ada-l site:linkedin.com/in"
+  },
+  {
+   "name": "Ada Lovelace",
+   "linkedin_url": "",
+   "company": "Engines Inc",
+   "query": "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+  },
+  {
+   "name": "  Ada  ",
+   "linkedin_url": "",
+   "company": "  ",
+   "query": "\"Ada\" site:linkedin.com/in"
+  },
+  {
+   "name": "",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "company": "",
+   "query": "\"\" ada site:linkedin.com/in"
+  },
+  {
+   "name": "Éloïse",
+   "linkedin_url": "",
+   "company": "Ünï",
+   "query": "\"Éloïse\" Ünï site:linkedin.com/in"
+  },
+  {
+   "name": "O'Brien",
+   "linkedin_url": "",
+   "company": "A \"B\" Co",
+   "query": "\"O'Brien\" A \"B\" Co site:linkedin.com/in"
+  }
+ ],
+ "company_from_result": [
+  {
+   "title": "Ada Lovelace - CEO - Analytical Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Analytical Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - Chief Executive Officer - Analytical Engines Ltd - LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Analytical Engines Ltd",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace, MBA - Founder - Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO at Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO @ Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience: Analytical Engines · Education: Oxford",
+   "name": "Ada Lovelace",
+   "result": [
+    "Analytical Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace | LinkedIn",
+   "snippet": "Experience: Engines | Location",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - LinkedIn",
+   "snippet": "Experience:   ·",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Someone Else - CEO - Engines | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    false
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Self-Employed | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Freelance | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Open to work | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - LinkedIn Corp | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Ada Lovelace | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - X | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - A - B - C - Deep Co | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Deep Co",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace – CEO – En dash Co | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "En dash Co",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace — CEO — Em dash Co — LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Em dash Co",
+    true
+   ]
+  },
+  {
+   "title": "",
+   "snippet": "",
+   "name": "Ada",
+   "result": [
+    null,
+    false
+   ]
+  },
+  {
+   "title": "Ada Lovelace",
+   "snippet": "",
+   "name": "",
+   "result": [
+    null,
+    false
+   ]
+  },
+  {
+   "title": "ada lovelace - ceo - engines | linkedin",
+   "snippet": "",
+   "name": "ADA LOVELACE",
+   "result": [
+    "engines",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - Student at MIT | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "MIT",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - Retired | LinkedIn",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    null,
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - Engineer at Foo Bar Inc. · Experience: Baz",
+   "snippet": "Experience: Qux · x",
+   "name": "Ada Lovelace",
+   "result": [
+    "Foo Bar Inc. · Experience: Baz",
+    true
+   ]
+  },
+  {
+   "title": "Ada Lovelace - CEO - Engines |",
+   "snippet": "",
+   "name": "Ada Lovelace",
+   "result": [
+    "Engines",
+    true
+   ]
+  }
+ ],
+ "resolve_current_company": [
+  {
+   "name": "handle_match",
+   "person": "Ada Lovelace",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/ada?trk=1",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" ada site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines",
+    "https://www.linkedin.com/in/ada"
+   ],
+   "raised": null
+  },
+  {
+   "name": "handle_mismatch_skipped",
+   "person": "Ada Lovelace",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/other?trk=1",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" ada site:linkedin.com/in"
+   ],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "name_gate_without_handle",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "Acme",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/any?trk=1",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" Acme site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines",
+    "https://www.linkedin.com/in/any"
+   ],
+   "raised": null
+  },
+  {
+   "name": "name_gate_mismatch",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/any?trk=1",
+     "title": "Grace Hopper - CEO - Navy | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "non_linkedin_results_ignored",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://example.com/ada",
+     "title": "Ada Lovelace - CEO - Engines"
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "first_confident_result_wins",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/a1?trk=1",
+     "title": "Ada Lovelace | LinkedIn",
+     "body": ""
+    },
+    {
+     "href": "https://www.linkedin.com/in/a2?trk=1",
+     "title": "Ada Lovelace - CEO - First Co | LinkedIn",
+     "body": ""
+    },
+    {
+     "href": "https://www.linkedin.com/in/a3?trk=1",
+     "title": "Ada Lovelace - CEO - Second Co | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    "First Co",
+    "https://www.linkedin.com/in/a2"
+   ],
+   "raised": null
+  },
+  {
+   "name": "url_key_alternatives",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "url": "https://linkedin.com/in/ada/",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn",
+     "snippet": ""
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines",
+    "https://linkedin.com/in/ada"
+   ],
+   "raised": null
+  },
+  {
+   "name": "snippet_experience",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://linkedin.com/in/ada",
+     "title": "Ada Lovelace | LinkedIn",
+     "snippet": "Experience: Engines Inc · x"
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines Inc",
+    "https://linkedin.com/in/ada"
+   ],
+   "raised": null
+  },
+  {
+   "name": "evidence_url_strips_query_and_trailing_slash",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://linkedin.com/in/ada/?utm=x",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn"
+    }
+   ],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines",
+    "https://linkedin.com/in/ada"
+   ],
+   "raised": null
+  },
+  {
+   "name": "no_results",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "none_results",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": null,
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "blank_name_and_no_handle_no_search",
+   "person": "  ",
+   "linkedin_url": "",
+   "company_hint": "Acme",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/a?trk=1",
+     "title": "x - y - z",
+     "body": ""
+    }
+   ],
+   "queries": [],
+   "result": [
+    null,
+    null
+   ],
+   "raised": null
+  },
+  {
+   "name": "blank_name_with_handle_searches",
+   "person": "",
+   "linkedin_url": "https://linkedin.com/in/ada",
+   "company_hint": "",
+   "results": [
+    {
+     "href": "https://www.linkedin.com/in/ada?trk=1",
+     "title": "Ada Lovelace - CEO - Engines | LinkedIn",
+     "body": ""
+    }
+   ],
+   "queries": [
+    "\"\" ada site:linkedin.com/in"
+   ],
+   "result": [
+    "Engines",
+    "https://www.linkedin.com/in/ada"
+   ],
+   "raised": null
+  },
+  {
+   "name": "transport_error_propagates",
+   "person": "Ada Lovelace",
+   "linkedin_url": "",
+   "company_hint": "",
+   "results": [],
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "result": null,
+   "raised": {
+    "type": "RuntimeError",
+    "message": "ddg 429"
+   }
+  }
+ ],
+ "per_poll_cap": [
+  {
+   "global_cap": 50,
+   "config": null,
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {},
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": 3
+   },
+   "cap": 3
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": 100
+   },
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": 0
+   },
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": "x"
+   },
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": null
+   },
+   "cap": 50
+  },
+  {
+   "global_cap": 50,
+   "config": {
+    "max_contacts_per_poll": 2.9
+   },
+   "cap": 2
+  },
+  {
+   "global_cap": 5,
+   "config": null,
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {},
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": 3
+   },
+   "cap": 3
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": 100
+   },
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": 0
+   },
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": "x"
+   },
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": null
+   },
+   "cap": 5
+  },
+  {
+   "global_cap": 5,
+   "config": {
+    "max_contacts_per_poll": 2.9
+   },
+   "cap": 2
+  },
+  {
+   "global_cap": 1,
+   "config": null,
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {},
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": 3
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": 100
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": 0
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": "x"
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": null
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 1,
+   "config": {
+    "max_contacts_per_poll": 2.9
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": null,
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {},
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": 3
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": 100
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": 0
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": "x"
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": null
+   },
+   "cap": 1
+  },
+  {
+   "global_cap": 0,
+   "config": {
+    "max_contacts_per_poll": 2.9
+   },
+   "cap": 1
+  }
+ ],
+ "fetch_job_changes": [
+  {
+   "name": "first_observation_baseline_only_never_emits",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {},
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Analytical Engines | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Analytical Engines",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "first_observation_unresolved_uses_configured_company",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {},
+   "scripts": {
+    "Ada Lovelace": []
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "first_observation_unresolved_no_company",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "key": "nm:ada lovelace|"
+    }
+   ],
+   "cursor": {},
+   "scripts": {
+    "Ada Lovelace": []
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "nm:ada lovelace|": {
+      "last_known_company": "",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "change_emits",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Babbage Labs | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "lead:14:engines->babbage labs",
+     "signal_type": "job_change",
+     "title": "Job change: Ada Lovelace — Engines Inc → Babbage Labs",
+     "description": "{\"lead_id\": 14, \"person_name\": \"Ada Lovelace\", \"old_company\": \"Engines Inc\", \"new_company\": \"Babbage Labs\", \"evidence_url\": \"https://www.linkedin.com/in/ada\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/ada",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Babbage Labs"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage Labs",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "same_company_different_suffix_no_emit",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Engines, Incorporated | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "unresolved_keeps_state_bumps_checked_at",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": []
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "late_baseline_when_prev_blank",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "",
+      "last_checked_at": 1.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Babbage Labs | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage Labs",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "transport_error_single_contact_is_total_failure",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": "ddg 429"
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "name": "one_error_one_ok_not_total_failure",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    },
+    {
+     "name": "Grace Hopper",
+     "company": "Navy",
+     "key": "nm:grace hopper|navy"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "Navy",
+      "last_checked_at": 2.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": "ddg 429",
+    "Grace Hopper": [
+     {
+      "href": "https://www.linkedin.com/in/grace?trk=1",
+      "title": "Grace Hopper - Admiral - NASA | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in",
+    "\"Grace Hopper\" Navy site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "nm:grace hopper|navy:navy->nasa",
+     "signal_type": "job_change",
+     "title": "Job change: Grace Hopper — Navy → NASA",
+     "description": "{\"lead_id\": null, \"person_name\": \"Grace Hopper\", \"old_company\": \"Navy\", \"new_company\": \"NASA\", \"evidence_url\": \"https://www.linkedin.com/in/grace\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/grace",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "NASA"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "NASA",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "lru_order_and_cap_round_robin",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    },
+    {
+     "name": "Grace Hopper",
+     "company": "Navy",
+     "key": "nm:grace hopper|navy"
+    },
+    {
+     "name": "Alan Turing",
+     "company": "Bletchley",
+     "key": "nm:alan turing|bletchley"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "x",
+      "last_checked_at": 300.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "y",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [],
+    "Grace Hopper": [],
+    "Alan Turing": []
+   },
+   "backfill": false,
+   "config": {
+    "max_contacts_per_poll": 2
+   },
+   "now": 1788000000.0,
+   "queries": [
+    "\"Alan Turing\" Bletchley site:linkedin.com/in",
+    "\"Grace Hopper\" Navy site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "x",
+      "last_checked_at": 300.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "y",
+      "last_checked_at": 1788000000.0
+     },
+     "nm:alan turing|bletchley": {
+      "last_known_company": "Bletchley",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "cap_default_checks_everyone_small_roster",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    },
+    {
+     "name": "Grace Hopper",
+     "company": "Navy",
+     "key": "nm:grace hopper|navy"
+    }
+   ],
+   "cursor": {},
+   "scripts": {
+    "Ada Lovelace": [],
+    "Grace Hopper": []
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in",
+    "\"Grace Hopper\" Navy site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1788000000.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "Navy",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "backfill_ignored",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {},
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Babbage | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": true,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "empty_roster_no_attempts_returns_empty_patch",
+   "contacts": [],
+   "cursor": {},
+   "scripts": {},
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [],
+   "events": [],
+   "patch": {
+    "job_change_contacts": {}
+   }
+  },
+  {
+   "name": "event_payload_and_ids",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Babbage Labs Ltd | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "lead:14:engines->babbage labs",
+     "signal_type": "job_change",
+     "title": "Job change: Ada Lovelace — Engines Inc → Babbage Labs Ltd",
+     "description": "{\"lead_id\": 14, \"person_name\": \"Ada Lovelace\", \"old_company\": \"Engines Inc\", \"new_company\": \"Babbage Labs Ltd\", \"evidence_url\": \"https://www.linkedin.com/in/ada\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/ada",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Babbage Labs Ltd"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage Labs Ltd",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "evidence_url_cleaned",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 100.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://linkedin.com/in/ada/?utm=1",
+      "title": "Ada Lovelace - CEO - Babbage | LinkedIn"
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "lead:14:engines->babbage",
+     "signal_type": "job_change",
+     "title": "Job change: Ada Lovelace — Engines Inc → Babbage",
+     "description": "{\"lead_id\": 14, \"person_name\": \"Ada Lovelace\", \"old_company\": \"Engines Inc\", \"new_company\": \"Babbage\", \"evidence_url\": \"https://linkedin.com/in/ada\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://linkedin.com/in/ada",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Babbage"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "contact_without_lead_event_has_no_lead",
+   "contacts": [
+    {
+     "name": "Grace Hopper",
+     "company": "Navy",
+     "key": "nm:grace hopper|navy"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "nm:grace hopper|navy": {
+      "last_known_company": "Navy",
+      "last_checked_at": 1.0
+     }
+    }
+   },
+   "scripts": {
+    "Grace Hopper": [
+     {
+      "href": "https://www.linkedin.com/in/grace?trk=1",
+      "title": "Grace Hopper - Admiral - NASA | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Grace Hopper\" Navy site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "nm:grace hopper|navy:navy->nasa",
+     "signal_type": "job_change",
+     "title": "Job change: Grace Hopper — Navy → NASA",
+     "description": "{\"lead_id\": null, \"person_name\": \"Grace Hopper\", \"old_company\": \"Navy\", \"new_company\": \"NASA\", \"evidence_url\": \"https://www.linkedin.com/in/grace\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/grace",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "NASA"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "nm:grace hopper|navy": {
+      "last_known_company": "NASA",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "two_changes_two_events",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "company": "Engines Inc",
+     "lead_id": 14,
+     "key": "lead:14"
+    },
+    {
+     "name": "Grace Hopper",
+     "company": "Navy",
+     "key": "nm:grace hopper|navy"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Engines Inc",
+      "last_checked_at": 1.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "Navy",
+      "last_checked_at": 2.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "Ada Lovelace - CEO - Babbage | LinkedIn",
+      "body": ""
+     }
+    ],
+    "Grace Hopper": [
+     {
+      "href": "https://www.linkedin.com/in/grace?trk=1",
+      "title": "Grace Hopper - Admiral - NASA | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" Engines Inc site:linkedin.com/in",
+    "\"Grace Hopper\" Navy site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "lead:14:engines->babbage",
+     "signal_type": "job_change",
+     "title": "Job change: Ada Lovelace — Engines Inc → Babbage",
+     "description": "{\"lead_id\": 14, \"person_name\": \"Ada Lovelace\", \"old_company\": \"Engines Inc\", \"new_company\": \"Babbage\", \"evidence_url\": \"https://www.linkedin.com/in/ada\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/ada",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": 14,
+     "company": "Babbage"
+    },
+    {
+     "natural_event_id": "nm:grace hopper|navy:navy->nasa",
+     "signal_type": "job_change",
+     "title": "Job change: Grace Hopper — Navy → NASA",
+     "description": "{\"lead_id\": null, \"person_name\": \"Grace Hopper\", \"old_company\": \"Navy\", \"new_company\": \"NASA\", \"evidence_url\": \"https://www.linkedin.com/in/grace\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/grace",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "NASA"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "lead:14": {
+      "last_known_company": "Babbage",
+      "last_checked_at": 1788000000.0
+     },
+     "nm:grace hopper|navy": {
+      "last_known_company": "NASA",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  },
+  {
+   "name": "pinned_handle_identity_gate",
+   "contacts": [
+    {
+     "name": "Ada Lovelace",
+     "linkedin_url": "https://linkedin.com/in/ada",
+     "key": "li:ada"
+    }
+   ],
+   "cursor": {
+    "job_change_contacts": {
+     "li:ada": {
+      "last_known_company": "Engines",
+      "last_checked_at": 1.0
+     }
+    }
+   },
+   "scripts": {
+    "Ada Lovelace": [
+     {
+      "href": "https://www.linkedin.com/in/not-ada?trk=1",
+      "title": "Ada Lovelace - CEO - Imposter | LinkedIn",
+      "body": ""
+     },
+     {
+      "href": "https://www.linkedin.com/in/ada?trk=1",
+      "title": "A. Lovelace - CEO - Real Co | LinkedIn",
+      "body": ""
+     }
+    ]
+   },
+   "backfill": false,
+   "config": {},
+   "now": 1788000000.0,
+   "queries": [
+    "\"Ada Lovelace\" ada site:linkedin.com/in"
+   ],
+   "events": [
+    {
+     "natural_event_id": "li:ada:engines->real",
+     "signal_type": "job_change",
+     "title": "Job change: Ada Lovelace — Engines → Real Co",
+     "description": "{\"lead_id\": null, \"person_name\": \"Ada Lovelace\", \"old_company\": \"Engines\", \"new_company\": \"Real Co\", \"evidence_url\": \"https://www.linkedin.com/in/ada\"}",
+     "source": "ddg_linkedin",
+     "source_url": "https://www.linkedin.com/in/ada",
+     "weight": 9,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": "Real Co"
+    }
+   ],
+   "patch": {
+    "job_change_contacts": {
+     "li:ada": {
+      "last_known_company": "Real Co",
+      "last_checked_at": 1788000000.0
+     }
+    }
+   }
+  }
+ ],
+ "materialize_contacts": [
+  {
+   "name": "lead_rows_resolved",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 14
+     },
+     {
+      "lead_id": 17
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": 14,
+     "name": "Sam Lee",
+     "company": "Hot Pursuit Labs",
+     "linkedin_url": "https://linkedin.com/in/sam-lee",
+     "key": "lead:14"
+    },
+    {
+     "lead_id": 17,
+     "name": "",
+     "company": "No Person",
+     "linkedin_url": "https://linkedin.com/in/handle-only",
+     "key": "lead:17"
+    }
+   ]
+  },
+  {
+   "name": "entry_overrides_lead_row",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 14,
+      "name": "Override",
+      "company": "OverCo",
+      "linkedin_url": "https://linkedin.com/in/over"
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": 14,
+     "name": "Override",
+     "company": "OverCo",
+     "linkedin_url": "https://linkedin.com/in/over",
+     "key": "lead:14"
+    }
+   ]
+  },
+  {
+   "name": "lead_without_person_or_handle_skipped",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 15
+     }
+    ]
+   },
+   "contacts": []
+  },
+  {
+   "name": "foreign_workspace_lead_skipped",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 16
+     }
+    ]
+   },
+   "contacts": []
+  },
+  {
+   "name": "unknown_lead_skipped",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 999
+     }
+    ]
+   },
+   "contacts": []
+  },
+  {
+   "name": "lead_id_string_coerced",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": "14"
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": 14,
+     "name": "Sam Lee",
+     "company": "Hot Pursuit Labs",
+     "linkedin_url": "https://linkedin.com/in/sam-lee",
+     "key": "lead:14"
+    }
+   ]
+  },
+  {
+   "name": "explicit_entries_pass_through",
+   "config": {
+    "contacts": [
+     {
+      "name": " Ada ",
+      "company": " Eng ",
+      "linkedin_url": " https://linkedin.com/in/ada "
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": null,
+     "name": "Ada",
+     "company": "Eng",
+     "linkedin_url": "https://linkedin.com/in/ada",
+     "key": "li:ada"
+    }
+   ]
+  },
+  {
+   "name": "explicit_entry_without_name_or_handle_skipped",
+   "config": {
+    "contacts": [
+     {
+      "company": "Only"
+     }
+    ]
+   },
+   "contacts": []
+  },
+  {
+   "name": "explicit_entry_handle_only_kept",
+   "config": {
+    "contacts": [
+     {
+      "linkedin_url": "https://linkedin.com/in/ada"
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": null,
+     "name": "",
+     "company": "",
+     "linkedin_url": "https://linkedin.com/in/ada",
+     "key": "li:ada"
+    }
+   ]
+  },
+  {
+   "name": "non_dict_entries_skipped",
+   "config": {
+    "contacts": [
+     "x",
+     5,
+     null,
+     {
+      "name": "Ok"
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": null,
+     "name": "Ok",
+     "company": "",
+     "linkedin_url": "",
+     "key": "nm:ok|"
+    }
+   ]
+  },
+  {
+   "name": "no_contacts_key",
+   "config": {},
+   "contacts": []
+  },
+  {
+   "name": "none_config",
+   "config": null,
+   "contacts": []
+  },
+  {
+   "name": "lead_id_zero_is_explicit_entry",
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 0,
+      "name": "Zed"
+     }
+    ]
+   },
+   "contacts": [
+    {
+     "lead_id": null,
+     "name": "Zed",
+     "company": "",
+     "linkedin_url": "",
+     "key": "nm:zed|"
+    }
+   ]
+  }
+ ],
+ "resolve_lead_id": {
+  "leads": [
+   {
+    "id": 1,
+    "workspace_id": "ws-1",
+    "company": "Acme Corp"
+   },
+   {
+    "id": 2,
+    "workspace_id": "ws-1",
+    "company": "Acme Corporation"
+   },
+   {
+    "id": 3,
+    "workspace_id": "ws-1",
+    "company": "Acme Industries Ltd"
+   },
+   {
+    "id": 4,
+    "workspace_id": "ws-1",
+    "company": "Zenith Robotics Pvt Ltd"
+   },
+   {
+    "id": 5,
+    "workspace_id": "ws-1",
+    "company": "Zenith Robotics"
+   },
+   {
+    "id": 6,
+    "workspace_id": "ws-1",
+    "company": "Quantum Foods"
+   },
+   {
+    "id": 7,
+    "workspace_id": "ws-1",
+    "company": "Quantum Foods Europe"
+   },
+   {
+    "id": 8,
+    "workspace_id": "ws-1",
+    "company": "Éco Solutions"
+   },
+   {
+    "id": 9,
+    "workspace_id": "ws-1",
+    "company": ""
+   },
+   {
+    "id": 10,
+    "workspace_id": "ws-2",
+    "company": "Foreign Only Co"
+   },
+   {
+    "id": 11,
+    "workspace_id": "ws-1",
+    "company": "Hot Pursuit Labs"
+   },
+   {
+    "id": 12,
+    "workspace_id": "ws-1",
+    "company": "Hot Pursuit Labs Inc"
+   },
+   {
+    "id": 13,
+    "workspace_id": "ws-1",
+    "company": "Initech"
+   }
+  ],
+  "cases": [
+   {
+    "name": "pinned_lead_wins",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "lead_id": 99,
+    "result": [
+     99,
+     null
+    ]
+   },
+   {
+    "name": "exact_normalised_match_lowest_id",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "lead_id": null,
+    "result": [
+     1,
+     null
+    ]
+   },
+   {
+    "name": "exact_match_suffix_insensitive",
+    "kind": "company",
+    "target": "acme corporation",
+    "lead_id": null,
+    "result": [
+     1,
+     null
+    ]
+   },
+   {
+    "name": "exact_two_candidates_lowest",
+    "kind": "company",
+    "target": "Zenith Robotics",
+    "lead_id": null,
+    "result": [
+     5,
+     null
+    ]
+   },
+   {
+    "name": "fuzzy_single",
+    "kind": "funding",
+    "target": "Initech Holdings Worldwide",
+    "lead_id": null,
+    "result": [
+     13,
+     null
+    ]
+   },
+   {
+    "name": "fuzzy_multiple_ambiguous",
+    "kind": "funding",
+    "target": "Quantum",
+    "lead_id": null,
+    "result": [
+     null,
+     "ambiguous_lead"
+    ]
+   },
+   {
+    "name": "fuzzy_containing_target",
+    "kind": "funding",
+    "target": "Hot Pursuit",
+    "lead_id": null,
+    "result": [
+     null,
+     "ambiguous_lead"
+    ]
+   },
+   {
+    "name": "no_match",
+    "kind": "funding",
+    "target": "Nothing Like It",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "blank_target",
+    "kind": "funding",
+    "target": "   ",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "only_suffix_target_normalises_empty",
+    "kind": "funding",
+    "target": "Inc",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "foreign_workspace_not_matched",
+    "kind": "funding",
+    "target": "Foreign Only Co",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "sec_cik_target_matches_nothing",
+    "kind": "funding",
+    "target": "sec_cik:1234",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "url_target_normalised",
+    "kind": "feed",
+    "target": "https://www.acme.example/",
+    "lead_id": null,
+    "result": [
+     null,
+     "ambiguous_lead"
+    ]
+   },
+   {
+    "name": "job_change_never_resolves",
+    "kind": "job_change",
+    "target": "Acme Corp",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "account_group_never_resolves",
+    "kind": "account_group",
+    "target": "Acme Corp",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "unicode_exact",
+    "kind": "company",
+    "target": "Éco Solutions",
+    "lead_id": null,
+    "result": [
+     8,
+     null
+    ]
+   },
+   {
+    "name": "lead_with_blank_company_ignored",
+    "kind": "funding",
+    "target": "",
+    "lead_id": null,
+    "result": [
+     null,
+     null
+    ]
+   },
+   {
+    "name": "pinned_wins_for_job_change",
+    "kind": "job_change",
+    "target": "x",
+    "lead_id": 5,
+    "result": [
+     5,
+     null
+    ]
+   }
+  ]
+ },
+ "vectors": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "  ",
+   "out": ""
+  },
+  {
+   "in": "Acme Inc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme, Inc.",
+   "out": "acme"
+  },
+  {
+   "in": "ACME INCORPORATED",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corp",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corporation",
+   "out": "acme"
+  },
+  {
+   "in": "Acme LLC",
+   "out": "acme"
+  },
+  {
+   "in": "Acme L.L.C",
+   "out": "acme l l c"
+  },
+  {
+   "in": "Acme LLP",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Limited",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pvt Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Private Limited",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pte Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pty Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme GmbH",
+   "out": "acme"
+  },
+  {
+   "in": "Acme AG",
+   "out": "acme"
+  },
+  {
+   "in": "Acme S.A.",
+   "out": "acme s a"
+  },
+  {
+   "in": "Acme SARL",
+   "out": "acme"
+  },
+  {
+   "in": "Acme BV",
+   "out": "acme"
+  },
+  {
+   "in": "Acme NV",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Oy",
+   "out": "acme"
+  },
+  {
+   "in": "Acme AB",
+   "out": "acme"
+  },
+  {
+   "in": "Acme KK",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Holdings",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Group",
+   "out": "acme"
+  },
+  {
+   "in": "The Acme Company",
+   "out": "acme"
+  },
+  {
+   "in": "Acme & Sons",
+   "out": "acme sons"
+  },
+  {
+   "in": "Acme-Co",
+   "out": "acme"
+  },
+  {
+   "in": "Cointreau",
+   "out": "cointreau"
+  },
+  {
+   "in": "Incognito",
+   "out": "incognito"
+  },
+  {
+   "in": "Ltdco",
+   "out": "ltdco"
+  },
+  {
+   "in": "Google LLC",
+   "out": "google"
+  },
+  {
+   "in": "Alphabet Inc.",
+   "out": "alphabet"
+  },
+  {
+   "in": "Microsoft Corporation",
+   "out": "microsoft"
+  },
+  {
+   "in": "Éco Solutions Pvt Ltd",
+   "out": "solutions"
+  },
+  {
+   "in": "東京テック株式会社",
+   "out": ""
+  },
+  {
+   "in": "A.B.C. Co.",
+   "out": "a b c"
+  },
+  {
+   "in": "   spaced   out   Inc  ",
+   "out": "spaced out"
+  },
+  {
+   "in": "Acme (UK) Ltd",
+   "out": "acme uk"
+  },
+  {
+   "in": "Acme Technologies, Inc",
+   "out": "acme technologies"
+  },
+  {
+   "in": "Acme plc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme SA",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Co",
+   "out": "acme"
+  },
+  {
+   "in": "the group",
+   "out": ""
+  },
+  {
+   "in": "Inc",
+   "out": ""
+  },
+  {
+   "in": "123 Corp",
+   "out": "123"
+  }
+ ]
+}

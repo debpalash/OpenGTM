@@ -1,0 +1,72 @@
+{
+  "platform": "meta_ads",
+  "operation": "add",
+  "scenario": "api_version_override",
+  "config": {
+    "custom_audience_id": "6001234567890",
+    "consent_attested": true,
+    "consent_source": "web form v3",
+    "api_version": "v24.0"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "Ada@Example.com",
+      "phone": "+1 (512) 555-0014"
+    },
+    {
+      "email": " bob@example.com "
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v24.0/6001234567890/users",
+        "headers": {
+          "content-type": "application/x-www-form-urlencoded"
+        },
+        "form": {
+          "access_token": "{{secret:META_ACCESS_TOKEN}}",
+          "payload": {
+            "schema": [
+              "EMAIL",
+              "PHONE"
+            ],
+            "data": [
+              [
+                "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72",
+                "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+              ],
+              [
+                "5ff860bf1190596c7188ab851db691f0f3169c453936e9e1eba2f9a47f7a0018",
+                ""
+              ]
+            ]
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "session_id": 1
+        }
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "result": {
+    "success": true,
+    "summary": "added 2 hashed users",
+    "error": null,
+    "external_id": "1"
+  }
+}

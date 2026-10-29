@@ -1,0 +1,1353 @@
+{
+ "clock": "2026-10-26T12:34:56.789012+00:00",
+ "schedule_next": [
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": null,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 0,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": -5,
+   "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+   "minutes_ahead": 15.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T12:49:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T12:49:56.789012+00:00",
+     "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 1,
+   "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+   "minutes_ahead": 15.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T12:49:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T12:49:56.789012+00:00",
+     "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 14,
+   "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+   "minutes_ahead": 15.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T12:49:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T12:49:56.789012+00:00",
+     "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 15,
+   "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+   "minutes_ahead": 15.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T12:49:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T12:49:56.789012+00:00",
+     "next_run_at": "2026-10-26T12:49:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 16,
+   "next_run_at": "2026-10-26T12:50:56.789012+00:00",
+   "minutes_ahead": 16.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T12:50:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T12:50:56.789012+00:00",
+     "next_run_at": "2026-10-26T12:50:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 60,
+   "next_run_at": "2026-10-26T13:34:56.789012+00:00",
+   "minutes_ahead": 60.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-26T13:34:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-26T13:34:56.789012+00:00",
+     "next_run_at": "2026-10-26T13:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 1440,
+   "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+   "minutes_ahead": 1440.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-10-27T12:34:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-10-27T12:34:56.789012+00:00",
+     "next_run_at": "2026-10-27T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 10079,
+   "next_run_at": "2026-11-02T12:33:56.789012+00:00",
+   "minutes_ahead": 10079.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-11-02T12:33:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-11-02T12:33:56.789012+00:00",
+     "next_run_at": "2026-11-02T12:33:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 10080,
+   "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+   "minutes_ahead": 10080.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-11-02T12:34:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-11-02T12:34:56.789012+00:00",
+     "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 10081,
+   "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+   "minutes_ahead": 10080.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-11-02T12:34:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-11-02T12:34:56.789012+00:00",
+     "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 100000,
+   "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+   "minutes_ahead": 10080.0,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": true,
+    "next_run_at": "2026-11-02T12:34:56.789012+00:00"
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": [
+    {
+     "job_type": "research_playbook_schedule",
+     "payload": {
+      "workspace_id": "ws-x",
+      "playbook_id": "pb-1"
+     },
+     "fire_key": "playbook_schedule:pb-1:2026-11-02T12:34:56.789012+00:00",
+     "next_run_at": "2026-11-02T12:34:56.789012+00:00",
+     "executor": "python"
+    }
+   ]
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": null,
+   "schedule_interval_minutes": null,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": true,
+   "schedule_audience_id": null,
+   "schedule_interval_minutes": 60,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": false,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": null,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": false,
+   "schedule_audience_id": "aud-1",
+   "schedule_interval_minutes": 60,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": false,
+   "schedule_audience_id": null,
+   "schedule_interval_minutes": null,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  },
+  {
+   "enabled": false,
+   "schedule_audience_id": null,
+   "schedule_interval_minutes": 60,
+   "next_run_at": null,
+   "minutes_ahead": null,
+   "mirror": {
+    "playbook_id": "pb-1",
+    "workspace_id": "ws-x",
+    "enabled": false,
+    "next_run_at": null
+   },
+   "pending_jobs_cancelled": true,
+   "enqueued": []
+  }
+ ],
+ "create_steps": [
+  {
+   "name": "minimal",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "steps_eight",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "k0",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k3",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k4",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k5",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k6",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k7",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_nine",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "too_long",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "List should have at most 8 items after validation, not 9",
+      "input": [
+       {
+        "key": "k0",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k1",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k2",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k3",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k4",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k5",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k6",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k7",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k8",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       }
+      ],
+      "ctx": {
+       "field_type": "List",
+       "max_length": 8,
+       "actual_length": 9
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "duplicate_keys",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "duplicate_keys_nonadjacent",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k2",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_format_xml",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, step output_format must be text or json",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_format_json",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "json"
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_format_upper",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, step output_format must be text or json",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "JSON"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "dup_and_format",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_9",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": 9,
+      "ctx": {
+       "le": 8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_8",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 8,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_0",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": 0,
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "top_level_format_xml_passes_model",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "xml",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "key_a",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "a",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_a1",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "a1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_a_",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "a_",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_len40",
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_len41",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_upper",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "A",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_digit_first",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "1a",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_underscore_first",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "_a",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_hyphen",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "a-b",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_space",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "a b",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_empty",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_trailing_newline",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "ab\n",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_unicode_first",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "éa",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "key_unicode_later",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "aé",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "patch_steps": [
+  {
+   "name": "steps_dup",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_nine",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "too_long",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "List should have at most 8 items after validation, not 9",
+      "input": [
+       {
+        "key": "k0",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k1",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k2",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k3",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k4",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k5",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k6",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k7",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k8",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       }
+      ],
+      "ctx": {
+       "field_type": "List",
+       "max_length": 8,
+       "actual_length": 9
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_format_xml",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, step output_format must be text or json",
+      "input": {
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_empty",
+   "status": 200,
+   "response": {
+    "steps": []
+   }
+  },
+  {
+   "name": "steps_null",
+   "status": 200,
+   "response": {
+    "steps": null
+   }
+  },
+  {
+   "name": "interval_14",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be greater than or equal to 15",
+      "input": 14,
+      "ctx": {
+       "ge": 15
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "interval_15",
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": 15
+   }
+  },
+  {
+   "name": "interval_10080",
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": 10080
+   }
+  },
+  {
+   "name": "interval_10081",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be less than or equal to 10080",
+      "input": 10081,
+      "ctx": {
+       "le": 10080
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "interval_null",
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": null
+   }
+  },
+  {
+   "name": "all_unset",
+   "status": 200,
+   "response": {}
+  }
+ ],
+ "version_bump_keys": [
+  "prompt_template",
+  "steps",
+  "output_format",
+  "max_steps",
+  "cell_budget_usd"
+ ]
+}

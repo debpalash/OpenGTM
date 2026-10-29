@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "username": "nobody"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/members"
+  },
+  "response": {
+    "body": {
+      "detail": "User account not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

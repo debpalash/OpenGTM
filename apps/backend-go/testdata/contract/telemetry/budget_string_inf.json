@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "max_usd": "inf"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-alpha-1/budget"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "inf",
+          "loc": [
+            "body",
+            "max_usd"
+          ],
+          "msg": "Input should be a finite number",
+          "type": "finite_number"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:tool_unknown] do something odd",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"0000040b-000\"}\n\ndata: {\"confirmation_required\": {\"confirmation_id\": \"0000040d000040008000000000000000\", \"tool_call\": {\"id\": \"0000040d000040008000000000000000\", \"type\": \"function\", \"function\": {\"name\": \"drop_all_tables\", \"arguments\": \"{\\\"confirm\\\": true}\"}}, \"name\": \"drop_all_tables\", \"args\": {\"confirm\": true}, \"description\": \"drop_all_tables\\nThis action modifies data.\\n\", \"level\": \"high\", \"label\": \"Unrecognized write tool\"}}\n\ndata: {\"awaiting_confirmation\": true}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

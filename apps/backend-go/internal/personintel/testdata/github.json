@@ -1,0 +1,682 @@
+{
+ "note": "_enrich_from_github_api: GET /users/<name> then /users/<name>/repos?sort=updated&per_page=10 with the headers shown in calls; skills come from a set (order unspecified): compared as sorted lists; a transport error aborts the rest silently",
+ "cases": [
+  {
+   "name": "full",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {},
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "Berlin",
+    "summary": "Builds things",
+    "emails": [
+     "jane@acme.io"
+    ],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme-inc"
+    ],
+    "education": [],
+    "skills": [
+     "Go",
+     "Python",
+     "TypeScript"
+    ],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "preset_summary_location_kept",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {
+    "start": {
+     "summary": "S",
+     "location": "L",
+     "emails": [
+      "jane@acme.io"
+     ],
+     "companies": [
+      "acme-inc"
+     ],
+     "skills": [
+      "Go"
+     ]
+    }
+   },
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "L",
+    "summary": "S",
+    "emails": [
+     "jane@acme.io"
+    ],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme-inc"
+    ],
+    "education": [],
+    "skills": [
+     "Go",
+     "Python",
+     "TypeScript"
+    ],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "no_github_link",
+   "social_links": {},
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {},
+   "calls": [],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {},
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "link_not_matching",
+   "social_links": {
+    "github": "https://example.org/x"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {},
+   "calls": [],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {
+     "github": "https://example.org/x"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "user_404",
+   "social_links": {
+    "github": "https://github.com/ghost"
+   },
+   "user_payload": {
+    "message": "Not Found"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {
+    "user_status": 404
+   },
+   "calls": [
+    {
+     "url": "https://api.github.com/users/ghost",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/ghost/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {
+     "github": "https://github.com/ghost"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [
+     "Go",
+     "Python",
+     "TypeScript"
+    ],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "repos_403",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": {
+    "message": "rate limit"
+   },
+   "options": {
+    "repos_status": 403
+   },
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "Berlin",
+    "summary": "Builds things",
+    "emails": [
+     "jane@acme.io"
+    ],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme-inc"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "null_fields",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": null,
+    "bio": null,
+    "location": null,
+    "company": null
+   },
+   "repos_payload": [],
+   "options": {},
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "company_with_multiple_at",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "company": "@@acme"
+   },
+   "repos_payload": [],
+   "options": {},
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "username_with_dash_and_path",
+   "social_links": {
+    "github": "https://github.com/jane-doe/repo?tab=x"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [],
+   "options": {},
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "Berlin",
+    "summary": "Builds things",
+    "emails": [
+     "jane@acme.io"
+    ],
+    "social_links": {
+     "github": "https://github.com/jane-doe/repo?tab=x"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme-inc"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "transport_error_on_user",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {
+    "raise_on": "/users/jane-doe"
+   },
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "",
+    "summary": "",
+    "emails": [],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  },
+  {
+   "name": "transport_error_on_repos",
+   "social_links": {
+    "github": "https://github.com/jane-doe"
+   },
+   "user_payload": {
+    "email": "jane@acme.io",
+    "bio": "Builds things",
+    "location": "Berlin",
+    "company": "@acme-inc",
+    "name": "ignored"
+   },
+   "repos_payload": [
+    {
+     "language": "Go"
+    },
+    {
+     "language": "Python"
+    },
+    {
+     "language": null
+    },
+    {
+     "language": "Go"
+    },
+    {},
+    {
+     "language": "TypeScript"
+    }
+   ],
+   "options": {
+    "raise_on": "/repos"
+   },
+   "calls": [
+    {
+     "url": "https://api.github.com/users/jane-doe",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    },
+    {
+     "url": "https://api.github.com/users/jane-doe/repos?sort=updated&per_page=10",
+     "headers": {
+      "Accept": "application/vnd.github.v3+json",
+      "User-Agent": "OpenGTM"
+     }
+    }
+   ],
+   "profile": {
+    "linkedin_url": "",
+    "username": "",
+    "name": "",
+    "headline": "",
+    "location": "Berlin",
+    "summary": "Builds things",
+    "emails": [
+     "jane@acme.io"
+    ],
+    "social_links": {
+     "github": "https://github.com/jane-doe"
+    },
+    "articles": [],
+    "mentions": [],
+    "companies": [
+     "acme-inc"
+    ],
+    "education": [],
+    "skills": [],
+    "raw_sources": [],
+    "status": "pending"
+   }
+  }
+ ]
+}

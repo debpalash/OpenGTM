@@ -1,0 +1,85 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?limit=3&cursor=WzE3ODgwMDAwMDAuMCwic2lnLWEtMDUiXQ"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": true,
+      "limit": 3,
+      "next_cursor": "WzE3ODgwMDAwMDAuMCwic2lnLWEtMDEiXQ",
+      "offset": null,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded news event #3 for contract fixtures",
+          "id": "sig-a-03",
+          "lead_id": 14,
+          "read": 1,
+          "signal_type": "news",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/3",
+          "title": "news signal 3",
+          "weight": 5,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded tech_change event #2 for contract fixtures",
+          "id": "sig-a-02",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "tech_change",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/2",
+          "title": "tech_change signal 2",
+          "weight": 8,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded funding event #1 for contract fixtures",
+          "id": "sig-a-01",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "newsapi",
+          "source_url": "https://signals.example.com/a/1",
+          "title": "funding signal 1",
+          "weight": 11,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

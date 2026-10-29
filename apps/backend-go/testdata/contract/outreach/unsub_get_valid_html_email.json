@@ -1,0 +1,15 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImE8Yj4mXCJ4XCJAZXhhbXBsZS5jb20iLCJleHAiOjQ5NDE2MDAwMDAsInNlcSI6IiIsIndzIjoid3MtYWxwaGEifQ.a4vfQ-aOGfxfCfLRhjxZkb4MeoJM1mMlbgKqdfU448g"
+  },
+  "response": {
+    "body": "<h2>Unsubscribe</h2><p>Click below to stop receiving emails at a<b>&\"x\"@example.com.</p><form method=\"post\" action=\"/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImE8Yj4mXCJ4XCJAZXhhbXBsZS5jb20iLCJleHAiOjQ5NDE2MDAwMDAsInNlcSI6IiIsIndzIjoid3MtYWxwaGEifQ.a4vfQ-aOGfxfCfLRhjxZkb4MeoJM1mMlbgKqdfU448g\"><button type=\"submit\">Unsubscribe</button></form>",
+    "headers": {
+      "content-type": "text/html; charset=utf-8"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "userName": "DAVE.example"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Users"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM userName already exists"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

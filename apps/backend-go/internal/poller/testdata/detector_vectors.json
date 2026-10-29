@@ -1,0 +1,7380 @@
+{
+ "vectors": [
+  {
+   "detector": "funding_exec",
+   "name": "bootstrap_suppresses_events_but_records_state",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    },
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000005",
+     "form": "D",
+     "filing_date": "2024-03-20",
+     "fields": {
+      "funding_amount": 1250000.5
+     },
+     "related_persons": [
+      {
+       "name": "Grace  Hopper",
+       "title": "Director"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "bootstrap_no_cursor_key_suppresses",
+   "watch": {
+    "cursor": null
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "bootstrap_with_backfill_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": true,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    },
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000005",
+     "form": "D",
+     "filing_date": "2024-03-20",
+     "fields": {
+      "funding_amount": 1250000.5
+     },
+     "related_persons": [
+      {
+       "name": "Grace  Hopper",
+       "title": "Director"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:0002000934-24-000005",
+     "signal_type": "company_funded",
+     "title": "Raised $1,250,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "steady_state_emits_new_filing",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "sec_last_accession": "0002000934-24-000005",
+     "sec_known_execs": []
+    },
+    "resolved_cik": "0002000934"
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": "0002000934-24-000005",
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "since_cursor_passed_to_provider",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "sec_last_accession": "ACC-1"
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [],
+   "provider_raises": null,
+   "since_passed": "ACC-1",
+   "events": [],
+   "patch": {
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "known_execs_not_reemitted",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "sec_known_execs": [
+      "0002000934:grace hopper:director",
+      "0002000934:alan turing:c_level"
+     ]
+    },
+    "resolved_cik": "0002000934"
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "exec_name_normalisation_dedupes_whitespace",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "sec_known_execs": []
+    },
+    "resolved_cik": "0002000934"
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000005",
+     "form": "D",
+     "filing_date": "2024-03-20",
+     "fields": {
+      "funding_amount": 1250000.5
+     },
+     "related_persons": [
+      {
+       "name": "Grace  Hopper",
+       "title": "Director"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000005",
+     "signal_type": "company_funded",
+     "title": "Raised $1,250,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace  Hopper",
+     "description": "Grace  Hopper — Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "0002000934-24-000005",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "two_filings_newest_first_cursor_is_newest",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    },
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000005",
+     "form": "D",
+     "filing_date": "2024-03-20",
+     "fields": {
+      "funding_amount": 1250000.5
+     },
+     "related_persons": [
+      {
+       "name": "Grace  Hopper",
+       "title": "Director"
+      }
+     ]
+    },
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-23-000001",
+     "form": "D",
+     "filing_date": "not-a-date",
+     "fields": {},
+     "related_persons": []
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:0002000934-24-000005",
+     "signal_type": "company_funded",
+     "title": "Raised $1,250,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:0002000934-23-000001",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "want_funding_only",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": false,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "want_exec_only",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": false,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "want_neither",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": false,
+   "want_exec": false,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "exec_only_bootstrap_records_known_execs",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "want_funding": false,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "no_filings_empty_patch_keeps_known_execs",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "sec_known_execs": [
+      "x"
+     ]
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "sec_known_execs": [
+     "x"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "no_filings_no_resolved_cik",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [],
+   "patch": {
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "resolved_cik_from_first_filing_in_patch",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "resolved_cik_already_known_not_in_patch",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "resolved_cik": "0002000934"
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "filing_cik_differs_from_resolved_uses_filing_cik",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "resolved_cik": "0002000934"
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0000000042",
+     "accession": "0000000042-24-000001",
+     "form": "D",
+     "filing_date": "2024-06-01",
+     "fields": {
+      "funding_amount": 0
+     },
+     "related_persons": []
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0000000042:0000000042-24-000001",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000000042&type=D",
+     "weight": 10,
+     "occurred_at": 1717200000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "0000000042-24-000001",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "amount_zero_uses_generic_title",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0000000042",
+     "accession": "0000000042-24-000001",
+     "form": "D",
+     "filing_date": "2024-06-01",
+     "fields": {
+      "funding_amount": 0
+     },
+     "related_persons": []
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0000000042:0000000042-24-000001",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000000042&type=D",
+     "weight": 10,
+     "occurred_at": 1717200000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0000000042",
+    "sec_last_accession": "0000000042-24-000001",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "amount_float_truncated_in_title",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000005",
+     "form": "D",
+     "filing_date": "2024-03-20",
+     "fields": {
+      "funding_amount": 1250000.5
+     },
+     "related_persons": [
+      {
+       "name": "Grace  Hopper",
+       "title": "Director"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000005",
+     "signal_type": "company_funded",
+     "title": "Raised $1,250,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace  Hopper",
+     "description": "Grace  Hopper — Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1710892800.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000005",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "amount_numeric_string_formats_int",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-23-000002",
+     "form": "D",
+     "filing_date": "",
+     "fields": {
+      "funding_amount": "3000000"
+     },
+     "related_persons": [
+      {
+       "name": "Bob",
+       "title": "Board member"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-23-000002",
+     "signal_type": "company_funded",
+     "title": "Raised $3,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:bob:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Bob",
+     "description": "Bob — Board member (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-23-000002",
+    "sec_known_execs": [
+     "0002000934:bob:director"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "filing_date_invalid_or_empty_uses_now",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-23-000001",
+     "form": "D",
+     "filing_date": "not-a-date",
+     "fields": {},
+     "related_persons": []
+    },
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-23-000002",
+     "form": "D",
+     "filing_date": "",
+     "fields": {
+      "funding_amount": "3000000"
+     },
+     "related_persons": [
+      {
+       "name": "Bob",
+       "title": "Board member"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-23-000001",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:0002000934-23-000002",
+     "signal_type": "company_funded",
+     "title": "Raised $3,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:bob:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Bob",
+     "description": "Bob — Board member (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-23-000001",
+    "sec_known_execs": [
+     "0002000934:bob:director"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "provider_exception_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": "EDGAR down",
+   "since_passed": null,
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "funding_exec",
+   "name": "non_exec_titles_ignored",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "A1",
+     "form": "D",
+     "filing_date": "2024-01-01",
+     "fields": {},
+     "related_persons": [
+      {
+       "name": "Z",
+       "title": "Secretary"
+      },
+      {
+       "name": "Y",
+       "title": "Promoter"
+      },
+      {
+       "name": "X",
+       "title": ""
+      },
+      {
+       "name": "W"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:A1",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1704067200.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "A1",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "title_tiers_in_event_titles",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "A2",
+     "form": "D",
+     "filing_date": "2024-01-02",
+     "fields": {},
+     "related_persons": [
+      {
+       "name": "P1",
+       "title": "President"
+      },
+      {
+       "name": "P2",
+       "title": "Head of Growth"
+      },
+      {
+       "name": "P3",
+       "title": "Board of Directors"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:A2",
+     "signal_type": "company_funded",
+     "title": "New SEC Form D filing",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1704153600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:p1:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: P1",
+     "description": "P1 — President (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1704153600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:p2:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: P2",
+     "description": "P2 — Head of Growth (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1704153600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:p3:director",
+     "signal_type": "executive_hired",
+     "title": "New director: P3",
+     "description": "P3 — Board of Directors (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1704153600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "A2",
+    "sec_known_execs": [
+     "0002000934:p1:c_level",
+     "0002000934:p2:vp",
+     "0002000934:p3:director"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "sec_cik_target_without_resolved",
+   "watch": {
+    "target": "sec_cik:2000934",
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "0002000934",
+     "accession": "0002000934-24-000009",
+     "form": "D",
+     "filing_date": "2024-05-01",
+     "fields": {
+      "funding_amount": 5000000,
+      "funding_stage_signal": "private_placement_form_d"
+     },
+     "related_persons": [
+      {
+       "name": "Grace Hopper",
+       "title": "Executive Officer, Director"
+      },
+      {
+       "name": "Fund LP",
+       "title": "Promoter"
+      },
+      {
+       "name": "",
+       "title": "CEO"
+      },
+      {
+       "name": "Alan Turing",
+       "title": "Chief Technology Officer"
+      },
+      {
+       "name": "Ada L",
+       "title": "VP of Sales"
+      }
+     ]
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "0002000934:0002000934-24-000009",
+     "signal_type": "company_funded",
+     "title": "Raised $5,000,000 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 10,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:grace hopper:director",
+     "signal_type": "executive_hired",
+     "title": "New director: Grace Hopper",
+     "description": "Grace Hopper — Executive Officer, Director (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:alan turing:c_level",
+     "signal_type": "executive_hired",
+     "title": "New c level: Alan Turing",
+     "description": "Alan Turing — Chief Technology Officer (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0002000934:ada l:vp",
+     "signal_type": "executive_hired",
+     "title": "New vp: Ada L",
+     "description": "Ada L — VP of Sales (Form D related person)",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+     "weight": 8,
+     "occurred_at": 1714521600.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "_resolved_cik": "0002000934",
+    "sec_last_accession": "0002000934-24-000009",
+    "sec_known_execs": [
+     "0002000934:grace hopper:director",
+     "0002000934:alan turing:c_level",
+     "0002000934:ada l:vp"
+    ]
+   }
+  },
+  {
+   "detector": "funding_exec",
+   "name": "filings_without_cik_fallback_to_stable_company",
+   "watch": {
+    "target": "Acme Corp",
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "want_funding": true,
+   "want_exec": true,
+   "backfill": false,
+   "filings": [
+    {
+     "cik": "",
+     "accession": "A3",
+     "form": "D",
+     "filing_date": "2024-01-03",
+     "fields": {
+      "funding_amount": 10
+     },
+     "related_persons": []
+    }
+   ],
+   "provider_raises": null,
+   "since_passed": null,
+   "events": [
+    {
+     "natural_event_id": "acme:A3",
+     "signal_type": "company_funded",
+     "title": "Raised $10 (Form D)",
+     "description": "private_placement_form_d",
+     "source": "sec_edgar",
+     "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=acme&type=D",
+     "weight": 10,
+     "occurred_at": 1704240000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "sec_last_accession": "A3",
+    "sec_known_execs": []
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_cross_up_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "none"
+    }
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": []
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_cross_up_from_missing_key",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "hiring"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → hiring",
+     "description": "Growth-band crossed upward to hiring (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "hiring",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_same_no_emit",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "growing"
+    }
+   },
+   "signals": {
+    "growth_signal": "growing"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "growing",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_down_rearms_no_emit",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "hypergrowth",
+     "hiring_band_week": "2026-W34"
+    }
+   },
+   "signals": {
+    "growth_signal": "hiring"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "hiring",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_cross_up_same_week_suppressed",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "none",
+     "hiring_band_week": "2026-W35"
+    }
+   },
+   "signals": {
+    "growth_signal": "rapid_growth"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "rapid_growth",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_cross_up_new_week_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "none",
+     "hiring_band_week": "2026-W34"
+    }
+   },
+   "signals": {
+    "growth_signal": "rapid_growth"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → rapid_growth",
+     "description": "Growth-band crossed upward to rapid_growth (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "rapid_growth",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_unknown_value_ranks_zero",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "weird"
+    }
+   },
+   "signals": {
+    "growth_signal": "growing"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: weird → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_unknown_new_value_no_emit",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "none"
+    }
+   },
+   "signals": {
+    "growth_signal": "mystery"
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "mystery",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "band_missing_growth_signal_defaults_none",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "growing"
+    }
+   },
+   "signals": {},
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "bootstrap_suppresses_but_records_week",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": [
+     {
+      "tech": "Snowflake",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {
+     "snowflake": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "bootstrap_backfill_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": [
+     {
+      "tech": "Snowflake",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": true,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "acme:snowflake:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting Snowflake (uses)",
+     "description": ": Snowflake intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {
+     "snowflake": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_new_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "none",
+    "tech_adoption_signal": [
+     {
+      "tech": "Snowflake",
+      "intent": "uses",
+      "category": "data"
+     },
+     {
+      "tech": "dbt"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:snowflake:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting Snowflake (uses)",
+     "description": "data: Snowflake intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "acme:dbt:mentions",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting dbt (mentions)",
+     "description": ": dbt intent=mentions",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "snowflake": "uses",
+     "dbt": "mentions"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_same_intent_no_reemit",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "known_tech": {
+      "snowflake": "uses"
+     }
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "Snowflake",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "snowflake": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_intent_upgrade_reemits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "known_tech": {
+      "snowflake": "mentions"
+     }
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "Snowflake",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:snowflake:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting Snowflake (uses)",
+     "description": ": Snowflake intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "snowflake": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_intent_case_insensitive",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "AWS",
+      "intent": "USES"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:aws:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting AWS (uses)",
+     "description": ": AWS intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "aws": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_blank_name_skipped",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "  "
+     },
+     {
+      "intent": "uses"
+     },
+     {
+      "tech": "x"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:x:mentions",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting x (mentions)",
+     "description": ": x intent=mentions",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "x": "mentions"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_name_normalised_whitespace",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "  Google   Cloud ",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:google cloud:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting   Google   Cloud  (uses)",
+     "description": ":   Google   Cloud  intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "google cloud": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_default_intent_mentions",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "React"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:react:mentions",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting React (mentions)",
+     "description": ": React intent=mentions",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "react": "mentions"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_none_intent_defaults",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "React",
+      "intent": null
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:react:mentions",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting React (mentions)",
+     "description": ": React intent=mentions",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "react": "mentions"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_bootstrap_records_known",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "signals": {
+    "tech_adoption_signal": [
+     {
+      "tech": "React",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "hiring_band": "none",
+    "known_tech": {
+     "react": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "tech_only_does_not_touch_band",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "hypergrowth",
+    "tech_adoption_signal": []
+   },
+   "want_hiring": false,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "hiring_only_does_not_touch_tech",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": [
+     {
+      "tech": "x"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": false,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35"
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "neither_wanted_empty_patch",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "growing"
+   },
+   "want_hiring": false,
+   "want_tech": false,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "cik_in_event_key",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "hiring_band": "none"
+    },
+    "resolved_cik": "320193",
+    "target": "Apple"
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": [
+     {
+      "tech": "x",
+      "intent": "uses"
+     }
+    ]
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "0000320193:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "0000320193:x:uses",
+     "signal_type": "new_tech_adopted",
+     "title": "Adopting x (uses)",
+     "description": ": x intent=uses",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {
+     "x": "uses"
+    }
+   }
+  },
+  {
+   "detector": "hiring_tech",
+   "name": "signals_null_tech_list",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    }
+   },
+   "signals": {
+    "growth_signal": "growing",
+    "tech_adoption_signal": null
+   },
+   "want_hiring": true,
+   "want_tech": true,
+   "backfill": false,
+   "iso_week": "2026-W35",
+   "events": [
+    {
+     "natural_event_id": "acme:2026-W35",
+     "signal_type": "hiring_surge",
+     "title": "Hiring surge: none → growing",
+     "description": "Growth-band crossed upward to growing (ISO 2026-W35)",
+     "source": "jobspy",
+     "source_url": "",
+     "weight": 7,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "hiring_band": "growing",
+    "hiring_band_week": "2026-W35",
+    "known_tech": {}
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "flag_off_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": false,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "no_website_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": null,
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "empty_website_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "new_techs_emit",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\", \"category\": \"js\"}, {\"name\": \"Stripe\", \"category\": \"payments\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:react:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected React on website",
+     "description": "js: React (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "acme:stripe:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected Stripe on website",
+     "description": "payments: Stripe (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react",
+     "stripe"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "known_techs_not_reemitted",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "known_web_tech": [
+      "react"
+     ]
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}, {\"name\": \"Vue\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:vue:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected Vue on website",
+     "description": ": Vue (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react",
+     "vue"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "bootstrap_suppresses_records_known",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {
+    "known_web_tech": [
+     "react"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "bootstrap_backfill_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": true,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:react:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected React on website",
+     "description": ": React (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "blank_name_skipped",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"\"}, {\"category\": \"x\"}, {\"name\": \"  \"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {
+    "known_web_tech": []
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "name_normalised_case_and_space",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"  Google   Analytics \"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:google analytics:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected   Google   Analytics  on website",
+     "description": ":   Google   Analytics  (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "google analytics"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "duplicate_names_emit_once",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}, {\"name\": \"react\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:react:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected React on website",
+     "description": ": React (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "soft_error_disabled_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": "website_fetch_disabled"
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "soft_error_no_tech_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": "No technologies detected"
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "soft_error_robots_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": "robots_disallowed"
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "soft_error_blocked_url_prefix_noop",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": "blocked_url: private ip"
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "web_tech",
+   "name": "hard_error_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": "http_500"
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "web_tech",
+   "name": "provider_returns_none_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": null,
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "web_tech",
+   "name": "provider_exception_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": "boom",
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "web_tech",
+   "name": "technographics_not_json_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "not json"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "web_tech",
+   "name": "technographics_missing_key_is_empty",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {},
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {
+    "known_web_tech": []
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "technographics_empty_string_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": ""
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [],
+   "patch": {
+    "known_web_tech": []
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "sec_cik_target_gives_blank_company",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "sec_cik:123"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "0000000123:react:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected React on website",
+     "description": ": React (source: website)",
+     "source": "website",
+     "source_url": "https://acme.example.com",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react"
+    ]
+   }
+  },
+  {
+   "detector": "web_tech",
+   "name": "result_not_success_but_no_error_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://acme.example.com",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": false,
+    "fields": {
+     "technographics": "[]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://acme.example.com"
+    }
+   ],
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "web_tech",
+   "name": "event_source_url_is_website",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "Acme"
+   },
+   "website": "https://www.acme.example.com/",
+   "flag": true,
+   "backfill": false,
+   "provider_raises": null,
+   "provider_result": {
+    "success": true,
+    "fields": {
+     "technographics": "[{\"name\": \"React\"}]"
+    },
+    "error": null
+   },
+   "provider_calls": [
+    {
+     "company": "Acme",
+     "website": "https://www.acme.example.com/"
+    }
+   ],
+   "events": [
+    {
+     "natural_event_id": "acme:react:website",
+     "signal_type": "new_tech_adopted",
+     "title": "Detected React on website",
+     "description": ": React (source: website)",
+     "source": "website",
+     "source_url": "https://www.acme.example.com/",
+     "weight": 6,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "known_web_tech": [
+     "react"
+    ]
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "fetch_error_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 500,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": "http_500",
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "feed",
+   "name": "blocked_url_error_is_failure",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 0,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": "blocked_url: private",
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": null,
+   "patch": null
+  },
+  {
+   "detector": "feed",
+   "name": "not_modified_refreshes_validators_only",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_etag": "old"
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 304,
+    "not_modified": true,
+    "etag": "new",
+    "last_modified": "Sat, 29 Aug 2026 09:00:00 GMT",
+    "error": null,
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": "old",
+    "last_modified": null
+   },
+   "events": [],
+   "patch": {
+    "feed_etag": "new",
+    "feed_last_modified": "Sat, 29 Aug 2026 09:00:00 GMT"
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "not_modified_without_validators_empty_patch",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 304,
+    "not_modified": true,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [],
+   "patch": {}
+  },
+  {
+   "detector": "feed",
+   "name": "validators_passed_from_cursor",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_etag": "\"e1\"",
+     "feed_last_modified": "LM"
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": "\"e2\"",
+    "last_modified": null,
+    "error": null,
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": "\"e1\"",
+    "last_modified": "LM"
+   },
+   "events": [],
+   "patch": {
+    "feed_seen_guids": [],
+    "feed_max_published": 0.0,
+    "feed_etag": "\"e2\""
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "new_entries_emit_and_extend_seen",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_seen_guids": [
+      "g1"
+     ],
+     "feed_max_published": 5.0
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": "e",
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "g2",
+      "title": "T g2",
+      "link": "https://x.example.com/g2",
+      "summary": "S g2",
+      "published_epoch": 1788000001.0
+     },
+     {
+      "guid": "g3",
+      "title": "T g3",
+      "link": "https://x.example.com/g3",
+      "summary": "S g3",
+      "published_epoch": 1788000002.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g2",
+     "signal_type": "news",
+     "title": "T g2",
+     "description": "S g2",
+     "source": "rss",
+     "source_url": "https://x.example.com/g2",
+     "weight": 5,
+     "occurred_at": 1788000001.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "g3",
+     "signal_type": "news",
+     "title": "T g3",
+     "description": "S g3",
+     "source": "rss",
+     "source_url": "https://x.example.com/g3",
+     "weight": 5,
+     "occurred_at": 1788000002.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1",
+     "g2",
+     "g3"
+    ],
+    "feed_max_published": 1788000002.0,
+    "feed_etag": "e"
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "bootstrap_suppresses_but_records",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "g2",
+      "title": "T g2",
+      "link": "https://x.example.com/g2",
+      "summary": "S g2",
+      "published_epoch": 1788000001.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [],
+   "patch": {
+    "feed_seen_guids": [
+     "g1",
+     "g2"
+    ],
+    "feed_max_published": 1788000001.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "bootstrap_backfill_emits",
+   "watch": {
+    "cursor": {
+     "bootstrapped": false
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": true,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "g2",
+      "title": "T g2",
+      "link": "https://x.example.com/g2",
+      "summary": "S g2",
+      "published_epoch": 1788000001.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "T g1",
+     "description": "S g1",
+     "source": "rss",
+     "source_url": "https://x.example.com/g1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "g2",
+     "signal_type": "news",
+     "title": "T g2",
+     "description": "S g2",
+     "source": "rss",
+     "source_url": "https://x.example.com/g2",
+     "weight": 5,
+     "occurred_at": 1788000001.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1",
+     "g2"
+    ],
+    "feed_max_published": 1788000001.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "duplicate_guid_within_batch_once",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000001.0
+     },
+     {
+      "guid": "g2",
+      "title": "T g2",
+      "link": "https://x.example.com/g2",
+      "summary": "S g2",
+      "published_epoch": 1788000002.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "T g1",
+     "description": "S g1",
+     "source": "rss",
+     "source_url": "https://x.example.com/g1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "g2",
+     "signal_type": "news",
+     "title": "T g2",
+     "description": "S g2",
+     "source": "rss",
+     "source_url": "https://x.example.com/g2",
+     "weight": 5,
+     "occurred_at": 1788000002.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1",
+     "g2"
+    ],
+    "feed_max_published": 1788000002.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "max_published_only_grows",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_max_published": 9999999999.0
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "T g1",
+     "description": "S g1",
+     "source": "rss",
+     "source_url": "https://x.example.com/g1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 9999999999.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "entry_without_title_uses_default",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "",
+      "link": "",
+      "summary": "",
+      "published_epoch": 0.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "News mention",
+     "description": "",
+     "source": "rss",
+     "source_url": "https://feeds.example.com/news.xml",
+     "weight": 5,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 0.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "entry_without_link_uses_feed_url",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "t",
+      "link": "",
+      "summary": "s",
+      "published_epoch": 10.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "t",
+     "description": "s",
+     "source": "rss",
+     "source_url": "https://feeds.example.com/news.xml",
+     "weight": 5,
+     "occurred_at": 10.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 10.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "entry_published_zero_uses_now",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "t",
+      "link": "l",
+      "summary": "s",
+      "published_epoch": 0.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "t",
+     "description": "s",
+     "source": "rss",
+     "source_url": "l",
+     "weight": 5,
+     "occurred_at": "now",
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 0.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "seen_trimmed_to_bound_200",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_seen_guids": [
+      "old0",
+      "old1",
+      "old2",
+      "old3",
+      "old4",
+      "old5",
+      "old6",
+      "old7",
+      "old8",
+      "old9",
+      "old10",
+      "old11",
+      "old12",
+      "old13",
+      "old14",
+      "old15",
+      "old16",
+      "old17",
+      "old18",
+      "old19",
+      "old20",
+      "old21",
+      "old22",
+      "old23",
+      "old24",
+      "old25",
+      "old26",
+      "old27",
+      "old28",
+      "old29",
+      "old30",
+      "old31",
+      "old32",
+      "old33",
+      "old34",
+      "old35",
+      "old36",
+      "old37",
+      "old38",
+      "old39",
+      "old40",
+      "old41",
+      "old42",
+      "old43",
+      "old44",
+      "old45",
+      "old46",
+      "old47",
+      "old48",
+      "old49",
+      "old50",
+      "old51",
+      "old52",
+      "old53",
+      "old54",
+      "old55",
+      "old56",
+      "old57",
+      "old58",
+      "old59",
+      "old60",
+      "old61",
+      "old62",
+      "old63",
+      "old64",
+      "old65",
+      "old66",
+      "old67",
+      "old68",
+      "old69",
+      "old70",
+      "old71",
+      "old72",
+      "old73",
+      "old74",
+      "old75",
+      "old76",
+      "old77",
+      "old78",
+      "old79",
+      "old80",
+      "old81",
+      "old82",
+      "old83",
+      "old84",
+      "old85",
+      "old86",
+      "old87",
+      "old88",
+      "old89",
+      "old90",
+      "old91",
+      "old92",
+      "old93",
+      "old94",
+      "old95",
+      "old96",
+      "old97",
+      "old98",
+      "old99",
+      "old100",
+      "old101",
+      "old102",
+      "old103",
+      "old104",
+      "old105",
+      "old106",
+      "old107",
+      "old108",
+      "old109",
+      "old110",
+      "old111",
+      "old112",
+      "old113",
+      "old114",
+      "old115",
+      "old116",
+      "old117",
+      "old118",
+      "old119",
+      "old120",
+      "old121",
+      "old122",
+      "old123",
+      "old124",
+      "old125",
+      "old126",
+      "old127",
+      "old128",
+      "old129",
+      "old130",
+      "old131",
+      "old132",
+      "old133",
+      "old134",
+      "old135",
+      "old136",
+      "old137",
+      "old138",
+      "old139",
+      "old140",
+      "old141",
+      "old142",
+      "old143",
+      "old144",
+      "old145",
+      "old146",
+      "old147",
+      "old148",
+      "old149",
+      "old150",
+      "old151",
+      "old152",
+      "old153",
+      "old154",
+      "old155",
+      "old156",
+      "old157",
+      "old158",
+      "old159",
+      "old160",
+      "old161",
+      "old162",
+      "old163",
+      "old164",
+      "old165",
+      "old166",
+      "old167",
+      "old168",
+      "old169",
+      "old170",
+      "old171",
+      "old172",
+      "old173",
+      "old174",
+      "old175",
+      "old176",
+      "old177",
+      "old178",
+      "old179",
+      "old180",
+      "old181",
+      "old182",
+      "old183",
+      "old184",
+      "old185",
+      "old186",
+      "old187",
+      "old188",
+      "old189",
+      "old190",
+      "old191",
+      "old192",
+      "old193",
+      "old194",
+      "old195",
+      "old196",
+      "old197",
+      "old198"
+     ]
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "n1",
+      "title": "T n1",
+      "link": "https://x.example.com/n1",
+      "summary": "S n1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "n2",
+      "title": "T n2",
+      "link": "https://x.example.com/n2",
+      "summary": "S n2",
+      "published_epoch": 1788000001.0
+     },
+     {
+      "guid": "n3",
+      "title": "T n3",
+      "link": "https://x.example.com/n3",
+      "summary": "S n3",
+      "published_epoch": 1788000002.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "n1",
+     "signal_type": "news",
+     "title": "T n1",
+     "description": "S n1",
+     "source": "rss",
+     "source_url": "https://x.example.com/n1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "n2",
+     "signal_type": "news",
+     "title": "T n2",
+     "description": "S n2",
+     "source": "rss",
+     "source_url": "https://x.example.com/n2",
+     "weight": 5,
+     "occurred_at": 1788000001.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "n3",
+     "signal_type": "news",
+     "title": "T n3",
+     "description": "S n3",
+     "source": "rss",
+     "source_url": "https://x.example.com/n3",
+     "weight": 5,
+     "occurred_at": 1788000002.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "old0",
+     "old1",
+     "old2",
+     "old3",
+     "old4",
+     "old5",
+     "old6",
+     "old7",
+     "old8",
+     "old9",
+     "old10",
+     "old11",
+     "old12",
+     "old13",
+     "old14",
+     "old15",
+     "old16",
+     "old17",
+     "old18",
+     "old19",
+     "old20",
+     "old21",
+     "old22",
+     "old23",
+     "old24",
+     "old25",
+     "old26",
+     "old27",
+     "old28",
+     "old29",
+     "old30",
+     "old31",
+     "old32",
+     "old33",
+     "old34",
+     "old35",
+     "old36",
+     "old37",
+     "old38",
+     "old39",
+     "old40",
+     "old41",
+     "old42",
+     "old43",
+     "old44",
+     "old45",
+     "old46",
+     "old47",
+     "old48",
+     "old49",
+     "old50",
+     "old51",
+     "old52",
+     "old53",
+     "old54",
+     "old55",
+     "old56",
+     "old57",
+     "old58",
+     "old59",
+     "old60",
+     "old61",
+     "old62",
+     "old63",
+     "old64",
+     "old65",
+     "old66",
+     "old67",
+     "old68",
+     "old69",
+     "old70",
+     "old71",
+     "old72",
+     "old73",
+     "old74",
+     "old75",
+     "old76",
+     "old77",
+     "old78",
+     "old79",
+     "old80",
+     "old81",
+     "old82",
+     "old83",
+     "old84",
+     "old85",
+     "old86",
+     "old87",
+     "old88",
+     "old89",
+     "old90",
+     "old91",
+     "old92",
+     "old93",
+     "old94",
+     "old95",
+     "old96",
+     "old97",
+     "old98",
+     "old99",
+     "old100",
+     "old101",
+     "old102",
+     "old103",
+     "old104",
+     "old105",
+     "old106",
+     "old107",
+     "old108",
+     "old109",
+     "old110",
+     "old111",
+     "old112",
+     "old113",
+     "old114",
+     "old115",
+     "old116",
+     "old117",
+     "old118",
+     "old119",
+     "old120",
+     "old121",
+     "old122",
+     "old123",
+     "old124",
+     "old125",
+     "old126",
+     "old127",
+     "old128",
+     "old129",
+     "old130",
+     "old131",
+     "old132",
+     "old133",
+     "old134",
+     "old135",
+     "old136",
+     "old137",
+     "old138",
+     "old139",
+     "old140",
+     "old141",
+     "old142",
+     "old143",
+     "old144",
+     "old145",
+     "old146",
+     "old147",
+     "old148",
+     "old149",
+     "old150",
+     "old151",
+     "old152",
+     "old153",
+     "old154",
+     "old155",
+     "old156",
+     "old157",
+     "old158",
+     "old159",
+     "old160",
+     "old161",
+     "old162",
+     "old163",
+     "old164",
+     "old165",
+     "old166",
+     "old167",
+     "old168",
+     "old169",
+     "old170",
+     "old171",
+     "old172",
+     "old173",
+     "old174",
+     "old175",
+     "old176",
+     "old177",
+     "old178",
+     "old179",
+     "old180",
+     "old181",
+     "old182",
+     "old183",
+     "old184",
+     "old185",
+     "old186",
+     "old187",
+     "old188",
+     "old189",
+     "old190",
+     "old191",
+     "old192",
+     "old193",
+     "old194",
+     "old195",
+     "old196",
+     "old197",
+     "old198",
+     "n1",
+     "n2",
+     "n3"
+    ],
+    "feed_max_published": 1788000002.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "seen_trim_bound_scales_with_max_entries",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_seen_guids": [
+      "old0",
+      "old1",
+      "old2",
+      "old3",
+      "old4",
+      "old5",
+      "old6",
+      "old7",
+      "old8",
+      "old9",
+      "old10",
+      "old11",
+      "old12",
+      "old13",
+      "old14",
+      "old15",
+      "old16",
+      "old17",
+      "old18",
+      "old19",
+      "old20",
+      "old21",
+      "old22",
+      "old23",
+      "old24",
+      "old25",
+      "old26",
+      "old27",
+      "old28",
+      "old29",
+      "old30",
+      "old31",
+      "old32",
+      "old33",
+      "old34",
+      "old35",
+      "old36",
+      "old37",
+      "old38",
+      "old39",
+      "old40",
+      "old41",
+      "old42",
+      "old43",
+      "old44",
+      "old45",
+      "old46",
+      "old47",
+      "old48",
+      "old49",
+      "old50",
+      "old51",
+      "old52",
+      "old53",
+      "old54",
+      "old55",
+      "old56",
+      "old57",
+      "old58",
+      "old59",
+      "old60",
+      "old61",
+      "old62",
+      "old63",
+      "old64",
+      "old65",
+      "old66",
+      "old67",
+      "old68",
+      "old69",
+      "old70",
+      "old71",
+      "old72",
+      "old73",
+      "old74",
+      "old75",
+      "old76",
+      "old77",
+      "old78",
+      "old79",
+      "old80",
+      "old81",
+      "old82",
+      "old83",
+      "old84",
+      "old85",
+      "old86",
+      "old87",
+      "old88",
+      "old89",
+      "old90",
+      "old91",
+      "old92",
+      "old93",
+      "old94",
+      "old95",
+      "old96",
+      "old97",
+      "old98",
+      "old99",
+      "old100",
+      "old101",
+      "old102",
+      "old103",
+      "old104",
+      "old105",
+      "old106",
+      "old107",
+      "old108",
+      "old109",
+      "old110",
+      "old111",
+      "old112",
+      "old113",
+      "old114",
+      "old115",
+      "old116",
+      "old117",
+      "old118",
+      "old119",
+      "old120",
+      "old121",
+      "old122",
+      "old123",
+      "old124",
+      "old125",
+      "old126",
+      "old127",
+      "old128",
+      "old129",
+      "old130",
+      "old131",
+      "old132",
+      "old133",
+      "old134",
+      "old135",
+      "old136",
+      "old137",
+      "old138",
+      "old139",
+      "old140",
+      "old141",
+      "old142",
+      "old143",
+      "old144",
+      "old145",
+      "old146",
+      "old147",
+      "old148",
+      "old149",
+      "old150",
+      "old151",
+      "old152",
+      "old153",
+      "old154",
+      "old155",
+      "old156",
+      "old157",
+      "old158",
+      "old159",
+      "old160",
+      "old161",
+      "old162",
+      "old163",
+      "old164",
+      "old165",
+      "old166",
+      "old167",
+      "old168",
+      "old169",
+      "old170",
+      "old171",
+      "old172",
+      "old173",
+      "old174",
+      "old175",
+      "old176",
+      "old177",
+      "old178",
+      "old179",
+      "old180",
+      "old181",
+      "old182",
+      "old183",
+      "old184",
+      "old185",
+      "old186",
+      "old187",
+      "old188",
+      "old189",
+      "old190",
+      "old191",
+      "old192",
+      "old193",
+      "old194",
+      "old195",
+      "old196",
+      "old197",
+      "old198"
+     ]
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 50,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "n1",
+      "title": "T n1",
+      "link": "https://x.example.com/n1",
+      "summary": "S n1",
+      "published_epoch": 1788000000.0
+     },
+     {
+      "guid": "n2",
+      "title": "T n2",
+      "link": "https://x.example.com/n2",
+      "summary": "S n2",
+      "published_epoch": 1788000001.0
+     },
+     {
+      "guid": "n3",
+      "title": "T n3",
+      "link": "https://x.example.com/n3",
+      "summary": "S n3",
+      "published_epoch": 1788000002.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "n1",
+     "signal_type": "news",
+     "title": "T n1",
+     "description": "S n1",
+     "source": "rss",
+     "source_url": "https://x.example.com/n1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "n2",
+     "signal_type": "news",
+     "title": "T n2",
+     "description": "S n2",
+     "source": "rss",
+     "source_url": "https://x.example.com/n2",
+     "weight": 5,
+     "occurred_at": 1788000001.0,
+     "lead_id": null,
+     "company": ""
+    },
+    {
+     "natural_event_id": "n3",
+     "signal_type": "news",
+     "title": "T n3",
+     "description": "S n3",
+     "source": "rss",
+     "source_url": "https://x.example.com/n3",
+     "weight": 5,
+     "occurred_at": 1788000002.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "old0",
+     "old1",
+     "old2",
+     "old3",
+     "old4",
+     "old5",
+     "old6",
+     "old7",
+     "old8",
+     "old9",
+     "old10",
+     "old11",
+     "old12",
+     "old13",
+     "old14",
+     "old15",
+     "old16",
+     "old17",
+     "old18",
+     "old19",
+     "old20",
+     "old21",
+     "old22",
+     "old23",
+     "old24",
+     "old25",
+     "old26",
+     "old27",
+     "old28",
+     "old29",
+     "old30",
+     "old31",
+     "old32",
+     "old33",
+     "old34",
+     "old35",
+     "old36",
+     "old37",
+     "old38",
+     "old39",
+     "old40",
+     "old41",
+     "old42",
+     "old43",
+     "old44",
+     "old45",
+     "old46",
+     "old47",
+     "old48",
+     "old49",
+     "old50",
+     "old51",
+     "old52",
+     "old53",
+     "old54",
+     "old55",
+     "old56",
+     "old57",
+     "old58",
+     "old59",
+     "old60",
+     "old61",
+     "old62",
+     "old63",
+     "old64",
+     "old65",
+     "old66",
+     "old67",
+     "old68",
+     "old69",
+     "old70",
+     "old71",
+     "old72",
+     "old73",
+     "old74",
+     "old75",
+     "old76",
+     "old77",
+     "old78",
+     "old79",
+     "old80",
+     "old81",
+     "old82",
+     "old83",
+     "old84",
+     "old85",
+     "old86",
+     "old87",
+     "old88",
+     "old89",
+     "old90",
+     "old91",
+     "old92",
+     "old93",
+     "old94",
+     "old95",
+     "old96",
+     "old97",
+     "old98",
+     "old99",
+     "old100",
+     "old101",
+     "old102",
+     "old103",
+     "old104",
+     "old105",
+     "old106",
+     "old107",
+     "old108",
+     "old109",
+     "old110",
+     "old111",
+     "old112",
+     "old113",
+     "old114",
+     "old115",
+     "old116",
+     "old117",
+     "old118",
+     "old119",
+     "old120",
+     "old121",
+     "old122",
+     "old123",
+     "old124",
+     "old125",
+     "old126",
+     "old127",
+     "old128",
+     "old129",
+     "old130",
+     "old131",
+     "old132",
+     "old133",
+     "old134",
+     "old135",
+     "old136",
+     "old137",
+     "old138",
+     "old139",
+     "old140",
+     "old141",
+     "old142",
+     "old143",
+     "old144",
+     "old145",
+     "old146",
+     "old147",
+     "old148",
+     "old149",
+     "old150",
+     "old151",
+     "old152",
+     "old153",
+     "old154",
+     "old155",
+     "old156",
+     "old157",
+     "old158",
+     "old159",
+     "old160",
+     "old161",
+     "old162",
+     "old163",
+     "old164",
+     "old165",
+     "old166",
+     "old167",
+     "old168",
+     "old169",
+     "old170",
+     "old171",
+     "old172",
+     "old173",
+     "old174",
+     "old175",
+     "old176",
+     "old177",
+     "old178",
+     "old179",
+     "old180",
+     "old181",
+     "old182",
+     "old183",
+     "old184",
+     "old185",
+     "old186",
+     "old187",
+     "old188",
+     "old189",
+     "old190",
+     "old191",
+     "old192",
+     "old193",
+     "old194",
+     "old195",
+     "old196",
+     "old197",
+     "old198",
+     "n1",
+     "n2",
+     "n3"
+    ],
+    "feed_max_published": 1788000002.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "seen_trim_large_max_entries",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_seen_guids": [
+      "old0",
+      "old1",
+      "old2",
+      "old3",
+      "old4",
+      "old5",
+      "old6",
+      "old7",
+      "old8",
+      "old9",
+      "old10",
+      "old11",
+      "old12",
+      "old13",
+      "old14",
+      "old15",
+      "old16",
+      "old17",
+      "old18",
+      "old19",
+      "old20",
+      "old21",
+      "old22",
+      "old23",
+      "old24",
+      "old25",
+      "old26",
+      "old27",
+      "old28",
+      "old29",
+      "old30",
+      "old31",
+      "old32",
+      "old33",
+      "old34",
+      "old35",
+      "old36",
+      "old37",
+      "old38",
+      "old39",
+      "old40",
+      "old41",
+      "old42",
+      "old43",
+      "old44",
+      "old45",
+      "old46",
+      "old47",
+      "old48",
+      "old49",
+      "old50",
+      "old51",
+      "old52",
+      "old53",
+      "old54",
+      "old55",
+      "old56",
+      "old57",
+      "old58",
+      "old59",
+      "old60",
+      "old61",
+      "old62",
+      "old63",
+      "old64",
+      "old65",
+      "old66",
+      "old67",
+      "old68",
+      "old69",
+      "old70",
+      "old71",
+      "old72",
+      "old73",
+      "old74",
+      "old75",
+      "old76",
+      "old77",
+      "old78",
+      "old79",
+      "old80",
+      "old81",
+      "old82",
+      "old83",
+      "old84",
+      "old85",
+      "old86",
+      "old87",
+      "old88",
+      "old89",
+      "old90",
+      "old91",
+      "old92",
+      "old93",
+      "old94",
+      "old95",
+      "old96",
+      "old97",
+      "old98",
+      "old99",
+      "old100",
+      "old101",
+      "old102",
+      "old103",
+      "old104",
+      "old105",
+      "old106",
+      "old107",
+      "old108",
+      "old109",
+      "old110",
+      "old111",
+      "old112",
+      "old113",
+      "old114",
+      "old115",
+      "old116",
+      "old117",
+      "old118",
+      "old119",
+      "old120",
+      "old121",
+      "old122",
+      "old123",
+      "old124",
+      "old125",
+      "old126",
+      "old127",
+      "old128",
+      "old129",
+      "old130",
+      "old131",
+      "old132",
+      "old133",
+      "old134",
+      "old135",
+      "old136",
+      "old137",
+      "old138",
+      "old139",
+      "old140",
+      "old141",
+      "old142",
+      "old143",
+      "old144",
+      "old145",
+      "old146",
+      "old147",
+      "old148",
+      "old149",
+      "old150",
+      "old151",
+      "old152",
+      "old153",
+      "old154",
+      "old155",
+      "old156",
+      "old157",
+      "old158",
+      "old159",
+      "old160",
+      "old161",
+      "old162",
+      "old163",
+      "old164",
+      "old165",
+      "old166",
+      "old167",
+      "old168",
+      "old169",
+      "old170",
+      "old171",
+      "old172",
+      "old173",
+      "old174",
+      "old175",
+      "old176",
+      "old177",
+      "old178",
+      "old179",
+      "old180",
+      "old181",
+      "old182",
+      "old183",
+      "old184",
+      "old185",
+      "old186",
+      "old187",
+      "old188",
+      "old189",
+      "old190",
+      "old191",
+      "old192",
+      "old193",
+      "old194",
+      "old195",
+      "old196",
+      "old197",
+      "old198",
+      "old199",
+      "old200",
+      "old201",
+      "old202",
+      "old203",
+      "old204",
+      "old205",
+      "old206",
+      "old207",
+      "old208",
+      "old209",
+      "old210",
+      "old211",
+      "old212",
+      "old213",
+      "old214",
+      "old215",
+      "old216",
+      "old217",
+      "old218",
+      "old219",
+      "old220",
+      "old221",
+      "old222",
+      "old223",
+      "old224",
+      "old225",
+      "old226",
+      "old227",
+      "old228",
+      "old229",
+      "old230",
+      "old231",
+      "old232",
+      "old233",
+      "old234",
+      "old235",
+      "old236",
+      "old237",
+      "old238",
+      "old239",
+      "old240",
+      "old241",
+      "old242",
+      "old243",
+      "old244",
+      "old245",
+      "old246",
+      "old247",
+      "old248",
+      "old249",
+      "old250",
+      "old251",
+      "old252",
+      "old253",
+      "old254",
+      "old255",
+      "old256",
+      "old257",
+      "old258",
+      "old259",
+      "old260",
+      "old261",
+      "old262",
+      "old263",
+      "old264",
+      "old265",
+      "old266",
+      "old267",
+      "old268",
+      "old269",
+      "old270",
+      "old271",
+      "old272",
+      "old273",
+      "old274",
+      "old275",
+      "old276",
+      "old277",
+      "old278",
+      "old279",
+      "old280",
+      "old281",
+      "old282",
+      "old283",
+      "old284",
+      "old285",
+      "old286",
+      "old287",
+      "old288",
+      "old289",
+      "old290",
+      "old291",
+      "old292",
+      "old293",
+      "old294",
+      "old295",
+      "old296",
+      "old297",
+      "old298",
+      "old299",
+      "old300",
+      "old301",
+      "old302",
+      "old303",
+      "old304",
+      "old305",
+      "old306",
+      "old307",
+      "old308",
+      "old309",
+      "old310",
+      "old311",
+      "old312",
+      "old313",
+      "old314",
+      "old315",
+      "old316",
+      "old317",
+      "old318",
+      "old319",
+      "old320",
+      "old321",
+      "old322",
+      "old323",
+      "old324",
+      "old325",
+      "old326",
+      "old327",
+      "old328",
+      "old329",
+      "old330",
+      "old331",
+      "old332",
+      "old333",
+      "old334",
+      "old335",
+      "old336",
+      "old337",
+      "old338",
+      "old339",
+      "old340",
+      "old341",
+      "old342",
+      "old343",
+      "old344",
+      "old345",
+      "old346",
+      "old347",
+      "old348",
+      "old349",
+      "old350",
+      "old351",
+      "old352",
+      "old353",
+      "old354",
+      "old355",
+      "old356",
+      "old357",
+      "old358",
+      "old359",
+      "old360",
+      "old361",
+      "old362",
+      "old363",
+      "old364",
+      "old365",
+      "old366",
+      "old367",
+      "old368",
+      "old369",
+      "old370",
+      "old371",
+      "old372",
+      "old373",
+      "old374",
+      "old375",
+      "old376",
+      "old377",
+      "old378",
+      "old379",
+      "old380",
+      "old381",
+      "old382",
+      "old383",
+      "old384",
+      "old385",
+      "old386",
+      "old387",
+      "old388",
+      "old389",
+      "old390",
+      "old391",
+      "old392",
+      "old393",
+      "old394",
+      "old395",
+      "old396",
+      "old397",
+      "old398",
+      "old399",
+      "old400",
+      "old401",
+      "old402",
+      "old403",
+      "old404",
+      "old405",
+      "old406",
+      "old407",
+      "old408",
+      "old409",
+      "old410",
+      "old411",
+      "old412",
+      "old413",
+      "old414",
+      "old415",
+      "old416",
+      "old417",
+      "old418",
+      "old419",
+      "old420",
+      "old421",
+      "old422",
+      "old423",
+      "old424",
+      "old425",
+      "old426",
+      "old427",
+      "old428",
+      "old429",
+      "old430",
+      "old431",
+      "old432",
+      "old433",
+      "old434",
+      "old435",
+      "old436",
+      "old437",
+      "old438",
+      "old439",
+      "old440",
+      "old441",
+      "old442",
+      "old443",
+      "old444",
+      "old445",
+      "old446",
+      "old447",
+      "old448",
+      "old449",
+      "old450",
+      "old451",
+      "old452",
+      "old453",
+      "old454",
+      "old455",
+      "old456",
+      "old457",
+      "old458",
+      "old459",
+      "old460",
+      "old461",
+      "old462",
+      "old463",
+      "old464",
+      "old465",
+      "old466",
+      "old467",
+      "old468",
+      "old469",
+      "old470",
+      "old471",
+      "old472",
+      "old473",
+      "old474",
+      "old475",
+      "old476",
+      "old477",
+      "old478",
+      "old479",
+      "old480",
+      "old481",
+      "old482",
+      "old483",
+      "old484",
+      "old485",
+      "old486",
+      "old487",
+      "old488",
+      "old489",
+      "old490",
+      "old491",
+      "old492",
+      "old493",
+      "old494",
+      "old495",
+      "old496",
+      "old497",
+      "old498",
+      "old499",
+      "old500",
+      "old501",
+      "old502",
+      "old503",
+      "old504",
+      "old505",
+      "old506",
+      "old507",
+      "old508",
+      "old509",
+      "old510",
+      "old511",
+      "old512",
+      "old513",
+      "old514",
+      "old515",
+      "old516",
+      "old517",
+      "old518",
+      "old519",
+      "old520",
+      "old521",
+      "old522",
+      "old523",
+      "old524",
+      "old525",
+      "old526",
+      "old527",
+      "old528",
+      "old529",
+      "old530",
+      "old531",
+      "old532",
+      "old533",
+      "old534",
+      "old535",
+      "old536",
+      "old537",
+      "old538",
+      "old539",
+      "old540",
+      "old541",
+      "old542",
+      "old543",
+      "old544",
+      "old545",
+      "old546",
+      "old547",
+      "old548",
+      "old549",
+      "old550",
+      "old551",
+      "old552",
+      "old553",
+      "old554",
+      "old555",
+      "old556",
+      "old557",
+      "old558",
+      "old559",
+      "old560",
+      "old561",
+      "old562",
+      "old563",
+      "old564",
+      "old565",
+      "old566",
+      "old567",
+      "old568",
+      "old569",
+      "old570",
+      "old571",
+      "old572",
+      "old573",
+      "old574",
+      "old575",
+      "old576",
+      "old577",
+      "old578",
+      "old579",
+      "old580",
+      "old581",
+      "old582",
+      "old583",
+      "old584",
+      "old585",
+      "old586",
+      "old587",
+      "old588",
+      "old589",
+      "old590",
+      "old591",
+      "old592",
+      "old593",
+      "old594",
+      "old595",
+      "old596",
+      "old597",
+      "old598",
+      "old599",
+      "old600",
+      "old601",
+      "old602",
+      "old603",
+      "old604",
+      "old605",
+      "old606",
+      "old607",
+      "old608",
+      "old609",
+      "old610",
+      "old611",
+      "old612",
+      "old613",
+      "old614",
+      "old615",
+      "old616",
+      "old617",
+      "old618",
+      "old619",
+      "old620",
+      "old621",
+      "old622",
+      "old623",
+      "old624",
+      "old625",
+      "old626",
+      "old627",
+      "old628",
+      "old629",
+      "old630",
+      "old631",
+      "old632",
+      "old633",
+      "old634",
+      "old635",
+      "old636",
+      "old637",
+      "old638",
+      "old639",
+      "old640",
+      "old641",
+      "old642",
+      "old643",
+      "old644",
+      "old645",
+      "old646",
+      "old647",
+      "old648",
+      "old649",
+      "old650",
+      "old651",
+      "old652",
+      "old653",
+      "old654",
+      "old655",
+      "old656",
+      "old657",
+      "old658",
+      "old659",
+      "old660",
+      "old661",
+      "old662",
+      "old663",
+      "old664",
+      "old665",
+      "old666",
+      "old667",
+      "old668",
+      "old669",
+      "old670",
+      "old671",
+      "old672",
+      "old673",
+      "old674",
+      "old675",
+      "old676",
+      "old677",
+      "old678",
+      "old679",
+      "old680",
+      "old681",
+      "old682",
+      "old683",
+      "old684",
+      "old685",
+      "old686",
+      "old687",
+      "old688",
+      "old689",
+      "old690",
+      "old691",
+      "old692",
+      "old693",
+      "old694",
+      "old695",
+      "old696",
+      "old697",
+      "old698",
+      "old699",
+      "old700",
+      "old701",
+      "old702",
+      "old703",
+      "old704",
+      "old705",
+      "old706",
+      "old707",
+      "old708",
+      "old709",
+      "old710",
+      "old711",
+      "old712",
+      "old713",
+      "old714",
+      "old715",
+      "old716",
+      "old717",
+      "old718",
+      "old719",
+      "old720",
+      "old721",
+      "old722",
+      "old723",
+      "old724",
+      "old725",
+      "old726",
+      "old727",
+      "old728",
+      "old729",
+      "old730",
+      "old731",
+      "old732",
+      "old733",
+      "old734",
+      "old735",
+      "old736",
+      "old737",
+      "old738",
+      "old739",
+      "old740",
+      "old741",
+      "old742",
+      "old743",
+      "old744",
+      "old745",
+      "old746",
+      "old747",
+      "old748",
+      "old749",
+      "old750",
+      "old751",
+      "old752",
+      "old753",
+      "old754",
+      "old755",
+      "old756",
+      "old757",
+      "old758",
+      "old759",
+      "old760",
+      "old761",
+      "old762",
+      "old763",
+      "old764",
+      "old765",
+      "old766",
+      "old767",
+      "old768",
+      "old769",
+      "old770",
+      "old771",
+      "old772",
+      "old773",
+      "old774",
+      "old775",
+      "old776",
+      "old777",
+      "old778",
+      "old779",
+      "old780",
+      "old781",
+      "old782",
+      "old783",
+      "old784",
+      "old785",
+      "old786",
+      "old787",
+      "old788",
+      "old789",
+      "old790",
+      "old791",
+      "old792",
+      "old793",
+      "old794",
+      "old795",
+      "old796",
+      "old797",
+      "old798",
+      "old799",
+      "old800",
+      "old801",
+      "old802",
+      "old803",
+      "old804",
+      "old805",
+      "old806",
+      "old807",
+      "old808",
+      "old809",
+      "old810",
+      "old811",
+      "old812",
+      "old813",
+      "old814",
+      "old815",
+      "old816",
+      "old817",
+      "old818",
+      "old819",
+      "old820",
+      "old821",
+      "old822",
+      "old823",
+      "old824",
+      "old825",
+      "old826",
+      "old827",
+      "old828",
+      "old829",
+      "old830",
+      "old831",
+      "old832",
+      "old833",
+      "old834",
+      "old835",
+      "old836",
+      "old837",
+      "old838",
+      "old839",
+      "old840",
+      "old841",
+      "old842",
+      "old843",
+      "old844",
+      "old845",
+      "old846",
+      "old847",
+      "old848",
+      "old849",
+      "old850",
+      "old851",
+      "old852",
+      "old853",
+      "old854",
+      "old855",
+      "old856",
+      "old857",
+      "old858",
+      "old859",
+      "old860",
+      "old861",
+      "old862",
+      "old863",
+      "old864",
+      "old865",
+      "old866",
+      "old867",
+      "old868",
+      "old869",
+      "old870",
+      "old871",
+      "old872",
+      "old873",
+      "old874",
+      "old875",
+      "old876",
+      "old877",
+      "old878",
+      "old879",
+      "old880",
+      "old881",
+      "old882",
+      "old883",
+      "old884",
+      "old885",
+      "old886",
+      "old887",
+      "old888",
+      "old889",
+      "old890",
+      "old891",
+      "old892",
+      "old893",
+      "old894",
+      "old895",
+      "old896",
+      "old897",
+      "old898",
+      "old899",
+      "old900",
+      "old901",
+      "old902",
+      "old903",
+      "old904",
+      "old905",
+      "old906",
+      "old907",
+      "old908",
+      "old909",
+      "old910",
+      "old911",
+      "old912",
+      "old913",
+      "old914",
+      "old915",
+      "old916",
+      "old917",
+      "old918",
+      "old919",
+      "old920",
+      "old921",
+      "old922",
+      "old923",
+      "old924",
+      "old925",
+      "old926",
+      "old927",
+      "old928",
+      "old929",
+      "old930",
+      "old931",
+      "old932",
+      "old933",
+      "old934",
+      "old935",
+      "old936",
+      "old937",
+      "old938",
+      "old939",
+      "old940",
+      "old941",
+      "old942",
+      "old943",
+      "old944",
+      "old945",
+      "old946",
+      "old947",
+      "old948",
+      "old949",
+      "old950",
+      "old951",
+      "old952",
+      "old953",
+      "old954",
+      "old955",
+      "old956",
+      "old957",
+      "old958",
+      "old959",
+      "old960",
+      "old961",
+      "old962",
+      "old963",
+      "old964",
+      "old965",
+      "old966",
+      "old967",
+      "old968",
+      "old969",
+      "old970",
+      "old971",
+      "old972",
+      "old973",
+      "old974",
+      "old975",
+      "old976",
+      "old977",
+      "old978",
+      "old979",
+      "old980",
+      "old981",
+      "old982",
+      "old983",
+      "old984",
+      "old985",
+      "old986",
+      "old987",
+      "old988",
+      "old989",
+      "old990",
+      "old991",
+      "old992",
+      "old993",
+      "old994",
+      "old995",
+      "old996",
+      "old997",
+      "old998",
+      "old999"
+     ]
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 300,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "n1",
+      "title": "T n1",
+      "link": "https://x.example.com/n1",
+      "summary": "S n1",
+      "published_epoch": 1788000000.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "n1",
+     "signal_type": "news",
+     "title": "T n1",
+     "description": "S n1",
+     "source": "rss",
+     "source_url": "https://x.example.com/n1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "old0",
+     "old1",
+     "old2",
+     "old3",
+     "old4",
+     "old5",
+     "old6",
+     "old7",
+     "old8",
+     "old9",
+     "old10",
+     "old11",
+     "old12",
+     "old13",
+     "old14",
+     "old15",
+     "old16",
+     "old17",
+     "old18",
+     "old19",
+     "old20",
+     "old21",
+     "old22",
+     "old23",
+     "old24",
+     "old25",
+     "old26",
+     "old27",
+     "old28",
+     "old29",
+     "old30",
+     "old31",
+     "old32",
+     "old33",
+     "old34",
+     "old35",
+     "old36",
+     "old37",
+     "old38",
+     "old39",
+     "old40",
+     "old41",
+     "old42",
+     "old43",
+     "old44",
+     "old45",
+     "old46",
+     "old47",
+     "old48",
+     "old49",
+     "old50",
+     "old51",
+     "old52",
+     "old53",
+     "old54",
+     "old55",
+     "old56",
+     "old57",
+     "old58",
+     "old59",
+     "old60",
+     "old61",
+     "old62",
+     "old63",
+     "old64",
+     "old65",
+     "old66",
+     "old67",
+     "old68",
+     "old69",
+     "old70",
+     "old71",
+     "old72",
+     "old73",
+     "old74",
+     "old75",
+     "old76",
+     "old77",
+     "old78",
+     "old79",
+     "old80",
+     "old81",
+     "old82",
+     "old83",
+     "old84",
+     "old85",
+     "old86",
+     "old87",
+     "old88",
+     "old89",
+     "old90",
+     "old91",
+     "old92",
+     "old93",
+     "old94",
+     "old95",
+     "old96",
+     "old97",
+     "old98",
+     "old99",
+     "old100",
+     "old101",
+     "old102",
+     "old103",
+     "old104",
+     "old105",
+     "old106",
+     "old107",
+     "old108",
+     "old109",
+     "old110",
+     "old111",
+     "old112",
+     "old113",
+     "old114",
+     "old115",
+     "old116",
+     "old117",
+     "old118",
+     "old119",
+     "old120",
+     "old121",
+     "old122",
+     "old123",
+     "old124",
+     "old125",
+     "old126",
+     "old127",
+     "old128",
+     "old129",
+     "old130",
+     "old131",
+     "old132",
+     "old133",
+     "old134",
+     "old135",
+     "old136",
+     "old137",
+     "old138",
+     "old139",
+     "old140",
+     "old141",
+     "old142",
+     "old143",
+     "old144",
+     "old145",
+     "old146",
+     "old147",
+     "old148",
+     "old149",
+     "old150",
+     "old151",
+     "old152",
+     "old153",
+     "old154",
+     "old155",
+     "old156",
+     "old157",
+     "old158",
+     "old159",
+     "old160",
+     "old161",
+     "old162",
+     "old163",
+     "old164",
+     "old165",
+     "old166",
+     "old167",
+     "old168",
+     "old169",
+     "old170",
+     "old171",
+     "old172",
+     "old173",
+     "old174",
+     "old175",
+     "old176",
+     "old177",
+     "old178",
+     "old179",
+     "old180",
+     "old181",
+     "old182",
+     "old183",
+     "old184",
+     "old185",
+     "old186",
+     "old187",
+     "old188",
+     "old189",
+     "old190",
+     "old191",
+     "old192",
+     "old193",
+     "old194",
+     "old195",
+     "old196",
+     "old197",
+     "old198",
+     "old199",
+     "old200",
+     "old201",
+     "old202",
+     "old203",
+     "old204",
+     "old205",
+     "old206",
+     "old207",
+     "old208",
+     "old209",
+     "old210",
+     "old211",
+     "old212",
+     "old213",
+     "old214",
+     "old215",
+     "old216",
+     "old217",
+     "old218",
+     "old219",
+     "old220",
+     "old221",
+     "old222",
+     "old223",
+     "old224",
+     "old225",
+     "old226",
+     "old227",
+     "old228",
+     "old229",
+     "old230",
+     "old231",
+     "old232",
+     "old233",
+     "old234",
+     "old235",
+     "old236",
+     "old237",
+     "old238",
+     "old239",
+     "old240",
+     "old241",
+     "old242",
+     "old243",
+     "old244",
+     "old245",
+     "old246",
+     "old247",
+     "old248",
+     "old249",
+     "old250",
+     "old251",
+     "old252",
+     "old253",
+     "old254",
+     "old255",
+     "old256",
+     "old257",
+     "old258",
+     "old259",
+     "old260",
+     "old261",
+     "old262",
+     "old263",
+     "old264",
+     "old265",
+     "old266",
+     "old267",
+     "old268",
+     "old269",
+     "old270",
+     "old271",
+     "old272",
+     "old273",
+     "old274",
+     "old275",
+     "old276",
+     "old277",
+     "old278",
+     "old279",
+     "old280",
+     "old281",
+     "old282",
+     "old283",
+     "old284",
+     "old285",
+     "old286",
+     "old287",
+     "old288",
+     "old289",
+     "old290",
+     "old291",
+     "old292",
+     "old293",
+     "old294",
+     "old295",
+     "old296",
+     "old297",
+     "old298",
+     "old299",
+     "old300",
+     "old301",
+     "old302",
+     "old303",
+     "old304",
+     "old305",
+     "old306",
+     "old307",
+     "old308",
+     "old309",
+     "old310",
+     "old311",
+     "old312",
+     "old313",
+     "old314",
+     "old315",
+     "old316",
+     "old317",
+     "old318",
+     "old319",
+     "old320",
+     "old321",
+     "old322",
+     "old323",
+     "old324",
+     "old325",
+     "old326",
+     "old327",
+     "old328",
+     "old329",
+     "old330",
+     "old331",
+     "old332",
+     "old333",
+     "old334",
+     "old335",
+     "old336",
+     "old337",
+     "old338",
+     "old339",
+     "old340",
+     "old341",
+     "old342",
+     "old343",
+     "old344",
+     "old345",
+     "old346",
+     "old347",
+     "old348",
+     "old349",
+     "old350",
+     "old351",
+     "old352",
+     "old353",
+     "old354",
+     "old355",
+     "old356",
+     "old357",
+     "old358",
+     "old359",
+     "old360",
+     "old361",
+     "old362",
+     "old363",
+     "old364",
+     "old365",
+     "old366",
+     "old367",
+     "old368",
+     "old369",
+     "old370",
+     "old371",
+     "old372",
+     "old373",
+     "old374",
+     "old375",
+     "old376",
+     "old377",
+     "old378",
+     "old379",
+     "old380",
+     "old381",
+     "old382",
+     "old383",
+     "old384",
+     "old385",
+     "old386",
+     "old387",
+     "old388",
+     "old389",
+     "old390",
+     "old391",
+     "old392",
+     "old393",
+     "old394",
+     "old395",
+     "old396",
+     "old397",
+     "old398",
+     "old399",
+     "old400",
+     "old401",
+     "old402",
+     "old403",
+     "old404",
+     "old405",
+     "old406",
+     "old407",
+     "old408",
+     "old409",
+     "old410",
+     "old411",
+     "old412",
+     "old413",
+     "old414",
+     "old415",
+     "old416",
+     "old417",
+     "old418",
+     "old419",
+     "old420",
+     "old421",
+     "old422",
+     "old423",
+     "old424",
+     "old425",
+     "old426",
+     "old427",
+     "old428",
+     "old429",
+     "old430",
+     "old431",
+     "old432",
+     "old433",
+     "old434",
+     "old435",
+     "old436",
+     "old437",
+     "old438",
+     "old439",
+     "old440",
+     "old441",
+     "old442",
+     "old443",
+     "old444",
+     "old445",
+     "old446",
+     "old447",
+     "old448",
+     "old449",
+     "old450",
+     "old451",
+     "old452",
+     "old453",
+     "old454",
+     "old455",
+     "old456",
+     "old457",
+     "old458",
+     "old459",
+     "old460",
+     "old461",
+     "old462",
+     "old463",
+     "old464",
+     "old465",
+     "old466",
+     "old467",
+     "old468",
+     "old469",
+     "old470",
+     "old471",
+     "old472",
+     "old473",
+     "old474",
+     "old475",
+     "old476",
+     "old477",
+     "old478",
+     "old479",
+     "old480",
+     "old481",
+     "old482",
+     "old483",
+     "old484",
+     "old485",
+     "old486",
+     "old487",
+     "old488",
+     "old489",
+     "old490",
+     "old491",
+     "old492",
+     "old493",
+     "old494",
+     "old495",
+     "old496",
+     "old497",
+     "old498",
+     "old499",
+     "old500",
+     "old501",
+     "old502",
+     "old503",
+     "old504",
+     "old505",
+     "old506",
+     "old507",
+     "old508",
+     "old509",
+     "old510",
+     "old511",
+     "old512",
+     "old513",
+     "old514",
+     "old515",
+     "old516",
+     "old517",
+     "old518",
+     "old519",
+     "old520",
+     "old521",
+     "old522",
+     "old523",
+     "old524",
+     "old525",
+     "old526",
+     "old527",
+     "old528",
+     "old529",
+     "old530",
+     "old531",
+     "old532",
+     "old533",
+     "old534",
+     "old535",
+     "old536",
+     "old537",
+     "old538",
+     "old539",
+     "old540",
+     "old541",
+     "old542",
+     "old543",
+     "old544",
+     "old545",
+     "old546",
+     "old547",
+     "old548",
+     "old549",
+     "old550",
+     "old551",
+     "old552",
+     "old553",
+     "old554",
+     "old555",
+     "old556",
+     "old557",
+     "old558",
+     "old559",
+     "old560",
+     "old561",
+     "old562",
+     "old563",
+     "old564",
+     "old565",
+     "old566",
+     "old567",
+     "old568",
+     "old569",
+     "old570",
+     "old571",
+     "old572",
+     "old573",
+     "old574",
+     "old575",
+     "old576",
+     "old577",
+     "old578",
+     "old579",
+     "old580",
+     "old581",
+     "old582",
+     "old583",
+     "old584",
+     "old585",
+     "old586",
+     "old587",
+     "old588",
+     "old589",
+     "old590",
+     "old591",
+     "old592",
+     "old593",
+     "old594",
+     "old595",
+     "old596",
+     "old597",
+     "old598",
+     "old599",
+     "old600",
+     "old601",
+     "old602",
+     "old603",
+     "old604",
+     "old605",
+     "old606",
+     "old607",
+     "old608",
+     "old609",
+     "old610",
+     "old611",
+     "old612",
+     "old613",
+     "old614",
+     "old615",
+     "old616",
+     "old617",
+     "old618",
+     "old619",
+     "old620",
+     "old621",
+     "old622",
+     "old623",
+     "old624",
+     "old625",
+     "old626",
+     "old627",
+     "old628",
+     "old629",
+     "old630",
+     "old631",
+     "old632",
+     "old633",
+     "old634",
+     "old635",
+     "old636",
+     "old637",
+     "old638",
+     "old639",
+     "old640",
+     "old641",
+     "old642",
+     "old643",
+     "old644",
+     "old645",
+     "old646",
+     "old647",
+     "old648",
+     "old649",
+     "old650",
+     "old651",
+     "old652",
+     "old653",
+     "old654",
+     "old655",
+     "old656",
+     "old657",
+     "old658",
+     "old659",
+     "old660",
+     "old661",
+     "old662",
+     "old663",
+     "old664",
+     "old665",
+     "old666",
+     "old667",
+     "old668",
+     "old669",
+     "old670",
+     "old671",
+     "old672",
+     "old673",
+     "old674",
+     "old675",
+     "old676",
+     "old677",
+     "old678",
+     "old679",
+     "old680",
+     "old681",
+     "old682",
+     "old683",
+     "old684",
+     "old685",
+     "old686",
+     "old687",
+     "old688",
+     "old689",
+     "old690",
+     "old691",
+     "old692",
+     "old693",
+     "old694",
+     "old695",
+     "old696",
+     "old697",
+     "old698",
+     "old699",
+     "old700",
+     "old701",
+     "old702",
+     "old703",
+     "old704",
+     "old705",
+     "old706",
+     "old707",
+     "old708",
+     "old709",
+     "old710",
+     "old711",
+     "old712",
+     "old713",
+     "old714",
+     "old715",
+     "old716",
+     "old717",
+     "old718",
+     "old719",
+     "old720",
+     "old721",
+     "old722",
+     "old723",
+     "old724",
+     "old725",
+     "old726",
+     "old727",
+     "old728",
+     "old729",
+     "old730",
+     "old731",
+     "old732",
+     "old733",
+     "old734",
+     "old735",
+     "old736",
+     "old737",
+     "old738",
+     "old739",
+     "old740",
+     "old741",
+     "old742",
+     "old743",
+     "old744",
+     "old745",
+     "old746",
+     "old747",
+     "old748",
+     "old749",
+     "old750",
+     "old751",
+     "old752",
+     "old753",
+     "old754",
+     "old755",
+     "old756",
+     "old757",
+     "old758",
+     "old759",
+     "old760",
+     "old761",
+     "old762",
+     "old763",
+     "old764",
+     "old765",
+     "old766",
+     "old767",
+     "old768",
+     "old769",
+     "old770",
+     "old771",
+     "old772",
+     "old773",
+     "old774",
+     "old775",
+     "old776",
+     "old777",
+     "old778",
+     "old779",
+     "old780",
+     "old781",
+     "old782",
+     "old783",
+     "old784",
+     "old785",
+     "old786",
+     "old787",
+     "old788",
+     "old789",
+     "old790",
+     "old791",
+     "old792",
+     "old793",
+     "old794",
+     "old795",
+     "old796",
+     "old797",
+     "old798",
+     "old799",
+     "old800",
+     "old801",
+     "old802",
+     "old803",
+     "old804",
+     "old805",
+     "old806",
+     "old807",
+     "old808",
+     "old809",
+     "old810",
+     "old811",
+     "old812",
+     "old813",
+     "old814",
+     "old815",
+     "old816",
+     "old817",
+     "old818",
+     "old819",
+     "old820",
+     "old821",
+     "old822",
+     "old823",
+     "old824",
+     "old825",
+     "old826",
+     "old827",
+     "old828",
+     "old829",
+     "old830",
+     "old831",
+     "old832",
+     "old833",
+     "old834",
+     "old835",
+     "old836",
+     "old837",
+     "old838",
+     "old839",
+     "old840",
+     "old841",
+     "old842",
+     "old843",
+     "old844",
+     "old845",
+     "old846",
+     "old847",
+     "old848",
+     "old849",
+     "old850",
+     "old851",
+     "old852",
+     "old853",
+     "old854",
+     "old855",
+     "old856",
+     "old857",
+     "old858",
+     "old859",
+     "old860",
+     "old861",
+     "old862",
+     "old863",
+     "old864",
+     "old865",
+     "old866",
+     "old867",
+     "old868",
+     "old869",
+     "old870",
+     "old871",
+     "old872",
+     "old873",
+     "old874",
+     "old875",
+     "old876",
+     "old877",
+     "old878",
+     "old879",
+     "old880",
+     "old881",
+     "old882",
+     "old883",
+     "old884",
+     "old885",
+     "old886",
+     "old887",
+     "old888",
+     "old889",
+     "old890",
+     "old891",
+     "old892",
+     "old893",
+     "old894",
+     "old895",
+     "old896",
+     "old897",
+     "old898",
+     "old899",
+     "old900",
+     "old901",
+     "old902",
+     "old903",
+     "old904",
+     "old905",
+     "old906",
+     "old907",
+     "old908",
+     "old909",
+     "old910",
+     "old911",
+     "old912",
+     "old913",
+     "old914",
+     "old915",
+     "old916",
+     "old917",
+     "old918",
+     "old919",
+     "old920",
+     "old921",
+     "old922",
+     "old923",
+     "old924",
+     "old925",
+     "old926",
+     "old927",
+     "old928",
+     "old929",
+     "old930",
+     "old931",
+     "old932",
+     "old933",
+     "old934",
+     "old935",
+     "old936",
+     "old937",
+     "old938",
+     "old939",
+     "old940",
+     "old941",
+     "old942",
+     "old943",
+     "old944",
+     "old945",
+     "old946",
+     "old947",
+     "old948",
+     "old949",
+     "old950",
+     "old951",
+     "old952",
+     "old953",
+     "old954",
+     "old955",
+     "old956",
+     "old957",
+     "old958",
+     "old959",
+     "old960",
+     "old961",
+     "old962",
+     "old963",
+     "old964",
+     "old965",
+     "old966",
+     "old967",
+     "old968",
+     "old969",
+     "old970",
+     "old971",
+     "old972",
+     "old973",
+     "old974",
+     "old975",
+     "old976",
+     "old977",
+     "old978",
+     "old979",
+     "old980",
+     "old981",
+     "old982",
+     "old983",
+     "old984",
+     "old985",
+     "old986",
+     "old987",
+     "old988",
+     "old989",
+     "old990",
+     "old991",
+     "old992",
+     "old993",
+     "old994",
+     "old995",
+     "old996",
+     "old997",
+     "old998",
+     "old999",
+     "n1"
+    ],
+    "feed_max_published": 1788000000.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "no_new_entries_patch_still_has_state",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true,
+     "feed_seen_guids": [
+      "g1"
+     ]
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 0.0
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "etag_and_last_modified_in_patch",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": "E",
+    "last_modified": "L",
+    "error": null,
+    "entries": [
+     {
+      "guid": "g1",
+      "title": "T g1",
+      "link": "https://x.example.com/g1",
+      "summary": "S g1",
+      "published_epoch": 1788000000.0
+     }
+    ]
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [
+    {
+     "natural_event_id": "g1",
+     "signal_type": "news",
+     "title": "T g1",
+     "description": "S g1",
+     "source": "rss",
+     "source_url": "https://x.example.com/g1",
+     "weight": 5,
+     "occurred_at": 1788000000.0,
+     "lead_id": null,
+     "company": ""
+    }
+   ],
+   "patch": {
+    "feed_seen_guids": [
+     "g1"
+    ],
+    "feed_max_published": 1788000000.0,
+    "feed_etag": "E",
+    "feed_last_modified": "L"
+   }
+  },
+  {
+   "detector": "feed",
+   "name": "empty_feed",
+   "watch": {
+    "cursor": {
+     "bootstrapped": true
+    },
+    "target": "https://feeds.example.com/news.xml"
+   },
+   "backfill": false,
+   "max_entries": 100,
+   "fetch_result": {
+    "status": 200,
+    "not_modified": false,
+    "etag": null,
+    "last_modified": null,
+    "error": null,
+    "entries": []
+   },
+   "fetcher_args": {
+    "url": "https://feeds.example.com/news.xml",
+    "etag": null,
+    "last_modified": null
+   },
+   "events": [],
+   "patch": {
+    "feed_seen_guids": [],
+    "feed_max_published": 0.0
+   }
+  }
+ ]
+}

@@ -1,1 +1,0 @@
-# OpenGTM MCP Server

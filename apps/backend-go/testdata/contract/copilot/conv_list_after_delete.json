@@ -1,0 +1,230 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations"
+  },
+  "response": {
+    "body": {
+      "conversations": [
+        {
+          "created_at": "<volatile>",
+          "id": "00000473-000",
+          "title": "Find 20 B2B SaaS companies in India that use Stripe and are...",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "2026-08-29 08:00:00",
+          "id": "conv-ed-2",
+          "title": "Saved contacts",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "2026-08-29 09:00:00",
+          "id": "conv-ed-1",
+          "title": "Stripe partnership people",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000045c-000",
+          "title": "Find named people currently working on Stripe's partnership...",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000459-000",
+          "title": "Stripe partnership teams",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000456-000",
+          "title": "[sim:text_plain] go",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000453-000",
+          "title": "[sim:text_plain] go",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000450-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000044d-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000044a-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000447-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000444-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000441-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000043d-000",
+          "title": "[sim:text_plain] go ahead",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000434-000",
+          "title": "[sim:text_plain] with context",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000431-000",
+          "title": "[sim:text_plain] word word word word word word word word...",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000042f-000",
+          "title": "New Chat",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000042c-000",
+          "title": "[sim:text_plain] continue please",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000429-000",
+          "title": "[sim:text_plain] continue please",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000424-000",
+          "title": "[sim:no_done_frame] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000421-000",
+          "title": "[sim:truncated_chunk] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000041f-000",
+          "title": "[sim:provider_error_400] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000041d-000",
+          "title": "[sim:rate_limit_all] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000041a-000",
+          "title": "[sim:auth_rejected_fallback] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000417-000",
+          "title": "[sim:server_error_fallback] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000414-000",
+          "title": "[sim:rate_limit_fallback] hello",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000040e-000",
+          "title": "[sim:tool_loop] keep searching",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "0000040b-000",
+          "title": "[sim:tool_unknown] do something odd",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000407-000",
+          "title": "[sim:tool_safe_and_dangerous] stats then qualify lead 4",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000404-000",
+          "title": "[sim:tool_dangerous] mark lead 4 contacted",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "00000400-000",
+          "title": "[sim:tool_bad_args] stats",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003fa-000",
+          "title": "[sim:tool_parallel_dup] stats and acme",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003f6-000",
+          "title": "[sim:tool_one_split_name] stats please",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003f2-000",
+          "title": "[sim:tool_one] Show me acme leads",
+          "updated_at": "<volatile>"
+        },
+        {
+          "created_at": "<volatile>",
+          "id": "000003ef-000",
+          "title": "[sim:text_plain] Say hello",
+          "updated_at": "<volatile>"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

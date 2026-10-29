@@ -1,0 +1,82 @@
+{
+ "provider": "people_data_labs",
+ "input_name": "company_name_only",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Inc"
+ },
+ "secrets": {
+  "PDL_API_KEY": "ctk_pdl_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.peopledatalabs.com/v5/person/search",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:PDL_API_KEY}}"
+    },
+    "body": "{\"size\":3,\"query\":{\"bool\":{\"must\":[{\"match\":{\"job_company_name\":\"Acme Inc\"}}],\"should\":[{\"match\":{\"job_title_levels\":\"cxo\"}},{\"match\":{\"job_title_levels\":\"vp\"}},{\"match\":{\"job_title_levels\":\"director\"}},{\"match\":{\"job_title_levels\":\"owner\"}}]}}}",
+    "json": {
+     "size": 3,
+     "query": {
+      "bool": {
+       "must": [
+        {
+         "match": {
+          "job_company_name": "Acme Inc"
+         }
+        }
+       ],
+       "should": [
+        {
+         "match": {
+          "job_title_levels": "cxo"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "vp"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "director"
+         }
+        },
+        {
+         "match": {
+          "job_title_levels": "owner"
+         }
+        }
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status\":200,\"data\":[{\"full_name\":\"Ada Lovelace\",\"job_title\":\"CEO\",\"work_email\":\"ada@acme.com\",\"linkedin_url\":\"linkedin.com/in/ada\",\"phone_numbers\":[\"+15550100\"]}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "people_data_labs",
+  "success": true,
+  "fields": {
+   "contact_person": "Ada Lovelace",
+   "contact_title": "CEO",
+   "email": "ada@acme.com",
+   "linkedin_url": "linkedin.com/in/ada",
+   "phone": "+15550100"
+  },
+  "confidence": 0.88,
+  "error": ""
+ }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "header_secret_ref": "WAREHOUSE_AUTH",
+        "url": "http://w.example.test"
+      },
+      "destination_type": "warehouse_http",
+      "name": "cfg 16"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "warehouse HTTP destination requires an HTTPS URL without embedded credentials"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

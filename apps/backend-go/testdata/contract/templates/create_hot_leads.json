@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/templates/hot-leads-outreach/create"
+  },
+  "response": {
+    "body": {
+      "columns_count": 7,
+      "enrichment_columns_count": 0,
+      "id": "72f24c5a-6506-440a-87f4-ebe040eb6e0a",
+      "name": "Hot Leads \u2014 Ready for Outreach",
+      "template": "hot-leads-outreach"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

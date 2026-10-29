@@ -1,0 +1,9 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Mail delivery failed
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+Recipient rejected: caf=E9@example.org does not exist

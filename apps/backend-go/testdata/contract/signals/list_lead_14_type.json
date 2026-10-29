@@ -1,0 +1,71 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals?lead_id=14&signal_type=news&limit=2"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 6,
+        "growth": 6,
+        "hiring": 6,
+        "news": 6,
+        "tech_change": 6,
+        "total": 30,
+        "unread": 20
+      },
+      "has_more": false,
+      "limit": 2,
+      "next_cursor": null,
+      "offset": 0,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788018000.5,
+          "description": "Seeded news event #8 for contract fixtures",
+          "id": "sig-a-08",
+          "lead_id": 14,
+          "read": 0,
+          "signal_type": "news",
+          "source": "crunchbase",
+          "source_url": "https://signals.example.com/a/8",
+          "title": "news signal 8",
+          "weight": 7,
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "company": "Hot Pursuit Labs",
+          "created_at": 1788000000.0,
+          "description": "Seeded news event #3 for contract fixtures",
+          "id": "sig-a-03",
+          "lead_id": 14,
+          "read": 1,
+          "signal_type": "news",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/a/3",
+          "title": "news signal 3",
+          "weight": 5,
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

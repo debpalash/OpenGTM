@@ -1,0 +1,122 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/sequences/seq-out-b-01/sends"
+  },
+  "response": {
+    "body": {
+      "sends": [
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:50:00+00:00",
+          "enrollment_id": 11,
+          "error": "",
+          "id": 17,
+          "lead_id": 17,
+          "message_id": "<hook-dup-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:50:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "sent",
+          "step_number": 1,
+          "subject": "Beta dup",
+          "to_email": "beta@zenithrobotics.example.com"
+        },
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:49:00+00:00",
+          "enrollment_id": 13,
+          "error": "webhook",
+          "id": 16,
+          "lead_id": 3,
+          "message_id": "<hook-complaint-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:49:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "bounced",
+          "step_number": 0,
+          "subject": "Beta complaint",
+          "to_email": "complaint-target@contract.example.com"
+        },
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:48:00+00:00",
+          "enrollment_id": 12,
+          "error": "webhook",
+          "id": 15,
+          "lead_id": 18,
+          "message_id": "<hook-soft-3-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:48:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "bounced",
+          "step_number": 2,
+          "subject": "Beta soft 3",
+          "to_email": "soft-target@contract.example.com"
+        },
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:47:00+00:00",
+          "enrollment_id": 12,
+          "error": "",
+          "id": 14,
+          "lead_id": 18,
+          "message_id": "<hook-soft-2-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:47:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "sent",
+          "step_number": 1,
+          "subject": "Beta soft 2",
+          "to_email": "soft-target@contract.example.com"
+        },
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:46:00+00:00",
+          "enrollment_id": 12,
+          "error": "",
+          "id": 13,
+          "lead_id": 18,
+          "message_id": "<hook-soft-1-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:46:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "sent",
+          "step_number": 0,
+          "subject": "Beta soft 1",
+          "to_email": "soft-target@contract.example.com"
+        },
+        {
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T08:45:00+00:00",
+          "enrollment_id": 11,
+          "error": "webhook",
+          "id": 12,
+          "lead_id": 17,
+          "message_id": "<hook-hard-b@contract.example.com>",
+          "migrated": false,
+          "sent_at": "2026-08-29T08:45:00+00:00",
+          "sequence_id": "seq-out-b-01",
+          "skip_reason": null,
+          "status": "bounced",
+          "step_number": 0,
+          "subject": "Beta intro",
+          "to_email": "beta@zenithrobotics.example.com"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

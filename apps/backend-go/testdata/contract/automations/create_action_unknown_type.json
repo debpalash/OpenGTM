@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {},
+          "type": "carrier_pigeon"
+        }
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid action type 'carrier_pigeon' at index 1"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

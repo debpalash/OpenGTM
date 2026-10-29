@@ -1,0 +1,1328 @@
+{
+  "note": "reconcile_audience_refresh_failure(job_id, payload, error, will_retry) at the frozen clock 2026-08-29T10:40:00Z. 'already reconciled' = next_refresh_at in the future (> now): health/counters are NOT touched again. Otherwise health=degraded, last_refresh_error = ('Queue retry' | 'Final failure') + ': ' + (error or 'audience refresh failed'), truncated to 1000 chars, failures+1. Retry: mirror the job's next_run_at into next_refresh_at and the schedule row (when not already reconciled and the job exists). Final: schedule_next(now). Disabled/missing audience: nothing. Payload ids are strip()-ed; an empty one raises ValueError.",
+  "cases": [
+    {
+      "name": "retry_mirrors_queue_next_attempt",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T10:45:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T10:45:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "retry_job_missing",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": null,
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [],
+        "schedule": []
+      }
+    },
+    {
+      "name": "retry_job_without_next_run",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": null
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-01-01T00:00:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-01-01T00:00:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-01-01T00:00:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "final_failure_schedules_next_regular_occurrence",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "dead lettered",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: dead lettered",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "final_failure_interval_30",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "dead",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 30,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: dead",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:10:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:10:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:10:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "already_reconciled_future_next_refresh_retry",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T11:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": {
+        "next_refresh_at": "2026-08-29T11:10:00+00:00",
+        "enabled": true
+      },
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T11:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:10:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "already_reconciled_future_next_refresh_final",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T11:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T11:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "next_refresh_exactly_now_is_not_reconciled",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:40:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "next_refresh_null_not_reconciled",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": null
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "disabled_audience_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": false,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": false
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "missing_audience_ignored",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": null,
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": null,
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "other_workspace_ignored",
+      "payload": {
+        "workspace_id": "ws-other",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "error_empty_uses_default",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: audience refresh failed",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "error_none_uses_default",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": null,
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: audience refresh failed",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T10:45:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T10:45:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "error_long_truncated_1000",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T10:45:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T10:45:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "error_truncation_includes_prefix",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "failures_accumulate",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00",
+        "consecutive_refresh_failures": 7,
+        "refresh_health": "degraded",
+        "last_refresh_error": "old"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: boom",
+          "consecutive_refresh_failures": 8,
+          "next_refresh_at": "2026-08-29T10:45:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T10:45:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "payload_missing_audience_raises",
+      "payload": {
+        "workspace_id": "ws-vec"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": {
+        "type": "ValueError",
+        "message": "audience refresh failure payload requires workspace_id and audience_id"
+      },
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "payload_missing_workspace_raises",
+      "payload": {
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": {
+        "type": "ValueError",
+        "message": "audience refresh failure payload requires workspace_id and audience_id"
+      },
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "payload_whitespace_ids_raise",
+      "payload": {
+        "workspace_id": "  ",
+        "audience_id": " "
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": {
+        "type": "ValueError",
+        "message": "audience refresh failure payload requires workspace_id and audience_id"
+      },
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "payload_ids_are_stripped",
+      "payload": {
+        "workspace_id": " ws-vec ",
+        "audience_id": " aud-1 "
+      },
+      "error": "boom",
+      "will_retry": true,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Queue retry: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T10:45:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T10:45:00",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "payload_empty_raises",
+      "payload": {},
+      "error": "boom",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": null,
+      "raises": {
+        "type": "ValueError",
+        "message": "audience refresh failure payload requires workspace_id and audience_id"
+      },
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "unverified",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0,
+          "next_refresh_at": "2026-08-29T10:10:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": []
+      }
+    },
+    {
+      "name": "final_failure_cancels_pending_then_enqueues",
+      "payload": {
+        "workspace_id": "ws-vec",
+        "audience_id": "aud-1"
+      },
+      "error": "boom",
+      "will_retry": false,
+      "job_id": 11,
+      "audience_before": {
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": "2026-08-29T10:10:00+00:00"
+      },
+      "job_before": {
+        "id": 11,
+        "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+        "status": "pending",
+        "next_run_at": "2026-08-29T10:45:00+00:00"
+      },
+      "mirror_before": {
+        "next_refresh_at": "2026-08-29T10:10:00+00:00",
+        "enabled": true
+      },
+      "raises": null,
+      "after": {
+        "audience": {
+          "member_count": 0,
+          "refreshed_at": null,
+          "refresh_health": "degraded",
+          "last_refresh_error": "Final failure: boom",
+          "consecutive_refresh_failures": 1,
+          "next_refresh_at": "2026-08-29T11:40:00",
+          "refresh_enabled": true
+        },
+        "jobs": [
+          {
+            "id": 11,
+            "type": "audience_refresh",
+            "payload": {},
+            "fire_key": "audience_refresh:aud-1:2026-08-29T10:00:00+00:00",
+            "status": "cancelled",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T10:45:00",
+            "workspace_id": null
+          },
+          {
+            "id": 12,
+            "type": "audience_refresh",
+            "payload": {
+              "workspace_id": "ws-vec",
+              "audience_id": "aud-1",
+              "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00"
+            },
+            "fire_key": "audience_refresh:aud-1:2026-08-29T11:40:00+00:00",
+            "status": "pending",
+            "executor": "python",
+            "priority": 1,
+            "max_retries": 3,
+            "next_run_at": "2026-08-29T11:40:00",
+            "workspace_id": null
+          }
+        ],
+        "schedule": [
+          {
+            "audience_id": "aud-1",
+            "workspace_id": "ws-vec",
+            "next_refresh_at": "2026-08-29T11:40:00",
+            "enabled": true
+          }
+        ]
+      }
+    }
+  ]
+}

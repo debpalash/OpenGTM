@@ -1,0 +1,13 @@
+{
+  "name": "dsn_final_recipient_x400_type",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "dsn status=5.1.1 action=failed",
+      "kind": "hard",
+      "original_message_id": "<orig-0031@contract.example.com>",
+      "recipient": "/C=US/ADMD=example/PRMD=org/S=user"
+    }
+  ],
+  "source_message_id": "<dsn-0031@mx.example.net>"
+}

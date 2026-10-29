@@ -1,0 +1,3728 @@
+{
+ "run_create": [
+  {
+   "name": "minimal",
+   "body": {
+    "audience_id": "a"
+   },
+   "status": 200,
+   "response": {
+    "audience_id": "a",
+    "max_members": 100
+   }
+  },
+  {
+   "name": "full",
+   "body": {
+    "audience_id": "a",
+    "max_members": 1000
+   },
+   "status": 200,
+   "response": {
+    "audience_id": "a",
+    "max_members": 1000
+   }
+  },
+  {
+   "name": "empty",
+   "body": {},
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "audience_id"
+      ],
+      "msg": "Field required",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "audience_null",
+   "body": {
+    "audience_id": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "audience_id"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "audience_int",
+   "body": {
+    "audience_id": 5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "audience_id"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "name": "audience_empty_ok",
+   "body": {
+    "audience_id": ""
+   },
+   "status": 200,
+   "response": {
+    "audience_id": "",
+    "max_members": 100
+   }
+  },
+  {
+   "name": "members_0",
+   "body": {
+    "audience_id": "a",
+    "max_members": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": 0,
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "members_1001",
+   "body": {
+    "audience_id": "a",
+    "max_members": 1001
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be less than or equal to 1000",
+      "input": 1001,
+      "ctx": {
+       "le": 1000
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "members_str",
+   "body": {
+    "audience_id": "a",
+    "max_members": "x"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "name": "members_null",
+   "body": {
+    "audience_id": "a",
+    "max_members": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_type",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be a valid integer",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "members_float_frac",
+   "body": {
+    "audience_id": "a",
+    "max_members": 1.5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 1.5
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_errors",
+   "body": {
+    "max_members": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "audience_id"
+      ],
+      "msg": "Field required",
+      "input": {
+       "max_members": 0
+      }
+     },
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "max_members"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": 0,
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "array_body",
+   "body": [],
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": []
+     }
+    ]
+   }
+  }
+ ],
+ "create": [
+  {
+   "name": "minimal",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "full",
+   "body": {
+    "name": "a",
+    "description": "d",
+    "prompt_template": "valid prompt text",
+    "output_format": "json",
+    "max_steps": 8,
+    "cell_budget_usd": 5,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "json"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "d",
+    "prompt_template": "valid prompt text",
+    "output_format": "json",
+    "max_steps": 8,
+    "cell_budget_usd": 5.0,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "json"
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_default_fmt",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k",
+      "name": "n",
+      "prompt_template": "valid prompt text"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "k",
+      "name": "n",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "empty_object",
+   "body": {},
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "Field required",
+      "input": {}
+     },
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "prompt_template"
+      ],
+      "msg": "Field required",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_empty",
+   "body": {
+    "name": "",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_long",
+   "body": {
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at most 200 characters",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ctx": {
+       "max_length": 200
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_int",
+   "body": {
+    "name": 5,
+    "prompt_template": "valid prompt text"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_null",
+   "body": {
+    "name": null,
+    "prompt_template": "valid prompt text"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "desc_long",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "description"
+      ],
+      "msg": "String should have at most 2000 characters",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ctx": {
+       "max_length": 2000
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "desc_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "description": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "description"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "prompt_short",
+   "body": {
+    "name": "a",
+    "prompt_template": "short"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "prompt_template"
+      ],
+      "msg": "String should have at least 10 characters",
+      "input": "short",
+      "ctx": {
+       "min_length": 10
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "prompt_long",
+   "body": {
+    "name": "a",
+    "prompt_template": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "prompt_template"
+      ],
+      "msg": "String should have at most 20000 characters",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ctx": {
+       "max_length": 20000
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_0",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": 0,
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_9",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 9
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": 9,
+      "ctx": {
+       "le": 8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_str",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": "abc"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "abc"
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_numstr",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": "3"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 3,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_float_int",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 3.0
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 3,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_float_frac",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 3.5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 3.5
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_true",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": true
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 1,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_type",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_0",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be greater than 0",
+      "input": 0,
+      "ctx": {
+       "gt": 0.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_neg",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": -1
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be greater than 0",
+      "input": -1,
+      "ctx": {
+       "gt": 0.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_5_01",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 5.01
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be less than or equal to 5",
+      "input": 5.01,
+      "ctx": {
+       "le": 5.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_str",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": "x"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "float_parsing",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be a valid number, unable to parse string as a number",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_numstr",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": "0.5"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.5,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_int",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 2
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 2.0,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "float_type",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be a valid number",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_9",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k0",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k3",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k4",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k5",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k6",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k7",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k8",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "too_long",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "List should have at most 8 items after validation, not 9",
+      "input": [
+       {
+        "key": "k0",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k1",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k2",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k3",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k4",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k5",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k6",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k7",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k8",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       }
+      ],
+      "ctx": {
+       "field_type": "List",
+       "max_length": 8,
+       "actual_length": 9
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_not_list",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": "x"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "list_type",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "Input should be a valid list",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "list_type",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "Input should be a valid list",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_not_obj",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     3
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body",
+       "steps",
+       0
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": 3
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_empty",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {}
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "Field required",
+      "input": {}
+     },
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "name"
+      ],
+      "msg": "Field required",
+      "input": {}
+     },
+     {
+      "type": "missing",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "prompt_template"
+      ],
+      "msg": "Field required",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_bad",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "Bad",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "Bad",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_long",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_trailing_nl",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "ab\n",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "ab\n",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_name_empty",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_name_long",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "name"
+      ],
+      "msg": "String should have at most 100 characters",
+      "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "ctx": {
+       "max_length": 100
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_prompt_short",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "short",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "prompt_template"
+      ],
+      "msg": "String should have at least 10 characters",
+      "input": "short",
+      "ctx": {
+       "min_length": 10
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_fmt_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": null
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "output_format"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_two_bad",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "Bad",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "Bad",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     },
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "steps",
+       1,
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "dup_keys",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_fmt_bad",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "xml"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, step output_format must be text or json",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "dup_and_fmt_bad",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "xml"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "xml"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "name": "a",
+       "prompt_template": "valid prompt text",
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "fmt_bad_toplevel_passes_pydantic",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "output_format": "xml"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "xml",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "fmt_int",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "output_format": 5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "output_format"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "name": "fmt_null",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "output_format": null
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "output_format"
+      ],
+      "msg": "Input should be a valid string",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "field_error_and_dup_keys",
+   "body": {
+    "name": "",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "extra_ignored",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "zzz": 1
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "unicode_name",
+   "body": {
+    "name": "café <b>&",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 200,
+   "response": {
+    "name": "café <b>&",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "array_body",
+   "body": [
+    1
+   ],
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": [
+       1
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "string_body",
+   "body": "x",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "name": "null_body",
+   "body": null,
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_str30",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": "3.0"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 3,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_str_space",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": " 3 "
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 3,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "max_steps_str_underscore",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": "1_0"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": "1_0",
+      "ctx": {
+       "le": 8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_str_exp",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": "1e2"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "1e2"
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_huge",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 1000000000000000000000000000000
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": 1000000000000000000000000000000,
+      "ctx": {
+       "le": 8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_list",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": []
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_type",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer",
+      "input": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_str_inf",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": "inf"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be less than or equal to 5",
+      "input": "inf",
+      "ctx": {
+       "le": 5.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_str_nan",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": "nan"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be less than or equal to 5",
+      "input": "nan",
+      "ctx": {
+       "le": 5.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_str_exp",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": "1e0"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 1.0,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_dot5",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": ".5"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.5,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_true",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": true
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 1.0,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_huge",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 1000000000000000000000000000000
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be less than or equal to 5",
+      "input": 1000000000000000000000000000000,
+      "ctx": {
+       "le": 5.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_5_0",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 5.0
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 5.0,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_tiny",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": 1e-09
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 1e-09,
+    "steps": []
+   }
+  },
+  {
+   "name": "budget_list",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "cell_budget_usd": {}
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "float_type",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be a valid number",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_exactly_200",
+   "body": {
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 200,
+   "response": {
+    "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "name_astral_len",
+   "body": {
+    "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 200,
+   "response": {
+    "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "name_astral_201",
+   "body": {
+    "name": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+    "prompt_template": "valid prompt text"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at most 200 characters",
+      "input": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+      "ctx": {
+       "max_length": 200
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "prompt_exactly_10",
+   "body": {
+    "name": "a",
+    "prompt_template": "0123456789"
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "0123456789",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  },
+  {
+   "name": "steps_8",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k0",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k3",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k4",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k5",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k6",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k7",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "k0",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k3",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k4",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k5",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k6",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k7",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_digit_first",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "1a",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "1a",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_40",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_int",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": 1,
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 1
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_underscore",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "a_b9",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "a_b9",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_key_unicode_digit",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "a٣",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_pattern_mismatch",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "key"
+      ],
+      "msg": "String should match pattern '^[a-z][a-z0-9_]{0,39}$'",
+      "input": "a٣",
+      "ctx": {
+       "pattern": "^[a-z][a-z0-9_]{0,39}$"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_fmt_int",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": 3
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "steps",
+       0,
+       "output_format"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 3
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_array_in_steps",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     []
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body",
+       "steps",
+       0
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_extra_field_in_step",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text",
+      "zzz": 1
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "float_literals_in_input",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 100.0,
+    "cell_budget_usd": 1.0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": 100.0,
+      "ctx": {
+       "le": 8
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "float_echo_error",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 9.5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 9.5
+     }
+    ]
+   }
+  },
+  {
+   "name": "float_exp_echo",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "max_steps": 1e+300
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_parsing_size",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Unable to parse input string as an integer, exceeded maximum size",
+      "input": 1e+300
+     }
+    ]
+   }
+  },
+  {
+   "name": "desc_unicode",
+   "body": {
+    "name": "a",
+    "prompt_template": "valid prompt text",
+    "description": "  é \u0000 "
+   },
+   "status": 200,
+   "response": {
+    "name": "a",
+    "description": "  é \u0000 ",
+    "prompt_template": "valid prompt text",
+    "output_format": "text",
+    "max_steps": 4,
+    "cell_budget_usd": 0.1,
+    "steps": []
+   }
+  }
+ ],
+ "patch": [
+  {
+   "name": "empty",
+   "body": {},
+   "status": 200,
+   "response": {}
+  },
+  {
+   "name": "name",
+   "body": {
+    "name": "b"
+   },
+   "status": 200,
+   "response": {
+    "name": "b"
+   }
+  },
+  {
+   "name": "all",
+   "body": {
+    "name": "b",
+    "description": "d",
+    "prompt_template": "valid prompt text",
+    "output_format": "json",
+    "max_steps": 2,
+    "cell_budget_usd": 1.5,
+    "enabled": false,
+    "schedule_audience_id": "aud",
+    "schedule_interval_minutes": 15,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 200,
+   "response": {
+    "name": "b",
+    "description": "d",
+    "prompt_template": "valid prompt text",
+    "output_format": "json",
+    "max_steps": 2,
+    "cell_budget_usd": 1.5,
+    "enabled": false,
+    "schedule_audience_id": "aud",
+    "schedule_interval_minutes": 15,
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_null",
+   "body": {
+    "name": null
+   },
+   "status": 200,
+   "response": {
+    "name": null
+   }
+  },
+  {
+   "name": "description_null",
+   "body": {
+    "description": null
+   },
+   "status": 200,
+   "response": {
+    "description": null
+   }
+  },
+  {
+   "name": "prompt_null",
+   "body": {
+    "prompt_template": null
+   },
+   "status": 200,
+   "response": {
+    "prompt_template": null
+   }
+  },
+  {
+   "name": "output_format_null",
+   "body": {
+    "output_format": null
+   },
+   "status": 200,
+   "response": {
+    "output_format": null
+   }
+  },
+  {
+   "name": "max_steps_null",
+   "body": {
+    "max_steps": null
+   },
+   "status": 200,
+   "response": {
+    "max_steps": null
+   }
+  },
+  {
+   "name": "budget_null",
+   "body": {
+    "cell_budget_usd": null
+   },
+   "status": 200,
+   "response": {
+    "cell_budget_usd": null
+   }
+  },
+  {
+   "name": "enabled_null",
+   "body": {
+    "enabled": null
+   },
+   "status": 200,
+   "response": {
+    "enabled": null
+   }
+  },
+  {
+   "name": "schedule_audience_null",
+   "body": {
+    "schedule_audience_id": null
+   },
+   "status": 200,
+   "response": {
+    "schedule_audience_id": null
+   }
+  },
+  {
+   "name": "schedule_interval_null",
+   "body": {
+    "schedule_interval_minutes": null
+   },
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": null
+   }
+  },
+  {
+   "name": "steps_null",
+   "body": {
+    "steps": null
+   },
+   "status": 200,
+   "response": {
+    "steps": null
+   }
+  },
+  {
+   "name": "interval_14",
+   "body": {
+    "schedule_interval_minutes": 14
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be greater than or equal to 15",
+      "input": 14,
+      "ctx": {
+       "ge": 15
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "interval_10081",
+   "body": {
+    "schedule_interval_minutes": 10081
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be less than or equal to 10080",
+      "input": 10081,
+      "ctx": {
+       "le": 10080
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "interval_10080",
+   "body": {
+    "schedule_interval_minutes": 10080
+   },
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": 10080
+   }
+  },
+  {
+   "name": "enabled_str",
+   "body": {
+    "enabled": "yes"
+   },
+   "status": 200,
+   "response": {
+    "enabled": true
+   }
+  },
+  {
+   "name": "enabled_str_bad",
+   "body": {
+    "enabled": "maybe"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_parsing",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean, unable to interpret input",
+      "input": "maybe"
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_int",
+   "body": {
+    "enabled": 1
+   },
+   "status": 200,
+   "response": {
+    "enabled": true
+   }
+  },
+  {
+   "name": "enabled_int2",
+   "body": {
+    "enabled": 2
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_parsing",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean, unable to interpret input",
+      "input": 2
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_float",
+   "body": {
+    "enabled": 1.0
+   },
+   "status": 200,
+   "response": {
+    "enabled": true
+   }
+  },
+  {
+   "name": "enabled_list",
+   "body": {
+    "enabled": []
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_type",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean",
+      "input": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "audience_int",
+   "body": {
+    "schedule_audience_id": 5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_type",
+      "loc": [
+       "body",
+       "schedule_audience_id"
+      ],
+      "msg": "Input should be a valid string",
+      "input": 5
+     }
+    ]
+   }
+  },
+  {
+   "name": "name_empty",
+   "body": {
+    "name": ""
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "prompt_short",
+   "body": {
+    "prompt_template": "x"
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "prompt_template"
+      ],
+      "msg": "String should have at least 10 characters",
+      "input": "x",
+      "ctx": {
+       "min_length": 10
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "max_steps_0",
+   "body": {
+    "max_steps": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": 0,
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "budget_0",
+   "body": {
+    "cell_budget_usd": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than",
+      "loc": [
+       "body",
+       "cell_budget_usd"
+      ],
+      "msg": "Input should be greater than 0",
+      "input": 0,
+      "ctx": {
+       "gt": 0.0
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "steps_9",
+   "body": {
+    "steps": [
+     {
+      "key": "k0",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k2",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k3",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k4",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k5",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k6",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k7",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k8",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "too_long",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "List should have at most 8 items after validation, not 9",
+      "input": [
+       {
+        "key": "k0",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k1",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k2",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k3",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k4",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k5",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k6",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k7",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       },
+       {
+        "key": "k8",
+        "name": "N",
+        "prompt_template": "valid prompt text",
+        "output_format": "text"
+       }
+      ],
+      "ctx": {
+       "field_type": "List",
+       "max_length": 8,
+       "actual_length": 9
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "dup_keys",
+   "body": {
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     },
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "text"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, playbook step keys must be unique",
+      "input": {
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        },
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "text"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "step_fmt_bad",
+   "body": {
+    "steps": [
+     {
+      "key": "k1",
+      "name": "N",
+      "prompt_template": "valid prompt text",
+      "output_format": "xml"
+     }
+    ]
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "value_error",
+      "loc": [
+       "body"
+      ],
+      "msg": "Value error, step output_format must be text or json",
+      "input": {
+       "steps": [
+        {
+         "key": "k1",
+         "name": "N",
+         "prompt_template": "valid prompt text",
+         "output_format": "xml"
+        }
+       ]
+      },
+      "ctx": {
+       "error": {}
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "fmt_bad_toplevel",
+   "body": {
+    "output_format": "xml"
+   },
+   "status": 200,
+   "response": {
+    "output_format": "xml"
+   }
+  },
+  {
+   "name": "steps_empty_list",
+   "body": {
+    "steps": []
+   },
+   "status": 200,
+   "response": {
+    "steps": []
+   }
+  },
+  {
+   "name": "array_body",
+   "body": [
+    1
+   ],
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "model_attributes_type",
+      "loc": [
+       "body"
+      ],
+      "msg": "Input should be a valid dictionary or object to extract fields from",
+      "input": [
+       1
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_str_upper",
+   "body": {
+    "enabled": "TRUE"
+   },
+   "status": 200,
+   "response": {
+    "enabled": true
+   }
+  },
+  {
+   "name": "enabled_str_empty",
+   "body": {
+    "enabled": ""
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_parsing",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean, unable to interpret input",
+      "input": ""
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_float_2",
+   "body": {
+    "enabled": 2.0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_parsing",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean, unable to interpret input",
+      "input": 2.0
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_float_frac",
+   "body": {
+    "enabled": 0.5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "bool_type",
+      "loc": [
+       "body",
+       "enabled"
+      ],
+      "msg": "Input should be a valid boolean",
+      "input": 0.5
+     }
+    ]
+   }
+  },
+  {
+   "name": "enabled_str_off",
+   "body": {
+    "enabled": "off"
+   },
+   "status": 200,
+   "response": {
+    "enabled": false
+   }
+  },
+  {
+   "name": "interval_str",
+   "body": {
+    "schedule_interval_minutes": "30"
+   },
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": 30
+   }
+  },
+  {
+   "name": "interval_15",
+   "body": {
+    "schedule_interval_minutes": 15
+   },
+   "status": 200,
+   "response": {
+    "schedule_interval_minutes": 15
+   }
+  },
+  {
+   "name": "interval_0",
+   "body": {
+    "schedule_interval_minutes": 0
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be greater than or equal to 15",
+      "input": 0,
+      "ctx": {
+       "ge": 15
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "audience_empty",
+   "body": {
+    "schedule_audience_id": ""
+   },
+   "status": 200,
+   "response": {
+    "schedule_audience_id": ""
+   }
+  },
+  {
+   "name": "steps_not_list",
+   "body": {
+    "steps": {}
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "list_type",
+      "loc": [
+       "body",
+       "steps"
+      ],
+      "msg": "Input should be a valid list",
+      "input": {}
+     }
+    ]
+   }
+  },
+  {
+   "name": "two_errors",
+   "body": {
+    "name": "",
+    "max_steps": 99,
+    "schedule_interval_minutes": 1
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "string_too_short",
+      "loc": [
+       "body",
+       "name"
+      ],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {
+       "min_length": 1
+      }
+     },
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be less than or equal to 8",
+      "input": 99,
+      "ctx": {
+       "le": 8
+      }
+     },
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "body",
+       "schedule_interval_minutes"
+      ],
+      "msg": "Input should be greater than or equal to 15",
+      "input": 1,
+      "ctx": {
+       "ge": 15
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "clear_schedule",
+   "body": {
+    "schedule_audience_id": null,
+    "schedule_interval_minutes": null,
+    "enabled": false
+   },
+   "status": 200,
+   "response": {
+    "enabled": false,
+    "schedule_audience_id": null,
+    "schedule_interval_minutes": null
+   }
+  },
+  {
+   "name": "max_steps_float_frac",
+   "body": {
+    "max_steps": 2.5
+   },
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "int_from_float",
+      "loc": [
+       "body",
+       "max_steps"
+      ],
+      "msg": "Input should be a valid integer, got a number with a fractional part",
+      "input": 2.5
+     }
+    ]
+   }
+  },
+  {
+   "name": "order_preserved",
+   "body": {
+    "steps": [],
+    "name": "z",
+    "enabled": true
+   },
+   "status": 200,
+   "response": {
+    "name": "z",
+    "enabled": true,
+    "steps": []
+   }
+  }
+ ],
+ "raw": [
+  {
+   "name": "invalid_json",
+   "path": "/c",
+   "content": "{",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       1
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Expecting property name enclosed in double quotes"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "invalid_json",
+   "path": "/p",
+   "content": "{",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       1
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Expecting property name enclosed in double quotes"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "empty_body",
+   "path": "/c",
+   "content": "",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "empty_body",
+   "path": "/p",
+   "content": "",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "missing",
+      "loc": [
+       "body"
+      ],
+      "msg": "Field required",
+      "input": null
+     }
+    ]
+   }
+  },
+  {
+   "name": "trailing_comma",
+   "path": "/c",
+   "content": "{\"name\": \"a\",}",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       12
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Illegal trailing comma before end of object"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "trailing_comma",
+   "path": "/p",
+   "content": "{\"name\": \"a\",}",
+   "status": 422,
+   "response": {
+    "detail": [
+     {
+      "type": "json_invalid",
+      "loc": [
+       "body",
+       12
+      ],
+      "msg": "JSON decode error",
+      "input": {},
+      "ctx": {
+       "error": "Illegal trailing comma before end of object"
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "to_api_keys": {
+  "playbook": [
+   "id",
+   "name",
+   "description",
+   "prompt_template",
+   "steps",
+   "output_format",
+   "max_steps",
+   "cell_budget_usd",
+   "version",
+   "enabled",
+   "schedule_audience_id",
+   "schedule_interval_minutes",
+   "next_run_at",
+   "created_at",
+   "updated_at"
+  ],
+  "run": [
+   "id",
+   "playbook_id",
+   "audience_id",
+   "status",
+   "prompt_version",
+   "max_members",
+   "attempted",
+   "succeeded",
+   "failed",
+   "error",
+   "started_at",
+   "finished_at",
+   "created_at"
+  ],
+  "result": [
+   "id",
+   "run_id",
+   "lead_id",
+   "status",
+   "value",
+   "metadata",
+   "error",
+   "attempts",
+   "created_at",
+   "updated_at"
+  ]
+ }
+}

@@ -1,0 +1,33 @@
+{
+  "seq": 14,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 13,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "",
+        "city": "Austin",
+        "tier": "warm"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 13,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [\n    {\n      \"id\": 2,\n      \"company\": \"Globex Corp\",\n      \"city\": \"Austin\",\n      \"email\": \"hello@globex.example.com\",\n      \"phone\": \"+1 512 555 0102\",\n      \"score\": 65,\n      \"tier\": \"warm\",\n      \"status\": \"contacted\",\n      \"website\": \"https://globex.example.com\",\n      \"specialization\": \"Energy\",\n      \"company_size\": \"201-500\",\n      \"contact_person\": \"Hank Scorpio\"\n    }\n  ],\n  \"count\": 1\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

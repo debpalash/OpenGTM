@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "kind": "funding",
+      "signal_types": [
+        "hiring_surge"
+      ],
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "signal_types ['hiring_surge'] not valid for kind 'funding'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

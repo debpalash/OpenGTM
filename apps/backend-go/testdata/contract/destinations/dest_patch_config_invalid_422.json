@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "url": "ftp://x"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002080"
+  },
+  "response": {
+    "body": {
+      "detail": "webhook requires an http(s) URL without embedded credentials"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

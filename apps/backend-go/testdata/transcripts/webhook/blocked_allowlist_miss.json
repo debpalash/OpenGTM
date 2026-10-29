@@ -1,0 +1,40 @@
+{
+ "area": "webhook",
+ "scenario": "blocked_allowlist_miss",
+ "description": "host outside AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://evil.example.org/x"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": [
+   "hooks.example.com"
+  ]
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "status": "failed",
+  "summary": "",
+  "error": "blocked url: host 'evil.example.org' not in webhook domain allowlist",
+  "skip_reason": "blocked_url",
+  "charged_usd": 0.0
+ }
+}

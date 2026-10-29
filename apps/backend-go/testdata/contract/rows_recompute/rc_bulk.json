@@ -1,0 +1,53 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {
+            "company": "Bulk Co"
+          },
+          "row_id": 13
+        },
+        {
+          "fields": {
+            "city": "Bulk City"
+          },
+          "row_id": 16
+        },
+        {
+          "fields": {
+            "company": "Bulk Co 2",
+            "phone": "7"
+          },
+          "row_id": 17
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "reactive_columns": [
+        "summary"
+      ],
+      "recompute": {
+        "job_id": 4,
+        "message": "Enqueued run: 2 rows \u00d7 1 columns",
+        "run_id": "a98cd71b80914dc99867fea1eaab329d",
+        "status": "started",
+        "total_jobs": 2
+      },
+      "status": "updated",
+      "updated_rows": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

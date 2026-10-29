@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        "3101"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/run"
+  },
+  "response": {
+    "body": {
+      "dry_run": false,
+      "fire_key": "manual:trg-a-01:2099-01-01T00:00:00.000001+00:00",
+      "job_id": 14
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "seq": 31,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 30,
+    "method": "tools/call",
+    "params": {
+      "name": "score_lead",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 30,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "60"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

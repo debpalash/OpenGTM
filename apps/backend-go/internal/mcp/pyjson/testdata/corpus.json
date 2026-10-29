@@ -1,0 +1,50 @@
+[
+ {
+  "name": "empty_obj",
+  "value": "{}",
+  "compact": "{}",
+  "indent2": "{}"
+ },
+ {
+  "name": "empty_list",
+  "value": "[]",
+  "compact": "[]",
+  "indent2": "[]"
+ },
+ {
+  "name": "nested_empty",
+  "value": "{\"a\": [], \"b\": {}}",
+  "compact": "{\"a\": [], \"b\": {}}",
+  "indent2": "{\n  \"a\": [],\n  \"b\": {}\n}"
+ },
+ {
+  "name": "scalars",
+  "value": "[null, true, false, 0, -7, 9223372036854775807, 1.5, 1e+16, 1e-05, 0.1, -0.0, 100.0, 1e+22, 1.2345678901234568e+17]",
+  "compact": "[null, true, false, 0, -7, 9223372036854775807, 1.5, 1e+16, 1e-05, 0.1, -0.0, 100.0, 1e+22, 1.2345678901234568e+17]",
+  "indent2": "[\n  null,\n  true,\n  false,\n  0,\n  -7,\n  9223372036854775807,\n  1.5,\n  1e+16,\n  1e-05,\n  0.1,\n  -0.0,\n  100.0,\n  1e+22,\n  1.2345678901234568e+17\n]"
+ },
+ {
+  "name": "order",
+  "value": "{\"z\": 1, \"a\": {\"y\": [1, 2, {\"k\": \"v\"}], \"b\": null}, \"m\": \"x\"}",
+  "compact": "{\"z\": 1, \"a\": {\"y\": [1, 2, {\"k\": \"v\"}], \"b\": null}, \"m\": \"x\"}",
+  "indent2": "{\n  \"z\": 1,\n  \"a\": {\n    \"y\": [\n      1,\n      2,\n      {\n        \"k\": \"v\"\n      }\n    ],\n    \"b\": null\n  },\n  \"m\": \"x\"\n}"
+ },
+ {
+  "name": "ascii",
+  "value": "\"tab\\t nl\\n cr\\r q\\\" bs\\\\ bell\\u0007 del\\u007f \\u00e9 \\u65e5\\u672c \\ud83d\\ude00 \\u2028 / <>&\"",
+  "compact": "\"tab\\t nl\\n cr\\r q\\\" bs\\\\ bell\\u0007 del\\u007f \\u00e9 \\u65e5\\u672c \\ud83d\\ude00 \\u2028 / <>&\"",
+  "indent2": "\"tab\\t nl\\n cr\\r q\\\" bs\\\\ bell\\u0007 del\\u007f \\u00e9 \\u65e5\\u672c \\ud83d\\ude00 \\u2028 / <>&\""
+ },
+ {
+  "name": "keys",
+  "value": "{\"\\u00e9\": 1, \"\\ud83d\\ude00\": 2, \"a\\\"b\": 3}",
+  "compact": "{\"\\u00e9\": 1, \"\\ud83d\\ude00\": 2, \"a\\\"b\": 3}",
+  "indent2": "{\n  \"\\u00e9\": 1,\n  \"\\ud83d\\ude00\": 2,\n  \"a\\\"b\": 3\n}"
+ },
+ {
+  "name": "deep",
+  "value": "[[[[{\"a\": [1]}]]]]",
+  "compact": "[[[[{\"a\": [1]}]]]]",
+  "indent2": "[\n  [\n    [\n      [\n        {\n          \"a\": [\n            1\n          ]\n        }\n      ]\n    ]\n  ]\n]"
+ }
+]

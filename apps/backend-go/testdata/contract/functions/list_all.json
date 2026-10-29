@@ -1,0 +1,68 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "functions": [
+        {
+          "category": "enrichment",
+          "columns_chain": [
+            {
+              "id": "email_wf",
+              "name": "Email Finder",
+              "target_field": "email",
+              "type": "waterfall",
+              "verify": true,
+              "waterfall": [
+                "hunter",
+                "apollo"
+              ],
+              "width": 220
+            }
+          ],
+          "columns_count": 1,
+          "created_at": 1788000000.0,
+          "description": "email waterfall",
+          "id": "fn-1",
+          "name": "Find email",
+          "usage_count": 0,
+          "version": 1
+        },
+        {
+          "category": "custom",
+          "columns_chain": [
+            {
+              "id": "summary",
+              "input_columns": [
+                "company"
+              ],
+              "name": "Summary",
+              "prompt": "Summarize {Company} in one sentence",
+              "type": "ai_formula",
+              "width": 300
+            }
+          ],
+          "columns_count": 1,
+          "created_at": 1788000000.0,
+          "description": "ai summary",
+          "id": "fn-2",
+          "name": "Summarize",
+          "usage_count": 0,
+          "version": 1
+        }
+      ],
+      "total": 2
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

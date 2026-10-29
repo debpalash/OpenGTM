@@ -1,0 +1,2347 @@
+{
+ "go_cohort_wsA": {
+  "cases": {
+   "audiences/mixed": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": "audience_refresh:a1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a1",
+       "fire_key": "audience_refresh:a1:{t:-3600}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a2:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a2",
+       "fire_key": "audience_refresh:a2:bootstrap",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a7:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:axb:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "audience_schedules": [
+      {
+       "audience_id": "a1",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a2",
+       "enabled": true,
+       "next_refresh_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a3",
+       "enabled": true,
+       "next_refresh_at": 3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a4",
+       "enabled": false,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a7",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a_b",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "axb",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach/mixed": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 100,
+       "idempotency_key": "seq:wsA:s1:100:0",
+       "lead_id": 7,
+       "sequence_id": "s1",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsA"
+     },
+     {
+      "executor": "python",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 101,
+       "idempotency_key": "seq:wsB:s6:101:0",
+       "lead_id": 8,
+       "sequence_id": "s6",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsB"
+     }
+    ],
+    "mirrors": {
+     "outreach_schedules": [
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s2",
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 600,
+       "sequence_id": "s3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s5",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s6",
+       "workspace_id": "wsB"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach_inbound/mixed": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": "inbound:wsA:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsA:{t:900}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsB:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsB:{t:900}",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsE:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsE:{t:900}",
+       "workspace_id": "wsE"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsG:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsG:{t:900}",
+       "workspace_id": "wsG"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "outreach_inbound_schedules": [
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsA"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsB"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 600,
+       "workspace_id": "wsC"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": -600,
+       "workspace_id": "wsD"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsE"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsG"
+      }
+     ]
+    },
+    "returned_first": 4,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "playbooks/mixed": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": "playbook_schedule:p1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p1:{t:-3600}",
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p3:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "go",
+      "fire_key": "playbook_schedule:p4:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p4:bootstrap",
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "playbook_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 3600,
+       "playbook_id": "p6",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -3600,
+       "playbook_id": "p7",
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "retention/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "retention:w_I:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:w_I:{d:-1}",
+       "workspace_id": "w_I"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "go",
+      "fire_key": "retention:wsA:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsA:{d:-1}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsE:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsF:{d:0}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsF:{d:0}",
+       "workspace_id": "wsF"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsJ:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "retention_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "w_I"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 86400,
+       "workspace_id": "wsC"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsD"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsE"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "workspace_id": "wsF"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -86400,
+       "workspace_id": "wsG"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsH"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsJ"
+      }
+     ]
+    },
+    "returned_first": 3,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/empty": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/only_completed": {
+    "jobs": [
+     {
+      "executor": "go",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "completed",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/pending_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/processing_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   }
+  },
+  "note": "times in seconds from recorder start, rounded to 10s; {t:N}/{d:N} in fire keys"
+ },
+ "python": {
+  "cases": {
+   "audiences/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a1",
+       "fire_key": "audience_refresh:a1:{t:-3600}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a2:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a2",
+       "fire_key": "audience_refresh:a2:bootstrap",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a7:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:axb:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "audience_schedules": [
+      {
+       "audience_id": "a1",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a2",
+       "enabled": true,
+       "next_refresh_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a3",
+       "enabled": true,
+       "next_refresh_at": 3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a4",
+       "enabled": false,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a7",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a_b",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "axb",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 100,
+       "idempotency_key": "seq:wsA:s1:100:0",
+       "lead_id": 7,
+       "sequence_id": "s1",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsA"
+     },
+     {
+      "executor": "python",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 101,
+       "idempotency_key": "seq:wsB:s6:101:0",
+       "lead_id": 8,
+       "sequence_id": "s6",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsB"
+     }
+    ],
+    "mirrors": {
+     "outreach_schedules": [
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s2",
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 600,
+       "sequence_id": "s3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s5",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s6",
+       "workspace_id": "wsB"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach_inbound/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsA:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsA:{t:900}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsB:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsB:{t:900}",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsE:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsE:{t:900}",
+       "workspace_id": "wsE"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "inbound:wsG:{t:900}",
+      "max_retries": 3,
+      "next_run_at": 900,
+      "payload": {
+       "fire_key": "inbound:wsG:{t:900}",
+       "workspace_id": "wsG"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "outreach_inbound_poll",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "outreach_inbound_schedules": [
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsA"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsB"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 600,
+       "workspace_id": "wsC"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": -600,
+       "workspace_id": "wsD"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsE"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 900,
+       "workspace_id": "wsG"
+      }
+     ]
+    },
+    "returned_first": 4,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "playbooks/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p1:{t:-3600}",
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p3:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p4:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p4:bootstrap",
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "playbook_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 3600,
+       "playbook_id": "p6",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -3600,
+       "playbook_id": "p7",
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "retention/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "retention:w_I:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:w_I:{d:-1}",
+       "workspace_id": "w_I"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsA:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsA:{d:-1}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsE:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsF:{d:0}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsF:{d:0}",
+       "workspace_id": "wsF"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsJ:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "retention_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "w_I"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 86400,
+       "workspace_id": "wsC"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsD"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsE"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "workspace_id": "wsF"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -86400,
+       "workspace_id": "wsG"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsH"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsJ"
+      }
+     ]
+    },
+    "returned_first": 3,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/empty": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/only_completed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "completed",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/pending_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/processing_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   }
+  },
+  "note": "times in seconds from recorder start, rounded to 10s; {t:N}/{d:N} in fire keys"
+ },
+ "python_flags_off": {
+  "cases": {
+   "audiences/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a1",
+       "fire_key": "audience_refresh:a1:{t:-3600}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a2:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a2",
+       "fire_key": "audience_refresh:a2:bootstrap",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a7:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:axb:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "audience_schedules": [
+      {
+       "audience_id": "a1",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a2",
+       "enabled": true,
+       "next_refresh_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a3",
+       "enabled": true,
+       "next_refresh_at": 3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a4",
+       "enabled": false,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a7",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a_b",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "axb",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach/mixed": {
+    "jobs": [],
+    "mirrors": {
+     "outreach_schedules": [
+      {
+       "enabled": true,
+       "next_tick_at": -600,
+       "sequence_id": "s1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": -600,
+       "sequence_id": "s2",
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 600,
+       "sequence_id": "s3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": -600,
+       "sequence_id": "s5",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": null,
+       "sequence_id": "s6",
+       "workspace_id": "wsB"
+      }
+     ]
+    },
+    "returned_first": 0,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach_inbound/mixed": {
+    "jobs": [],
+    "mirrors": {
+     "outreach_inbound_schedules": [
+      {
+       "consecutive_failures": 3,
+       "enabled": true,
+       "next_poll_at": -600,
+       "workspace_id": "wsA"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 600,
+       "workspace_id": "wsC"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": -600,
+       "workspace_id": "wsD"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": -600,
+       "workspace_id": "wsG"
+      }
+     ]
+    },
+    "returned_first": 0,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "playbooks/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p1:{t:-3600}",
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p3:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p4:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p4:bootstrap",
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "playbook_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 3600,
+       "playbook_id": "p6",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -3600,
+       "playbook_id": "p7",
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "retention/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "retention:w_I:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:w_I:{d:-1}",
+       "workspace_id": "w_I"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsA:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsA:{d:-1}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsE:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsF:{d:0}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsF:{d:0}",
+       "workspace_id": "wsF"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsJ:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "retention_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "w_I"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 86400,
+       "workspace_id": "wsC"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsD"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsE"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "workspace_id": "wsF"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -86400,
+       "workspace_id": "wsG"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsH"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsJ"
+      }
+     ]
+    },
+    "returned_first": 3,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/empty": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/only_completed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "completed",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/pending_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/processing_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   }
+  },
+  "note": "times in seconds from recorder start, rounded to 10s; {t:N}/{d:N} in fire keys"
+ },
+ "python_no_imap": {
+  "cases": {
+   "audiences/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a1",
+       "fire_key": "audience_refresh:a1:{t:-3600}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a2:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "audience_id": "a2",
+       "fire_key": "audience_refresh:a2:bootstrap",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:a7:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "audience_refresh:axb:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "audience_refresh",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "audience_schedules": [
+      {
+       "audience_id": "a1",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a2",
+       "enabled": true,
+       "next_refresh_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a3",
+       "enabled": true,
+       "next_refresh_at": 3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a4",
+       "enabled": false,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "a7",
+       "enabled": true,
+       "next_refresh_at": -3600,
+       "workspace_id": "wsB"
+      },
+      {
+       "audience_id": "a_b",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      },
+      {
+       "audience_id": "axb",
+       "enabled": true,
+       "next_refresh_at": -7200,
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 100,
+       "idempotency_key": "seq:wsA:s1:100:0",
+       "lead_id": 7,
+       "sequence_id": "s1",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsA"
+     },
+     {
+      "executor": "python",
+      "fire_key": null,
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "enrollment_id": 101,
+       "idempotency_key": "seq:wsB:s6:101:0",
+       "lead_id": 8,
+       "sequence_id": "s6",
+       "step_number": 0,
+       "to_email": "x@example.test",
+       "workspace_id": "wsB"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "send",
+      "workspace_id": "wsB"
+     }
+    ],
+    "mirrors": {
+     "outreach_schedules": [
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s2",
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 600,
+       "sequence_id": "s3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_tick_at": -600,
+       "sequence_id": "s5",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_tick_at": 900,
+       "sequence_id": "s6",
+       "workspace_id": "wsB"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "outreach_inbound/mixed": {
+    "jobs": [],
+    "mirrors": {
+     "outreach_inbound_schedules": [
+      {
+       "consecutive_failures": 3,
+       "enabled": false,
+       "next_poll_at": null,
+       "workspace_id": "wsA"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": null,
+       "workspace_id": "wsB"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": true,
+       "next_poll_at": 600,
+       "workspace_id": "wsC"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": -600,
+       "workspace_id": "wsD"
+      },
+      {
+       "consecutive_failures": 0,
+       "enabled": false,
+       "next_poll_at": null,
+       "workspace_id": "wsG"
+      }
+     ]
+    },
+    "returned_first": 0,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "playbooks/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p1:{t:-3600}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p1:{t:-3600}",
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p3:{t:-7200}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "playbook_schedule:p4:bootstrap",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "playbook_schedule:p4:bootstrap",
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "research_playbook_schedule",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "playbook_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p1",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -3600,
+       "playbook_id": "p3",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "playbook_id": "p4",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 3600,
+       "playbook_id": "p6",
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -3600,
+       "playbook_id": "p7",
+       "workspace_id": "wsA"
+      }
+     ]
+    },
+    "returned_first": 2,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "retention/mixed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "retention:w_I:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:w_I:{d:-1}",
+       "workspace_id": "w_I"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsA:{d:-1}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsA:{d:-1}",
+       "workspace_id": "wsA"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsE:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsF:{d:0}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {
+       "fire_key": "retention:wsF:{d:0}",
+       "workspace_id": "wsF"
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "retention:wsJ:{d:-3}",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "retention_enforce",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {
+     "retention_schedules": [
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "w_I"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsA"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsB"
+      },
+      {
+       "enabled": true,
+       "next_run_at": 86400,
+       "workspace_id": "wsC"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsD"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsE"
+      },
+      {
+       "enabled": true,
+       "next_run_at": null,
+       "workspace_id": "wsF"
+      },
+      {
+       "enabled": false,
+       "next_run_at": -86400,
+       "workspace_id": "wsG"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsH"
+      },
+      {
+       "enabled": true,
+       "next_run_at": -86400,
+       "workspace_id": "wsJ"
+      }
+     ]
+    },
+    "returned_first": 3,
+    "returned_second": 0,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/empty": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/only_completed": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:{t:86400}",
+      "max_retries": 3,
+      "next_run_at": 86400,
+      "payload": {
+       "fire_key": "signal_scan:{t:86400}",
+       "interval_minutes": 1440
+      },
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     },
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "completed",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": true,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/pending_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "pending",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   },
+   "signal_scan/processing_exists": {
+    "jobs": [
+     {
+      "executor": "python",
+      "fire_key": "signal_scan:old",
+      "max_retries": 3,
+      "next_run_at": 0,
+      "payload": {},
+      "priority": 1,
+      "retry_count": 0,
+      "status": "processing",
+      "type": "signal_scan",
+      "workspace_id": null
+     }
+    ],
+    "mirrors": {},
+    "returned_first": false,
+    "returned_second": false,
+    "second_run_same_jobs": true,
+    "second_run_same_mirrors": true
+   }
+  },
+  "note": "times in seconds from recorder start, rounded to 10s; {t:N}/{d:N} in fire keys"
+ }
+}

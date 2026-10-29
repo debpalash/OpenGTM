@@ -1,0 +1,30 @@
+{
+  "seq": 67,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 64,
+      "method": "ping"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 64,
+      "result": {}
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

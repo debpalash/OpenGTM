@@ -1,0 +1,111 @@
+{
+ "before": [
+  {
+   "provider": "apollo",
+   "field": "email",
+   "attempts": 3,
+   "hits": 2
+  },
+  {
+   "provider": "apollo",
+   "field": "phone",
+   "attempts": 1,
+   "hits": 0
+  },
+  {
+   "provider": "hunter",
+   "field": "*",
+   "attempts": 0,
+   "hits": 0
+  }
+ ],
+ "today": "2026-10-28",
+ "ranking": [
+  {
+   "provider": "wikidata",
+   "accuracy": 1.0,
+   "coverage": 0.882,
+   "freshness": 0.714,
+   "score": 0.929,
+   "asserted": 15,
+   "correct": 15,
+   "golden_slots": 17
+  },
+  {
+   "provider": "jsonld_firmographics",
+   "accuracy": 1.0,
+   "coverage": 0.412,
+   "freshness": 0.639,
+   "score": 0.91,
+   "asserted": 7,
+   "correct": 7,
+   "golden_slots": 17
+  },
+  {
+   "provider": "company_intel",
+   "accuracy": 0.0,
+   "coverage": 0.353,
+   "freshness": 0.0,
+   "score": 0.0,
+   "asserted": 6,
+   "correct": 0,
+   "golden_slots": 17
+  }
+ ],
+ "rows": [
+  {
+   "provider": "apollo",
+   "field": "email",
+   "score": null,
+   "samples": 0,
+   "attempts": 3,
+   "hits": 2,
+   "has_updated": false
+  },
+  {
+   "provider": "apollo",
+   "field": "phone",
+   "score": null,
+   "samples": 0,
+   "attempts": 1,
+   "hits": 0,
+   "has_updated": false
+  },
+  {
+   "provider": "company_intel",
+   "field": "*",
+   "score": 0.0,
+   "samples": 6,
+   "attempts": 0,
+   "hits": 0,
+   "has_updated": true
+  },
+  {
+   "provider": "hunter",
+   "field": "*",
+   "score": null,
+   "samples": 0,
+   "attempts": 0,
+   "hits": 0,
+   "has_updated": false
+  },
+  {
+   "provider": "jsonld_firmographics",
+   "field": "*",
+   "score": 0.9097535934291581,
+   "samples": 7,
+   "attempts": 0,
+   "hits": 0,
+   "has_updated": true
+  },
+  {
+   "provider": "wikidata",
+   "field": "*",
+   "score": 0.9285420944558522,
+   "samples": 15,
+   "attempts": 0,
+   "hits": 0,
+   "has_updated": true
+  }
+ ]
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/migrate"
+  },
+  "response": {
+    "body": {
+      "enrichments_migrated": 0,
+      "rows": 15,
+      "status": "migrated"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

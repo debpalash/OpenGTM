@@ -1,0 +1,72 @@
+{
+ "area": "rss",
+ "scenario": "pinned_port_preserved",
+ "description": "a non-default port is preserved on the pinned url",
+ "input": {
+  "url": "https://feeds.example.com:8443/rss",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34:8443/rss",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com:8443",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/rss+xml"
+    },
+    "body": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>News</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Three</title><link>https://x.example.com/3</link><guid>g-3</guid></item></channel></rss>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 200,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": null,
+  "entries": [
+   {
+    "guid": "g-1",
+    "title": "One",
+    "link": "https://x.example.com/1",
+    "summary": "First & best",
+    "published_epoch": 1787994000.0
+   },
+   {
+    "guid": "https://x.example.com/2",
+    "title": "Two",
+    "link": "https://x.example.com/2",
+    "summary": "",
+    "published_epoch": 1787907600.0
+   },
+   {
+    "guid": "g-3",
+    "title": "Three",
+    "link": "https://x.example.com/3",
+    "summary": "",
+    "published_epoch": 0.0
+   }
+  ]
+ }
+}

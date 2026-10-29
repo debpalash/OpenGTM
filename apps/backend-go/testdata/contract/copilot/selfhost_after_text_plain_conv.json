@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/000003e8-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "000003e8-000",
+        "title": "[sim:text_plain] Say hello",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:text_plain] Say hello",
+          "conversation_id": "000003e8-000",
+          "created_at": "<volatile>",
+          "id": "000003e9-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "Hello from the simulator \u2014 caf\u00e9 \u2713.",
+          "conversation_id": "000003e8-000",
+          "created_at": "<volatile>",
+          "id": "000003ea-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

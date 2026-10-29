@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": {
+      "columns_chain": [
+        1,
+        {
+          "a": 1
+        },
+        "s"
+      ],
+      "name": "X"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "columns_chain",
+            0
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        },
+        {
+          "input": "s",
+          "loc": [
+            "body",
+            "columns_chain",
+            2
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

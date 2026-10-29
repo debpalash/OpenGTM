@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "kept_id": "ent-w-1",
+      "merged_id": "ent-w-2"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: tables.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

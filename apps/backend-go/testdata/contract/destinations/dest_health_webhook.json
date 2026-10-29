@@ -1,0 +1,91 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-webhook/health"
+  },
+  "response": {
+    "body": {
+      "consecutive_unhealthy_runs": 2,
+      "delivery_counts": {
+        "failed": 3,
+        "succeeded": 2,
+        "total": 7
+      },
+      "destination_id": "dst-act-webhook",
+      "health_status": "healthy",
+      "last_error": null,
+      "last_success_at": "2026-08-28T11:00:00",
+      "latest_run": {
+        "attempted": 3,
+        "created_at": "2026-08-28T10:00:00",
+        "destination_id": "dst-act-webhook",
+        "error": "Final failure: webhook HTTP 500",
+        "failed": 3,
+        "finished_at": "2026-08-28T10:01:00",
+        "id": "run-act-w6",
+        "skipped": 0,
+        "started_at": "2026-08-28T10:00:00",
+        "status": "failed",
+        "succeeded": 0
+      },
+      "recent_failures": [
+        {
+          "attempts": 1,
+          "created_at": "2026-08-28T10:00:06",
+          "delivered_at": null,
+          "destination_id": "dst-act-webhook",
+          "error": "webhook HTTP 500: boom",
+          "external_id": null,
+          "id": 9,
+          "lead_id": 5,
+          "operation": "upsert",
+          "run_id": "run-act-w6",
+          "status": "failed",
+          "summary": ""
+        },
+        {
+          "attempts": 1,
+          "created_at": "2026-08-28T10:00:05",
+          "delivered_at": null,
+          "destination_id": "dst-act-webhook",
+          "error": "webhook HTTP 500: boom",
+          "external_id": null,
+          "id": 8,
+          "lead_id": 4,
+          "operation": "upsert",
+          "run_id": "run-act-w6",
+          "status": "failed",
+          "summary": ""
+        },
+        {
+          "attempts": 2,
+          "created_at": "2026-08-28T09:00:25",
+          "delivered_at": null,
+          "destination_id": "dst-act-webhook",
+          "error": "webhook HTTP 502: bad gateway",
+          "external_id": null,
+          "id": 7,
+          "lead_id": 10,
+          "operation": "upsert",
+          "run_id": "run-act-w5",
+          "status": "failed",
+          "summary": ""
+        }
+      ],
+      "run_counts": {
+        "cancelled": 1,
+        "completed": 3,
+        "failed": 2
+      },
+      "success_rate": 0.2857
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

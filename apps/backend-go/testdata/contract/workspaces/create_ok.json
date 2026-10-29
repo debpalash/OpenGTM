@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "description": "d",
+      "icon": "T",
+      "name": "My Team_2!"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workspaces"
+  },
+  "response": {
+    "body": {
+      "id": "09bbd5df-55f6-41ee-bf99-6c6ed4e259f4",
+      "name": "My Team_2!",
+      "slug": "my-team-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

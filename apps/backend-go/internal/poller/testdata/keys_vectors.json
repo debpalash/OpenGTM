@@ -1,0 +1,912 @@
+{
+ "key_schema_version": 1,
+ "normalize_target": [
+  {
+   "target": "",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "   ",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Stripe Inc",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "  Stripe, Inc.  ",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "STRIPE INC",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Holdings LLC",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Corp.",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Corporation",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "The Acme Company",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme & Sons Ltd",
+   "normalized": "acme sons",
+   "stable_no_cik": "acme sons",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Pvt. Ltd.",
+   "normalized": "acme pvt",
+   "stable_no_cik": "acme pvt",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Éco Solutions Pvt Ltd",
+   "normalized": "solutions pvt",
+   "stable_no_cik": "solutions pvt",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "東京テック株式会社",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:1234",
+   "normalized": "0000001234",
+   "stable_no_cik": "0000001234",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "SEC_CIK:0000320193",
+   "normalized": "0000320193",
+   "stable_no_cik": "0000320193",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:  789019 ",
+   "normalized": "0000789019",
+   "stable_no_cik": "0000789019",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:abc",
+   "normalized": "sec_cik:abc",
+   "stable_no_cik": "sec_cik:abc",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:",
+   "normalized": "sec_cik:",
+   "stable_no_cik": "sec_cik:",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:12345678901",
+   "normalized": "12345678901",
+   "stable_no_cik": "12345678901",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "http://www.Example.com/",
+   "normalized": "example.com",
+   "stable_no_cik": "example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://example.com/path/",
+   "normalized": "example.com/path",
+   "stable_no_cik": "example.com/path",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "HTTPS://WWW.EXAMPLE.COM/Feed.xml?x=1",
+   "normalized": "example.com/feed.xml?x=1",
+   "stable_no_cik": "example.com/feed.xml?x=1",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://feeds.example.com/news.xml",
+   "normalized": "feeds.example.com/news.xml",
+   "stable_no_cik": "feeds.example.com/news.xml",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "http://example.com//",
+   "normalized": "example.com",
+   "stable_no_cik": "example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://www.www.example.com",
+   "normalized": "www.example.com",
+   "stable_no_cik": "www.example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "example.com",
+   "normalized": "example com",
+   "stable_no_cik": "example com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Example Co. (UK)",
+   "normalized": "example uk",
+   "stable_no_cik": "example uk",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "A.B.C. Inc",
+   "normalized": "a b c",
+   "stable_no_cik": "a b c",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Foo-Bar Industries, Inc.",
+   "normalized": "foo bar industries",
+   "stable_no_cik": "foo bar industries",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "foo_bar",
+   "normalized": "foo bar",
+   "stable_no_cik": "foo bar",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "  multiple   spaces   here  ",
+   "normalized": "multiple spaces here",
+   "stable_no_cik": "multiple spaces here",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Inc",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "LLC",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Hot Pursuit Labs",
+   "normalized": "hot pursuit labs",
+   "stable_no_cik": "hot pursuit labs",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "O'Reilly Media, Inc.",
+   "normalized": "o reilly media",
+   "stable_no_cik": "o reilly media",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  }
+ ],
+ "role_tier": [
+  {
+   "title": "",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "CEO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Chief Executive Officer",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "chief technology officer",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CTO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "cto",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Director",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Managing Director",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Director of Engineering",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Board Member",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Board of Directors",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "President",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Vice President",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "VP",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "VP of Sales",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "SVP",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Head of Growth",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "head of",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "Executive Officer",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Promoter",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Founder",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Co-Founder & CEO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CFO/COO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "direCTOr",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Ctos",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Secretary",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Treasurer",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Chief",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Presidential Advisor",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Vice-President",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "vice president, marketing",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "Chair",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Chairman",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "General Partner",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Manager",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Principal",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "Officer",
+   "tier": "other",
+   "is_exec": false
+  },
+  {
+   "title": "COO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CMO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CRO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CISO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CCO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "CPO",
+   "tier": "c_level",
+   "is_exec": true
+  },
+  {
+   "title": "ceo and director",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Director, CEO",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "Group Head of Sales",
+   "tier": "vp",
+   "is_exec": true
+  },
+  {
+   "title": "Exec. Director",
+   "tier": "director",
+   "is_exec": true
+  },
+  {
+   "title": "ÉVP",
+   "tier": "other",
+   "is_exec": false
+  }
+ ],
+ "signal_event_id": [
+  {
+   "ws": "ws-alpha",
+   "kind": "funding",
+   "stable": "0002000934",
+   "signal_type": "company_funded",
+   "natural": "0002000934:0002000934-24-000005",
+   "id": "25da136de4ae7bab96f422be70ede205022dbf39566fab60427e1868bcb6d3e0"
+  },
+  {
+   "ws": "ws-alpha",
+   "kind": "company",
+   "stable": "zenith robotics",
+   "signal_type": "hiring_surge",
+   "natural": "zenith robotics:2026-W35",
+   "id": "d56051e4c43607a2ca1032d1691449492a2e17037df92c18fe8f9eb5924a6844"
+  },
+  {
+   "ws": "ws-beta",
+   "kind": "funding",
+   "stable": "0002000934",
+   "signal_type": "company_funded",
+   "natural": "0002000934:0002000934-24-000005",
+   "id": "260e8700d166bd1ced8145c8be78c911d1ca2568d5ecd6f4a71e6713d3078644"
+  },
+  {
+   "ws": "ws-alpha",
+   "kind": "feed",
+   "stable": "feeds.example.com/news.xml",
+   "signal_type": "news",
+   "natural": "https://example.com/a?b=c&d=é",
+   "id": "94a176c2d00ab9015cb7a5cea7ddc783437465e698d6e37ba24765cbca90cdac"
+  },
+  {
+   "ws": "",
+   "kind": "",
+   "stable": "",
+   "signal_type": "",
+   "natural": "",
+   "id": "e155bbb8b87e0fb770ffdeaf041b456423837d5ff1197507c68262d14773c3a6"
+  },
+  {
+   "ws": "ws|x",
+   "kind": "k",
+   "stable": "s",
+   "signal_type": "t",
+   "natural": "n|m",
+   "id": "ad14033b850884e95da3a4a2d06d8d6c2f0896082bf32f536e140d3da4753b58"
+  },
+  {
+   "ws": "ws-alpha",
+   "kind": "job_change",
+   "stable": "sales roster",
+   "signal_type": "job_change",
+   "natural": "lead:14:hot pursuit->acme",
+   "id": "82e3808b943b1eb2d8c1b7cddb1e3f973a9fa252907c3cb04e0655ec702d7422"
+  },
+  {
+   "ws": "ws-é",
+   "kind": "hiring",
+   "stable": "ünï",
+   "signal_type": "new_tech_adopted",
+   "natural": "ünï:snowflake:uses",
+   "id": "27478530e36138e506c83b9a1608a1104eed13eee06d32f44c0e95e5df5ae144"
+  }
+ ],
+ "names": [
+  {
+   "in": "  Grace   Hopper ",
+   "exec": "grace hopper",
+   "tech": "grace hopper"
+  },
+  {
+   "in": "GRACE HOPPER",
+   "exec": "grace hopper",
+   "tech": "grace hopper"
+  },
+  {
+   "in": "Grace\tHopper",
+   "exec": "grace hopper",
+   "tech": "grace hopper"
+  },
+  {
+   "in": "",
+   "exec": "",
+   "tech": ""
+  },
+  {
+   "in": "Éloïse  Ünï",
+   "exec": "éloïse ünï",
+   "tech": "éloïse ünï"
+  },
+  {
+   "in": "Snow Flake",
+   "exec": "snow flake",
+   "tech": "snow flake"
+  },
+  {
+   "in": "  ",
+   "exec": "",
+   "tech": ""
+  }
+ ],
+ "vectors": [
+  {
+   "target": "",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "   ",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Stripe Inc",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "  Stripe, Inc.  ",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "STRIPE INC",
+   "normalized": "stripe",
+   "stable_no_cik": "stripe",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Holdings LLC",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Corp.",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Corporation",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "The Acme Company",
+   "normalized": "acme",
+   "stable_no_cik": "acme",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme & Sons Ltd",
+   "normalized": "acme sons",
+   "stable_no_cik": "acme sons",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Acme Pvt. Ltd.",
+   "normalized": "acme pvt",
+   "stable_no_cik": "acme pvt",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Éco Solutions Pvt Ltd",
+   "normalized": "solutions pvt",
+   "stable_no_cik": "solutions pvt",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "東京テック株式会社",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:1234",
+   "normalized": "0000001234",
+   "stable_no_cik": "0000001234",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "SEC_CIK:0000320193",
+   "normalized": "0000320193",
+   "stable_no_cik": "0000320193",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:  789019 ",
+   "normalized": "0000789019",
+   "stable_no_cik": "0000789019",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:abc",
+   "normalized": "sec_cik:abc",
+   "stable_no_cik": "sec_cik:abc",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:",
+   "normalized": "sec_cik:",
+   "stable_no_cik": "sec_cik:",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "sec_cik:12345678901",
+   "normalized": "12345678901",
+   "stable_no_cik": "12345678901",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "http://www.Example.com/",
+   "normalized": "example.com",
+   "stable_no_cik": "example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://example.com/path/",
+   "normalized": "example.com/path",
+   "stable_no_cik": "example.com/path",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "HTTPS://WWW.EXAMPLE.COM/Feed.xml?x=1",
+   "normalized": "example.com/feed.xml?x=1",
+   "stable_no_cik": "example.com/feed.xml?x=1",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://feeds.example.com/news.xml",
+   "normalized": "feeds.example.com/news.xml",
+   "stable_no_cik": "feeds.example.com/news.xml",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "http://example.com//",
+   "normalized": "example.com",
+   "stable_no_cik": "example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "https://www.www.example.com",
+   "normalized": "www.example.com",
+   "stable_no_cik": "www.example.com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "example.com",
+   "normalized": "example com",
+   "stable_no_cik": "example com",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Example Co. (UK)",
+   "normalized": "example uk",
+   "stable_no_cik": "example uk",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "A.B.C. Inc",
+   "normalized": "a b c",
+   "stable_no_cik": "a b c",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Foo-Bar Industries, Inc.",
+   "normalized": "foo bar industries",
+   "stable_no_cik": "foo bar industries",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "foo_bar",
+   "normalized": "foo bar",
+   "stable_no_cik": "foo bar",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "  multiple   spaces   here  ",
+   "normalized": "multiple spaces here",
+   "stable_no_cik": "multiple spaces here",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Inc",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "LLC",
+   "normalized": "",
+   "stable_no_cik": "",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "Hot Pursuit Labs",
+   "normalized": "hot pursuit labs",
+   "stable_no_cik": "hot pursuit labs",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  },
+  {
+   "target": "O'Reilly Media, Inc.",
+   "normalized": "o reilly media",
+   "stable_no_cik": "o reilly media",
+   "stable_with_cik": "0000320193",
+   "stable_with_padded_cik": "0000320193",
+   "stable_with_bad_cik": "not-a-cik"
+  }
+ ]
+}

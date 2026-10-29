@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "name": "Everyone"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": "An audience with this name already exists"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

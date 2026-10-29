@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-webhook/runs?cursor=WyIyMDI2LTA4LTI3VDEwOjAwOjAwIl0"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid destination run cursor"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

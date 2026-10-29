@@ -1,0 +1,8 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Undeliverable: Hi Ann
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+
+<html><body><p>550 5.1.1 user unknown for ghost@example.org</p></body></html>

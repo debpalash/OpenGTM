@@ -1,0 +1,371 @@
+{
+ "header": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n",
+ "cases": [
+  {
+   "name": "header_only",
+   "rows": [],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n"
+   }
+  },
+  {
+   "name": "plain_row",
+   "rows": [
+    {
+     "name": "Ada",
+     "email": "ada@x.com",
+     "tags": "vip",
+     "notes": "n",
+     "source_link_id": 3,
+     "created_at": "2026-08-01T00:00:00+00:00",
+     "is_used": true
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"Ada\",\"ada@x.com\",\"vip\",\"n\",\"3\",\"2026-08-01T00:00:00+00:00\",\"Yes\"\n"
+   }
+  },
+  {
+   "name": "all_none",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "double_quotes_doubled",
+   "rows": [
+    {
+     "name": "He said \"hi\"",
+     "email": "a\"b@x.com",
+     "tags": "\"t\"",
+     "notes": "\"\"",
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"He said \"\"hi\"\"\",\"a\"\"b@x.com\",\"\"\"t\"\"\",\"\"\"\"\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "newline_in_notes_becomes_space",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": "line1\nline2\r\nline3",
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"line1 line2\r line3\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "newline_in_name_kept_raw",
+   "rows": [
+    {
+     "name": "Line1\nLine2",
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"Line1\nLine2\",\"\",\"\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "newline_in_email_and_tags_kept_raw",
+   "rows": [
+    {
+     "name": null,
+     "email": "a\nb",
+     "tags": "t1\nt2",
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"a\nb\",\"t1\nt2\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "comma_and_semicolon",
+   "rows": [
+    {
+     "name": "Doe, John; Jr.",
+     "email": null,
+     "tags": "a,b;c",
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"Doe, John; Jr.\",\"\",\"a,b;c\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "unicode",
+   "rows": [
+    {
+     "name": "José Álvarez 李雷",
+     "email": "Ünal@Şahin.tr",
+     "tags": "éè",
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"José Álvarez 李雷\",\"Ünal@Şahin.tr\",\"éè\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "source_link_zero_is_blank",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": 0,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "source_link_nonzero",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": 42,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"42\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "created_at_numeric_str",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": 12345,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"\",\"12345\",\"No\"\n"
+   }
+  },
+  {
+   "name": "is_used_truthy_values",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": true
+    },
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    },
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": null
+    },
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": null,
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": 1
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"\",\"\",\"Yes\"\n\"\",\"\",\"\",\"\",\"\",\"\",\"No\"\n\"\",\"\",\"\",\"\",\"\",\"\",\"No\"\n\"\",\"\",\"\",\"\",\"\",\"\",\"Yes\"\n"
+   }
+  },
+  {
+   "name": "empty_strings",
+   "rows": [
+    {
+     "name": "",
+     "email": "",
+     "tags": "",
+     "notes": "",
+     "source_link_id": null,
+     "created_at": "",
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "formula_injection_not_escaped",
+   "rows": [
+    {
+     "name": "=SUM(1,2)",
+     "email": "+cmd@x.com",
+     "tags": "@x",
+     "notes": "-1",
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"=SUM(1,2)\",\"+cmd@x.com\",\"@x\",\"-1\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "tab_and_backslash",
+   "rows": [
+    {
+     "name": "a\tb",
+     "email": null,
+     "tags": null,
+     "notes": "c:\\path\\file",
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"a\tb\",\"\",\"\",\"c:\\path\\file\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "long_notes",
+   "rows": [
+    {
+     "name": null,
+     "email": null,
+     "tags": null,
+     "notes": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+     "source_link_id": null,
+     "created_at": null,
+     "is_used": false
+    }
+   ],
+   "result": {
+    "media_type": "text/csv",
+    "content_disposition_pattern": "attachment; filename=export_YYYYMMDD_HHMMSS.csv",
+    "body": "Name,Email,Tags,Notes,Source Task ID,Created At,Used\n\"\",\"\",\"\",\"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\",\"\",\"\",\"No\"\n"
+   }
+  },
+  {
+   "name": "batches_of_1000_all_rows_emitted_in_order",
+   "generated_rows": {
+    "count": 2501,
+    "name": "N{i}",
+    "email": "e{i}@x.io",
+    "source_link_id": "{i}",
+    "created_at": "2026-08-01",
+    "is_used": "i % 2 == 0",
+    "i_from": 0
+   },
+   "result": {
+    "media_type": "text/csv",
+    "line_count": 2502,
+    "sha256": "9e4836e12ea196f9bfb75cadb1461d0670b5d98adce5953b2ea0bc2b53c491ba",
+    "first_lines": [
+     "Name,Email,Tags,Notes,Source Task ID,Created At,Used",
+     "\"N0\",\"e0@x.io\",\"\",\"\",\"\",\"2026-08-01\",\"Yes\"",
+     "\"N1\",\"e1@x.io\",\"\",\"\",\"1\",\"2026-08-01\",\"No\""
+    ],
+    "last_lines": [
+     "\"N2499\",\"e2499@x.io\",\"\",\"\",\"2499\",\"2026-08-01\",\"No\"",
+     "\"N2500\",\"e2500@x.io\",\"\",\"\",\"2500\",\"2026-08-01\",\"Yes\""
+    ]
+   }
+  }
+ ]
+}

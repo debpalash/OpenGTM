@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/members?before_id=0"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 1
+          },
+          "input": "0",
+          "loc": [
+            "query",
+            "before_id"
+          ],
+          "msg": "Input should be greater than or equal to 1",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

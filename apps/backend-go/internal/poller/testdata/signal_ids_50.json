@@ -1,0 +1,402 @@
+[
+ {
+  "ws": "ws-233",
+  "kind": "feed",
+  "stable": "é☃ unicode",
+  "signal_type": "executive_hired",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "3e959266e111db455691a700732ba2e827f1def586dfca6c6dc153ab155d68cb"
+ },
+ {
+  "ws": "ws-722",
+  "kind": "funding",
+  "stable": "0000320193",
+  "signal_type": "executive_hired",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "37d4ee5b008f9cf51e07d950a55f9a35573b2998c99c7d11a293af8417ed058b"
+ },
+ {
+  "ws": "ws-831",
+  "kind": "job_change",
+  "stable": "acme",
+  "signal_type": "new_tech_adopted",
+  "natural": "acme:0001-24-000002",
+  "id": "0c0c014f4ffb6b95c6ec0eb88ff4a27faa0c461d05977ee316322b1a57673917"
+ },
+ {
+  "ws": "ws-471",
+  "kind": "company",
+  "stable": "é☃ unicode",
+  "signal_type": "new_tech_adopted",
+  "natural": "",
+  "id": "c04a265aa855d0b5c4848879cf3ea7a37309b659238f07993f21840bc97b8ef1"
+ },
+ {
+  "ws": "ws-587",
+  "kind": "hiring",
+  "stable": "é☃ unicode",
+  "signal_type": "company_funded",
+  "natural": "",
+  "id": "178fca2237ec796a6caf57f97b90b7a4de5590ee8df8ad7b232d44790df0e5e6"
+ },
+ {
+  "ws": "ws-240",
+  "kind": "funding",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "news",
+  "natural": "",
+  "id": "f710b785632cbaaf6da75bf9b7e50a7f0ee2f7847da9062d1c42018f89fd97d0"
+ },
+ {
+  "ws": "ws-486",
+  "kind": "company",
+  "stable": "0000320193",
+  "signal_type": "job_change",
+  "natural": "h6",
+  "id": "2d154b7a019ef1e7e4b1f8dbe67b82539347ce5ca7bdcd4fad5c0a16af77154f"
+ },
+ {
+  "ws": "ws-100",
+  "kind": "funding",
+  "stable": "é☃ unicode",
+  "signal_type": "news",
+  "natural": "",
+  "id": "0311e2fa1f0ddd914cab70f92d2ee9d0974057e547a3308a7b03293eebc08f63"
+ },
+ {
+  "ws": "ws-111",
+  "kind": "account_group",
+  "stable": "0000320193",
+  "signal_type": "hiring_surge",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "061fb36dcb0ff1205443225dad716b847cd4e7e254f2db0531c3a9a6c8b8e7b7"
+ },
+ {
+  "ws": "ws-708",
+  "kind": "funding",
+  "stable": "é☃ unicode",
+  "signal_type": "job_change",
+  "natural": "line\nbreak9",
+  "id": "1404f826b3d92f31a7e848ad31a1b74823e22bcaf861a32e79e40c81e3910b2b"
+ },
+ {
+  "ws": "ws-924",
+  "kind": "hiring",
+  "stable": "",
+  "signal_type": "executive_hired",
+  "natural": "line\nbreak10",
+  "id": "26ef79bdc1d237e1b7b9dba20bba91b60f0bf33fc74f56155ddfd6c383b5fe86"
+ },
+ {
+  "ws": "ws-66",
+  "kind": "job_change",
+  "stable": "0000320193",
+  "signal_type": "new_tech_adopted",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "6a8a5c91b42885d28bccbabe5fc1852173d7047368c4d4357fc2914b50a7c685"
+ },
+ {
+  "ws": "ws-152",
+  "kind": "job_change",
+  "stable": "é☃ unicode",
+  "signal_type": "job_change",
+  "natural": "line\nbreak12",
+  "id": "6a78c900d19408a8348588dd6c52805accfb78242e6d0baa458f3d06a2cb7fa5"
+ },
+ {
+  "ws": "ws-903",
+  "kind": "company",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "news",
+  "natural": "h13",
+  "id": "8518f6ba7ee8ad683c0042ae8bd515cf591ae03f98bdf63bfcc8dab477a62cd5"
+ },
+ {
+  "ws": "ws-876",
+  "kind": "company",
+  "stable": "acme",
+  "signal_type": "executive_hired",
+  "natural": "line\nbreak14",
+  "id": "cc70f4a8314d7e2fef4d25065059520a7860a75836d285542054b24e89e64169"
+ },
+ {
+  "ws": "ws-100",
+  "kind": "job_change",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "job_change",
+  "natural": "h15",
+  "id": "573c54a7f624ed10db10233020360944593f0aee8ea2596f5cbcb3a8ceace784"
+ },
+ {
+  "ws": "ws-973",
+  "kind": "account_group",
+  "stable": "é☃ unicode",
+  "signal_type": "news",
+  "natural": "line\nbreak16",
+  "id": "0396691e11fcde08e350afe5f1d91c61668d7fec2b36118d0a8e435f78864b30"
+ },
+ {
+  "ws": "ws-203",
+  "kind": "feed",
+  "stable": "acme",
+  "signal_type": "hiring_surge",
+  "natural": "line\nbreak17",
+  "id": "b673531547f87b53bd1f7dccc59b5397d6ea87276ab42cfcc6875c467af853bf"
+ },
+ {
+  "ws": "ws-292",
+  "kind": "job_change",
+  "stable": "0000320193",
+  "signal_type": "news",
+  "natural": "line\nbreak18",
+  "id": "d5b58bb77ce9dd8702723de8b86778189981d414c9df80aa7f0f2246272906e4"
+ },
+ {
+  "ws": "ws-226",
+  "kind": "feed",
+  "stable": "acme",
+  "signal_type": "company_funded",
+  "natural": "h19",
+  "id": "e6fae35a46a6efaca1e9a2bc2986dc2e6c6e99fb66bb85f194b92ac4c2791d16"
+ },
+ {
+  "ws": "ws-352",
+  "kind": "hiring",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "company_funded",
+  "natural": "",
+  "id": "15d7a483060d505541559b7382f4f8cbdf854990870ae16e15d2f0861e4f08bc"
+ },
+ {
+  "ws": "ws-261",
+  "kind": "company",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "job_change",
+  "natural": "",
+  "id": "38ec99641272aa644c5e7f331e4eb0ae98671514fdd75c7ac57d140cee01bce0"
+ },
+ {
+  "ws": "ws-180",
+  "kind": "account_group",
+  "stable": "é☃ unicode",
+  "signal_type": "company_funded",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "30e0cd8ef0b676d070dd0b9d70ace534def8dd4e0a53e2f7ee27651e08494d46"
+ },
+ {
+  "ws": "ws-955",
+  "kind": "account_group",
+  "stable": "0000320193",
+  "signal_type": "executive_hired",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "53b248f04dc01aea1f856b405bf0d01fc04e0ccb202ab88d2c18bb8478e45740"
+ },
+ {
+  "ws": "ws-308",
+  "kind": "funding",
+  "stable": "0000320193",
+  "signal_type": "new_tech_adopted",
+  "natural": "h24",
+  "id": "3727396f527021997d3e24cc136055ff22552f6387e21a6c47ec57aa54e32ac1"
+ },
+ {
+  "ws": "ws-857",
+  "kind": "hiring",
+  "stable": "",
+  "signal_type": "new_tech_adopted",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "0236e7f57620435c7e84ab818821b4cd1f533c4eb53d3645c00443aa4f25b10d"
+ },
+ {
+  "ws": "ws-143",
+  "kind": "company",
+  "stable": "",
+  "signal_type": "new_tech_adopted",
+  "natural": "",
+  "id": "7182385a7e12552a8dbe1f3e999136ae46db9090e3c80dd3d8fdd3e24af4468c"
+ },
+ {
+  "ws": "ws-428",
+  "kind": "funding",
+  "stable": "",
+  "signal_type": "company_funded",
+  "natural": "h27",
+  "id": "d60d28de996c23a89e233c7028455646b787f37df89fddb8e3c3de29b9db8925"
+ },
+ {
+  "ws": "ws-735",
+  "kind": "funding",
+  "stable": "0000320193",
+  "signal_type": "company_funded",
+  "natural": "0000320193:0001-24-000028",
+  "id": "343367868ad1bf3b3de0d45277f6bf679312e62f1cc13536e76b1a6c06af69f6"
+ },
+ {
+  "ws": "ws-783",
+  "kind": "job_change",
+  "stable": "",
+  "signal_type": "hiring_surge",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "a0dc5a9f442cf159b8865dd73ec3db1c905db3182a4132435bc3de5642063315"
+ },
+ {
+  "ws": "ws-828",
+  "kind": "job_change",
+  "stable": "é☃ unicode",
+  "signal_type": "job_change",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "2be512a795e804ff4935d55ece1c41ea63221f2a5ef0b9e432ab7a4515cdc5ad"
+ },
+ {
+  "ws": "ws-619",
+  "kind": "funding",
+  "stable": "acme",
+  "signal_type": "company_funded",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "0eb236286a2a3ceaad13a76ac1a1c579c863e2ca8da338cd6cc71ba454b7f7a3"
+ },
+ {
+  "ws": "ws-349",
+  "kind": "company",
+  "stable": "",
+  "signal_type": "company_funded",
+  "natural": "h32",
+  "id": "8ad68bc97692427df8b586c7a10fa4cdf468b0f22b39e50aa2363b9de7af3ba9"
+ },
+ {
+  "ws": "ws-360",
+  "kind": "feed",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "company_funded",
+  "natural": "",
+  "id": "11711f7b9d3127de898261ecf23d1bbfd4d3879758d91cdb31799fb4d1bd5a3b"
+ },
+ {
+  "ws": "ws-216",
+  "kind": "funding",
+  "stable": "",
+  "signal_type": "company_funded",
+  "natural": "line\nbreak34",
+  "id": "0413f1d0ded6e1a21d1f8e1553405bf19953ab90c25ce63ba2969f5b3f02f878"
+ },
+ {
+  "ws": "ws-177",
+  "kind": "hiring",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "new_tech_adopted",
+  "natural": "",
+  "id": "55850c61d143bc938640af08f83c833fbbd7593aa96663c3684382b6d618eb51"
+ },
+ {
+  "ws": "ws-124",
+  "kind": "funding",
+  "stable": "acme",
+  "signal_type": "news",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "066c266e7f126c0a1faf917a68a0dc4d0d56919fb53a6a4b1fb850a25d0a23be"
+ },
+ {
+  "ws": "ws-510",
+  "kind": "company",
+  "stable": "acme",
+  "signal_type": "new_tech_adopted",
+  "natural": "acme:0001-24-000037",
+  "id": "b6d24bf71a9b7cc24eab9d9446ce3be1981abbcf67572e13a61517f5d0bb0cf0"
+ },
+ {
+  "ws": "ws-112",
+  "kind": "job_change",
+  "stable": "é☃ unicode",
+  "signal_type": "job_change",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "1b8ba4b30f1a2348f9fdcd716f2edab6fa402142c3ec9ec331d01725073914c6"
+ },
+ {
+  "ws": "ws-737",
+  "kind": "company",
+  "stable": "",
+  "signal_type": "job_change",
+  "natural": ":0001-24-000039",
+  "id": "f7fdafbd5eb6fd031a3c11ba856e382126278e4b79493b518c8382bb2676e85b"
+ },
+ {
+  "ws": "ws-733",
+  "kind": "company",
+  "stable": "",
+  "signal_type": "new_tech_adopted",
+  "natural": "h40",
+  "id": "aa9ac49df6c5952ebd427cabfbaf1842d96d5a77ba01bef70da8995fba1ae45a"
+ },
+ {
+  "ws": "ws-467",
+  "kind": "hiring",
+  "stable": "0000320193",
+  "signal_type": "executive_hired",
+  "natural": "0000320193:0001-24-000041",
+  "id": "53dbef1686018eb725bd05d0de5900d50a703c42dad88d87054d379e097b31bc"
+ },
+ {
+  "ws": "ws-457",
+  "kind": "funding",
+  "stable": "0000320193",
+  "signal_type": "executive_hired",
+  "natural": "0000320193:0001-24-000042",
+  "id": "627d930bcc66336331f8b2cc2a676bb17b70e25dd5d58735ecdaf8a023ac9764"
+ },
+ {
+  "ws": "ws-726",
+  "kind": "job_change",
+  "stable": "",
+  "signal_type": "company_funded",
+  "natural": "h43",
+  "id": "0bbc4b04c8fef74ae23084523e82ed7b8afa359d5e59df625d57479566a23b7b"
+ },
+ {
+  "ws": "ws-850",
+  "kind": "company",
+  "stable": "",
+  "signal_type": "company_funded",
+  "natural": "line\nbreak44",
+  "id": "6ede2cdc33808ab35e065e301191e28004abe2fb80bdcf761411c7cbbc6f12ac"
+ },
+ {
+  "ws": "ws-515",
+  "kind": "account_group",
+  "stable": "",
+  "signal_type": "executive_hired",
+  "natural": "line\nbreak45",
+  "id": "53905aa2ba5b9dfd0617b112895a217878f8d109e99988141c4b7dc855ba90e3"
+ },
+ {
+  "ws": "ws-235",
+  "kind": "feed",
+  "stable": "",
+  "signal_type": "new_tech_adopted",
+  "natural": "line\nbreak46",
+  "id": "47dc80d38e48c9f673825c7968277619859eb1ae8ed12e34704c8a8b38c8d644"
+ },
+ {
+  "ws": "ws-663",
+  "kind": "hiring",
+  "stable": "0000320193",
+  "signal_type": "hiring_surge",
+  "natural": "line\nbreak47",
+  "id": "680ee23582b54295e5d2ccacd3534fcce3240806ef3ccc584c349baf8d40447b"
+ },
+ {
+  "ws": "ws-304",
+  "kind": "funding",
+  "stable": "feeds.example.com/x.xml",
+  "signal_type": "new_tech_adopted",
+  "natural": "https://e.com/a?b=c&d=é",
+  "id": "d8f03fe26744c26f766712c822da79a6fd0cd58649f08c1f4558c557ed9ae166"
+ },
+ {
+  "ws": "ws-648",
+  "kind": "feed",
+  "stable": "0000320193",
+  "signal_type": "news",
+  "natural": "",
+  "id": "0fcbb154e5a568ec2e7c4f4c57846bd08487ebc0ffee4a47beb1a47834935b34"
+ }
+]

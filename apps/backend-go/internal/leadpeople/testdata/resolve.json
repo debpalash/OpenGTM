@@ -1,0 +1,176 @@
+[
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "Stripe",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved"
+  },
+  "wikidata": {
+   "canonical_domain": "https://www.Stripe.com/",
+   "confidence": 0.9,
+   "entity_id": "Q1",
+   "source": "wikidata",
+   "status": "resolved"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "status": "ambiguous"
+  },
+  "wikidata": {
+   "canonical_domain": "",
+   "status": "ambiguous"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "status": "resolved"
+  },
+  "wikidata": {
+   "canonical_domain": "",
+   "status": "resolved"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "status": "not_found"
+  },
+  "wikidata": {
+   "canonical_domain": "stripe.com",
+   "status": "not_found"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "status": "invalid_response"
+  },
+  "wikidata": null
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "status": "invalid_response"
+  },
+  "wikidata": "oops"
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "error_class": "TimeoutError",
+   "status": "resolver_unavailable"
+  },
+  "wikidata": {
+   "__raise__": "TimeoutError"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "error_class": "ValueError",
+   "status": "resolver_unavailable"
+  },
+  "wikidata": {
+   "__raise__": "ValueError"
+  }
+ },
+ {
+  "company": "Stripe",
+  "result": {
+   "canonical_domain": "",
+   "company": "Stripe",
+   "error_class": "KeyError",
+   "status": "resolver_unavailable"
+  },
+  "wikidata": {
+   "__raise__": "KeyError"
+  }
+ },
+ {
+  "company": "stripe.com",
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "stripe.com",
+   "confidence": 1.0,
+   "evidence_url": "https://stripe.com",
+   "observed_at": "2026-10-28",
+   "source": "user_supplied_domain",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  },
+  "wikidata": null
+ },
+ {
+  "company": "https://www.Stripe.com/jobs",
+  "result": {
+   "canonical_domain": "stripe.com",
+   "company": "https://www.Stripe.com/jobs",
+   "confidence": 1.0,
+   "evidence_url": "https://stripe.com",
+   "observed_at": "2026-10-28",
+   "source": "user_supplied_domain",
+   "status": "resolved",
+   "website": "https://stripe.com"
+  },
+  "wikidata": null
+ },
+ {
+  "company": "www.my-co.io",
+  "result": {
+   "canonical_domain": "my-co.io",
+   "company": "www.my-co.io",
+   "confidence": 1.0,
+   "evidence_url": "https://my-co.io",
+   "observed_at": "2026-10-28",
+   "source": "user_supplied_domain",
+   "status": "resolved",
+   "website": "https://my-co.io"
+  },
+  "wikidata": null
+ },
+ {
+  "company": "  Acme   Labs  ",
+  "result": {
+   "canonical_domain": "acme.io",
+   "company": "Acme Labs",
+   "status": "resolved"
+  },
+  "wikidata": {
+   "canonical_domain": "acme.io",
+   "status": "resolved"
+  }
+ },
+ {
+  "company": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "result": {
+   "canonical_domain": "",
+   "company": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+   "status": "not_found"
+  },
+  "wikidata": {
+   "canonical_domain": "",
+   "status": "not_found"
+  }
+ }
+]

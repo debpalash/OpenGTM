@@ -1,0 +1,31 @@
+{
+ "method": "POST",
+ "path": "/v1/search",
+ "request": {
+  "max_results": 2,
+  "method": "news",
+  "query": "acme robotics"
+ },
+ "response": {
+  "error": null,
+  "hits": [
+   {
+    "body": "Warehouse automation",
+    "date": "",
+    "source": "",
+    "title": "Acme Robotics",
+    "url": "https://acme.example/"
+   },
+   {
+    "body": "Series B",
+    "date": "2026-10-01",
+    "source": "Wire",
+    "title": "Acme funding",
+    "url": "https://news.example/acme"
+   }
+  ],
+  "method": "news",
+  "query": "acme robotics"
+ },
+ "status": 200
+}

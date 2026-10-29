@@ -1,0 +1,152 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/rbac"
+  },
+  "response": {
+    "body": {
+      "members": [
+        {
+          "created_at": 1788000001.0,
+          "overrides": {},
+          "role": "owner",
+          "user_id": 1,
+          "username": "alice"
+        },
+        {
+          "created_at": 1788000002.0,
+          "overrides": {
+            "tables.write": "allow"
+          },
+          "role": "member",
+          "user_id": 2,
+          "username": "bob"
+        },
+        {
+          "created_at": 1788000004.0,
+          "overrides": {
+            "activation.write": "deny",
+            "outreach.write": "allow"
+          },
+          "role": "editor",
+          "user_id": 4,
+          "username": "erin"
+        },
+        {
+          "created_at": 1793035121.6262798,
+          "overrides": {
+            "agents.write": "deny"
+          },
+          "role": "admin",
+          "user_id": 3,
+          "username": "carol"
+        }
+      ],
+      "permissions": [
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Create, edit and run workbooks",
+          "key": "tables.write",
+          "label": "Tables"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Configure enrichment and integration credentials",
+          "key": "integrations.manage",
+          "label": "Integrations"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Create and operate campaigns",
+          "key": "campaigns.write",
+          "label": "Campaigns"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Create, refresh and schedule audiences",
+          "key": "audiences.write",
+          "label": "Audiences"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Configure and run destinations",
+          "key": "activation.write",
+          "label": "Activation"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Create and run research playbooks",
+          "key": "agents.write",
+          "label": "Agents"
+        },
+        {
+          "default_roles": [
+            "editor",
+            "admin"
+          ],
+          "description": "Scan and manage buying signals",
+          "key": "signals.write",
+          "label": "Signals"
+        },
+        {
+          "default_roles": [
+            "admin"
+          ],
+          "description": "Configure and execute outreach",
+          "key": "outreach.write",
+          "label": "Outreach"
+        },
+        {
+          "default_roles": [
+            "admin"
+          ],
+          "description": "Configure trigger automation",
+          "key": "automations.manage",
+          "label": "Automations"
+        },
+        {
+          "default_roles": [
+            "admin"
+          ],
+          "description": "Rotate machine credentials",
+          "key": "secrets.manage",
+          "label": "Secrets"
+        },
+        {
+          "default_roles": [
+            "admin"
+          ],
+          "description": "Audit, retention and access policy",
+          "key": "governance.manage",
+          "label": "Governance"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

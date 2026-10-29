@@ -1,0 +1,446 @@
+{
+  "seq": 3,
+  "profile": "writes",
+  "token": "all",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/list"
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 3,
+    "result": {
+      "tools": [
+        {
+          "name": "find_leads",
+          "description": "Search for leads in the OpenGTM database by company, city, industry, tier, or keyword. Returns matching leads with contact info and scores.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "Search query (company name, keyword, industry)"
+              },
+              "city": {
+                "type": "string",
+                "description": "Filter by city"
+              },
+              "tier": {
+                "type": "string",
+                "description": "Filter by score tier: hot, warm, cold"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Max results (default: 10)",
+                "default": 10
+              }
+            },
+            "required": [
+              "query"
+            ]
+          }
+        },
+        {
+          "name": "get_lead_detail",
+          "description": "Get complete profile of a specific lead by ID — company info, contacts, enrichment data, scores, decision makers.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "get_pipeline_stats",
+          "description": "Get GTM pipeline statistics: total leads, breakdown by tier/status/city, enrichment coverage rates.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        {
+          "name": "enrich_company",
+          "description": "Trigger on-demand enrichment for a lead — scrape website, find emails, social profiles, decision makers.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID to enrich"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "verify_email",
+          "description": "Verify an email address using SMTP RCPT TO validation. Returns deliverable/undeliverable status.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "description": "Email address to verify"
+              }
+            },
+            "required": [
+              "email"
+            ]
+          }
+        },
+        {
+          "name": "get_hiring_signals",
+          "description": "Check for active job postings at a company. Returns job titles, counts, and hiring velocity as buying signals.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "company": {
+                "type": "string",
+                "description": "Company name to check"
+              },
+              "lead_id": {
+                "type": "integer",
+                "description": "Optional lead ID for enriched context"
+              }
+            },
+            "required": [
+              "company"
+            ]
+          }
+        },
+        {
+          "name": "score_lead",
+          "description": "Calculate a lead quality score (0-100) based on data completeness, company signals, and contact depth.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID to score"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "create_lead",
+          "description": "Create a new lead in the caller's workspace. Persists through the same RLS-scoped store as the REST API.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "company": {
+                "type": "string",
+                "description": "Company name (required)"
+              },
+              "email": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "website": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "contact_person": {
+                "type": "string"
+              },
+              "contact_title": {
+                "type": "string"
+              },
+              "specialization": {
+                "type": "string"
+              },
+              "company_size": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "linkedin_url": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op (no double-create)."
+              }
+            },
+            "required": [
+              "company"
+            ]
+          }
+        },
+        {
+          "name": "update_lead",
+          "description": "Update fields on an existing lead by ID (workspace-scoped — a lead in another workspace is not found). Only an allowlisted set of business fields can be written.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID to update"
+              },
+              "email": {
+                "type": "string"
+              },
+              "phone": {
+                "type": "string"
+              },
+              "website": {
+                "type": "string"
+              },
+              "city": {
+                "type": "string"
+              },
+              "state": {
+                "type": "string"
+              },
+              "contact_person": {
+                "type": "string"
+              },
+              "contact_title": {
+                "type": "string"
+              },
+              "specialization": {
+                "type": "string"
+              },
+              "company_size": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "linkedin_url": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "description": "Lead status: new, contacted, qualified, converted, dead"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "enroll_leads",
+          "description": "Enroll leads into an outreach sequence. Skips leads with no email or on the suppression list and records consent (CAN-SPAM). Sequence + leads must be in the caller's workspace.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "sequence_id": {
+                "type": "string",
+                "description": "The sequence ID to enroll into"
+              },
+              "lead_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "description": "Lead IDs to enroll"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "sequence_id",
+              "lead_ids"
+            ]
+          }
+        },
+        {
+          "name": "create_workbook",
+          "description": "Create a new workbook from a description. Auto-generates columns. Example: 'SaaS CTOs in SF with email and LinkedIn'",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Natural language description of the workbook"
+              },
+              "name": {
+                "type": "string",
+                "description": "Optional name for the workbook"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "description"
+            ]
+          }
+        },
+        {
+          "name": "create_automation",
+          "description": "Create an automation rule (trigger + conditions + actions) in the caller's workspace. Routes through the same validation as the REST API; outreach actions require legacy outreach to be enabled. Admin only.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Automation name (required)"
+              },
+              "trigger_type": {
+                "type": "string",
+                "description": "on_signal | on_row_changed | on_row_added | on_schedule"
+              },
+              "trigger_config": {
+                "type": "object",
+                "description": "Trigger-type-specific config (e.g. {interval: daily} for on_schedule)"
+              },
+              "condition": {
+                "type": "string",
+                "description": "Optional condition expression"
+              },
+              "actions": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                },
+                "description": "List of {type, config} actions"
+              },
+              "scope_workbook_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true
+              },
+              "stop_on_error": {
+                "type": "boolean",
+                "default": false
+              },
+              "max_spend_usd_per_day": {
+                "type": "number"
+              },
+              "max_actions_per_day": {
+                "type": "integer"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "name",
+              "trigger_type"
+            ]
+          }
+        },
+        {
+          "name": "send_email",
+          "description": "Enqueue an outreach email to a lead through the durable send path (inherits suppression, rate limits, debit-on-success, the bounce circuit breaker). Optionally tied to a sequence step. Refused unless legacy outreach is enabled. Admin only — HIGHEST RISK.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "Lead to email (must be in the caller's workspace)"
+              },
+              "sequence_id": {
+                "type": "string",
+                "description": "Optional sequence id; the send is keyed to its step"
+              },
+              "step_number": {
+                "type": "integer",
+                "default": 0
+              },
+              "subject": {
+                "type": "string"
+              },
+              "body_html": {
+                "type": "string"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op (at-most-once send)."
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "delete_lead",
+          "description": "Permanently delete a lead by ID in the caller's workspace. A lead in another workspace is a no-op miss. Idempotent. Admin only — DESTRUCTIVE.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID to delete"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        },
+        {
+          "name": "delete_workbook",
+          "description": "Permanently delete a workbook by ID in the caller's workspace. A workbook in another workspace is a no-op miss. Idempotent. Admin only — DESTRUCTIVE.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "workbook_id": {
+                "type": "string",
+                "description": "The workbook ID to delete"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional; a retry with the same key is a no-op."
+              }
+            },
+            "required": [
+              "workbook_id"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

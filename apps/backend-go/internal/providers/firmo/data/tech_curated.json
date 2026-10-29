@@ -1,0 +1,526 @@
+[
+ {
+  "name": "WordPress",
+  "cat": "CMS",
+  "headers": {
+   "x-powered-by": "WordPress"
+  },
+  "html": [
+   "wp-content/",
+   "wp-includes/"
+  ],
+  "meta": {
+   "generator": "WordPress"
+  }
+ },
+ {
+  "name": "Shopify",
+  "cat": "eCommerce",
+  "headers": {
+   "x-shopid": "."
+  },
+  "html": [
+   "cdn\\.shopify\\.com",
+   "Shopify\\.theme"
+  ],
+  "cookies": [
+   "_shopify_s"
+  ]
+ },
+ {
+  "name": "Wix",
+  "cat": "CMS",
+  "html": [
+   "static\\.wixstatic\\.com",
+   "X-Wix-"
+  ]
+ },
+ {
+  "name": "Squarespace",
+  "cat": "CMS",
+  "html": [
+   "static\\.squarespace\\.com",
+   "squarespace-cdn"
+  ]
+ },
+ {
+  "name": "Webflow",
+  "cat": "CMS",
+  "html": [
+   "assets\\.website-files\\.com",
+   "webflow\\.com"
+  ],
+  "meta": {
+   "generator": "Webflow"
+  }
+ },
+ {
+  "name": "Drupal",
+  "cat": "CMS",
+  "headers": {
+   "x-drupal-cache": "."
+  },
+  "html": [
+   "sites/default/files",
+   "Drupal\\.settings"
+  ],
+  "meta": {
+   "generator": "Drupal"
+  }
+ },
+ {
+  "name": "Joomla",
+  "cat": "CMS",
+  "html": [
+   "/media/jui/",
+   "Joomla!"
+  ],
+  "meta": {
+   "generator": "Joomla"
+  }
+ },
+ {
+  "name": "Ghost",
+  "cat": "CMS",
+  "html": [
+   "ghost\\.org",
+   "ghost-"
+  ],
+  "meta": {
+   "generator": "Ghost"
+  }
+ },
+ {
+  "name": "HubSpot CMS",
+  "cat": "CMS",
+  "html": [
+   "js\\.hs-scripts\\.com",
+   "hs-banner\\.com",
+   "hubspot"
+  ]
+ },
+ {
+  "name": "WooCommerce",
+  "cat": "eCommerce",
+  "html": [
+   "woocommerce",
+   "wc-cart"
+  ]
+ },
+ {
+  "name": "Magento",
+  "cat": "eCommerce",
+  "html": [
+   "Magento",
+   "mage/"
+  ],
+  "cookies": [
+   "frontend"
+  ]
+ },
+ {
+  "name": "BigCommerce",
+  "cat": "eCommerce",
+  "html": [
+   "bigcommerce\\.com",
+   "cdn\\d+\\.bigcommerce"
+  ]
+ },
+ {
+  "name": "PrestaShop",
+  "cat": "eCommerce",
+  "html": [
+   "prestashop",
+   "PrestaShop"
+  ],
+  "meta": {
+   "generator": "PrestaShop"
+  }
+ },
+ {
+  "name": "React",
+  "cat": "JS Framework",
+  "html": [
+   "react\\.production\\.min\\.js",
+   "__NEXT_DATA__",
+   "_reactRootContainer",
+   "react-dom"
+  ]
+ },
+ {
+  "name": "Next.js",
+  "cat": "JS Framework",
+  "html": [
+   "__NEXT_DATA__",
+   "_next/static",
+   "next/dist"
+  ],
+  "headers": {
+   "x-powered-by": "Next\\.js"
+  }
+ },
+ {
+  "name": "Vue.js",
+  "cat": "JS Framework",
+  "html": [
+   "vue\\.(?:min\\.)?js",
+   "__vue__",
+   "Vue\\.config"
+  ]
+ },
+ {
+  "name": "Nuxt.js",
+  "cat": "JS Framework",
+  "html": [
+   "__NUXT__",
+   "_nuxt/"
+  ],
+  "headers": {
+   "x-powered-by": "Nuxt"
+  }
+ },
+ {
+  "name": "Angular",
+  "cat": "JS Framework",
+  "html": [
+   "ng-version",
+   "angular\\.(?:min\\.)?js",
+   "ng-app"
+  ]
+ },
+ {
+  "name": "Svelte",
+  "cat": "JS Framework",
+  "html": [
+   "svelte",
+   "__svelte"
+  ]
+ },
+ {
+  "name": "jQuery",
+  "cat": "JS Library",
+  "html": [
+   "jquery[\\.-][\\d\\.]+\\.(?:min\\.)?js"
+  ]
+ },
+ {
+  "name": "Bootstrap",
+  "cat": "CSS Framework",
+  "html": [
+   "bootstrap\\.(?:min\\.)?(?:css|js)",
+   "cdn\\.jsdelivr\\.net/npm/bootstrap"
+  ]
+ },
+ {
+  "name": "Tailwind CSS",
+  "cat": "CSS Framework",
+  "html": [
+   "tailwindcss",
+   "tailwind\\.min\\.css"
+  ]
+ },
+ {
+  "name": "Google Analytics",
+  "cat": "Analytics",
+  "html": [
+   "google-analytics\\.com/analytics",
+   "googletagmanager\\.com",
+   "gtag\\(",
+   "UA-\\d{4,}"
+  ]
+ },
+ {
+  "name": "Google Tag Manager",
+  "cat": "Tag Manager",
+  "html": [
+   "googletagmanager\\.com/gtm\\.js",
+   "GTM-[A-Z0-9]+"
+  ]
+ },
+ {
+  "name": "Hotjar",
+  "cat": "Analytics",
+  "html": [
+   "hotjar\\.com",
+   "hj\\("
+  ]
+ },
+ {
+  "name": "Mixpanel",
+  "cat": "Analytics",
+  "html": [
+   "cdn\\.mxpnl\\.com",
+   "mixpanel"
+  ]
+ },
+ {
+  "name": "Segment",
+  "cat": "Analytics",
+  "html": [
+   "cdn\\.segment\\.com",
+   "analytics\\.identify"
+  ]
+ },
+ {
+  "name": "Amplitude",
+  "cat": "Analytics",
+  "html": [
+   "cdn\\.amplitude\\.com",
+   "amplitude"
+  ]
+ },
+ {
+  "name": "Plausible",
+  "cat": "Analytics",
+  "html": [
+   "plausible\\.io"
+  ]
+ },
+ {
+  "name": "Heap",
+  "cat": "Analytics",
+  "html": [
+   "heap-\\d+",
+   "heapanalytics\\.com"
+  ]
+ },
+ {
+  "name": "Matomo",
+  "cat": "Analytics",
+  "html": [
+   "matomo\\.js",
+   "piwik\\.js"
+  ]
+ },
+ {
+  "name": "Facebook Pixel",
+  "cat": "Marketing",
+  "html": [
+   "connect\\.facebook\\.net/en_US/fbevents",
+   "fbq\\("
+  ]
+ },
+ {
+  "name": "LinkedIn Insight",
+  "cat": "Marketing",
+  "html": [
+   "snap\\.licdn\\.com",
+   "_linkedin_data_partner"
+  ]
+ },
+ {
+  "name": "HubSpot",
+  "cat": "Marketing",
+  "html": [
+   "js\\.hs-scripts\\.com",
+   "hs-analytics"
+  ]
+ },
+ {
+  "name": "Intercom",
+  "cat": "Support",
+  "html": [
+   "widget\\.intercom\\.io",
+   "Intercom\\(",
+   "intercomSettings"
+  ]
+ },
+ {
+  "name": "Drift",
+  "cat": "Support",
+  "html": [
+   "js\\.driftt\\.com",
+   "drift\\.com"
+  ]
+ },
+ {
+  "name": "Crisp",
+  "cat": "Support",
+  "html": [
+   "client\\.crisp\\.chat"
+  ]
+ },
+ {
+  "name": "Zendesk",
+  "cat": "Support",
+  "html": [
+   "static\\.zdassets\\.com",
+   "zopim",
+   "zendesk"
+  ]
+ },
+ {
+  "name": "Freshdesk",
+  "cat": "Support",
+  "html": [
+   "widget\\.freshworks\\.com",
+   "freshdesk"
+  ]
+ },
+ {
+  "name": "Mailchimp",
+  "cat": "Email Marketing",
+  "html": [
+   "chimpstatic\\.com",
+   "mc\\.us\\d+\\.list-manage"
+  ]
+ },
+ {
+  "name": "Calendly",
+  "cat": "Scheduling",
+  "html": [
+   "calendly\\.com/"
+  ]
+ },
+ {
+  "name": "Cloudflare",
+  "cat": "CDN",
+  "headers": {
+   "server": "cloudflare",
+   "cf-ray": "."
+  }
+ },
+ {
+  "name": "AWS",
+  "cat": "Cloud",
+  "headers": {
+   "server": "AmazonS3|Amazon|awselb",
+   "x-amz-request-id": "."
+  }
+ },
+ {
+  "name": "Vercel",
+  "cat": "Hosting",
+  "headers": {
+   "server": "Vercel",
+   "x-vercel-id": "."
+  }
+ },
+ {
+  "name": "Netlify",
+  "cat": "Hosting",
+  "headers": {
+   "server": "Netlify",
+   "x-nf-request-id": "."
+  }
+ },
+ {
+  "name": "Nginx",
+  "cat": "Web Server",
+  "headers": {
+   "server": "nginx"
+  }
+ },
+ {
+  "name": "Apache",
+  "cat": "Web Server",
+  "headers": {
+   "server": "Apache"
+  }
+ },
+ {
+  "name": "PHP",
+  "cat": "Language",
+  "headers": {
+   "x-powered-by": "PHP"
+  }
+ },
+ {
+  "name": "ASP.NET",
+  "cat": "Language",
+  "headers": {
+   "x-powered-by": "ASP\\.NET",
+   "x-aspnet-version": "."
+  }
+ },
+ {
+  "name": "Ruby on Rails",
+  "cat": "Framework",
+  "headers": {
+   "x-powered-by": "Phusion Passenger"
+  },
+  "html": [
+   "csrf-token"
+  ]
+ },
+ {
+  "name": "Laravel",
+  "cat": "Framework",
+  "cookies": [
+   "laravel_session",
+   "XSRF-TOKEN"
+  ]
+ },
+ {
+  "name": "Django",
+  "cat": "Framework",
+  "cookies": [
+   "csrftoken"
+  ],
+  "headers": {
+   "x-frame-options": "SAMEORIGIN"
+  }
+ },
+ {
+  "name": "Salesforce",
+  "cat": "CRM",
+  "html": [
+   "force\\.com",
+   "salesforce"
+  ]
+ },
+ {
+  "name": "Marketo",
+  "cat": "Marketing Automation",
+  "html": [
+   "marketo\\.net",
+   "mkto"
+  ]
+ },
+ {
+  "name": "Pardot",
+  "cat": "Marketing Automation",
+  "html": [
+   "pardot\\.com",
+   "pi\\.pardot"
+  ]
+ },
+ {
+  "name": "Stripe",
+  "cat": "Payments",
+  "html": [
+   "js\\.stripe\\.com",
+   "Stripe\\("
+  ]
+ },
+ {
+  "name": "PayPal",
+  "cat": "Payments",
+  "html": [
+   "paypal\\.com/sdk",
+   "paypalobjects\\.com"
+  ]
+ },
+ {
+  "name": "Razorpay",
+  "cat": "Payments",
+  "html": [
+   "checkout\\.razorpay\\.com"
+  ]
+ },
+ {
+  "name": "Recaptcha",
+  "cat": "Security",
+  "html": [
+   "google\\.com/recaptcha",
+   "grecaptcha"
+  ]
+ },
+ {
+  "name": "Cloudflare Turnstile",
+  "cat": "Security",
+  "html": [
+   "challenges\\.cloudflare\\.com/turnstile"
+  ]
+ }
+]

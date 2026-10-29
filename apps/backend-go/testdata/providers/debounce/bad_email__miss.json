@@ -1,0 +1,21 @@
+{
+ "provider": "debounce",
+ "input_name": "bad_email",
+ "scenario": "miss",
+ "input": {
+  "email": "nope"
+ },
+ "secrets": {
+  "DEBOUNCE_API_KEY": "ctk_debounce_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "debounce",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No email to verify"
+ }
+}

@@ -1,0 +1,50 @@
+{
+  "note": "FINDING: destination_runs.status is VARCHAR(20) on PostgreSQL but the engine writes 'completed_with_errors' (21 chars) when any delivery failed. Run against a real migrated PG database (webhook destination, two members, deliveries: lead 1 succeeds, lead 2 fails), handle_destination_sync raises at the final commit; the run stays 'running', the destination health is not updated, and only reconcile_destination_job_failure (after the queue's retries) moves the run to 'failed'. The router retry rule also accepts 'completed_with_errors', which can never exist on PG. Go uses the same column (no DDL): a decision is needed (see the report).",
+  "status_column_max_length": 20,
+  "script": "lead 1 success, lead 2 failure 'HTTP 500'",
+  "raises": {
+    "type": "DataError",
+    "module": "sqlalchemy.exc",
+    "message": "(psycopg.errors.StringDataRightTruncation) value too long for type character varying(20)"
+  },
+  "run_after_handler": {
+    "status": "running",
+    "error": null,
+    "attempted": 0,
+    "succeeded": 0,
+    "failed": 0,
+    "skipped": 0,
+    "finished": false
+  },
+  "deliveries_after_handler": [
+    {
+      "lead_id": 1,
+      "status": "success",
+      "attempts": 1,
+      "error": null
+    },
+    {
+      "lead_id": 2,
+      "status": "failed",
+      "attempts": 1,
+      "error": "HTTP 500"
+    }
+  ],
+  "destination_after_handler": {
+    "health_status": "unverified",
+    "last_error": null
+  },
+  "run_after_reconcile_final": {
+    "status": "failed",
+    "error": "Final failure: DataError: final commit failed",
+    "attempted": 2,
+    "succeeded": 1,
+    "failed": 1,
+    "skipped": 0
+  },
+  "destination_after_reconcile_final": {
+    "health_status": "degraded",
+    "last_error": "Final failure: DataError: final commit failed"
+  },
+  "reconcile_error_argument": "DataError: final commit failed"
+}

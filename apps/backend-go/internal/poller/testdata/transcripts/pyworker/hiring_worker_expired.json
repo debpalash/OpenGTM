@@ -1,0 +1,21 @@
+{
+ "description": "pool worker died -> status error",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:hiring_worker_expired:0",
+  "input": {
+   "company": "Acme",
+   "max_jobs": 5
+  },
+  "provider": "jobspy_signals",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": "provider worker expired",
+  "output": null,
+  "status": "error"
+ },
+ "scenario": "hiring_worker_expired"
+}

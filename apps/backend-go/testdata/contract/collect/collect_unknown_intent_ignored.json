@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "intent": "bogus",
+      "query": "staffing firms in Noida"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005005",
+      "ok": true,
+      "query": "staffing firms in Noida",
+      "queue_job_id": 15,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

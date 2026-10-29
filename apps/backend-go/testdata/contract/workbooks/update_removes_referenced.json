@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "website",
+          "name": "Website"
+        },
+        {
+          "id": "summary",
+          "input_columns": [
+            "company"
+          ],
+          "name": "Summary",
+          "prompt": "x {Company}",
+          "type": "ai_formula"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-alpha-2"
+  },
+  "response": {
+    "body": {
+      "detail": "Replacement removes a referenced column. Update dependent columns first."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

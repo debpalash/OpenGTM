@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "token": "abc",
+        "url": "https://h.example.test"
+      },
+      "destination_type": "webhook",
+      "name": "cfg 1"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "credentials must use workspace secrets, not destination config"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

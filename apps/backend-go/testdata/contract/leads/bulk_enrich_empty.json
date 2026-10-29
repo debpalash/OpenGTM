@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": []
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/bulk-enrich"
+  },
+  "response": {
+    "body": {
+      "detail": "lead_ids required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

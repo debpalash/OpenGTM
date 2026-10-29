@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "bogus": 1,
+      "city": "Oslo",
+      "company": "Acme 01 Ltd",
+      "score": 7
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-alpha-2/leads/1"
+  },
+  "response": {
+    "body": {
+      "fields": [
+        "city",
+        "company",
+        "score"
+      ],
+      "lead_id": 1,
+      "status": "updated"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        "3011"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 1,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "error": "preview failed: Unknown column reference: website. Fix the template before sending."
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3011",
+          "workbook_id": "wb-auto-2"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,59 @@
+{
+ "vendor": "hubspot",
+ "scenario": "contacts",
+ "call": {
+  "function": "get_contacts",
+  "args": {
+   "limit": 2
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts?limit=2&properties=email%2Cfirstname%2Clastname%2Ccompany%2Cphone%2Cjobtitle",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"results\":[{\"id\":\"1\",\"properties\":{\"email\":\"c1@example.com\",\"firstname\":\"C\",\"lastname\":\"1\",\"company\":\"Co 1\",\"phone\":\"\",\"website\":null,\"jobtitle\":\"Dev\"}},{\"id\":\"2\",\"properties\":{\"email\":\"c2@example.com\",\"firstname\":\"C\",\"lastname\":\"2\",\"company\":\"Co 2\",\"phone\":\"\",\"website\":null,\"jobtitle\":\"Dev\"}}]}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": [
+  {
+   "id": "1",
+   "properties": {
+    "email": "c1@example.com",
+    "firstname": "C",
+    "lastname": "1",
+    "company": "Co 1",
+    "phone": "",
+    "website": null,
+    "jobtitle": "Dev"
+   }
+  },
+  {
+   "id": "2",
+   "properties": {
+    "email": "c2@example.com",
+    "firstname": "C",
+    "lastname": "2",
+    "company": "Co 2",
+    "phone": "",
+    "website": null,
+    "jobtitle": "Dev"
+   }
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/files/list?path=sub"
+  },
+  "response": {
+    "body": [
+      {
+        "is_dir": false,
+        "modified": "2026-01-07T10:00:00",
+        "name": "inner.md",
+        "path": "sub/inner.md",
+        "size": 8,
+        "type": "document"
+      },
+      {
+        "is_dir": true,
+        "modified": "2026-01-09T10:00:00",
+        "name": "deeper",
+        "path": "sub/deeper",
+        "size": 0,
+        "type": "folder"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

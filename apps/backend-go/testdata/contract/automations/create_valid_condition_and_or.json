@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "condition": "{a} == 1 AND {b} != 2 OR not_empty({c})",
+      "name": "Cond and_or",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "actions": [],
+      "condition": "{a} == 1 AND {b} != 2 OR not_empty({c})",
+      "created_at": "2099-01-01T00:00:00.000001+00:00",
+      "created_by": "1",
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000000025",
+      "last_fired_at": null,
+      "max_actions_per_day": null,
+      "max_spend_usd_per_day": null,
+      "name": "Cond and_or",
+      "next_run_at": null,
+      "schedule_anchor": null,
+      "scope_workbook_ids": [],
+      "stop_on_error": false,
+      "trigger_config": {},
+      "trigger_type": "on_row_added",
+      "updated_at": "2099-01-01T00:00:00.000001+00:00",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

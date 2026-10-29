@@ -1,0 +1,54 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/ResourceTypes"
+  },
+  "response": {
+    "body": {
+      "Resources": [
+        {
+          "endpoint": "/Users",
+          "id": "User",
+          "meta": {
+            "location": "/scim/v2/alpha/ResourceTypes/User",
+            "resourceType": "ResourceType"
+          },
+          "name": "User",
+          "schema": "urn:ietf:params:scim:schemas:core:2.0:User",
+          "schemaExtensions": [],
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+          ]
+        },
+        {
+          "endpoint": "/Groups",
+          "id": "Group",
+          "meta": {
+            "location": "/scim/v2/alpha/ResourceTypes/Group",
+            "resourceType": "ResourceType"
+          },
+          "name": "Group",
+          "schema": "urn:ietf:params:scim:schemas:core:2.0:Group",
+          "schemaExtensions": [],
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+          ]
+        }
+      ],
+      "itemsPerPage": 2,
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      ],
+      "startIndex": 1,
+      "totalResults": 2
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

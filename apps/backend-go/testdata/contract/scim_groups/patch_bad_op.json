@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "Operations": [
+        {
+          "op": "add",
+          "path": "nope",
+          "value": 1
+        }
+      ],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Groups/400e90fd-a2b4-4db1-803e-0135fca81caa"
+  },
+  "response": {
+    "body": {
+      "detail": "Unsupported group patch operation: add nope"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

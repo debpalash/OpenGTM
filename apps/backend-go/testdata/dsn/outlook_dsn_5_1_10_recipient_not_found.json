@@ -1,0 +1,13 @@
+{
+  "name": "outlook_dsn_5_1_10_recipient_not_found",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.10 RESOLVER.ADR.RecipientNotFound; Recipient not found by SMTP address lookup",
+      "kind": "hard",
+      "original_message_id": "<orig-0005@contract.example.com>",
+      "recipient": "nobody@example.net"
+    }
+  ],
+  "source_message_id": "<dsn-0005@mx.example.net>"
+}

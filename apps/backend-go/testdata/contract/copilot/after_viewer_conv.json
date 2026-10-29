@@ -1,0 +1,51 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/000003eb-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "000003eb-000",
+        "title": "[sim:text_plain] go ahead",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:text_plain] go ahead",
+          "conversation_id": "000003eb-000",
+          "created_at": "<volatile>",
+          "id": "000003ec-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "update_lead_status result",
+          "conversation_id": "000003eb-000",
+          "created_at": "<volatile>",
+          "id": "000003ed-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"update_lead_status\", \"result\": {\"error\": \"Insufficient workspace role\"}}"
+        },
+        {
+          "content": "Hello from the simulator \u2014 caf\u00e9 \u2713.",
+          "conversation_id": "000003eb-000",
+          "created_at": "<volatile>",
+          "id": "000003ee-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "destination_type": "salesforce",
+      "field_map": {
+        "a": 1
+      },
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 1,
+          "loc": [
+            "body",
+            "field_map",
+            "a"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

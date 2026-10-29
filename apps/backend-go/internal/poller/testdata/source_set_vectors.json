@@ -1,0 +1,1134 @@
+{
+ "vectors": [
+  {
+   "kind": "funding",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "company_funded",
+    "executive_hired"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "executive_hired"
+   ],
+   "website_tech": false,
+   "sources": [
+    "exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "executive_hired",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "hiring_surge",
+    "new_tech_adopted"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "hiring_surge"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "new_tech_adopted"
+   ],
+   "website_tech": false,
+   "sources": [
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "new_tech_adopted",
+    "hiring_surge"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded",
+    "executive_hired",
+    "hiring_surge",
+    "new_tech_adopted"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "executive_hired"
+   ],
+   "website_tech": false,
+   "sources": [
+    "exec"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "hiring_surge"
+   ],
+   "website_tech": false,
+   "sources": [
+    "hiring"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "new_tech_adopted"
+   ],
+   "website_tech": false,
+   "sources": [
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded",
+    "executive_hired"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "executive_hired",
+    "hiring_surge"
+   ],
+   "website_tech": false,
+   "sources": [
+    "exec",
+    "hiring"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "new_tech_adopted",
+    "hiring_surge",
+    "executive_hired",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "leadership_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "funding"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "leadership_change",
+    "funding"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "pricing_page_change",
+    "funding",
+    "leadership_change",
+    "partnership_hiring"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": false,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "unknown",
+   "signal_types": null,
+   "website_tech": false,
+   "sources": []
+  },
+  {
+   "kind": "funding",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "company_funded",
+    "executive_hired"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "executive_hired"
+   ],
+   "website_tech": true,
+   "sources": [
+    "exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "executive_hired",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "funding",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "hiring_surge",
+    "new_tech_adopted"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "hiring_surge"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "new_tech_adopted"
+   ],
+   "website_tech": true,
+   "sources": [
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "new_tech_adopted",
+    "hiring_surge"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "hiring",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news"
+   ],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "feed",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "feed"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded",
+    "executive_hired",
+    "hiring_surge",
+    "new_tech_adopted"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "executive_hired"
+   ],
+   "website_tech": true,
+   "sources": [
+    "exec"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "hiring_surge"
+   ],
+   "website_tech": true,
+   "sources": [
+    "hiring"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "new_tech_adopted"
+   ],
+   "website_tech": true,
+   "sources": [
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "company_funded",
+    "executive_hired"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "executive_hired",
+    "hiring_surge"
+   ],
+   "website_tech": true,
+   "sources": [
+    "exec",
+    "hiring"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "new_tech_adopted",
+    "hiring_surge",
+    "executive_hired",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding_exec",
+    "hiring",
+    "web_tech"
+   ]
+  },
+  {
+   "kind": "company",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "funding"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "job_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "job_change",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "job_change"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change",
+    "funding",
+    "pricing_page_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "leadership_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "funding"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "pricing_page_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "partnership_hiring",
+    "leadership_change"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "leadership_change",
+    "funding"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "pricing_page_change",
+    "funding",
+    "leadership_change",
+    "partnership_hiring"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "bogus"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "account_group",
+   "signal_types": [
+    "news",
+    "company_funded"
+   ],
+   "website_tech": true,
+   "sources": [
+    "account_group"
+   ]
+  },
+  {
+   "kind": "unknown",
+   "signal_types": null,
+   "website_tech": true,
+   "sources": []
+  }
+ ]
+}

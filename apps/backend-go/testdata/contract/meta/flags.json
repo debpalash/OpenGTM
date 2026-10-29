@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/flags"
+  },
+  "response": {
+    "body": {
+      "allow_legacy_outreach": false,
+      "automations_enabled": false,
+      "intent_poller_enabled": false,
+      "pg_lead_store": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

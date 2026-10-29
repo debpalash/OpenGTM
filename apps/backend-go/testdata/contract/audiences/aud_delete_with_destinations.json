@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/audiences/aud-act-1"
+  },
+  "response": {
+    "body": null,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 204
+  }
+}

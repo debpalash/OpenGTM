@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-webhook/runs?limit=2&offset=2"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "WyIyMDI2LTA4LTI3VDEwOjAwOjAwIiwicnVuLWFjdC13MyJd",
+      "offset": 2,
+      "runs": [
+        {
+          "attempted": 1,
+          "created_at": "2026-08-27T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": "Cancellation completed",
+          "failed": 0,
+          "finished_at": "2026-08-27T10:00:30",
+          "id": "run-act-w4",
+          "skipped": 0,
+          "started_at": "2026-08-27T10:00:00",
+          "status": "cancelled",
+          "succeeded": 1
+        },
+        {
+          "attempted": 2,
+          "created_at": "2026-08-27T10:00:00",
+          "destination_id": "dst-act-webhook",
+          "error": null,
+          "failed": 0,
+          "finished_at": "2026-08-27T10:01:00",
+          "id": "run-act-w3",
+          "skipped": 1,
+          "started_at": "2026-08-27T10:00:00",
+          "status": "completed",
+          "succeeded": 2
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

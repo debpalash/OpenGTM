@@ -1,0 +1,51 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "anything": [
+          1,
+          2
+        ],
+        "nested": {
+          "k": "v"
+        }
+      },
+      "destination_type": "hubspot",
+      "name": "hs any keys ok"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "anything": [
+          1,
+          2
+        ],
+        "nested": {
+          "k": "v"
+        }
+      },
+      "created_at": "2026-10-26T17:05:49.873508",
+      "destination_type": "hubspot",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002113",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "hs any keys ok",
+      "updated_at": "2026-10-26T17:05:49.873508"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

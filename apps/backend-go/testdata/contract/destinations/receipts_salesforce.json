@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-salesforce/inbound-receipts"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "receipts": [
+        {
+          "applied_fields": [
+            "city"
+          ],
+          "conflict_policy": "crm_wins",
+          "created_at": "2026-08-28T11:00:00",
+          "destination_id": "dst-act-salesforce",
+          "error": null,
+          "external_event_id": "evt-sf-1",
+          "external_record_id": "sf-1",
+          "id": "rcp-sf-1",
+          "ignored_fields": [],
+          "lead_id": 14,
+          "provider": "salesforce",
+          "status": "applied"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

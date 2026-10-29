@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "evt-cb-3",
+      "fields": {
+        "email": "hello@zenithrobotics.example.com",
+        "jobtitle": "COO",
+        "name": "ignored when set"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "applied_fields": [
+        "contact_title"
+      ],
+      "conflict_policy": "fill_missing",
+      "created_at": "2026-10-26T17:05:52.271905",
+      "destination_id": "dst-act-hubspot",
+      "error": null,
+      "external_event_id": "evt-cb-3",
+      "external_record_id": null,
+      "id": "00000000-0000-4000-8000-000000002116",
+      "ignored_fields": [
+        "company",
+        "email"
+      ],
+      "lead_id": 6,
+      "provider": "hubspot",
+      "replay": false,
+      "status": "applied"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

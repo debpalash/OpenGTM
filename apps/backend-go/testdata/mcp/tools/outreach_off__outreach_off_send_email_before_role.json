@@ -1,0 +1,45 @@
+{
+  "seq": 2,
+  "profile": "outreach_off",
+  "token": "all",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 1
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"legacy_outreach_disabled\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-all",
+      "user_id": 2,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 1
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "legacy_outreach_disabled",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

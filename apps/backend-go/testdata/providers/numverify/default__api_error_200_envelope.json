@@ -1,0 +1,37 @@
+{
+ "provider": "numverify",
+ "input_name": "default",
+ "scenario": "api_error_200_envelope",
+ "input": {
+  "phone": "+1 (555) 010-0100"
+ },
+ "secrets": {
+  "NUMVERIFY_API_KEY": "ctk_numverify_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "http://apilayer.net/api/validate?access_key={{secret:NUMVERIFY_API_KEY}}&number=%2B15550100100&format=1",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"success\":false,\"error\":{\"code\":101,\"type\":\"invalid_access_key\",\"info\":\"bad key\"}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "numverify",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Number not valid"
+ }
+}

@@ -1,0 +1,53 @@
+{
+  "request": {
+    "body": {
+      "name": "StepXml",
+      "prompt_template": "Describe {company} please.",
+      "steps": [
+        {
+          "key": "k1",
+          "name": "A",
+          "output_format": "xml",
+          "prompt_template": "First step text."
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "name": "StepXml",
+            "prompt_template": "Describe {company} please.",
+            "steps": [
+              {
+                "key": "k1",
+                "name": "A",
+                "output_format": "xml",
+                "prompt_template": "First step text."
+              }
+            ]
+          },
+          "loc": [
+            "body"
+          ],
+          "msg": "Value error, step output_format must be text or json",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

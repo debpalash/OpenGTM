@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "name": "Bad",
+      "refresh_enabled": "maybe"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "maybe",
+          "loc": [
+            "body",
+            "refresh_enabled"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

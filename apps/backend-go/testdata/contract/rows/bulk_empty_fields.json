@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": {
+      "updates": [
+        {
+          "fields": {},
+          "row_id": 6
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/rows"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "actual_length": 0,
+            "field_type": "Dictionary",
+            "min_length": 1
+          },
+          "input": {},
+          "loc": [
+            "body",
+            "updates",
+            0,
+            "fields"
+          ],
+          "msg": "Dictionary should have at least 1 item after validation, not 0",
+          "type": "too_short"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

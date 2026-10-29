@@ -1,0 +1,19 @@
+{
+  "name": "exim_dsn_multi_recipient",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 Unrouteable address",
+      "kind": "hard",
+      "original_message_id": "<orig-0012@contract.example.com>",
+      "recipient": "one@example.org"
+    },
+    {
+      "diagnostic": "smtp; 552 5.2.2 Mailbox full",
+      "kind": "hard",
+      "original_message_id": "<orig-0012@contract.example.com>",
+      "recipient": "two@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0012@mx.example.net>"
+}

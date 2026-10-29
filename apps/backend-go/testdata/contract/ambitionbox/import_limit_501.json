@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "limit": 501
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/ambitionbox/imports"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 500
+          },
+          "input": 501,
+          "loc": [
+            "body",
+            "limit"
+          ],
+          "msg": "Input should be less than or equal to 500",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

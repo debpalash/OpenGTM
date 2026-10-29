@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "destination_type": "salesforce",
+      "name": ""
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "min_length": 1
+          },
+          "input": "",
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "String should have at least 1 character",
+          "type": "string_too_short"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

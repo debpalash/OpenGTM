@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/filter-options"
+  },
+  "response": {
+    "body": {
+      "cities": [
+        "Austin",
+        "Berlin",
+        "Delhi",
+        "\u0130stanbul",
+        "Mumbai",
+        "Pune",
+        "\u6771\u4eac"
+      ],
+      "sources": [
+        "contract",
+        "import",
+        "scrape"
+      ],
+      "specializations": [
+        "Analytics",
+        "Food",
+        "Lighting",
+        "nan",
+        "Robotics",
+        "Software",
+        "Spreadsheets",
+        "Sustainability consulting",
+        "Trade"
+      ],
+      "statuses": [
+        "contacted",
+        "dead",
+        "negotiating",
+        "new",
+        "qualified"
+      ],
+      "tiers": [
+        "cold",
+        "hot",
+        "unqualified",
+        "warm"
+      ],
+      "total_leads": 15
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

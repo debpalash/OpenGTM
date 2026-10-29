@@ -1,0 +1,56 @@
+{
+  "request": {
+    "body": {
+      "dedupe": false,
+      "rows": [
+        {
+          "Company": "Newco One"
+        },
+        {
+          "Company": "Newco One"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import"
+  },
+  "response": {
+    "body": {
+      "added": 2,
+      "analysis": {
+        "collisions": [],
+        "columns_created": [],
+        "custom_columns": [],
+        "detection_reason": "none",
+        "headers": [
+          "Company"
+        ],
+        "importable_rows": 2,
+        "input_rows": 2,
+        "mapped_standard": [
+          "Company"
+        ],
+        "mapping": {
+          "Company": "company"
+        },
+        "skipped_columns": [],
+        "source_system": "generic"
+      },
+      "columns_added": [],
+      "created": 2,
+      "mapping": {
+        "Company": "company"
+      },
+      "skipped_duplicates": 0,
+      "total_rows": 10
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

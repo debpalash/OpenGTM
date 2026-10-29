@@ -1,0 +1,137 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs?status=__all__"
+  },
+  "response": {
+    "body": [
+      {
+        "attempts": 1,
+        "completed_at": "",
+        "created_at": "2026-08-29T08:30:00.250000+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000002",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"IT staffing companies in Bangalore\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 4,
+        "max_attempts": 3,
+        "proxy_used": "http://proxy-1.contract.invalid:8080",
+        "query": "IT staffing companies in Bangalore",
+        "started_at": "2026-08-29T08:31:05.000001+00:00",
+        "status": "running",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 0,
+        "completed_at": "",
+        "created_at": "2026-08-29T08:00:00.100000+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000001",
+        "intent": "market_search",
+        "intent_details": "{}",
+        "leads_found": 0,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "HR staffing agencies in Pune",
+        "started_at": "",
+        "status": "pending",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 1,
+        "completed_at": "2026-08-28T09:20:41.123456+00:00",
+        "created_at": "2026-08-28T09:00:00.500000+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000003",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"recruitment consultancy Mumbai\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 3,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "recruitment consultancy Mumbai",
+        "started_at": "2026-08-28T09:01:02+00:00",
+        "status": "done",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 2,
+        "completed_at": "2026-08-27T10:45:00.999999+00:00",
+        "created_at": "2026-08-27T10:00:00+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000004",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"\\u6771\\u4eac\\u306eIT\\u4f01\\u696d caf\\u00e9\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 2,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "\u6771\u4eac\u306eIT\u4f01\u696d caf\u00e9",
+        "started_at": "2026-08-27T10:00:30+00:00",
+        "status": "done",
+        "tier": 2,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 3,
+        "completed_at": "2026-08-26T11:09:59.000005+00:00",
+        "created_at": "2026-08-26T11:00:00.750000+00:00",
+        "error": "Search provider rate limited (HTTP 429)",
+        "id": "a1000000000000000000000000000005",
+        "intent": "market_search",
+        "intent_details": "not json{",
+        "leads_found": 0,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "payroll outsourcing Delhi",
+        "started_at": "2026-08-26T11:05:00+00:00",
+        "status": "failed",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 1,
+        "completed_at": "2026-08-25T12:06:30.000077+00:00",
+        "created_at": "2026-08-25T12:00:00.000005+00:00",
+        "error": "Cancelled by user",
+        "id": "a1000000000000000000000000000006",
+        "intent": "market_search",
+        "intent_details": "{\"query\": \"executive search Hyderabad\", \"intent\": \"market_search\", \"domain\": \"\", \"entity\": \"\", \"clarification_kind\": \"\", \"clarification_required\": false, \"reason\": \"\", \"options\": []}",
+        "leads_found": 1,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "executive search Hyderabad",
+        "started_at": "2026-08-25T12:01:00+00:00",
+        "status": "cancelled",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "attempts": 1,
+        "completed_at": "",
+        "created_at": "2026-08-24T13:00:00.000001+00:00",
+        "error": "",
+        "id": "a1000000000000000000000000000007",
+        "intent": "company_research",
+        "intent_details": "{\"query\": \"example.com\", \"intent\": \"company_research\", \"domain\": \"example.com\", \"entity\": \"Example\", \"clarification_kind\": \"bare_domain\", \"clarification_required\": true, \"reason\": \"A domain is a company target, not a market-search specification.\", \"options\": [{\"key\": \"company_research\", \"intent\": \"company_research\", \"label\": \"Research Example\", \"description\": \"Build one evidence-backed company profile; do not create page-title leads.\", \"route\": \"/chat\", \"draft\": \"Research the company at example.com. Build one evidence-backed company profile with products, market, size, leadership, customers, recent signals, and cited sources.\"}, {\"key\": \"people_at_company\", \"intent\": \"people_at_company\", \"label\": \"Find people at Example\", \"description\": \"Find named decision-makers who are demonstrably associated with this company.\", \"route\": \"/chat\", \"draft\": \"Find decision-makers at the company example.com. Return named people with title, LinkedIn evidence, and only company-attributable contact data.\"}, {\"key\": \"technology_users\", \"intent\": \"technology_users\", \"label\": \"Find Example users\", \"description\": \"Find actual companies using the product; keep list vendors and articles as evidence only.\", \"route\": \"/chat\", \"draft\": \"Find companies that use the technology or product represented by example.com. Return actual customer companies, not directories or list vendors, and include evidence for each relationship.\"}, {\"key\": \"signal_monitor\", \"intent\": \"signal_monitor\", \"label\": \"Monitor Example\", \"description\": \"Create a watch for company, hiring, product, pricing, and leadership changes.\", \"route\": \"/watches\", \"draft\": \"example.com\"}]}",
+        "leads_found": 0,
+        "max_attempts": 3,
+        "proxy_used": "",
+        "query": "example.com",
+        "started_at": "2026-08-24T13:00:05.000002+00:00",
+        "status": "running",
+        "tier": 1,
+        "workspace_id": "ws-alpha"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

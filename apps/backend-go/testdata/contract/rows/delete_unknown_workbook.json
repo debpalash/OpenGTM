@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/nope/rows"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

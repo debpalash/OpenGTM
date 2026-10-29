@@ -1,0 +1,17 @@
+{
+ "vendor": "salesforce",
+ "scenario": "fetch_not_connected",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 5
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Salesforce not connected (set SALESFORCE_INSTANCE_URL + SALESFORCE_ACCESS_TOKEN)"
+ }
+}

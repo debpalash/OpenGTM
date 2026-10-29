@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "destination_type": "salesforce",
+      "name": "x"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

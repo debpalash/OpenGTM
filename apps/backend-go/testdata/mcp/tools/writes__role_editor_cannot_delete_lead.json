@@ -1,0 +1,45 @@
+{
+  "seq": 47,
+  "profile": "writes",
+  "token": "all",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 47,
+    "method": "tools/call",
+    "params": {
+      "name": "delete_lead",
+      "arguments": {
+        "lead_id": 3
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 47,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"insufficient workspace role\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-all",
+      "user_id": 2,
+      "tool_name": "delete_lead",
+      "arguments_redacted": {
+        "lead_id": 3
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "insufficient workspace role",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

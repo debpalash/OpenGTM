@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "verify": false
+      },
+      "expected": {
+        "verify": false
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/email_wf/settings"
+  },
+  "response": {
+    "body": {
+      "changes": {
+        "verify": false
+      },
+      "column_id": "email_wf"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

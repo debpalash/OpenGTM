@@ -1,0 +1,718 @@
+{
+  "note": "DestinationCreate / DestinationPatch pydantic behaviour (type lower-casing, name strip, field_map str->str). create.errors keep pydantic's type/loc/msg. validated_config runs the model's validated_config() after a successful parse. patches are model_dump(exclude_unset=True) (PATCH applies each key; name:null crashes with AttributeError on FastAPI: D3).",
+  "create": [
+    {
+      "name": "minimal",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "type_upper",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "WEBHOOK"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "type_mixed",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "Hubspot"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "hubspot",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": true,
+        "config": {}
+      }
+    },
+    {
+      "name": "type_bad",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "pigeon"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "destination_type"
+            ],
+            "msg": "Value error, unsupported destination type 'pigeon'"
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_padded",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": " webhook "
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "destination_type"
+            ],
+            "msg": "Value error, unsupported destination type ' webhook '"
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_empty",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": ""
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "destination_type"
+            ],
+            "msg": "Value error, unsupported destination type ''"
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_null",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": null
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_type",
+            "loc": [
+              "destination_type"
+            ],
+            "msg": "Input should be a valid string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "type_turkish_i",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "SLACK"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "slack",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "slack webhook_secret_ref is required"
+      }
+    },
+    {
+      "name": "type_unicode_lower",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "İNSTANTLY"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "destination_type"
+            ],
+            "msg": "Value error, unsupported destination type 'i̇nstantly'"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_strip",
+      "body": {
+        "audience_id": "a",
+        "name": "  x  ",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "x",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "name_blank",
+      "body": {
+        "audience_id": "a",
+        "name": "   ",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "value_error",
+            "loc": [
+              "name"
+            ],
+            "msg": "Value error, name cannot be blank"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_201",
+      "body": {
+        "audience_id": "a",
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_too_long",
+            "loc": [
+              "name"
+            ],
+            "msg": "String should have at most 200 characters"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_200",
+      "body": {
+        "audience_id": "a",
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "name_empty",
+      "body": {
+        "audience_id": "a",
+        "name": "",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_too_short",
+            "loc": [
+              "name"
+            ],
+            "msg": "String should have at least 1 character"
+          }
+        ]
+      }
+    },
+    {
+      "name": "name_missing",
+      "body": {
+        "audience_id": "a",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "missing",
+            "loc": [
+              "name"
+            ],
+            "msg": "Field required"
+          }
+        ]
+      }
+    },
+    {
+      "name": "audience_missing",
+      "body": {
+        "name": "n",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "missing",
+            "loc": [
+              "audience_id"
+            ],
+            "msg": "Field required"
+          }
+        ]
+      }
+    },
+    {
+      "name": "audience_empty_ok",
+      "body": {
+        "audience_id": "",
+        "name": "n",
+        "destination_type": "webhook"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "enabled_str",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "enabled": "false"
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": false,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "enabled_bad",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "enabled": "x"
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "bool_parsing",
+            "loc": [
+              "enabled"
+            ],
+            "msg": "Input should be a valid boolean, unable to interpret input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "config_list",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "config": []
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "config"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "config_null",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "config": null
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "config"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "field_map_ok",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": {
+          "a": "b"
+        }
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {
+            "a": "b"
+          }
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "field_map_int_value",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": {
+          "a": 1
+        }
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "string_type",
+            "loc": [
+              "field_map",
+              "a"
+            ],
+            "msg": "Input should be a valid string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "field_map_str_number_key",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": {
+          "1": "x"
+        }
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {
+            "1": "x"
+          }
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "field_map_list",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": []
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "field_map"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "field_map_null",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": null
+      },
+      "create": {
+        "errors": [
+          {
+            "type": "dict_type",
+            "loc": [
+              "field_map"
+            ],
+            "msg": "Input should be a valid dictionary"
+          }
+        ]
+      }
+    },
+    {
+      "name": "field_map_empty_values",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "field_map": {
+          "a": ""
+        }
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {
+            "a": ""
+          }
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    },
+    {
+      "name": "extra_ignored",
+      "body": {
+        "audience_id": "a",
+        "name": "n",
+        "destination_type": "webhook",
+        "nope": 1
+      },
+      "create": {
+        "ok": {
+          "audience_id": "a",
+          "name": "n",
+          "destination_type": "webhook",
+          "enabled": true,
+          "config": {},
+          "field_map": {}
+        }
+      },
+      "validated_config": {
+        "ok": false,
+        "error": "webhook requires an http(s) URL without embedded credentials"
+      }
+    }
+  ],
+  "patch": [
+    {
+      "name": "empty",
+      "body": {},
+      "ok": {}
+    },
+    {
+      "name": "name_strip",
+      "body": {
+        "name": " x "
+      },
+      "ok": {
+        "name": "x"
+      }
+    },
+    {
+      "name": "name_blank",
+      "body": {
+        "name": " "
+      },
+      "errors": [
+        {
+          "type": "value_error",
+          "loc": [
+            "name"
+          ],
+          "msg": "Value error, name cannot be blank"
+        }
+      ]
+    },
+    {
+      "name": "name_null",
+      "body": {
+        "name": null
+      },
+      "ok": {
+        "name": null
+      }
+    },
+    {
+      "name": "enabled_null",
+      "body": {
+        "enabled": null
+      },
+      "ok": {
+        "enabled": null
+      }
+    },
+    {
+      "name": "config_null",
+      "body": {
+        "config": null
+      },
+      "ok": {
+        "config": null
+      }
+    },
+    {
+      "name": "field_map_null",
+      "body": {
+        "field_map": null
+      },
+      "ok": {
+        "field_map": null
+      }
+    },
+    {
+      "name": "config_only",
+      "body": {
+        "config": {
+          "a": 1
+        }
+      },
+      "ok": {
+        "config": {
+          "a": 1
+        }
+      }
+    },
+    {
+      "name": "field_map_int",
+      "body": {
+        "field_map": {
+          "a": 1
+        }
+      },
+      "errors": [
+        {
+          "type": "string_type",
+          "loc": [
+            "field_map",
+            "a"
+          ],
+          "msg": "Input should be a valid string"
+        }
+      ]
+    },
+    {
+      "name": "name_201",
+      "body": {
+        "name": "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
+      },
+      "errors": [
+        {
+          "type": "string_too_long",
+          "loc": [
+            "name"
+          ],
+          "msg": "String should have at most 200 characters"
+        }
+      ]
+    },
+    {
+      "name": "extra",
+      "body": {
+        "audience_id": "x",
+        "destination_type": "slack"
+      },
+      "ok": {}
+    }
+  ]
+}

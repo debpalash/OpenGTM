@@ -1,0 +1,241 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?is_used=true&limit=100"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": "2026-08-29T00:00:00.066660+00:00",
+          "email": "User60@Example.COM",
+          "id": 60,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "line one\nline two",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-21T20:33:00+00:00",
+          "email": "User57@mail.Example.com",
+          "id": 57,
+          "is_used": true,
+          "name": "\u00dcnal \u015eahin",
+          "notes": null,
+          "source_link_id": 27,
+          "source_url": "https://source27.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-28T17:06:00+00:00",
+          "email": "User54@Example.COM",
+          "id": 54,
+          "is_used": true,
+          "name": null,
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 24,
+          "source_url": "https://source24.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-09T14:39:00+00:00",
+          "email": "User51@mail.Example.com",
+          "id": 51,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-17T11:12:00.053328+00:00",
+          "email": "User48@Example.COM",
+          "id": 48,
+          "is_used": true,
+          "name": "Sam \"Sammy\" Lee",
+          "notes": "line one\nline two",
+          "source_link_id": 18,
+          "source_url": "https://source18.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-29T08:45:00+00:00",
+          "email": "User45@mail.Example.com",
+          "id": 45,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-22T05:18:00+00:00",
+          "email": "User42@Example.COM",
+          "id": 42,
+          "is_used": true,
+          "name": "\u0141ukasz Nowak",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 12,
+          "source_url": "https://source12.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-29T02:51:00+00:00",
+          "email": "User39@mail.Example.com",
+          "id": 39,
+          "is_used": true,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 9,
+          "source_url": "https://source09.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-09T23:24:00.039996+00:00",
+          "email": "User36@Example.COM",
+          "id": 36,
+          "is_used": true,
+          "name": null,
+          "notes": "line one\nline two",
+          "source_link_id": 6,
+          "source_url": "https://source06.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-16T20:57:00+00:00",
+          "email": "User33@mail.Example.com",
+          "id": 33,
+          "is_used": true,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": null,
+          "source_url": null,
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-28T17:30:00+00:00",
+          "email": "User30@Example.COM",
+          "id": 30,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-21T14:03:00+00:00",
+          "email": "User27@mail.Example.com",
+          "id": 27,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 27,
+          "source_url": "https://source27.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-07-29T11:36:00.026664+00:00",
+          "email": "User24@Example.COM",
+          "id": 24,
+          "is_used": true,
+          "name": "\u674e\u96f7",
+          "notes": "line one\nline two",
+          "source_link_id": 24,
+          "source_url": "https://source24.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-10T08:09:00+00:00",
+          "email": null,
+          "id": 21,
+          "is_used": true,
+          "name": "Zo\u00eb M\u00fcller",
+          "notes": null,
+          "source_link_id": 21,
+          "source_url": "https://source21.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-17T05:42:00+00:00",
+          "email": "User18@Example.COM",
+          "id": 18,
+          "is_used": true,
+          "name": null,
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 18,
+          "source_url": "https://source18.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-29T02:15:00+00:00",
+          "email": "User15@mail.Example.com",
+          "id": 15,
+          "is_used": true,
+          "name": "\u00c5sa Lindstr\u00f6m",
+          "notes": null,
+          "source_link_id": 15,
+          "source_url": "https://source15.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-07-21T23:48:00.013332+00:00",
+          "email": "User12@Example.COM",
+          "id": 12,
+          "is_used": true,
+          "name": "\u0141ukasz Nowak",
+          "notes": "line one\nline two",
+          "source_link_id": 12,
+          "source_url": "https://source12.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-07-28T20:21:00+00:00",
+          "email": "User09@mail.Example.com",
+          "id": 9,
+          "is_used": true,
+          "name": null,
+          "notes": null,
+          "source_link_id": 9,
+          "source_url": "https://source09.example.com/list",
+          "tags": "prospect,vip"
+        },
+        {
+          "created_at": "2026-08-09T17:54:00+00:00",
+          "email": "User06@Example.COM",
+          "id": 6,
+          "is_used": true,
+          "name": "Chlo\u00e9 Dupont",
+          "notes": "He said \"hi\", then left",
+          "source_link_id": 6,
+          "source_url": "https://source06.example.com/list",
+          "tags": "cold"
+        },
+        {
+          "created_at": "2026-08-16T14:27:00+00:00",
+          "email": "User03@mail.Example.com",
+          "id": 3,
+          "is_used": true,
+          "name": "Ren\u00e9e O'Brien",
+          "notes": null,
+          "source_link_id": 3,
+          "source_url": "https://source03.example.com/list",
+          "tags": "prospect,vip"
+        }
+      ],
+      "total": 20
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

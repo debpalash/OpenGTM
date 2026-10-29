@@ -1,0 +1,604 @@
+{
+  "cases": [
+    {
+      "body_html": "<p>Hi</p><hr><p>footer</p>",
+      "body_text": "Hi\n\n--\nfooter\n",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": {
+        "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=abc.def>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+      },
+      "name": "full_headers",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=756",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: Hello there\r\nList-Unsubscribe: \r\n <https://app.example.com/api/outreach/unsubscribe?token=abc.def>\r\nList-Unsubscribe-Post: List-Unsubscribe=One-Click\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nHi\r\n\r\n--\r\nfooter\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>Hi</p><hr><p>footer</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "Hello there",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "body_text": "Hi",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "no_extra_headers",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=581",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: Subject\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nHi\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>Hi</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "Subject",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>Hi&nbsp;<b>there</b> &amp; you</p>\n<p>bye</p>",
+      "body_text": null,
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "derived_plaintext",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=637",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: Subject\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nHi there & you bye\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>Hi&nbsp;<b>there</b> &amp; you</p>\r\n<p>bye</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "Subject",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>Grüße 件名</p>",
+      "body_text": "Grüße 件名",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "nonascii_subject_and_body",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=653",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: =?utf-8?b?R3LDvMOfZSDku7blkI0g8J+YgA==?=\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"utf-8\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: base64\r\n\r\nR3LDvMOfZSDku7blkI0=\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"utf-8\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: base64\r\n\r\nPHA+R3LDvMOfZSDku7blkI08L3A+\r\n\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "Grüße 件名 😀",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "crlf_subject",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=594",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: aBcc: evil@example.com\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "a\r\nBcc: evil@example.com",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "long_subject",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=1573",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: \r\n ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Evil\r\nBcc: x@example.com",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "crlf_from_name",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<> size=580",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: EvilBcc: x@example.com <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "empty_from_name",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=565",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: OpenGTM <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Müller & Söhne",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "from_name_unicode",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=619",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: =?utf-8?b?TcO8bGxlciAmIFPDtmhuZSA8c2VuZGVyQGNvbnRyYWN0LmV4YW1wbGUuY29t?=\r\n =?utf-8?b?Pg==?=\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "from_name_long",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=763",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: \r\n NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN\r\n <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": {
+        "X-Test": "a\r\nInjected: 1"
+      },
+      "name": "extra_header_crlf",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=595",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nX-Test: aInjected: 1\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": {
+        "X-Long": "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+      },
+      "name": "extra_header_long",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=2586",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nX-Long: \r\n vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "recipient_uppercase",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=573",
+          "rcpt to:<To@Example.COM>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: To@Example.COM\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "To@Example.COM"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "line1\n.dot line\n..two dots\n",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "dot_stuffed_body",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=602",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nline1\r\n.dot line\r\n..two dots\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww</p>",
+      "body_text": "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "long_body_line",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@contract.example.com>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<sender@contract.example.com> size=6571",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <sender@contract.example.com>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@contract.example.com>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "me@mail.example.org",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "from_domain_msgid",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@mail.example.org>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<me@mail.example.org> size=561",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <me@mail.example.org>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@mail.example.org>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "justlocal",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "from_without_at",
+      "result": {
+        "error": "",
+        "message_id": "<vec-0001@localhost>",
+        "success": true
+      },
+      "smtp": {
+        "commands": [
+          "EHLO <local-host>",
+          "AUTH PLAIN",
+          "mail from:<justlocal> size=544",
+          "rcpt to:<to@example.com>",
+          "data",
+          "<END-OF-DATA>",
+          "QUIT"
+        ],
+        "data": "Content-Type: multipart/alternative;\r\n boundary=\"===============7000000000000000000==\"\r\nMIME-Version: 1.0\r\nFrom: Contract Sender <justlocal>\r\nTo: to@example.com\r\nSubject: S\r\nMessage-ID: <vec-0001@localhost>\r\n\r\n--===============7000000000000000000==\r\nContent-Type: text/plain; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\nx\r\n--===============7000000000000000000==\r\nContent-Type: text/html; charset=\"us-ascii\"\r\nMIME-Version: 1.0\r\nContent-Transfer-Encoding: 7bit\r\n\r\n<p>x</p>\r\n--===============7000000000000000000==--\r\n"
+      },
+      "subject": "S",
+      "to_email": "to@example.com"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "invalid_recipient",
+      "result": {
+        "error": "invalid recipient address",
+        "message_id": "",
+        "success": false
+      },
+      "smtp": {
+        "commands": [],
+        "data": null
+      },
+      "subject": "S",
+      "to_email": "not an address"
+    },
+    {
+      "body_html": "<p>x</p>",
+      "body_text": "x",
+      "config": {
+        "email": "sender@contract.example.com",
+        "from_name": "Contract Sender",
+        "max_per_hour": 50,
+        "password": "fake-password-not-real",
+        "use_tls": false
+      },
+      "headers": null,
+      "name": "crlf_recipient",
+      "result": {
+        "error": "invalid recipient address",
+        "message_id": "",
+        "success": false
+      },
+      "smtp": {
+        "commands": [],
+        "data": null
+      },
+      "subject": "S",
+      "to_email": "a@example.com\r\nBcc: b@example.com"
+    }
+  ],
+  "note": "wire transcript of the real sender.send_email over smtplib (sender host/port replaced by the scripted server); Message-ID and MIME boundary are deterministic stand-ins (vec-NNNN, 7000...), Date is absent"
+}

@@ -1,0 +1,47 @@
+{
+ "vendor": "instantly",
+ "scenario": "add_429",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "camp-1",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {
+  "INSTANTLY_API_KEY": "ctk_instantly_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.instantly.ai/api/v2/leads",
+    "headers": {
+     "authorization": "Bearer {{secret:INSTANTLY_API_KEY}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"campaign\":\"camp-1\",\"skip_if_in_campaign\":true,\"email\":\"a@b.co\"}",
+    "json": {
+     "campaign": "camp-1",
+     "skip_if_in_campaign": true,
+     "email": "a@b.co"
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json",
+     "retry-after": "2"
+    },
+    "body": "{\"message\":\"Too many requests\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HTTP 429: {\"message\":\"Too many requests\"}"
+ }
+}

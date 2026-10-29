@@ -1,0 +1,318 @@
+{
+ "backoff": [
+  {
+   "interval": 1,
+   "failures": 1,
+   "seconds": 1
+  },
+  {
+   "interval": 1,
+   "failures": 2,
+   "seconds": 2
+  },
+  {
+   "interval": 1,
+   "failures": 3,
+   "seconds": 4
+  },
+  {
+   "interval": 1,
+   "failures": 4,
+   "seconds": 8
+  },
+  {
+   "interval": 1,
+   "failures": 5,
+   "seconds": 16
+  },
+  {
+   "interval": 1,
+   "failures": 6,
+   "seconds": 32
+  },
+  {
+   "interval": 1,
+   "failures": 7,
+   "seconds": 64
+  },
+  {
+   "interval": 1,
+   "failures": 8,
+   "seconds": 128
+  },
+  {
+   "interval": 1,
+   "failures": 9,
+   "seconds": 256
+  },
+  {
+   "interval": 1,
+   "failures": 10,
+   "seconds": 512
+  },
+  {
+   "interval": 1,
+   "failures": 11,
+   "seconds": 1024
+  },
+  {
+   "interval": 1,
+   "failures": 12,
+   "seconds": 2048
+  },
+  {
+   "interval": 60,
+   "failures": 1,
+   "seconds": 60
+  },
+  {
+   "interval": 60,
+   "failures": 2,
+   "seconds": 120
+  },
+  {
+   "interval": 60,
+   "failures": 3,
+   "seconds": 240
+  },
+  {
+   "interval": 60,
+   "failures": 4,
+   "seconds": 480
+  },
+  {
+   "interval": 60,
+   "failures": 5,
+   "seconds": 960
+  },
+  {
+   "interval": 60,
+   "failures": 6,
+   "seconds": 1920
+  },
+  {
+   "interval": 60,
+   "failures": 7,
+   "seconds": 3840
+  },
+  {
+   "interval": 60,
+   "failures": 8,
+   "seconds": 7680
+  },
+  {
+   "interval": 60,
+   "failures": 9,
+   "seconds": 15360
+  },
+  {
+   "interval": 60,
+   "failures": 10,
+   "seconds": 30720
+  },
+  {
+   "interval": 60,
+   "failures": 11,
+   "seconds": 61440
+  },
+  {
+   "interval": 60,
+   "failures": 12,
+   "seconds": 86400
+  },
+  {
+   "interval": 900,
+   "failures": 1,
+   "seconds": 900
+  },
+  {
+   "interval": 900,
+   "failures": 2,
+   "seconds": 1800
+  },
+  {
+   "interval": 900,
+   "failures": 3,
+   "seconds": 3600
+  },
+  {
+   "interval": 900,
+   "failures": 4,
+   "seconds": 7200
+  },
+  {
+   "interval": 900,
+   "failures": 5,
+   "seconds": 14400
+  },
+  {
+   "interval": 900,
+   "failures": 6,
+   "seconds": 28800
+  },
+  {
+   "interval": 900,
+   "failures": 7,
+   "seconds": 57600
+  },
+  {
+   "interval": 900,
+   "failures": 8,
+   "seconds": 86400
+  },
+  {
+   "interval": 900,
+   "failures": 9,
+   "seconds": 86400
+  },
+  {
+   "interval": 900,
+   "failures": 10,
+   "seconds": 86400
+  },
+  {
+   "interval": 900,
+   "failures": 11,
+   "seconds": 86400
+  },
+  {
+   "interval": 900,
+   "failures": 12,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 1,
+   "seconds": 3600
+  },
+  {
+   "interval": 3600,
+   "failures": 2,
+   "seconds": 7200
+  },
+  {
+   "interval": 3600,
+   "failures": 3,
+   "seconds": 14400
+  },
+  {
+   "interval": 3600,
+   "failures": 4,
+   "seconds": 28800
+  },
+  {
+   "interval": 3600,
+   "failures": 5,
+   "seconds": 57600
+  },
+  {
+   "interval": 3600,
+   "failures": 6,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 7,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 8,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 9,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 10,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 11,
+   "seconds": 86400
+  },
+  {
+   "interval": 3600,
+   "failures": 12,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 1,
+   "seconds": 40000
+  },
+  {
+   "interval": 40000,
+   "failures": 2,
+   "seconds": 80000
+  },
+  {
+   "interval": 40000,
+   "failures": 3,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 4,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 5,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 6,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 7,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 8,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 9,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 10,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 11,
+   "seconds": 86400
+  },
+  {
+   "interval": 40000,
+   "failures": 12,
+   "seconds": 86400
+  }
+ ],
+ "fire_keys": [
+  {
+   "unix_micro": 1793008800000000,
+   "key": "inbound:ws-1:2026-10-26T10:00:00+00:00"
+  },
+  {
+   "unix_micro": 1793008800123456,
+   "key": "inbound:ws-1:2026-10-26T10:00:00.123456+00:00"
+  },
+  {
+   "unix_micro": 1767323045000100,
+   "key": "inbound:ws-1:2026-01-02T03:04:05.000100+00:00"
+  }
+ ]
+}

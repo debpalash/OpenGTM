@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "name": "Bad",
+      "refresh_interval_minutes": 14
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 15
+          },
+          "input": 14,
+          "loc": [
+            "body",
+            "refresh_interval_minutes"
+          ],
+          "msg": "Input should be greater than or equal to 15",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

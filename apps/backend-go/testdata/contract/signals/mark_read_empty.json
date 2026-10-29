@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "signal_ids": []
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/signals/mark-read"
+  },
+  "response": {
+    "body": {
+      "count": 0,
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

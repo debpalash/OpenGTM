@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/conv-ed-3"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "2026-08-29 07:00:00",
+        "id": "conv-ed-3",
+        "title": "Pipeline questions",
+        "updated_at": "2026-08-29 07:05:00"
+      },
+      "messages": [
+        {
+          "content": "How many hot leads do we have?",
+          "conversation_id": "conv-ed-3",
+          "created_at": "2026-08-29 07:00:01",
+          "id": "msg-ed3-1",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "get_lead_stats result",
+          "conversation_id": "conv-ed-3",
+          "created_at": "2026-08-29 07:00:02",
+          "id": "msg-ed3-2",
+          "role": "tool",
+          "tool_data": "{\"name\":\"get_lead_stats\",\"result\":{\"total\":18,\"by_tier\":{\"hot\":2,\"warm\":5,\"cold\":9,\"unqualified\":2}}}"
+        },
+        {
+          "content": "search_leads result",
+          "conversation_id": "conv-ed-3",
+          "created_at": "2026-08-29 07:00:03",
+          "id": "msg-ed3-3",
+          "role": "tool",
+          "tool_data": "{\"name\":\"search_leads\",\"result\":[1,2]}"
+        },
+        {
+          "content": "You have 2 hot leads \u2014 caf\u00e9 pipeline looks healthy.",
+          "conversation_id": "conv-ed-3",
+          "created_at": "2026-08-29 07:00:04",
+          "id": "msg-ed3-4",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

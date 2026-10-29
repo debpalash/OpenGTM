@@ -1,0 +1,9 @@
+From: postmaster@mx.example.net
+To: sender@contract.example.com
+Subject: Automatic reply: Hi Ann
+Message-ID: <plain-0001@mx.example.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Auto-Submitted: auto-replied
+
+I am out of office until Monday. Please contact support@example.org.

@@ -1,0 +1,90 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        },
+        {
+          "config": {
+            "url": "https://hooks.example.com/new"
+          },
+          "type": "webhook"
+        }
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "too many actions (max 10)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

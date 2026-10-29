@@ -1,0 +1,51 @@
+{
+  "request": {
+    "body": {
+      "Operations": [
+        {
+          "op": "replace",
+          "path": "members",
+          "value": [
+            {
+              "value": "4"
+            }
+          ]
+        }
+      ],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Groups/b293f97c-e3f3-4e1d-a532-7d6dc8e2c2fd"
+  },
+  "response": {
+    "body": {
+      "displayName": "Empty",
+      "externalId": "",
+      "id": "b293f97c-e3f3-4e1d-a532-7d6dc8e2c2fd",
+      "members": [
+        {
+          "$ref": "/scim/v2/alpha/Users/4",
+          "value": "4"
+        }
+      ],
+      "meta": {
+        "created": "2026-10-26T07:22:55.195218+00:00",
+        "lastModified": "2026-10-26T07:22:55.432623+00:00",
+        "location": "/scim/v2/alpha/Groups/b293f97c-e3f3-4e1d-a532-7d6dc8e2c2fd",
+        "resourceType": "Group"
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Group"
+      ]
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,300 @@
+package workbook
+
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+)
+
+// column is one entry of workbooks.columns_config. cfg keeps the whole
+// canonjson-decoded dict because Python hashes it into the spend contract.
+type column struct {
+	cfg  map[string]any
+	raw  map[string]json.RawMessage // top-level fields as raw JSON (key order of structured values)
+	g    colgraph.Col               // same config with key order, for the dependency graph
+	ID   string
+	Type string
+	Name string
+}
+
+func parseColumns(raw []byte) ([]column, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return nil, nil
+	}
+	v, err := canonjson.Decode(raw)
+	if err != nil {
+		return nil, fmt.Errorf("workbook: columns_config: %w", err)
+	}
+	list, ok := v.([]any)
+	if !ok {
+		return nil, errors.New("workbook: columns_config is not a list")
+	}
+	graph, err := colgraph.ParseCols(raw)
+	if err != nil {
+		return nil, fmt.Errorf("workbook: columns_config: %w", err)
+	}
+	var rawList []json.RawMessage
+	if err := json.Unmarshal(raw, &rawList); err != nil || len(rawList) != len(list) {
+		return nil, errors.New("workbook: columns_config is not a list")
+	}
+	cols := make([]column, 0, len(list))
+	for i, e := range list {
+		m, ok := e.(map[string]any)
+		if !ok {
+			return nil, errors.New("workbook: columns_config entry is not an object")
+		}
+		c := column{cfg: m, g: graph[i], raw: rawFields(rawList[i])}
+		c.ID, _ = m["id"].(string)
+		c.Type, _ = m["type"].(string)
+		c.Name, _ = m["name"].(string)
+		cols = append(cols, c)
+	}
+	return cols, nil
+}
+
+// str returns the string value of key, or "" when absent or not a string.
+func (c column) str(key string) string {
+	s, _ := c.cfg[key].(string)
+	return s
+}
+
+// firstTruthy ports `a or b or c` over config keys.
+func (c column) firstTruthy(keys ...string) string {
+	for _, k := range keys {
+		if v, ok := c.cfg[k]; ok && manifest.PyTruthy(v) {
+			return manifest.PyStr(v)
+		}
+	}
+	return ""
+}
+
+// target ports `target_field or lead_field or col_id`.
+func (c column) target() string { return c.firstTruthy("target_field", "lead_field", "id") }
+
+// explicitChain ports the explicit_selection logic: a configured waterfall
+// (even empty) or a provider is an authorization boundary.
+func (c column) explicitChain() (chain []string, explicit bool) {
+	if w, ok := c.cfg["waterfall"]; ok && w != nil {
+		if list, ok := w.([]any); ok {
+			for _, e := range list {
+				chain = append(chain, manifest.PyStr(e))
+			}
+		}
+		return chain, true
+	}
+	if p, ok := c.cfg["provider"]; ok && manifest.PyTruthy(p) {
+		return []string{manifest.PyStr(p)}, true
+	}
+	return nil, false
+}
+
+// enrichmentColTypes is ENRICHMENT_COL_TYPES.
+var enrichmentColTypes = map[string]bool{
+	"enrichment": true, "waterfall": true, "ai_formula": true, "research": true,
+	"agent": true, "http": true, "formula": true, "output": true,
+}
+
+// goColumnTypes are the only column types this executor runs.
+var goColumnTypes = map[string]bool{"enrichment": true, "waterfall": true, "formula": true, "http": true, "ai_formula": true, "research": true, "agent": true}
+
+// validateGoColumn refuses columns Python eligibility would never have routed
+// here (the workbook may have been edited after enqueue).
+func validateGoColumn(c column) error { return validateGoColumnFor(c, Deps{}) }
+
+// validateGoColumnFor is validateGoColumn under the executor's switches: with FullRun,
+// conditions run here, output columns are delivered through Deps.Output and email cells are
+// verified through Deps.Verify (a missing client still hands the job back).
+func validateGoColumnFor(c column, d Deps) error {
+	if c.Type == "output" && d.FullRun {
+		if d.Output == nil {
+			return refuse("output_unavailable: column %q is an output column and this worker has no destination clients", c.ID)
+		}
+	} else if !goColumnTypes[c.Type] {
+		return refuse("column %q type %q is not supported by the go executor", c.ID, c.Type)
+	}
+	if manifest.PyTruthy(c.cfg["condition"]) && !d.FullRun {
+		return refuse("column %q has a condition", c.ID)
+	}
+	if c.Type != "enrichment" && c.Type != "waterfall" {
+		return nil
+	}
+	if d.FullRun {
+		if c.needsVerify() && d.Verify == nil {
+			return refuse("email_verifier_unavailable: column %q needs email verification", c.ID)
+		}
+		return nil
+	}
+	t := c.target()
+	if t == "email" {
+		if v, ok := c.cfg["verify"]; !ok || manifest.PyTruthy(v) {
+			return refuse("column %q needs email verification", c.ID)
+		}
+	}
+	return nil
+}
+
+// needsVerify is enrich_cell's auto-verify gate (minus the produced value): an
+// enrichment/waterfall column whose target_field or lead_field (never the id fallback) is
+// email, unless verify is falsy.
+func (c column) needsVerify() bool {
+	if c.Type != "enrichment" && c.Type != "waterfall" {
+		return false
+	}
+	if c.firstTruthy("target_field", "lead_field") != "email" {
+		return false
+	}
+	v, ok := c.cfg["verify"]
+	return !ok || manifest.PyTruthy(v)
+}
+
+// allowsAutomaticRetry is cell_scope.allows_automatic_retry: side-effecting cells (output,
+// non-idempotent http) are never re-run by a retry pass.
+func (c column) allowsAutomaticRetry() bool {
+	switch c.Type {
+	case "output":
+		return false
+	case "http":
+		m := strings.ToUpper(manifest.PyStr(orDefault(c.cfg["http_method"], "GET")))
+		return m == "GET" || m == "HEAD" || m == "OPTIONS"
+	}
+	return true
+}
+
+// checkProviders refuses a column whose provider chain names a provider the
+// payload carries no manifest for (a stale or edited workbook).
+func checkProviders(c column, p *runPayload) error {
+	chain, explicit := c.explicitChain()
+	if !explicit {
+		chain = defaultWaterfalls[c.target()]
+	}
+	for _, name := range chain {
+		if _, ok := p.Manifests[name]; !ok {
+			return refuse("unknown_provider: column %q names %q, which the payload has no manifest for", c.ID, name)
+		}
+	}
+	return nil
+}
+
+// orderColumns is topo_sort_columns: a column that references another runs
+// after it, config order breaks ties and a cycle falls back to config order
+// (cyclic columns are then reported blocked by the dependency check).
+func orderColumns(cols []column) []column {
+	graph := make([]colgraph.Col, len(cols))
+	for i, c := range cols {
+		graph[i] = c.g
+	}
+	idx, _ := colgraph.OrderIndexes(graph)
+	out := make([]column, 0, len(idx))
+	for _, i := range idx {
+		out = append(out, cols[i])
+	}
+	return out
+}
+
+// contractInputsKey carries the raw row's contract inputs inside the hydrated
+// row map (Python: enrichment.CONTRACT_INPUTS_KEY).
+const contractInputsKey = "__contract_inputs"
+
+func jsonObject(raw []byte) (map[string]any, error) {
+	if len(raw) == 0 || string(raw) == "null" {
+		return map[string]any{}, nil
+	}
+	v, err := canonjson.Decode(raw)
+	if err != nil {
+		return nil, err
+	}
+	m, ok := v.(map[string]any)
+	if !ok {
+		return map[string]any{}, nil
+	}
+	return m, nil
+}
+
+// rowExecutionData ports cell_scope.row_execution_data.
+func rowExecutionData(rowID int64, leadID *int64, dataRaw, enrRaw []byte, columns []column) (map[string]any, error) {
+	data, err := jsonObject(dataRaw)
+	if err != nil {
+		return nil, fmt.Errorf("workbook: row %d data: %w", rowID, err)
+	}
+	enr, err := jsonObject(enrRaw)
+	if err != nil {
+		return nil, fmt.Errorf("workbook: row %d enrichments: %w", rowID, err)
+	}
+	// The spend contract hashes only these raw stored fields: never anything an
+	// enrichment column of this job wrote (a column id/name may equal a lead field).
+	baseInputs := map[string]any{}
+	for k, v := range leadStrings(data) {
+		baseInputs[k] = v
+	}
+	input := make(map[string]any, len(data))
+	for k, v := range data {
+		input[k] = v
+	}
+	values, aliases := map[string]any{}, map[string]any{}
+	for _, c := range columns {
+		if c.Type == "lead_field" || c.Type == "input" {
+			field := c.firstTruthy("lead_field", "id")
+			if v, ok := input[field]; ok {
+				values[c.ID] = v
+				if c.Name != "" {
+					aliases[c.Name] = v
+				}
+			}
+			continue
+		}
+		cell, isDict := enr[c.ID].(map[string]any)
+		if isDict && (cell["status"] != "complete" || cell["value"] == nil) {
+			delete(data, c.ID)
+			if c.Name != "" {
+				delete(data, c.Name)
+			}
+		}
+		if isDict && cell["status"] == "complete" && cell["value"] != nil {
+			values[c.ID] = cell["value"]
+			if c.Name != "" {
+				aliases[c.Name] = cell["value"]
+			}
+		}
+	}
+	out := make(map[string]any, len(data)+len(aliases)+len(values)+3)
+	for _, m := range []map[string]any{data, aliases, values} {
+		for k, v := range m {
+			out[k] = v
+		}
+	}
+	var lid any
+	id := rowID
+	if leadID != nil {
+		lid = *leadID
+		if *leadID != 0 {
+			id = *leadID
+		}
+	}
+	out["id"], out["__row_id"], out["__lead_id"] = id, rowID, lid
+	out[contractInputsKey] = baseInputs
+	return out, nil
+}
+
+// leadStrings extracts the Lead fields the declarative templates can read.
+// Lead.from_dict keeps values as-is and the compiler does `x or ""`.
+func leadStrings(row map[string]any) map[string]string { return manifest.LeadFromRow(row) }
+
+// intOf returns row["id"] style integer identities.
+func intOf(v any) int64 {
+	switch x := v.(type) {
+	case int64:
+		return x
+	case int:
+		return int64(x)
+	case json.Number:
+		n, _ := strconv.ParseInt(string(x), 10, 64)
+		return n
+	}
+	return 0
+}

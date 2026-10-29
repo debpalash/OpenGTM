@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/automations/triggers/00000000-0000-4000-8000-000000000001"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": null,
+          "loc": [
+            "body"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

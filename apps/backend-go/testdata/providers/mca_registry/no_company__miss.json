@@ -1,0 +1,19 @@
+{
+ "provider": "mca_registry",
+ "input_name": "no_company",
+ "scenario": "miss",
+ "input": {},
+ "secrets": {
+  "DATA_GOV_IN_KEY": "ctk_datagov_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "mca_registry",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_company"
+ }
+}

@@ -1,0 +1,1996 @@
+{
+ "cases": [
+  {
+   "name": "values_basic",
+   "op": "get_lead_values",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": "0",
+    "first_name": "Ada",
+    "Work Email": "a@x.com",
+    "extra": "kept",
+    "n": "",
+    "Company": "Acme",
+    "Website": "https://acme.com",
+    "Score": "0",
+    "First Name": "Ada",
+    "site": "https://acme.com"
+   },
+   "keys_in_order": [
+    "company",
+    "email",
+    "website",
+    "score",
+    "first_name",
+    "Work Email",
+    "extra",
+    "n",
+    "Company",
+    "Website",
+    "Score",
+    "First Name",
+    "site"
+   ]
+  },
+  {
+   "name": "values_alias_beats_stale_raw_copy",
+   "op": "get_lead_values",
+   "lead_data": {
+    "Work Email": "stale@x.com",
+    "email": "fresh@x.com"
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": {
+    "Work Email": "fresh@x.com",
+    "email": "fresh@x.com",
+    "Company": "",
+    "Website": "",
+    "Score": "",
+    "First Name": "",
+    "company": "",
+    "site": "",
+    "score": "",
+    "first_name": ""
+   },
+   "keys_in_order": [
+    "Work Email",
+    "email",
+    "Company",
+    "Website",
+    "Score",
+    "First Name",
+    "company",
+    "site",
+    "score",
+    "first_name"
+   ]
+  },
+  {
+   "name": "values_str_of_none",
+   "op": "get_lead_values",
+   "lead_data": {
+    "company": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": {
+    "company": "",
+    "Company": "",
+    "Work Email": "",
+    "Website": "",
+    "Score": "",
+    "First Name": "",
+    "email": "",
+    "site": "",
+    "score": "",
+    "first_name": ""
+   },
+   "keys_in_order": [
+    "company",
+    "Company",
+    "Work Email",
+    "Website",
+    "Score",
+    "First Name",
+    "email",
+    "site",
+    "score",
+    "first_name"
+   ]
+  },
+  {
+   "name": "values_str_of_zero_false_float_list",
+   "op": "get_lead_values",
+   "lead_data": {
+    "a": 0,
+    "b": false,
+    "c": 1.5,
+    "d": [
+     1,
+     "x"
+    ],
+    "e": {
+     "k": 1
+    },
+    "f": true,
+    "g": 100000000000000000000,
+    "h": 0.30000000000000004,
+    "i": 1e+21,
+    "j": -0.0,
+    "k": 1.0,
+    "l": 1e+20,
+    "m": {
+     "__float__": "nan"
+    },
+    "n": {
+     "__float__": "inf"
+    }
+   },
+   "columns": [],
+   "value": {
+    "a": "0",
+    "b": "False",
+    "c": "1.5",
+    "d": "[1, 'x']",
+    "e": "{'k': 1}",
+    "f": "True",
+    "g": "100000000000000000000",
+    "h": "0.30000000000000004",
+    "i": "1e+21",
+    "j": "-0.0",
+    "k": "1.0",
+    "l": "1e+20",
+    "m": "nan",
+    "n": "inf"
+   },
+   "keys_in_order": [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n"
+   ]
+  },
+  {
+   "name": "values_lead_field_alias_to_other_key",
+   "op": "get_lead_values",
+   "lead_data": {
+    "website": "w.com"
+   },
+   "columns": [
+    {
+     "id": "w",
+     "name": "Site",
+     "type": "lead_field",
+     "lead_field": "website"
+    }
+   ],
+   "value": {
+    "website": "w.com",
+    "Site": "w.com",
+    "w": "w.com"
+   },
+   "keys_in_order": [
+    "website",
+    "Site",
+    "w"
+   ]
+  },
+  {
+   "name": "values_lead_field_missing_key_falls_back_to_col_id",
+   "op": "get_lead_values",
+   "lead_data": {
+    "w": "direct"
+   },
+   "columns": [
+    {
+     "id": "w",
+     "name": "Site",
+     "type": "lead_field",
+     "lead_field": "website"
+    }
+   ],
+   "value": {
+    "w": "direct",
+    "Site": "direct"
+   },
+   "keys_in_order": [
+    "w",
+    "Site"
+   ]
+  },
+  {
+   "name": "values_non_lead_field_uses_col_id",
+   "op": "get_lead_values",
+   "lead_data": {
+    "website": "w.com",
+    "w": "x"
+   },
+   "columns": [
+    {
+     "id": "w",
+     "name": "Site",
+     "type": "formula",
+     "lead_field": "website"
+    }
+   ],
+   "value": {
+    "website": "w.com",
+    "w": "x",
+    "Site": "x"
+   },
+   "keys_in_order": [
+    "website",
+    "w",
+    "Site"
+   ]
+  },
+  {
+   "name": "values_column_without_name_or_id",
+   "op": "get_lead_values",
+   "lead_data": {
+    "": "empty-key"
+   },
+   "columns": [
+    {
+     "type": "formula"
+    }
+   ],
+   "value": {
+    "": "empty-key"
+   },
+   "keys_in_order": [
+    ""
+   ]
+  },
+  {
+   "name": "values_duplicate_names_last_wins_alias",
+   "op": "get_lead_values",
+   "lead_data": {
+    "a": "1",
+    "b": "2"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "name": "Same"
+    },
+    {
+     "id": "b",
+     "name": "Same"
+    }
+   ],
+   "value": {
+    "a": "1",
+    "b": "2",
+    "Same": "2"
+   },
+   "keys_in_order": [
+    "a",
+    "b",
+    "Same"
+   ]
+  },
+  {
+   "name": "values_unicode_keys",
+   "op": "get_lead_values",
+   "lead_data": {
+    "ÉCO": "x",
+    "Ünï": "y"
+   },
+   "columns": [
+    {
+     "id": "ÉCO",
+     "name": "Ünï"
+    }
+   ],
+   "value": {
+    "ÉCO": "x",
+    "Ünï": "x"
+   },
+   "keys_in_order": [
+    "ÉCO",
+    "Ünï"
+   ]
+  },
+  {
+   "name": "prompt_10",
+   "op": "resolve_prompt",
+   "template": "Hi {company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Hi Acme"
+  },
+  {
+   "name": "prompt_11",
+   "op": "resolve_prompt",
+   "template": "Hi {company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Hi Acme"
+  },
+  {
+   "name": "prompt_12",
+   "op": "resolve_prompt",
+   "template": "Hi {Company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Hi Display"
+  },
+  {
+   "name": "prompt_13",
+   "op": "resolve_prompt",
+   "template": "Hi {Company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Hi Display"
+  },
+  {
+   "name": "prompt_14",
+   "op": "resolve_prompt",
+   "template": "Hi { company }",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Hi Acme"
+  },
+  {
+   "name": "prompt_15",
+   "op": "resolve_prompt",
+   "template": "Hi { company }",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Hi Acme"
+  },
+  {
+   "name": "prompt_16",
+   "op": "resolve_prompt",
+   "template": "{COMPANY}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "error": "Ambiguous column reference: COMPANY. Use an exact column ID.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_17",
+   "op": "resolve_prompt",
+   "template": "{COMPANY}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Ambiguous column reference: COMPANY. Use an exact column ID.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_18",
+   "op": "resolve_prompt",
+   "template": "{FIRST NAME}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Ada"
+  },
+  {
+   "name": "prompt_19",
+   "op": "resolve_prompt",
+   "template": "{FIRST NAME}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Ada"
+  },
+  {
+   "name": "prompt_20",
+   "op": "resolve_prompt",
+   "template": "{first_name}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Ada2"
+  },
+  {
+   "name": "prompt_21",
+   "op": "resolve_prompt",
+   "template": "{first_name}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Ada2"
+  },
+  {
+   "name": "prompt_22",
+   "op": "resolve_prompt",
+   "template": "{First_Name}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Ada2"
+  },
+  {
+   "name": "prompt_23",
+   "op": "resolve_prompt",
+   "template": "{First_Name}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "Ada2"
+  },
+  {
+   "name": "prompt_24",
+   "op": "resolve_prompt",
+   "template": "{missing}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[missing: not found]"
+  },
+  {
+   "name": "prompt_25",
+   "op": "resolve_prompt",
+   "template": "{missing}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: missing. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_26",
+   "op": "resolve_prompt",
+   "template": "{ missing }",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[missing: not found]"
+  },
+  {
+   "name": "prompt_27",
+   "op": "resolve_prompt",
+   "template": "{ missing }",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: missing. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_28",
+   "op": "resolve_prompt",
+   "template": "{}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "{}"
+  },
+  {
+   "name": "prompt_29",
+   "op": "resolve_prompt",
+   "template": "{}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "{}"
+  },
+  {
+   "name": "prompt_30",
+   "op": "resolve_prompt",
+   "template": "{{company}}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[{company: not found]}"
+  },
+  {
+   "name": "prompt_31",
+   "op": "resolve_prompt",
+   "template": "{{company}}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: {company. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_32",
+   "op": "resolve_prompt",
+   "template": "{company}{company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "AcmeAcme"
+  },
+  {
+   "name": "prompt_33",
+   "op": "resolve_prompt",
+   "template": "{company}{company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "AcmeAcme"
+  },
+  {
+   "name": "prompt_34",
+   "op": "resolve_prompt",
+   "template": "{br}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "{company}"
+  },
+  {
+   "name": "prompt_35",
+   "op": "resolve_prompt",
+   "template": "{br}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "{company}"
+  },
+  {
+   "name": "prompt_36",
+   "op": "resolve_prompt",
+   "template": "no placeholders",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "no placeholders"
+  },
+  {
+   "name": "prompt_37",
+   "op": "resolve_prompt",
+   "template": "no placeholders",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "no placeholders"
+  },
+  {
+   "name": "prompt_38",
+   "op": "resolve_prompt",
+   "template": "",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": ""
+  },
+  {
+   "name": "prompt_39",
+   "op": "resolve_prompt",
+   "template": "",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": ""
+  },
+  {
+   "name": "prompt_40",
+   "op": "resolve_prompt",
+   "template": "{company",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "{company"
+  },
+  {
+   "name": "prompt_41",
+   "op": "resolve_prompt",
+   "template": "{company",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "{company"
+  },
+  {
+   "name": "prompt_42",
+   "op": "resolve_prompt",
+   "template": "company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "company}"
+  },
+  {
+   "name": "prompt_43",
+   "op": "resolve_prompt",
+   "template": "company}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "company}"
+  },
+  {
+   "name": "prompt_44",
+   "op": "resolve_prompt",
+   "template": "{a}{b",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[a: not found]{b"
+  },
+  {
+   "name": "prompt_45",
+   "op": "resolve_prompt",
+   "template": "{a}{b",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: a. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_46",
+   "op": "resolve_prompt",
+   "template": "line\n{company}\ttab",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "line\nAcme\ttab"
+  },
+  {
+   "name": "prompt_47",
+   "op": "resolve_prompt",
+   "template": "line\n{company}\ttab",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "line\nAcme\ttab"
+  },
+  {
+   "name": "prompt_48",
+   "op": "resolve_prompt",
+   "template": "{Score}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "0"
+  },
+  {
+   "name": "prompt_49",
+   "op": "resolve_prompt",
+   "template": "{Score}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "0"
+  },
+  {
+   "name": "prompt_50",
+   "op": "resolve_prompt",
+   "template": "{empty}|",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "|"
+  },
+  {
+   "name": "prompt_51",
+   "op": "resolve_prompt",
+   "template": "{empty}|",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "value": "|"
+  },
+  {
+   "name": "prompt_52",
+   "op": "resolve_prompt",
+   "template": "{é}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[é: not found]"
+  },
+  {
+   "name": "prompt_53",
+   "op": "resolve_prompt",
+   "template": "{é}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: é. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_54",
+   "op": "resolve_prompt",
+   "template": "{company} and {missing}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "Acme and [missing: not found]"
+  },
+  {
+   "name": "prompt_55",
+   "op": "resolve_prompt",
+   "template": "{company} and {missing}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: missing. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_56",
+   "op": "resolve_prompt",
+   "template": "{c{ompany}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": false,
+   "value": "[c{ompany: not found]"
+  },
+  {
+   "name": "prompt_57",
+   "op": "resolve_prompt",
+   "template": "{c{ompany}",
+   "values": {
+    "company": "Acme",
+    "Company": "Display",
+    "first name": "Ada",
+    "first_name": "Ada2",
+    "Score": "0",
+    "empty": "",
+    "br": "{company}"
+   },
+   "strict": true,
+   "error": "Unknown column reference: c{ompany. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_ambiguous_case_variants_differing",
+   "op": "resolve_prompt",
+   "template": "{name}",
+   "values": {
+    "Name": "A",
+    "NAME": "B"
+   },
+   "strict": false,
+   "error": "Ambiguous column reference: name. Use an exact column ID.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_case_variants_equal_values_not_ambiguous",
+   "op": "resolve_prompt",
+   "template": "{name}",
+   "values": {
+    "Name": "A",
+    "NAME": "A"
+   },
+   "strict": false,
+   "value": "A"
+  },
+  {
+   "name": "prompt_exact_match_beats_ambiguity",
+   "op": "resolve_prompt",
+   "template": "{Name}",
+   "values": {
+    "Name": "A",
+    "NAME": "B"
+   },
+   "strict": false,
+   "value": "A"
+  },
+  {
+   "name": "prompt_underscore_space_ambiguous",
+   "op": "resolve_prompt",
+   "template": "{first_name}",
+   "values": {
+    "First Name": "A",
+    "FIRST NAME": "B"
+   },
+   "strict": true,
+   "error": "Ambiguous column reference: first_name. Use an exact column ID.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_underscore_space_unique",
+   "op": "resolve_prompt",
+   "template": "{first_name}",
+   "values": {
+    "First Name": "A"
+   },
+   "strict": true,
+   "value": "A"
+  },
+  {
+   "name": "prompt_unknown_strict_error_text",
+   "op": "resolve_prompt",
+   "template": "{who}",
+   "values": {},
+   "strict": true,
+   "error": "Unknown column reference: who. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "prompt_non_string_values_stringified",
+   "op": "resolve_prompt",
+   "template": "{a}{b}{c}",
+   "values": {
+    "a": 0,
+    "b": false,
+    "c": null
+   },
+   "strict": true,
+   "value": "0False"
+  },
+  {
+   "name": "resolve_basic",
+   "op": "resolve",
+   "template": "{company} <{email}>",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "Acme <a@x.com>"
+  },
+  {
+   "name": "resolve_by_display_name",
+   "op": "resolve",
+   "template": "{Work Email}",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "a@x.com"
+  },
+  {
+   "name": "resolve_by_display_name_case",
+   "op": "resolve",
+   "template": "{work email}",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "a@x.com"
+  },
+  {
+   "name": "resolve_underscore_for_space",
+   "op": "resolve",
+   "template": "{first_name} / {First_Name}",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "Ada / Ada"
+  },
+  {
+   "name": "resolve_zero_value_preserved",
+   "op": "resolve",
+   "template": "s={Score}",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "s=0"
+  },
+  {
+   "name": "resolve_unknown_column",
+   "op": "resolve",
+   "template": "{nope}",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "error": "Unknown column reference: nope. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "resolve_ambiguous_display_names_rejected",
+   "op": "resolve",
+   "template": "{Contact}",
+   "lead_data": {
+    "a": "1",
+    "b": "2"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "name": "Contact"
+    },
+    {
+     "id": "b",
+     "name": "contact"
+    }
+   ],
+   "value": "1"
+  },
+  {
+   "name": "resolve_ambiguous_exact_id_ok",
+   "op": "resolve",
+   "template": "{a}-{b}",
+   "lead_data": {
+    "a": "1",
+    "b": "2"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "name": "Contact"
+    },
+    {
+     "id": "b",
+     "name": "contact"
+    }
+   ],
+   "value": "1-2"
+  },
+  {
+   "name": "resolve_ambiguous_case_variant_rejected",
+   "op": "resolve",
+   "template": "{CONTACT}",
+   "lead_data": {
+    "a": "1",
+    "b": "2"
+   },
+   "columns": [
+    {
+     "id": "a",
+     "name": "Contact"
+    },
+    {
+     "id": "b",
+     "name": "contact"
+    }
+   ],
+   "error": "Ambiguous column reference: CONTACT. Use an exact column ID.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "resolve_id_beats_name_of_other_column",
+   "op": "resolve",
+   "template": "{x}",
+   "lead_data": {
+    "x": "id-x",
+    "y": "name-x"
+   },
+   "columns": [
+    {
+     "id": "x",
+     "name": "Y"
+    },
+    {
+     "id": "y",
+     "name": "x"
+    }
+   ],
+   "value": "id-x"
+  },
+  {
+   "name": "resolve_template_without_placeholders",
+   "op": "resolve",
+   "template": "plain",
+   "lead_data": {},
+   "columns": [],
+   "value": "plain"
+  },
+  {
+   "name": "resolve_empty_columns_uses_raw_keys",
+   "op": "resolve",
+   "template": "{company}",
+   "lead_data": {
+    "company": "Raw"
+   },
+   "columns": [],
+   "value": "Raw"
+  },
+  {
+   "name": "resolve_name_with_spaces_in_template",
+   "op": "resolve",
+   "template": "{ Work Email }",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "value": "a@x.com"
+  },
+  {
+   "name": "deep_str",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": "{company}",
+   "value": "Acme"
+  },
+  {
+   "name": "deep_dict_values_only",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": {
+    "{company}": "{company}",
+    "n": 5,
+    "t": true,
+    "z": null
+   },
+   "value": {
+    "{company}": "Acme",
+    "n": 5,
+    "t": true,
+    "z": null
+   }
+  },
+  {
+   "name": "deep_list",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": [
+    "{company}",
+    1,
+    [
+     "{email}"
+    ],
+    {
+     "k": "{site}"
+    }
+   ],
+   "value": [
+    "Acme",
+    1,
+    [
+     "a@x.com"
+    ],
+    {
+     "k": "https://acme.com"
+    }
+   ]
+  },
+  {
+   "name": "deep_non_container_passthrough",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": 3.5,
+   "value": 3.5
+  },
+  {
+   "name": "deep_unknown_inside_nested_raises",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": {
+    "a": [
+     {
+      "b": "{nope}"
+     }
+    ]
+   },
+   "error": "Unknown column reference: nope. Fix the template before sending.",
+   "error_type": "ValueError"
+  },
+  {
+   "name": "deep_json_braces_in_value_text",
+   "op": "resolve_deep",
+   "lead_data": {
+    "company": "Acme",
+    "email": "a@x.com",
+    "website": "https://acme.com",
+    "score": 0,
+    "first_name": "Ada",
+    "Work Email": "STALE@x.com",
+    "extra": "kept",
+    "n": null
+   },
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "email",
+     "name": "Work Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "site",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "score",
+     "name": "Score",
+     "type": "formula"
+    },
+    {
+     "id": "first_name",
+     "name": "First Name",
+     "type": "formula"
+    }
+   ],
+   "input": {
+    "body": "{\"k\": \"{company}\"}"
+   },
+   "error": "Unknown column reference: \"k\": \"{company. Fix the template before sending.",
+   "error_type": "ValueError"
+  }
+ ],
+ "count": 84
+}

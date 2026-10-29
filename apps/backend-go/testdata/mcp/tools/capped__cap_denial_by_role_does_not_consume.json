@@ -1,0 +1,45 @@
+{
+  "seq": 8,
+  "profile": "capped",
+  "token": "viewer",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "V"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"insufficient workspace role\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-viewer",
+      "user_id": 3,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "V"
+      },
+      "idempotency_key": null,
+      "result_status": "denied",
+      "error": "insufficient workspace role",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

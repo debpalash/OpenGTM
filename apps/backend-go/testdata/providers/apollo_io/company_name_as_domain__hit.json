@@ -1,0 +1,83 @@
+{
+ "provider": "apollo_io",
+ "input_name": "company_name_as_domain",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Inc"
+ },
+ "secrets": {
+  "APOLLO_API_KEY": "ctk_apollo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.apollo.io/api/v1/organizations/enrich",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:APOLLO_API_KEY}}"
+    },
+    "body": "{\"domain\":\"acme inc\"}",
+    "json": {
+     "domain": "acme inc"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"organization\":{\"estimated_num_employees\":120,\"industry\":\"software\",\"linkedin_url\":\"https://www.linkedin.com/company/acme\",\"short_description\":\"Acme builds widgets.\"}}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.apollo.io/api/v1/mixed_people/search",
+    "headers": {
+     "content-type": "application/json",
+     "x-api-key": "{{secret:APOLLO_API_KEY}}"
+    },
+    "body": "{\"q_organization_domains\":\"acme inc\",\"page\":1,\"per_page\":3,\"person_seniorities\":[\"owner\",\"c_suite\",\"vp\",\"director\"]}",
+    "json": {
+     "q_organization_domains": "acme inc",
+     "page": 1,
+     "per_page": 3,
+     "person_seniorities": [
+      "owner",
+      "c_suite",
+      "vp",
+      "director"
+     ]
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"people\":[{\"name\":\"Ada Lovelace\",\"title\":\"CEO\",\"email\":\"ada@acme.com\",\"phone_numbers\":[{\"sanitized_number\":\"+15550100\",\"raw_number\":\"(555) 0100\"}],\"linkedin_url\":\"https://www.linkedin.com/in/ada\"}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "apollo_io",
+  "success": true,
+  "fields": {
+   "employee_count_exact": 120,
+   "industry_tags": "software",
+   "linkedin_url": "https://www.linkedin.com/in/ada",
+   "description": "Acme builds widgets.",
+   "contact_person": "Ada Lovelace",
+   "contact_title": "CEO",
+   "email": "ada@acme.com",
+   "email_provider": "apollo_io",
+   "phone": "+15550100",
+   "phone_provider": "apollo_io"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

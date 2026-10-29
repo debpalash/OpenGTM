@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workspaces/switch"
+  },
+  "response": {
+    "body": {
+      "active": "Alpha",
+      "id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

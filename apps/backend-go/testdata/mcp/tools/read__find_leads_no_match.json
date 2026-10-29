@@ -1,0 +1,31 @@
+{
+  "seq": 17,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "method": "tools/call",
+    "params": {
+      "name": "find_leads",
+      "arguments": {
+        "query": "zzzz-nothing"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 16,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"leads\": [],\n  \"count\": 0\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

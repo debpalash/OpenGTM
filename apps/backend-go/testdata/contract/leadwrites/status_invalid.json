@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "status": "bogus"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/14/status"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid lead status"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

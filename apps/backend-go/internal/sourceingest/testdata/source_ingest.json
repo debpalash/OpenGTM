@@ -1,0 +1,1818 @@
+{
+ "fetched_at_base": "2026-08-29T10:00:00+00:00",
+ "scenarios": [
+  {
+   "name": "add_to_empty_workbook",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": "https://ab/1",
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "3",
+       "rank": 2,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 3"
+       }
+      }
+     ],
+     "summary": {
+      "added": 3,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 3
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": "https://ab/1",
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 2,
+       "source_provider": "ambitionbox",
+       "source_record_id": "3",
+       "source_rank": 2,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 3",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "3",
+         "rank": 2,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "add_continues_after_max_position",
+   "seed_rows": [
+    {
+     "position": 4,
+     "data": {
+      "manual": true
+     },
+     "source_provider": null,
+     "source_record_id": null,
+     "enrichments": {
+      "k": "keep"
+     }
+    },
+    {
+     "position": 9,
+     "data": {
+      "manual": true
+     },
+     "source_provider": null,
+     "source_record_id": null,
+     "enrichments": {
+      "k": "keep"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 4,
+       "source_provider": null,
+       "source_record_id": null,
+       "source_rank": null,
+       "source_fetched_at": null,
+       "lead_id": null,
+       "data": {
+        "manual": true
+       },
+       "enrichments": {
+        "k": "keep"
+       }
+      },
+      {
+       "position": 9,
+       "source_provider": null,
+       "source_record_id": null,
+       "source_rank": null,
+       "source_fetched_at": null,
+       "lead_id": null,
+       "data": {
+        "manual": true
+       },
+       "enrichments": {
+        "k": "keep"
+       }
+      },
+      {
+       "position": 10,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 11,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "identical_second_page_is_all_skipped",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 0,
+      "skipped": 2,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "update_merges_data_keeps_other_keys_and_enrichments",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "A",
+        "keep": "me"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "A",
+        "keep": "me",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "A2",
+        "new": 1
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "A2",
+        "keep": "me",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        },
+        "new": 1
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "update_when_only_rank_changes",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 5,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 5,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 5,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "update_when_only_fetched_at_changes",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T11:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T11:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T11:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "update_source_url_change_updates_via__source",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": "https://a",
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": "https://a",
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": "https://b",
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": "https://b",
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "skip_blank_record_id",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co "
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "  ",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co   "
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 2,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 2,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 2,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 2,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "skip_record_id_none_like",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "skip_wrong_provider",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "other",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 1,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "skip_duplicate_inside_one_batch",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "dup"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 2,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 1,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 2,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 2,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "record_id_whitespace_is_stripped",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": " 7 ",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co  7 "
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "7",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co  7 ",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "7",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "7",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 7"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "7",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 7",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "7",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "existing_row_of_other_provider_untouched",
+   "seed_rows": [
+    {
+     "position": 0,
+     "data": {
+      "x": 1
+     },
+     "source_provider": "other",
+     "source_record_id": "1",
+     "enrichments": {
+      "k": "keep"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "other",
+       "source_record_id": "1",
+       "source_rank": null,
+       "source_fetched_at": null,
+       "lead_id": null,
+       "data": {
+        "x": 1
+       },
+       "enrichments": {
+        "k": "keep"
+       }
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "existing_source_row_found_by_identity",
+   "seed_rows": [
+    {
+     "position": 3,
+     "data": {
+      "company": "Old",
+      "keep": 1
+     },
+     "source_provider": "ambitionbox",
+     "source_record_id": "1",
+     "enrichments": {
+      "k": "keep"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "New"
+       }
+      }
+     ],
+     "summary": {
+      "added": 0,
+      "updated": 1,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 3,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "New",
+        "keep": 1,
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {
+        "k": "keep"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "reset_rows_deletes_everything_and_positions_follow_rank",
+   "seed_rows": [
+    {
+     "position": 0,
+     "data": {
+      "manual": 1
+     },
+     "source_provider": null,
+     "source_record_id": null,
+     "enrichments": {
+      "k": "keep"
+     }
+    },
+    {
+     "position": 1,
+     "data": {
+      "old": 1
+     },
+     "source_provider": "ambitionbox",
+     "source_record_id": "9",
+     "enrichments": {
+      "k": "keep"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "reset_rows": true,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "5",
+       "rank": 20,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 5"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "6",
+       "rank": 21,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 6"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "7",
+       "rank": 22,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 7"
+       }
+      }
+     ],
+     "summary": {
+      "added": 3,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 3
+     },
+     "rows_after": [
+      {
+       "position": 20,
+       "source_provider": "ambitionbox",
+       "source_record_id": "5",
+       "source_rank": 20,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 5",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "5",
+         "rank": 20,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 21,
+       "source_provider": "ambitionbox",
+       "source_record_id": "6",
+       "source_rank": 21,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 6",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "6",
+         "rank": 21,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 22,
+       "source_provider": "ambitionbox",
+       "source_record_id": "7",
+       "source_rank": 22,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 7",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "7",
+         "rank": 22,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "reset_rows_then_next_page_appends_after_max_position",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": true,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "3",
+       "rank": 40,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 3"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "4",
+       "rank": 41,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 4"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 2,
+       "source_provider": "ambitionbox",
+       "source_record_id": "3",
+       "source_rank": 40,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 3",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "3",
+         "rank": 40,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 3,
+       "source_provider": "ambitionbox",
+       "source_record_id": "4",
+       "source_rank": 41,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 4",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "4",
+         "rank": 41,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "reset_rows_with_existing_identity_updates_position_to_rank",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 1"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 1,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 1",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 1,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 1,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 1,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    },
+    {
+     "reset_rows": true,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "2",
+       "rank": 7,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 2"
+       }
+      },
+      {
+       "provider": "ambitionbox",
+       "record_id": "3",
+       "rank": 8,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Co 3"
+       }
+      }
+     ],
+     "summary": {
+      "added": 2,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 2
+     },
+     "rows_after": [
+      {
+       "position": 7,
+       "source_provider": "ambitionbox",
+       "source_record_id": "2",
+       "source_rank": 7,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 2",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "2",
+         "rank": 7,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      },
+      {
+       "position": 8,
+       "source_provider": "ambitionbox",
+       "source_record_id": "3",
+       "source_rank": 8,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Co 3",
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "3",
+         "rank": 8,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "empty_batch_changes_nothing",
+   "seed_rows": [
+    {
+     "position": 0,
+     "data": {
+      "a": 1
+     },
+     "source_provider": null,
+     "source_record_id": null,
+     "enrichments": {
+      "k": "keep"
+     }
+    }
+   ],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [],
+     "summary": {
+      "added": 0,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 0
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": null,
+       "source_record_id": null,
+       "source_rank": null,
+       "source_fetched_at": null,
+       "lead_id": null,
+       "data": {
+        "a": 1
+       },
+       "enrichments": {
+        "k": "keep"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "unicode_and_nested_data_roundtrip",
+   "seed_rows": [],
+   "steps": [
+    {
+     "reset_rows": false,
+     "records": [
+      {
+       "provider": "ambitionbox",
+       "record_id": "u1",
+       "rank": 0,
+       "source_url": null,
+       "fetched_at": "2026-08-29T10:00:00+00:00",
+       "data": {
+        "company": "Éco Ünïcode 東京",
+        "nested": {
+         "a": [
+          1,
+          2,
+          {
+           "b": null
+          }
+         ]
+        },
+        "f": 1.5,
+        "t": true
+       }
+      }
+     ],
+     "summary": {
+      "added": 1,
+      "updated": 0,
+      "skipped": 0,
+      "added_count": 1
+     },
+     "rows_after": [
+      {
+       "position": 0,
+       "source_provider": "ambitionbox",
+       "source_record_id": "u1",
+       "source_rank": 0,
+       "source_fetched_at": "2026-08-29T10:00:00+00:00",
+       "lead_id": null,
+       "data": {
+        "company": "Éco Ünïcode 東京",
+        "nested": {
+         "a": [
+          1,
+          2,
+          {
+           "b": null
+          }
+         ]
+        },
+        "f": 1.5,
+        "t": true,
+        "_source": {
+         "provider": "ambitionbox",
+         "record_id": "u1",
+         "rank": 0,
+         "url": null,
+         "fetched_at": "2026-08-29T10:00:00+00:00"
+        }
+       },
+       "enrichments": {}
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

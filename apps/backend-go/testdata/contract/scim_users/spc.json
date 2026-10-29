@@ -1,0 +1,49 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/ServiceProviderConfig"
+  },
+  "response": {
+    "body": {
+      "authenticationSchemes": [
+        {
+          "description": "Workspace-scoped SCIM token",
+          "name": "Bearer Token",
+          "primary": true,
+          "specUri": "https://www.rfc-editor.org/info/rfc6750",
+          "type": "oauthbearertoken"
+        }
+      ],
+      "bulk": {
+        "supported": false
+      },
+      "changePassword": {
+        "supported": false
+      },
+      "etag": {
+        "supported": false
+      },
+      "filter": {
+        "maxResults": 200,
+        "supported": true
+      },
+      "patch": {
+        "supported": true
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"
+      ],
+      "sort": {
+        "supported": false
+      }
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

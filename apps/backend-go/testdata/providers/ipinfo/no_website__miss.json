@@ -1,0 +1,21 @@
+{
+ "provider": "ipinfo",
+ "input_name": "no_website",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme"
+ },
+ "secrets": {
+  "IPINFO_TOKEN": "ctk_ipinfo_0001"
+ },
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No website to resolve"
+ }
+}

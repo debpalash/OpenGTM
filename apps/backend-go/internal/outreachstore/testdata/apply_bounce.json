@@ -1,0 +1,6618 @@
+{
+  "clock": "2026-08-29T10:40:00.000000+00:00",
+  "scenarios": [
+    {
+      "name": "hard_marks_send_suppresses_advances",
+      "ops": [
+        {
+          "diagnostic": "550 5.1.1 user unknown",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "imap",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "550 5.1.1 user unknown",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "imap",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "550 5.1.1 user unknown",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "imap"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_default_diagnostic_and_source",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_long_diagnostic_truncated",
+      "ops": [
+        {
+          "diagnostic": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_without_ids",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": null,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": null,
+          "sequence_id": null,
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": null,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": null,
+            "sequence_id": null,
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_duplicate_application_not_idempotent",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": true,
+                "bounce_count": 2,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "paused"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_uppercase_email_canonicalised",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "  Target@EXAMPLE.com "
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "  Target@EXAMPLE.com "
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "hard_unknown_kind_treated_as_hard",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "weird",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "weird",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "complaint_locks_suppression",
+      "ops": [
+        {
+          "diagnostic": "arf feedback-type=abuse",
+          "enrollment_id": 1,
+          "kind": "complaint",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "webhook",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "arf feedback-type=abuse",
+            "enrollment_id": 1,
+            "kind": "complaint",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "webhook",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "complaint",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "arf feedback-type=abuse",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": true,
+                "bounce_count": 0,
+                "complaint_count": 1,
+                "id": "seq-1",
+                "status": "paused"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": true,
+                "reason": "complaint",
+                "source": "webhook"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "complaint_default_diagnostic",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "complaint",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "complaint",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "complaint",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "complaint",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": true,
+                "bounce_count": 0,
+                "complaint_count": 1,
+                "id": "seq-1",
+                "status": "paused"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": true,
+                "reason": "complaint",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "complaint_gmail_collapsed_target",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "complaint",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "Ta.rg+et@gmail.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "complaint",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "Ta.rg+et@gmail.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "complaint",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "complaint",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": true,
+                "bounce_count": 0,
+                "complaint_count": 1,
+                "id": "seq-1",
+                "status": "paused"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "ta.rg+et@gmail.com",
+                "locked": true,
+                "reason": "complaint",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_below_max_only_counts",
+      "ops": [
+        {
+          "diagnostic": "4.2.2 mailbox full",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "4.2.2 mailbox full",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "4.2.2 mailbox full",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "4.2.2 mailbox full",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 2,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_reaches_default_max_3",
+      "ops": [
+        {
+          "diagnostic": "4.2.2 mailbox full",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "4.2.2 mailbox full",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "4.2.2 mailbox full",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "4.2.2 mailbox full",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "4.2.2 mailbox full",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 2,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "4.2.2 mailbox full",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 3,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "4.2.2 mailbox full",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_beyond_max_keeps_counting",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 2,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 3,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "soft_bounce_max",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 4,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "soft_bounce_max",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 5,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "soft_bounce_max",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_max_1",
+      "ops": [
+        {
+          "diagnostic": "x",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {
+        "OUTREACH_SOFT_BOUNCE_MAX": 1
+      },
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "x",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "x",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_max_5_four_events",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {
+        "OUTREACH_SOFT_BOUNCE_MAX": 5
+      },
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 2,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 3,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 4,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_without_enrollment_is_noop",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": null,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": null,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_does_not_touch_breaker",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 2,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "soft_bounce_max",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 3,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "soft_bounce_max",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_then_hard",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        },
+        {
+          "diagnostic": "",
+          "enrollment_id": 1,
+          "kind": "hard",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        },
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 1,
+            "kind": "hard",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "hard_bounce",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 1,
+                "status": "bounced"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": "2026-08-29T10:40:00.000000+00:00",
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "hard_bounce",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "bounced",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 1,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": [
+              {
+                "email": "target@example.com",
+                "locked": false,
+                "reason": "bounce",
+                "source": "inbound"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "soft_missing_enrollment_id_99",
+      "ops": [
+        {
+          "diagnostic": "",
+          "enrollment_id": 99,
+          "kind": "soft",
+          "op": "apply_bounce",
+          "send_id": 21,
+          "sequence_id": "seq-1",
+          "source": "",
+          "to_email": "target@example.com"
+        }
+      ],
+      "settings": {},
+      "setup": {
+        "enrollments": [
+          {
+            "current_step": 0,
+            "id": 1,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "target@example.com"
+          },
+          {
+            "current_step": 0,
+            "id": 2,
+            "sequence_id": "seq-1",
+            "status": "scheduled",
+            "to_email": "other@example.com"
+          }
+        ],
+        "sends": [
+          {
+            "id": 1,
+            "idempotency_key": "fill:1",
+            "message_id": "<m1@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s1@example.com"
+          },
+          {
+            "id": 2,
+            "idempotency_key": "fill:2",
+            "message_id": "<m2@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s2@example.com"
+          },
+          {
+            "id": 3,
+            "idempotency_key": "fill:3",
+            "message_id": "<m3@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s3@example.com"
+          },
+          {
+            "id": 4,
+            "idempotency_key": "fill:4",
+            "message_id": "<m4@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s4@example.com"
+          },
+          {
+            "id": 5,
+            "idempotency_key": "fill:5",
+            "message_id": "<m5@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s5@example.com"
+          },
+          {
+            "id": 6,
+            "idempotency_key": "fill:6",
+            "message_id": "<m6@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s6@example.com"
+          },
+          {
+            "id": 7,
+            "idempotency_key": "fill:7",
+            "message_id": "<m7@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s7@example.com"
+          },
+          {
+            "id": 8,
+            "idempotency_key": "fill:8",
+            "message_id": "<m8@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s8@example.com"
+          },
+          {
+            "id": 9,
+            "idempotency_key": "fill:9",
+            "message_id": "<m9@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s9@example.com"
+          },
+          {
+            "id": 10,
+            "idempotency_key": "fill:10",
+            "message_id": "<m10@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s10@example.com"
+          },
+          {
+            "id": 11,
+            "idempotency_key": "fill:11",
+            "message_id": "<m11@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s11@example.com"
+          },
+          {
+            "id": 12,
+            "idempotency_key": "fill:12",
+            "message_id": "<m12@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s12@example.com"
+          },
+          {
+            "id": 13,
+            "idempotency_key": "fill:13",
+            "message_id": "<m13@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s13@example.com"
+          },
+          {
+            "id": 14,
+            "idempotency_key": "fill:14",
+            "message_id": "<m14@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s14@example.com"
+          },
+          {
+            "id": 15,
+            "idempotency_key": "fill:15",
+            "message_id": "<m15@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s15@example.com"
+          },
+          {
+            "id": 16,
+            "idempotency_key": "fill:16",
+            "message_id": "<m16@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s16@example.com"
+          },
+          {
+            "id": 17,
+            "idempotency_key": "fill:17",
+            "message_id": "<m17@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s17@example.com"
+          },
+          {
+            "id": 18,
+            "idempotency_key": "fill:18",
+            "message_id": "<m18@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s18@example.com"
+          },
+          {
+            "id": 19,
+            "idempotency_key": "fill:19",
+            "message_id": "<m19@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s19@example.com"
+          },
+          {
+            "id": 20,
+            "idempotency_key": "fill:20",
+            "message_id": "<m20@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "s20@example.com"
+          },
+          {
+            "enrollment_id": 1,
+            "id": 21,
+            "idempotency_key": "seq:ws-vec:seq-1:1:0",
+            "lead_id": 1,
+            "message_id": "<target@x>",
+            "sequence_id": "seq-1",
+            "status": "sent",
+            "to_email": "target@example.com"
+          }
+        ],
+        "sequences": [
+          {
+            "id": "seq-1"
+          }
+        ],
+        "suppressions": []
+      },
+      "steps": [
+        {
+          "op": {
+            "diagnostic": "",
+            "enrollment_id": 99,
+            "kind": "soft",
+            "op": "apply_bounce",
+            "send_id": 21,
+            "sequence_id": "seq-1",
+            "source": "",
+            "to_email": "target@example.com"
+          },
+          "result": null,
+          "state": {
+            "enrollments": [
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 1,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              },
+              {
+                "current_step": 0,
+                "error": "",
+                "id": 2,
+                "last_sent_at": null,
+                "next_send_at": "2026-08-29T10:40:00.000000+00:00",
+                "sent_count": 0,
+                "sequence_id": "seq-1",
+                "soft_bounce_count": 0,
+                "status": "scheduled"
+              }
+            ],
+            "ledger": [],
+            "sends": [
+              {
+                "bounced_at": null,
+                "charged_usd": 0.0,
+                "enrollment_id": 1,
+                "error": "",
+                "id": 21,
+                "idempotency_key": "seq:ws-vec:seq-1:1:0",
+                "lead_id": 1,
+                "message_id": "<target@x>",
+                "sent_at": null,
+                "sequence_id": "seq-1",
+                "skip_reason": null,
+                "status": "sent",
+                "step_number": 0,
+                "subject": "",
+                "to_email": "target@example.com"
+              }
+            ],
+            "sequences": [
+              {
+                "auto_paused": false,
+                "bounce_count": 0,
+                "complaint_count": 0,
+                "id": "seq-1",
+                "status": "active"
+              }
+            ],
+            "suppressions": []
+          }
+        }
+      ]
+    }
+  ]
+}

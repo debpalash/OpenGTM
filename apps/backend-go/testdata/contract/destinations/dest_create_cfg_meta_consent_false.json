@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "consent_attested": false,
+        "consent_source": "s",
+        "custom_audience_id": "1"
+      },
+      "destination_type": "meta_ads",
+      "name": "cfg 25"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "ad destinations require consent_attested=true and a consent_source"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

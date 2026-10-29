@@ -1,0 +1,2983 @@
+[
+ {
+  "name": "ws_no_website",
+  "provider": "website_scraper",
+  "input": {
+   "company": "Acme"
+  },
+  "calls": [],
+  "output": {
+   "provider": "website_scraper",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No website URL available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ws_full",
+  "provider": "website_scraper",
+  "input": {
+   "company": "Widgets",
+   "website": "widgets.in/some/path?x=1"
+  },
+  "pages": {
+   "https://widgets.in": {
+    "html": "<html><head><meta name=\"description\" content=\"We make things.\"></head><body>\n<p>Email: info@widgets.in, alt: sales@widgets.in</p>\n<a href=\"https://www.linkedin.com/company/widgets\">li</a><a href=\"https://x.com/widgets\">x</a>\n<a href=\"https://www.facebook.com/widgets\">fb</a></body></html>"
+   },
+   "https://widgets.in/contact": {
+    "html": "<html><body><p>Phone: +91 98765 43210, 080-23456789</p>\n<a href=\"mailto:support@widgets.in\">s</a><a href=\"mailto:ceo@widgets.in?x=1\">c</a></body></html>"
+   }
+  },
+  "calls": [
+   [
+    "fetch",
+    "https://widgets.in",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://widgets.in/contact",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://widgets.in/contact-us",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://widgets.in/about",
+    2,
+    12
+   ]
+  ],
+  "output": {
+   "provider": "website_scraper",
+   "success": true,
+   "fields": {
+    "email": "info@widgets.in",
+    "secondary_emails": "sales@widgets.in|support@widgets.in",
+    "phone": "+91 98765 43210",
+    "secondary_phones": "080-23456789",
+    "linkedin_url": "https://www.linkedin.com/company/widgets",
+    "twitter_url": "https://x.com/widgets",
+    "facebook_url": "https://www.facebook.com/widgets",
+    "description": "We make things."
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ws_footer",
+  "provider": "website_scraper",
+  "input": {
+   "website": "https://foot.example.org/"
+  },
+  "pages": {
+   "https://foot.example.org": {
+    "html": "<html><body><p>Nothing here</p><div id=\"site-footer\">Reach us 9876501234</div></body></html>"
+   }
+  },
+  "calls": [
+   [
+    "fetch",
+    "https://foot.example.org",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://foot.example.org/contact",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://foot.example.org/contact-us",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://foot.example.org/about",
+    2,
+    12
+   ]
+  ],
+  "output": {
+   "provider": "website_scraper",
+   "success": true,
+   "fields": {
+    "phone": "9876501234"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ws_nothing",
+  "provider": "website_scraper",
+  "input": {
+   "website": "https://empty.example.org"
+  },
+  "pages": {
+   "https://empty.example.org": {
+    "html": "<html><body>hi</body></html>"
+   },
+   "https://empty.example.org/about": {
+    "status": 503,
+    "html": "x"
+   }
+  },
+  "calls": [
+   [
+    "fetch",
+    "https://empty.example.org",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://empty.example.org/contact",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://empty.example.org/contact-us",
+    2,
+    12
+   ],
+   [
+    "fetch",
+    "https://empty.example.org/about",
+    2,
+    12
+   ]
+  ],
+  "output": {
+   "provider": "website_scraper",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No contact info found on website",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_no_website",
+  "provider": "deep_scraper",
+  "input": {
+   "company": "Acme"
+  },
+  "calls": [],
+  "output": {
+   "provider": "deep_scraper",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No website URL available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_full",
+  "provider": "deep_scraper",
+  "input": {
+   "company": "Acme",
+   "website": "https://www.acme.in/home"
+  },
+  "pages": {
+   "https://www.acme.in/": {
+    "html": "<!doctype html><html><head><title>Acme Robotics</title>\n<meta name=\"description\" content=\"Acme builds warehouse robots for Indian logistics.\">\n<meta property=\"og:description\" content=\"OG description\">\n<meta name=\"keywords\" content=\"robotics, automation , logistics, ai\">\n<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"Organization\",\"name\":\"Acme Robotics Pvt Ltd\",\n\"telephone\":\"+91 80 4000 1234\",\"foundingDate\":\"2011-04-01\",\"numberOfEmployees\":{\"@type\":\"QuantitativeValue\",\"value\":240},\n\"address\":{\"streetAddress\":\"12 MG Road\",\"addressLocality\":\"Bengaluru\",\"postalCode\":\"560001\",\"addressCountry\":\"IN\"},\n\"sameAs\":[\"https://www.linkedin.com/company/acme-robotics\",\"https://twitter.com/acmerobots\"]}</script>\n</head><body><header><a href=\"/about\">About</a> <a href=\"mailto:Info@Acme.in?subject=hi\">Mail</a></header>\n<main><h1>Robots that lift</h1><p>Call us at +91 98450 12345 or write to sales@acme.in.</p>\n<p>Over 250 employees across India.</p></main>\n<footer>&copy; 2024 Acme. <a href=\"https://facebook.com/acmerobots\">fb</a> <a href=\"https://instagram.com/p/xyz\">post</a>\n<a href=\"tel:+91-80-4000-5678\">Phone</a></footer></body></html>"
+   },
+   "https://www.acme.in/about": {
+    "html": "<html><body><h1>About Acme</h1><p>Founded in 2009, Acme is a growing company.</p>\n<address>12 MG Road, Bengaluru 560001, India</address>\n<p>Our team of 300 professionals.</p><p>Meet John Smith, CEO and founder.</p></body></html>"
+   },
+   "https://www.acme.in/contact": {
+    "html": "<html><body><div class=\"office-address\">Head office: 4th floor, Prestige Tower, Residency Road, Bengaluru</div>\n<a href=\"mailto:contact@acme.in\">contact</a> <a href=\"tel:080 2222 3333\">call</a>\n<p>support@acme.in hello@cdn.example.com image@2x.png</p></body></html>"
+   },
+   "https://www.acme.in/team": {
+    "html": "<html><body><h1>Our Leadership</h1>\n<div class=\"team-member\"><h3>Priya Sharma</h3><p class=\"role\">Chief Executive Officer</p></div>\n<div class=\"team-member card\"><h3>Rahul Verma</h3><span class=\"designation\">CTO &amp; Co-founder</span></div>\n<div class=\"member\"><h4>Learn More About Us</h4><p>Director of fun</p></div>\n<li class=\"profile\"><strong>Anita Desai</strong><p>VP Sales</p></li>\n<div class=\"bio\"><h3>Single</h3></div>\n<div class=\"leader\"><h3>vikram rao</h3><p>Head of Ops</p></div>\n<p>Also meet Karan Mehta - Director of Engineering at Acme.</p>\n</body></html>"
+   },
+   "https://www.acme.in/careers": {
+    "ctype": "application/json",
+    "html": "{}"
+   },
+   "https://www.acme.in/jobs": {
+    "raise": true
+   }
+  },
+  "calls": [
+   [
+    "get",
+    "https://www.acme.in/"
+   ],
+   [
+    "get",
+    "https://www.acme.in/about"
+   ],
+   [
+    "get",
+    "https://www.acme.in/about-us"
+   ],
+   [
+    "get",
+    "https://www.acme.in/about-us/"
+   ],
+   [
+    "get",
+    "https://www.acme.in/contact"
+   ],
+   [
+    "get",
+    "https://www.acme.in/contact-us"
+   ],
+   [
+    "get",
+    "https://www.acme.in/team"
+   ],
+   [
+    "get",
+    "https://www.acme.in/our-team"
+   ],
+   [
+    "get",
+    "https://www.acme.in/leadership"
+   ],
+   [
+    "get",
+    "https://www.acme.in/people"
+   ],
+   [
+    "get",
+    "https://www.acme.in/management"
+   ],
+   [
+    "get",
+    "https://www.acme.in/careers"
+   ],
+   [
+    "get",
+    "https://www.acme.in/jobs"
+   ],
+   [
+    "get",
+    "https://www.acme.in/privacy"
+   ]
+  ],
+  "output": {
+   "provider": "deep_scraper",
+   "success": true,
+   "fields": {
+    "description": "Acme builds warehouse robots for Indian logistics.",
+    "industry_tags": "robotics, automation, logistics",
+    "email": "info@acme.in",
+    "phone": "+91 80 4000 1234",
+    "company_size": "240",
+    "founding_year": "2011",
+    "address": "12 MG Road, Bengaluru, 560001, IN",
+    "linkedin_url": "https://www.linkedin.com/company/acme-robotics",
+    "twitter_url": "https://twitter.com/acmerobots",
+    "facebook_url": "https://facebook.com/acmerobots",
+    "decision_makers": "[{\"name\": \"John Smith\", \"title\": \"CEO and founder.\"}, {\"name\": \"Rahul Verma\", \"title\": \"CTO & Co-founder\"}, {\"name\": \"Anita Desai\", \"title\": \"VP Sales\"}, {\"name\": \"Priya Sharma\", \"title\": \"Chief Executive Officer\"}]",
+    "contact_person": "John Smith",
+    "contact_title": "CEO and founder."
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_plain",
+  "provider": "deep_scraper",
+  "input": {
+   "website": "tinyshop.co"
+  },
+  "pages": {
+   "https://tinyshop.co/": {
+    "html": "<html><head><meta name=\"description\" content=\"Tiny shop\"></head><body>\n<p>Write to owner@tinyshop.co or ceo@tinyshop.co</p><p>Since 1998 serving clients.</p>\n<p>Small startup team.</p></body></html>"
+   }
+  },
+  "calls": [
+   [
+    "get",
+    "https://tinyshop.co/"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/about"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/about-us"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/about-us/"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/contact"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/contact-us"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/team"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/our-team"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/leadership"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/people"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/management"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/careers"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/jobs"
+   ],
+   [
+    "get",
+    "https://tinyshop.co/privacy"
+   ]
+  ],
+  "output": {
+   "provider": "deep_scraper",
+   "success": true,
+   "fields": {
+    "description": "Tiny shop",
+    "email": "ceo@tinyshop.co",
+    "company_size": "1-10",
+    "founding_year": "1998"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_team_only",
+  "provider": "deep_scraper",
+  "input": {
+   "website": "https://teamco.io"
+  },
+  "pages": {
+   "https://teamco.io/team": {
+    "html": "<html><body><h1>Our Leadership</h1>\n<div class=\"team-member\"><h3>Priya Sharma</h3><p class=\"role\">Chief Executive Officer</p></div>\n<div class=\"team-member card\"><h3>Rahul Verma</h3><span class=\"designation\">CTO &amp; Co-founder</span></div>\n<div class=\"member\"><h4>Learn More About Us</h4><p>Director of fun</p></div>\n<li class=\"profile\"><strong>Anita Desai</strong><p>VP Sales</p></li>\n<div class=\"bio\"><h3>Single</h3></div>\n<div class=\"leader\"><h3>vikram rao</h3><p>Head of Ops</p></div>\n<p>Also meet Karan Mehta - Director of Engineering at Acme.</p>\n</body></html>"
+   }
+  },
+  "calls": [
+   [
+    "get",
+    "https://teamco.io/"
+   ],
+   [
+    "get",
+    "https://teamco.io/about"
+   ],
+   [
+    "get",
+    "https://teamco.io/about-us"
+   ],
+   [
+    "get",
+    "https://teamco.io/about-us/"
+   ],
+   [
+    "get",
+    "https://teamco.io/contact"
+   ],
+   [
+    "get",
+    "https://teamco.io/contact-us"
+   ],
+   [
+    "get",
+    "https://teamco.io/team"
+   ],
+   [
+    "get",
+    "https://teamco.io/our-team"
+   ],
+   [
+    "get",
+    "https://teamco.io/leadership"
+   ],
+   [
+    "get",
+    "https://teamco.io/people"
+   ],
+   [
+    "get",
+    "https://teamco.io/management"
+   ],
+   [
+    "get",
+    "https://teamco.io/careers"
+   ],
+   [
+    "get",
+    "https://teamco.io/jobs"
+   ],
+   [
+    "get",
+    "https://teamco.io/privacy"
+   ]
+  ],
+  "output": {
+   "provider": "deep_scraper",
+   "success": true,
+   "fields": {
+    "decision_makers": "[{\"name\": \"Rahul Verma\", \"title\": \"CTO & Co-founder\"}, {\"name\": \"Anita Desai\", \"title\": \"VP Sales\"}, {\"name\": \"Priya Sharma\", \"title\": \"Chief Executive Officer\"}]",
+    "contact_person": "Rahul Verma",
+    "contact_title": "CTO & Co-founder",
+    "email": "rahul.verma@teamco.io",
+    "email_confidence": "pattern_guess"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_none",
+  "provider": "deep_scraper",
+  "input": {
+   "website": "https://dead.example.net"
+  },
+  "pages": {},
+  "calls": [
+   [
+    "get",
+    "https://dead.example.net/"
+   ],
+   [
+    "get",
+    "https://dead.example.net/about"
+   ],
+   [
+    "get",
+    "https://dead.example.net/about-us"
+   ],
+   [
+    "get",
+    "https://dead.example.net/about-us/"
+   ],
+   [
+    "get",
+    "https://dead.example.net/contact"
+   ],
+   [
+    "get",
+    "https://dead.example.net/contact-us"
+   ],
+   [
+    "get",
+    "https://dead.example.net/team"
+   ],
+   [
+    "get",
+    "https://dead.example.net/our-team"
+   ],
+   [
+    "get",
+    "https://dead.example.net/leadership"
+   ],
+   [
+    "get",
+    "https://dead.example.net/people"
+   ],
+   [
+    "get",
+    "https://dead.example.net/management"
+   ],
+   [
+    "get",
+    "https://dead.example.net/careers"
+   ],
+   [
+    "get",
+    "https://dead.example.net/jobs"
+   ],
+   [
+    "get",
+    "https://dead.example.net/privacy"
+   ]
+  ],
+  "output": {
+   "provider": "deep_scraper",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No data extracted from 0 pages",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "deep_ldjson_variants",
+  "provider": "deep_scraper",
+  "input": {
+   "website": "https://ld.example.com"
+  },
+  "pages": {
+   "https://ld.example.com/": {
+    "html": "<html><head>\n<script type=\"application/ld+json\">{\"@graph\":[{\"@type\":\"LocalBusiness\",\"name\":\"LD Biz\",\"description\":\"Desc here\",\n\"email\":\"hi@ld.example.com\",\"numberOfEmployees\":\"1,200\",\"industry\":\"Bakery\",\"sameAs\":\"https://facebook.com/ldbiz\",\n\"contactPoint\":[{\"telephone\":\"+1 415 555 0100\",\"email\":\"cp@ld.example.com\"}]},{\"@type\":\"ContactPoint\",\"telephone\":\"999\"}]}</script>\n<script type=\"application/ld+json\">not json</script></head><body><p>Est. 1875</p></body></html>"
+   }
+  },
+  "calls": [
+   [
+    "get",
+    "https://ld.example.com/"
+   ],
+   [
+    "get",
+    "https://ld.example.com/about"
+   ],
+   [
+    "get",
+    "https://ld.example.com/about-us"
+   ],
+   [
+    "get",
+    "https://ld.example.com/about-us/"
+   ],
+   [
+    "get",
+    "https://ld.example.com/contact"
+   ],
+   [
+    "get",
+    "https://ld.example.com/contact-us"
+   ],
+   [
+    "get",
+    "https://ld.example.com/team"
+   ],
+   [
+    "get",
+    "https://ld.example.com/our-team"
+   ],
+   [
+    "get",
+    "https://ld.example.com/leadership"
+   ],
+   [
+    "get",
+    "https://ld.example.com/people"
+   ],
+   [
+    "get",
+    "https://ld.example.com/management"
+   ],
+   [
+    "get",
+    "https://ld.example.com/careers"
+   ],
+   [
+    "get",
+    "https://ld.example.com/jobs"
+   ],
+   [
+    "get",
+    "https://ld.example.com/privacy"
+   ]
+  ],
+  "output": {
+   "provider": "deep_scraper",
+   "success": true,
+   "fields": {
+    "email": "hi@ld.example.com",
+    "phone": "+1 415 555 0100",
+    "company_size": "1200",
+    "founding_year": "1875",
+    "description": "Desc here",
+    "industry_tags": "Bakery",
+    "facebook_url": "https://facebook.com/ldbiz"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ci_no_company",
+  "provider": "company_intel",
+  "input": {
+   "website": "x.com"
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_intel",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ci_funding",
+  "provider": "company_intel",
+  "input": {
+   "company": "Zeta"
+  },
+  "search": {
+   "site:crunchbase.com \"Zeta\"": [
+    {
+     "title": "Zeta - Crunchbase",
+     "href": "https://crunchbase.com/zeta",
+     "body": "Zeta raised $12.5 million in Series B led by Accel, and others."
+    }
+   ],
+   "\"Zeta\" funding OR raised OR series OR news": [
+    {
+     "title": "Zeta secures funding",
+     "href": "https://news.example/zeta",
+     "body": "Zeta announced 1.2 billion funding. Revenue reached $40 million. 1,500 employees."
+    },
+    {
+     "title": "Other co",
+     "href": "https://news.example/o",
+     "body": "unrelated"
+    },
+    {
+     "title": "Zeta secures funding",
+     "href": "https://news.example/zeta2",
+     "body": "dup headline zeta"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "site:crunchbase.com \"Zeta\"",
+    3,
+    false
+   ],
+   [
+    "web",
+    "\"Zeta\" funding OR raised OR series OR news",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "company_intel",
+   "success": true,
+   "fields": {
+    "last_funding_amount": "$12.5M",
+    "funding_stage": "Series B",
+    "investors": "Accel",
+    "revenue_estimate": "$40.0M",
+    "company_size": "1500",
+    "recent_news": "Zeta secures funding"
+   },
+   "confidence": 0.68,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ci_nothing",
+  "provider": "company_intel",
+  "input": {
+   "company": "Nope Inc"
+  },
+  "search": {},
+  "calls": [
+   [
+    "web",
+    "site:crunchbase.com \"Nope Inc\"",
+    3,
+    false
+   ],
+   [
+    "web",
+    "\"Nope Inc\" funding OR raised OR series OR news",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "company_intel",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company intelligence found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ci_seed_ipo",
+  "provider": "company_intel",
+  "input": {
+   "company": "Kappa"
+  },
+  "search": {
+   "\"Kappa\" funding OR raised OR series OR news": [
+    {
+     "title": "Kappa went public",
+     "href": "https://n/k",
+     "body": "Kappa had a seed round earlier. backed by Sequoia Capital."
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "site:crunchbase.com \"Kappa\"",
+    3,
+    false
+   ],
+   [
+    "web",
+    "\"Kappa\" funding OR raised OR series OR news",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "company_intel",
+   "success": true,
+   "fields": {
+    "funding_stage": "Seed",
+    "investors": "Sequoia Capital",
+    "recent_news": "Kappa went public"
+   },
+   "confidence": 0.68,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "lb_no_company",
+  "provider": "local_business",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "local_business",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "lb_full",
+  "provider": "local_business",
+  "input": {
+   "company": "Joe's Diner",
+   "city": "Austin"
+  },
+  "search": {
+   "\"Joe's Diner\" \"Austin\" phone address contact": [
+    {
+     "title": "Joe's Diner - Yelp",
+     "href": "https://yelp.com/joe",
+     "body": "Rated 4.5 stars. Call (512) 555-0199."
+    },
+    {
+     "title": "Joe's Diner",
+     "href": "https://joes.example",
+     "body": "123 Main St, Austin, TX 78701. Address: 123 Main St Austin TX"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "\"Joe's Diner\" \"Austin\" phone address contact",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "local_business",
+   "success": true,
+   "fields": {
+    "phone": "512) 555-0199",
+    "google_rating": "4.5/5",
+    "address": "123 Main St, Austin, TX 78701"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "lb_none",
+  "provider": "local_business",
+  "input": {
+   "company": "Ghost"
+  },
+  "search": {},
+  "calls": [
+   [
+    "web",
+    "\"Ghost\" phone address contact",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "local_business",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No local business data found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "lb_addr_label",
+  "provider": "local_business",
+  "input": {
+   "company": "Kirana"
+  },
+  "search": {
+   "\"Kirana\" phone address contact": [
+    {
+     "title": "Kirana Store",
+     "href": "https://k",
+     "body": "Office: Shop 4, Sector 17 Market, Chandigarh | open daily. 4.9/5"
+    },
+    {
+     "title": "x",
+     "href": "https://k2",
+     "body": "+91 172 270 1234"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "\"Kirana\" phone address contact",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "local_business",
+   "success": true,
+   "fields": {
+    "address": "Shop 4, Sector 17 Market, Chandigarh",
+    "google_rating": "4.9/5",
+    "phone": "+91 172 270 1234"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "cl_no_company",
+  "provider": "crosslinked",
+  "input": {
+   "city": "Pune"
+  },
+  "calls": [],
+  "output": {
+   "provider": "crosslinked",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_company_name",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "cl_people",
+  "provider": "crosslinked",
+  "input": {
+   "company": "Acme",
+   "city": "Pune"
+  },
+  "search": {
+   "site:linkedin.com/in \"Acme\" \"Pune\"": [
+    {
+     "title": "Priya Sharma - CEO at Acme | LinkedIn",
+     "href": "https://in.linkedin.com/in/priya-sharma-1?trk=x",
+     "body": "Pune"
+    },
+    {
+     "title": "VP - Acme | LinkedIn",
+     "href": "https://www.linkedin.com/in/vp-acme",
+     "body": ""
+    },
+    {
+     "title": "Rahul Verma – Acme",
+     "href": "https://www.linkedin.com/in/rahulv",
+     "body": "Head of Sales at Acme. Pune."
+    },
+    {
+     "title": "Acme Company Page",
+     "href": "https://www.linkedin.com/company/acme",
+     "body": ""
+    },
+    {
+     "title": "Dr. Mary-Kate O'Neil, CTO - Acme",
+     "href": "https://linkedin.com/in/mko",
+     "body": "x"
+    }
+   ],
+   "site:linkedin.com/in \"Acme\" CEO OR CTO OR Founder": "raise",
+   "site:linkedin.com/in \"Acme\" Director OR VP OR Head": [
+    {
+     "title": "Sam Lee - Director - Acme",
+     "href": "https://www.linkedin.com/in/samlee",
+     "body": ""
+    },
+    {
+     "title": "Priya Sharma - CEO",
+     "href": "https://www.linkedin.com/in/priya-sharma-1",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "site:linkedin.com/in \"Acme\" \"Pune\"",
+    15,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Acme\" CEO OR CTO OR Founder",
+    8,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Acme\" CEO OR CTO OR Founder",
+    8,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Acme\" CEO OR CTO OR Founder",
+    8,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Acme\" Director OR VP OR Head",
+    8,
+    true
+   ]
+  ],
+  "output": {
+   "provider": "crosslinked",
+   "success": true,
+   "fields": {
+    "decision_makers": "[{\"name\": \"Priya Sharma\", \"title\": \"CEO\", \"linkedin\": \"https://www.linkedin.com/in/priya-sharma-1\", \"evidence_url\": \"https://www.linkedin.com/in/priya-sharma-1\", \"evidence_title\": \"Priya Sharma - CEO\", \"evidence_snippet\": \"\"}, {\"name\": \"Sam Lee\", \"title\": \"Director\", \"linkedin\": \"https://www.linkedin.com/in/samlee\", \"evidence_url\": \"https://www.linkedin.com/in/samlee\", \"evidence_title\": \"Sam Lee - Director - Acme\", \"evidence_snippet\": \"\"}, {\"name\": \"Rahul Verma\", \"title\": \"Head of Sales at Acme\", \"linkedin\": \"https://www.linkedin.com/in/rahulv\", \"evidence_url\": \"https://www.linkedin.com/in/rahulv\", \"evidence_title\": \"Rahul Verma \\u2013 Acme\", \"evidence_snippet\": \"Head of Sales at Acme. Pune.\"}, {\"name\": \"Mary-Kate O'Neil\", \"title\": \"Acme\", \"linkedin\": \"https://linkedin.com/in/mko\", \"evidence_url\": \"https://linkedin.com/in/mko\", \"evidence_title\": \"Dr. Mary-Kate O'Neil, CTO - Acme\", \"evidence_snippet\": \"x\"}]",
+    "contact_person": "Priya Sharma",
+    "contact_title": "CEO"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "cl_none",
+  "provider": "crosslinked",
+  "input": {
+   "company": "Nobody"
+  },
+  "search": {},
+  "calls": [
+   [
+    "web",
+    "site:linkedin.com/in \"Nobody\"",
+    15,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Nobody\" CEO OR CTO OR Founder",
+    8,
+    true
+   ],
+   [
+    "web",
+    "site:linkedin.com/in \"Nobody\" Director OR VP OR Head",
+    8,
+    true
+   ]
+  ],
+  "output": {
+   "provider": "crosslinked",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_people_found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "cl_many",
+  "provider": "crosslinked",
+  "input": {
+   "company": "Big"
+  },
+  "search": {
+   "site:linkedin.com/in \"Big\"": [
+    {
+     "title": "Persona Namea - Manager - Big",
+     "href": "https://www.linkedin.com/in/pa",
+     "body": ""
+    },
+    {
+     "title": "Personb Nameb - Manager - Big",
+     "href": "https://www.linkedin.com/in/pb",
+     "body": ""
+    },
+    {
+     "title": "Personc Namec - Manager - Big",
+     "href": "https://www.linkedin.com/in/pc",
+     "body": ""
+    },
+    {
+     "title": "Persond Named - Manager - Big",
+     "href": "https://www.linkedin.com/in/pd",
+     "body": ""
+    },
+    {
+     "title": "Persone Namee - Manager - Big",
+     "href": "https://www.linkedin.com/in/pe",
+     "body": ""
+    },
+    {
+     "title": "Personf Namef - Manager - Big",
+     "href": "https://www.linkedin.com/in/pf",
+     "body": ""
+    },
+    {
+     "title": "Persong Nameg - Manager - Big",
+     "href": "https://www.linkedin.com/in/pg",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "site:linkedin.com/in \"Big\"",
+    15,
+    true
+   ]
+  ],
+  "output": {
+   "provider": "crosslinked",
+   "success": true,
+   "fields": {
+    "decision_makers": "[{\"name\": \"Persona Namea\", \"title\": \"Manager\", \"linkedin\": \"https://www.linkedin.com/in/pa\", \"evidence_url\": \"https://www.linkedin.com/in/pa\", \"evidence_title\": \"Persona Namea - Manager - Big\", \"evidence_snippet\": \"\"}, {\"name\": \"Personb Nameb\", \"title\": \"Manager\", \"linkedin\": \"https://www.linkedin.com/in/pb\", \"evidence_url\": \"https://www.linkedin.com/in/pb\", \"evidence_title\": \"Personb Nameb - Manager - Big\", \"evidence_snippet\": \"\"}, {\"name\": \"Personc Namec\", \"title\": \"Manager\", \"linkedin\": \"https://www.linkedin.com/in/pc\", \"evidence_url\": \"https://www.linkedin.com/in/pc\", \"evidence_title\": \"Personc Namec - Manager - Big\", \"evidence_snippet\": \"\"}, {\"name\": \"Persond Named\", \"title\": \"Manager\", \"linkedin\": \"https://www.linkedin.com/in/pd\", \"evidence_url\": \"https://www.linkedin.com/in/pd\", \"evidence_title\": \"Persond Named - Manager - Big\", \"evidence_snippet\": \"\"}, {\"name\": \"Persone Namee\", \"title\": \"Manager\", \"linkedin\": \"https://www.linkedin.com/in/pe\", \"evidence_url\": \"https://www.linkedin.com/in/pe\", \"evidence_title\": \"Persone Namee - Manager - Big\", \"evidence_snippet\": \"\"}]",
+    "contact_person": "Persona Namea",
+    "contact_title": "Manager"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "eh_no_site",
+  "provider": "email_harvester",
+  "input": {
+   "company": "Acme"
+  },
+  "calls": [],
+  "output": {
+   "provider": "email_harvester",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No website/domain available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "eh_found",
+  "provider": "email_harvester",
+  "input": {
+   "company": "Acme",
+   "website": "https://www.acme.io/about"
+  },
+  "search": {
+   "site:acme.io email OR contact OR \"@acme.io\"": [
+    {
+     "title": "Contact Acme",
+     "href": "https://acme.io/c",
+     "body": "John Doe john.doe@acme.io and info@acme.io noreply@acme.io"
+    },
+    {
+     "title": "x",
+     "href": "https://y",
+     "body": "logo@acme.io.png support@acme.io."
+    }
+   ],
+   "\"@acme.io\" -site:acme.io": [
+    {
+     "title": "dir",
+     "href": "https://d",
+     "body": "Jane Roe: ceo@acme.io; other@gmail.com"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "web",
+    "site:acme.io email OR contact OR \"@acme.io\"",
+    8,
+    false
+   ],
+   [
+    "web",
+    "\"@acme.io\" -site:acme.io",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "email_harvester",
+   "success": true,
+   "fields": {
+    "email": "john.doe@acme.io",
+    "secondary_emails": "ceo@acme.io | info@acme.io | support@acme.io",
+    "contact_person": "John Doe"
+   },
+   "confidence": 0.72,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "eh_none",
+  "provider": "email_harvester",
+  "input": {
+   "website": "nomail.org"
+  },
+  "search": {},
+  "calls": [
+   [
+    "web",
+    "site:nomail.org email OR contact OR \"@nomail.org\"",
+    8,
+    false
+   ],
+   [
+    "web",
+    "\"@nomail.org\" -site:nomail.org",
+    8,
+    false
+   ]
+  ],
+  "output": {
+   "provider": "email_harvester",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No emails found across search results",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "fb_no_company",
+  "provider": "facebook_pages",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "facebook_pages",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_company_name",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "fb_found",
+  "provider": "facebook_pages",
+  "input": {
+   "company": "Chai Point",
+   "city": "Bengaluru"
+  },
+  "search": {
+   "site:facebook.com \"Chai Point\" \"Bengaluru\" business": [
+    {
+     "title": "Chai Point group",
+     "href": "https://facebook.com/groups/chai",
+     "body": "+91 98450 11111"
+    },
+    {
+     "title": "Chai Point",
+     "href": "https://www.facebook.com/chaipoint",
+     "body": "Located at 5th Cross, Indiranagar, Bengaluru 560038. Call +91 80 1234 5678. chai@ChaiPoint.com"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:facebook.com \"Chai Point\" \"Bengaluru\" business",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "facebook_pages",
+   "success": true,
+   "fields": {
+    "email": "chai@chaipoint.com",
+    "address": "5th Cross, Indiranagar, Bengaluru 560038. Call +91 80 1234 5678. chai@ChaiPoint"
+   },
+   "confidence": 0.5,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "fb_no_contact",
+  "provider": "facebook_pages",
+  "input": {
+   "company": "Quiet"
+  },
+  "search": {
+   "site:facebook.com \"Quiet\" business": [
+    {
+     "title": "Quiet",
+     "href": "https://facebook.com/quiet",
+     "body": "nothing here"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:facebook.com \"Quiet\" business",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "facebook_pages",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_facebook_page",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "fb_none",
+  "provider": "facebook_pages",
+  "input": {
+   "company": "Gone"
+  },
+  "search": {},
+  "calls": [
+   [
+    "text",
+    "site:facebook.com \"Gone\" business",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "facebook_pages",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_facebook_page",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sf_no_company",
+  "provider": "social_finder",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "social_finder",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sf_both",
+  "provider": "social_finder",
+  "input": {
+   "company": "Acme"
+  },
+  "search": {
+   "site:linkedin.com/company \"Acme\"": [
+    {
+     "title": "a",
+     "href": "https://x.com/no",
+     "body": ""
+    },
+    {
+     "title": "Acme",
+     "href": "https://linkedin.com/company/acme",
+     "body": ""
+    }
+   ],
+   "site:twitter.com OR site:x.com \"Acme\"": [
+    {
+     "title": "t",
+     "href": "https://x.com/acme",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:linkedin.com/company \"Acme\"",
+    2
+   ],
+   [
+    "text",
+    "site:twitter.com OR site:x.com \"Acme\"",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "social_finder",
+   "success": true,
+   "fields": {
+    "linkedin_url": "https://linkedin.com/company/acme",
+    "twitter_url": "https://x.com/acme"
+   },
+   "confidence": 0.55,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sf_has_linkedin",
+  "provider": "social_finder",
+  "input": {
+   "company": "Acme",
+   "linkedin_url": "https://l"
+  },
+  "search": {},
+  "calls": [
+   [
+    "text",
+    "site:twitter.com OR site:x.com \"Acme\"",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "social_finder",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No social profiles found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dc_no_company",
+  "provider": "ddg_company",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "ddg_company",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dc_found",
+  "provider": "ddg_company",
+  "input": {
+   "company": "Acme",
+   "city": "Delhi"
+  },
+  "search": {
+   "Acme Delhi official website contact": [
+    {
+     "title": "Acme on JustDial",
+     "href": "https://www.justdial.com/acme",
+     "body": "Call 011-23456789"
+    },
+    {
+     "title": "Acme",
+     "href": "https://acme.co.in/",
+     "body": "Mail info@acme.co.in or +91-98100 12345"
+    },
+    {
+     "title": "Acme 2",
+     "href": "https://acme2.example/",
+     "body": "x@example.com"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "Acme Delhi official website contact",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_company",
+   "success": true,
+   "fields": {
+    "website": "https://acme.co.in/",
+    "phone": "011-23456789",
+    "email": "info@acme.co.in"
+   },
+   "confidence": 0.5,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dc_filtered",
+  "provider": "ddg_company",
+  "input": {
+   "company": "Acme",
+   "website": "https://a",
+   "phone": "1",
+   "email": "e"
+  },
+  "search": {
+   "Acme official website contact": [
+    {
+     "title": "Acme",
+     "href": "https://acme.co.in/",
+     "body": "+91 98100 12345 a@b.io"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "Acme official website contact",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_company",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No new data found via search",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_nothing",
+  "provider": "ddg_email",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "ddg_email",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name or website available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_personal_search",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme",
+   "website": "https://www.acme.in",
+   "contact_person": "Priya Sharma"
+  },
+  "search": {
+   "\"Priya Sharma\" email @acme.in \"Acme\"": [
+    {
+     "title": "p",
+     "href": "https://x",
+     "body": "reach priya.s@acme.in today"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "\"Priya Sharma\" email @acme.in \"Acme\"",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "priya.s@acme.in",
+    "email_confidence": "verified"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_personal_smtp",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme",
+   "website": "acme.in",
+   "contact_person": "Priya Sharma"
+  },
+  "search": {},
+  "mail": {
+   "mx": true,
+   "pick": {
+    "email": "priya.sharma@acme.in",
+    "confidence": "smtp_verified",
+    "deliverable": true
+   }
+  },
+  "calls": [
+   [
+    "text",
+    "\"Priya Sharma\" email @acme.in \"Acme\"",
+    5
+   ],
+   [
+    "mx",
+    "acme.in"
+   ],
+   [
+    "pick",
+    [
+     "priya.sharma@acme.in",
+     "priyasharma@acme.in",
+     "psharma@acme.in",
+     "priyas@acme.in",
+     "priya_sharma@acme.in",
+     "sharma.priya@acme.in",
+     "p.sharma@acme.in",
+     "sharmap@acme.in",
+     "priya-sharma@acme.in",
+     "sharma@acme.in",
+     "priya@acme.in",
+     "ps@acme.in",
+     "sharma_priya@acme.in"
+    ]
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "priya.sharma@acme.in",
+    "email_confidence": "smtp_verified"
+   },
+   "confidence": 0.4,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_personal_rejected",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme",
+   "website": "acme.in",
+   "contact_person": "Priya Sharma",
+   "city": "Pune"
+  },
+  "search": {
+   "Acme email contact Pune @acme.in": [
+    {
+     "title": "x",
+     "href": "https://y",
+     "body": "contact@acme.in"
+    }
+   ]
+  },
+  "mail": {
+   "mx": true,
+   "pick": {
+    "deliverable": false
+   }
+  },
+  "calls": [
+   [
+    "text",
+    "\"Priya Sharma\" email @acme.in \"Acme\"",
+    5
+   ],
+   [
+    "mx",
+    "acme.in"
+   ],
+   [
+    "pick",
+    [
+     "priya.sharma@acme.in",
+     "priyasharma@acme.in",
+     "psharma@acme.in",
+     "priyas@acme.in",
+     "priya_sharma@acme.in",
+     "sharma.priya@acme.in",
+     "p.sharma@acme.in",
+     "sharmap@acme.in",
+     "priya-sharma@acme.in",
+     "sharma@acme.in",
+     "priya@acme.in",
+     "ps@acme.in",
+     "sharma_priya@acme.in"
+    ]
+   ],
+   [
+    "text",
+    "Acme email contact Pune @acme.in",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "contact@acme.in",
+    "email_confidence": "verified"
+   },
+   "confidence": 0.6,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_personal_unknown",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme",
+   "website": "acme.in",
+   "contact_person": "Madonna"
+  },
+  "search": {},
+  "mail": {
+   "mx": true,
+   "pick": {}
+  },
+  "calls": [
+   [
+    "text",
+    "\"Madonna\" email @acme.in \"Acme\"",
+    5
+   ],
+   [
+    "mx",
+    "acme.in"
+   ],
+   [
+    "pick",
+    [
+     "madonna@acme.in"
+    ]
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "madonna@acme.in",
+    "email_confidence": "pattern"
+   },
+   "confidence": 0.4,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_no_mx_generic",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme",
+   "website": "acme.in",
+   "contact_person": "Priya Sharma"
+  },
+  "search": {},
+  "mail": {
+   "mx": false
+  },
+  "calls": [
+   [
+    "text",
+    "\"Priya Sharma\" email @acme.in \"Acme\"",
+    5
+   ],
+   [
+    "mx",
+    "acme.in"
+   ],
+   [
+    "text",
+    "Acme email contact @acme.in",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "info@acme.in",
+    "email_confidence": "generic"
+   },
+   "confidence": 0.2,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "de_company_nodomain",
+  "provider": "ddg_email",
+  "input": {
+   "company": "Acme"
+  },
+  "search": {
+   "Acme email contact": [
+    {
+     "title": "x",
+     "href": "https://y",
+     "body": "no@example.org and real@acme.org"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "Acme email contact",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddg_email",
+   "success": true,
+   "fields": {
+    "email": "real@acme.org",
+    "email_confidence": "verified"
+   },
+   "confidence": 0.6,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dm_short",
+  "provider": "decision_maker",
+  "input": {
+   "company": "Ab"
+  },
+  "calls": [],
+  "output": {
+   "provider": "decision_maker",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No company name available",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dm_found",
+  "provider": "decision_maker",
+  "input": {
+   "company": "Acme",
+   "linkedin_url": ""
+  },
+  "search": {
+   "site:linkedin.com/in \"Acme\" \"Founder\" India": [
+    {
+     "title": "Priya Sharma - Founder - Acme | LinkedIn",
+     "href": "https://in.linkedin.com/in/priya?x=1/",
+     "body": ""
+    }
+   ],
+   "site:linkedin.com/in \"Acme\" \"CEO\" India": [
+    {
+     "title": "LinkedIn",
+     "href": "https://in.linkedin.com/in/x",
+     "body": ""
+    },
+    {
+     "title": "priya sharma | CEO",
+     "href": "https://linkedin.com/in/p2",
+     "body": ""
+    }
+   ],
+   "site:linkedin.com/in \"Acme\" \"CTO\" India": [
+    {
+     "title": "Raj K - CTO",
+     "href": "https://www.linkedin.com/company/acme",
+     "body": ""
+    },
+    {
+     "title": "Raj Kumar - CTO",
+     "href": "https://www.linkedin.com/in/raj/",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"Founder\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"CEO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"Managing Director\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"CHRO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"HR Director\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"CTO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"COO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Acme\" \"VP HR\" India",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "decision_maker",
+   "success": true,
+   "fields": {
+    "contact_person": "Priya Sharma",
+    "contact_title": "Founder",
+    "decision_makers": "[{\"name\": \"Priya Sharma\", \"title\": \"Founder\", \"linkedin\": \"https://in.linkedin.com/in/priya\"}, {\"name\": \"Raj Kumar\", \"title\": \"CTO\", \"linkedin\": \"https://www.linkedin.com/in/raj\"}]"
+   },
+   "confidence": 0.5,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dm_existing",
+  "provider": "decision_maker",
+  "input": {
+   "company": "Acme",
+   "contact_person": "Old Name",
+   "contact_title": "Boss",
+   "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"},{\"name\":\"c\"}]"
+  },
+  "search": {},
+  "calls": [],
+  "output": {
+   "provider": "decision_maker",
+   "success": true,
+   "fields": {
+    "contact_person": "Old Name",
+    "contact_title": "Boss",
+    "decision_makers": "[{\"name\":\"a\"},{\"name\":\"b\"},{\"name\":\"c\"}]"
+   },
+   "confidence": 0.5,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "dm_none",
+  "provider": "decision_maker",
+  "input": {
+   "company": "Nobody Co"
+  },
+  "search": {},
+  "calls": [
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"Founder\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"CEO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"Managing Director\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"CHRO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"HR Director\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"CTO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"COO\" India",
+    2
+   ],
+   [
+    "text",
+    "site:linkedin.com/in \"Nobody Co\" \"VP HR\" India",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "decision_maker",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No decision makers found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "js_no_company",
+  "provider": "jobspy",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "jobspy",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_company_name",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "js_found",
+  "provider": "jobspy",
+  "input": {
+   "company": "Acme",
+   "city": "Pune"
+  },
+  "search": {
+   "site:indeed.com \"Acme\" jobs Pune": [
+    {
+     "title": "Senior Python Developer - Acme - Pune | Indeed.com",
+     "href": "https://in.indeed.com/1",
+     "body": "Build React and AWS services, Salesforce experience"
+    },
+    {
+     "title": "Account Executive - Acme",
+     "href": "https://in.indeed.com/2",
+     "body": "Sales role using HubSpot and Apollo.io"
+    },
+    {
+     "title": "senior python developer - Acme",
+     "href": "https://in.indeed.com/3",
+     "body": "dup"
+    }
+   ],
+   "site:naukri.com \"Acme\" jobs Pune": [
+    {
+     "title": "SDR | Naukri.com",
+     "href": "https://naukri.com/1",
+     "body": "outbound sales, growth"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:indeed.com \"Acme\" jobs Pune",
+    5
+   ],
+   [
+    "text",
+    "site:naukri.com \"Acme\" jobs Pune",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "jobspy",
+   "success": true,
+   "fields": {
+    "hiring_signals": "{\"total_jobs\": 3, \"growth_signal\": \"growing\", \"gtm_expansion\": true, \"tech_hiring\": false, \"roles\": [\"Senior Python Developer\", \"Account Executive\", \"SDR\"], \"score_boost\": 20, \"technologies\": [\"AWS\", \"Apollo.io\", \"HubSpot\", \"Python\", \"React\", \"Salesforce\"], \"tech_adoption_signal\": [{\"tech\": \"AWS\", \"category\": \"Cloud & Infra\", \"intent\": \"using\"}, {\"tech\": \"Apollo.io\", \"category\": \"Competitor Tools\", \"intent\": \"expanding\"}, {\"tech\": \"HubSpot\", \"category\": \"CRM\", \"intent\": \"using\"}, {\"tech\": \"Python\", \"category\": \"Languages\", \"intent\": \"using\"}, {\"tech\": \"React\", \"category\": \"Web Frameworks\", \"intent\": \"using\"}, {\"tech\": \"Salesforce\", \"category\": \"CRM\", \"intent\": \"using\"}], \"hiring_velocity\": {\"open_roles\": 3, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"moderate\"}}",
+    "technologies": "AWS, Apollo.io, HubSpot, Python, React, Salesforce"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "js_none",
+  "provider": "jobspy",
+  "input": {
+   "company": "Quiet"
+  },
+  "search": {},
+  "calls": [
+   [
+    "text",
+    "site:indeed.com \"Quiet\" jobs",
+    5
+   ],
+   [
+    "text",
+    "site:naukri.com \"Quiet\" jobs",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "jobspy",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_jobs_found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_jobspy_signals",
+  "provider": "jobspy_signals",
+  "input": {
+   "company": "Acme",
+   "max_jobs": 2
+  },
+  "search": {
+   "site:indeed.com \"Acme\" jobs": [
+    {
+     "title": "Role 0 - Acme",
+     "href": "https://i/0",
+     "body": "kubernetes"
+    },
+    {
+     "title": "Role 1 - Acme",
+     "href": "https://i/1",
+     "body": "kubernetes"
+    },
+    {
+     "title": "Role 2 - Acme",
+     "href": "https://i/2",
+     "body": "kubernetes"
+    },
+    {
+     "title": "Role 3 - Acme",
+     "href": "https://i/3",
+     "body": "kubernetes"
+    },
+    {
+     "title": "Role 4 - Acme",
+     "href": "https://i/4",
+     "body": "kubernetes"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:indeed.com \"Acme\" jobs",
+    2
+   ],
+   [
+    "text",
+    "site:naukri.com \"Acme\" jobs",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "jobspy_signals",
+   "success": true,
+   "fields": {
+    "hiring_signals": "{\"total_jobs\": 2, \"growth_signal\": \"growing\", \"gtm_expansion\": false, \"tech_hiring\": false, \"roles\": [\"Role 0\", \"Role 1\"], \"score_boost\": 10, \"technologies\": [\"Kubernetes\"], \"tech_adoption_signal\": [{\"tech\": \"Kubernetes\", \"category\": \"Cloud & Infra\", \"intent\": \"expanding\"}], \"hiring_velocity\": {\"open_roles\": 2, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"moderate\"}}",
+    "technologies": "Kubernetes"
+   },
+   "confidence": 0.7,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_jobspy_signals_bad_max",
+  "provider": "jobspy_signals",
+  "input": {
+   "company": "Acme",
+   "max_jobs": true
+  },
+  "search": {},
+  "calls": [
+   [
+    "text",
+    "site:indeed.com \"Acme\" jobs",
+    5
+   ],
+   [
+    "text",
+    "site:naukri.com \"Acme\" jobs",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "jobspy_signals",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_jobs_found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_hiring",
+  "provider": "mcp.get_hiring_signals",
+  "input": {
+   "company": "Acme",
+   "lead_id": 7
+  },
+  "search": {
+   "site:indeed.com \"Acme\" jobs": [
+    {
+     "title": "Data Engineer - Acme",
+     "href": "https://i/1",
+     "body": "Snowflake dbt"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "site:indeed.com \"Acme\" jobs",
+    5
+   ],
+   [
+    "text",
+    "site:naukri.com \"Acme\" jobs",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "mcp.get_hiring_signals",
+   "success": true,
+   "fields": {
+    "hiring": true,
+    "data": {
+     "hiring_signals": "{\"total_jobs\": 1, \"growth_signal\": \"hiring\", \"gtm_expansion\": false, \"tech_hiring\": false, \"roles\": [\"Data Engineer\"], \"score_boost\": 5, \"technologies\": [\"Snowflake\", \"dbt\"], \"tech_adoption_signal\": [{\"tech\": \"Snowflake\", \"category\": \"Data & Warehouse\", \"intent\": \"using\"}, {\"tech\": \"dbt\", \"category\": \"Data & Warehouse\", \"intent\": \"using\"}], \"hiring_velocity\": {\"open_roles\": 1, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"low\"}}",
+     "technologies": "Snowflake, dbt"
+    }
+   },
+   "confidence": 1.0,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_hiring_none",
+  "provider": "mcp.get_hiring_signals",
+  "input": {
+   "company": 5
+  },
+  "search": {},
+  "calls": [],
+  "output": {
+   "provider": "mcp.get_hiring_signals",
+   "success": true,
+   "fields": {
+    "hiring": false,
+    "data": {}
+   },
+   "confidence": 1.0,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_ddgs_ok",
+  "provider": "ddgs_search",
+  "input": {
+   "query": "  acme funding  ",
+   "max_results": 2
+  },
+  "search": {
+   "acme funding": [
+    {
+     "title": "A",
+     "href": "https://a",
+     "body": "b"
+    },
+    {
+     "title": "C",
+     "href": "https://c",
+     "body": ""
+    },
+    {
+     "title": "D",
+     "href": "https://d",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "acme funding",
+    2
+   ]
+  ],
+  "output": {
+   "provider": "ddgs_search",
+   "success": true,
+   "fields": {
+    "results": [
+     {
+      "title": "A",
+      "snippet": "b",
+      "url": "https://a"
+     },
+     {
+      "title": "C",
+      "snippet": "",
+      "url": "https://c"
+     }
+    ]
+   },
+   "confidence": 1.0,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_ddgs_default_max",
+  "provider": "ddgs_search",
+  "input": {
+   "query": "acme",
+   "max_results": 99
+  },
+  "search": {
+   "acme": []
+  },
+  "calls": [
+   [
+    "text",
+    "acme",
+    20
+   ]
+  ],
+  "output": {
+   "provider": "ddgs_search",
+   "success": true,
+   "fields": {
+    "results": []
+   },
+   "confidence": 1.0,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_ddgs_bad",
+  "provider": "ddgs_search",
+  "input": {
+   "query": "   "
+  },
+  "calls": [],
+  "output": {
+   "provider": "ddgs_search",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "query required",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "rpc_ddgs_bool_max",
+  "provider": "ddgs_search",
+  "input": {
+   "query": "x",
+   "max_results": false
+  },
+  "search": {
+   "x": [
+    {
+     "title": "x",
+     "href": "https://x",
+     "body": ""
+    }
+   ]
+  },
+  "calls": [
+   [
+    "text",
+    "x",
+    5
+   ]
+  ],
+  "output": {
+   "provider": "ddgs_search",
+   "success": true,
+   "fields": {
+    "results": [
+     {
+      "title": "x",
+      "snippet": "",
+      "url": "https://x"
+     }
+    ]
+   },
+   "confidence": 1.0,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "hh_no_email",
+  "provider": "holehe",
+  "input": {
+   "email": "nope"
+  },
+  "calls": [],
+  "output": {
+   "provider": "holehe",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "No email to verify",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "hh_real",
+  "provider": "holehe",
+  "input": {
+   "email": "a@b.com"
+  },
+  "holehe": {
+   "exists_on": [
+    "twitter",
+    "spotify",
+    "adobe",
+    "imgur",
+    "x",
+    "y"
+   ],
+   "total_checked": 50
+  },
+  "calls": [
+   [
+    "holehe",
+    "a@b.com"
+   ]
+  ],
+  "output": {
+   "provider": "holehe",
+   "success": true,
+   "fields": {
+    "email": "a@b.com",
+    "email_verify": "verified_active",
+    "email_presence": "twitter, spotify, adobe, imgur, x"
+   },
+   "confidence": 0.95,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "hh_one",
+  "provider": "holehe",
+  "input": {
+   "email": "a@b.com"
+  },
+  "holehe": {
+   "exists_on": [
+    "github"
+   ],
+   "total_checked": 48
+  },
+  "calls": [
+   [
+    "holehe",
+    "a@b.com"
+   ]
+  ],
+  "output": {
+   "provider": "holehe",
+   "success": true,
+   "fields": {
+    "email": "a@b.com",
+    "email_verify": "likely_valid",
+    "email_presence": "github"
+   },
+   "confidence": 0.65,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "hh_zero",
+  "provider": "holehe",
+  "input": {
+   "email": "a@b.com"
+  },
+  "holehe": {
+   "exists_on": [],
+   "total_checked": 50
+  },
+  "calls": [
+   [
+    "holehe",
+    "a@b.com"
+   ]
+  ],
+  "output": {
+   "provider": "holehe",
+   "success": true,
+   "fields": {
+    "email": "a@b.com",
+    "email_verify": "no_presence"
+   },
+   "confidence": 0.3,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ss_no_company",
+  "provider": "staffspy",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "staffspy",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_company",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ss_rows",
+  "provider": "staffspy",
+  "input": {
+   "company": "Acme",
+   "city": "Pune"
+  },
+  "staffspy": {
+   "rows": [
+    {
+     "name": "A One",
+     "title": "Software Engineer",
+     "linkedin": "https://l/a",
+     "location": "Pune"
+    },
+    {
+     "name": "B Two",
+     "title": "Co-Founder & CEO",
+     "linkedin": "https://l/b",
+     "location": ""
+    },
+    {
+     "name": "C Three",
+     "title": "Head of Sales",
+     "linkedin": "",
+     "location": "Mumbai"
+    },
+    {
+     "name": "Ünïcode Name",
+     "title": "VP Marketing",
+     "linkedin": "https://l/u",
+     "location": "Zürich"
+    }
+   ]
+  },
+  "calls": [
+   [
+    "staffspy",
+    "Acme",
+    "Pune",
+    25
+   ]
+  ],
+  "output": {
+   "provider": "staffspy",
+   "success": true,
+   "fields": {
+    "decision_makers": "[{\"name\": \"B Two\", \"title\": \"Co-Founder & CEO\", \"linkedin\": \"https://l/b\", \"location\": \"\"}, {\"name\": \"Ünïcode Name\", \"title\": \"VP Marketing\", \"linkedin\": \"https://l/u\", \"location\": \"Zürich\"}, {\"name\": \"C Three\", \"title\": \"Head of Sales\", \"linkedin\": \"\", \"location\": \"Mumbai\"}, {\"name\": \"A One\", \"title\": \"Software Engineer\", \"linkedin\": \"https://l/a\", \"location\": \"Pune\"}]",
+    "contact_person": "B Two",
+    "contact_title": "Co-Founder & CEO"
+   },
+   "confidence": 0.8,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ss_empty",
+  "provider": "staffspy",
+  "input": {
+   "company": "Acme"
+  },
+  "staffspy": {
+   "rows": []
+  },
+  "calls": [
+   [
+    "staffspy",
+    "Acme",
+    "",
+    25
+   ]
+  ],
+  "output": {
+   "provider": "staffspy",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_staff_found",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_no_email",
+  "provider": "mailscout",
+  "input": {
+   "email": "x"
+  },
+  "calls": [],
+  "output": {
+   "provider": "mailscout",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "no_email_to_verify",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_verified",
+  "provider": "mailscout",
+  "input": {
+   "email": "a@acme.in"
+  },
+  "mail": {
+   "verify": {
+    "confidence": "smtp_verified",
+    "deliverable": true
+   }
+  },
+  "calls": [
+   [
+    "verify",
+    "a@acme.in"
+   ]
+  ],
+  "output": {
+   "provider": "mailscout",
+   "success": true,
+   "fields": {
+    "email": "a@acme.in",
+    "email_confidence": "smtp_verified"
+   },
+   "confidence": 0.95,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_catchall",
+  "provider": "mailscout",
+  "input": {
+   "email": "a@acme.in"
+  },
+  "mail": {
+   "verify": {
+    "confidence": "pattern",
+    "catch_all": true
+   }
+  },
+  "calls": [
+   [
+    "verify",
+    "a@acme.in"
+   ]
+  ],
+  "output": {
+   "provider": "mailscout",
+   "success": true,
+   "fields": {
+    "email": "a@acme.in",
+    "email_confidence": "pattern"
+   },
+   "confidence": 0.5,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_rejected_patterns",
+  "provider": "mailscout",
+  "input": {
+   "email": "a@acme.in",
+   "contact_person": "Priya Sharma",
+   "website": "https://www.acme.in"
+  },
+  "mail": {
+   "verify": {
+    "deliverable": false
+   },
+   "pick": {
+    "email": "priya.sharma@acme.in",
+    "confidence": "smtp_verified",
+    "deliverable": true
+   }
+  },
+  "calls": [
+   [
+    "verify",
+    "a@acme.in"
+   ],
+   [
+    "pick",
+    [
+     "priya.sharma@acme.in",
+     "priyasharma@acme.in",
+     "psharma@acme.in"
+    ]
+   ]
+  ],
+  "output": {
+   "provider": "mailscout",
+   "success": true,
+   "fields": {
+    "email": "priya.sharma@acme.in",
+    "email_confidence": "smtp_verified"
+   },
+   "confidence": 0.9,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_rejected_nopick",
+  "provider": "mailscout",
+  "input": {
+   "email": "a@acme.in",
+   "contact_person": "Priya",
+   "website": "acme.in"
+  },
+  "mail": {
+   "verify": {
+    "deliverable": false
+   },
+   "pick": {}
+  },
+  "calls": [
+   [
+    "verify",
+    "a@acme.in"
+   ],
+   [
+    "pick",
+    [
+     "priya@acme.in"
+    ]
+   ]
+  ],
+  "output": {
+   "provider": "mailscout",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "smtp_unverified",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "ms_unknown",
+  "provider": "mailscout",
+  "input": {
+   "email": "a@acme.in"
+  },
+  "mail": {
+   "verify": {}
+  },
+  "calls": [
+   [
+    "verify",
+    "a@acme.in"
+   ]
+  ],
+  "output": {
+   "provider": "mailscout",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "smtp_unverified",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sz_exact",
+  "provider": "company_size_heuristic",
+  "input": {
+   "employee_count_exact": 120
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_size_heuristic",
+   "success": true,
+   "fields": {
+    "company_size": "51-200",
+    "company_size_basis": "exact"
+   },
+   "confidence": 0.95,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sz_none",
+  "provider": "company_size_heuristic",
+  "input": {
+   "company": "x"
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_size_heuristic",
+   "success": false,
+   "fields": {},
+   "confidence": 0.0,
+   "error": "insufficient_signals",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sz_vote",
+  "provider": "company_size_heuristic",
+  "input": {
+   "hiring_signals": "{\"growth_signal\": \"rapid_growth\", \"total_jobs\": 6}",
+   "funding_stage": "Series B",
+   "decision_makers": "[{}, {}, {}, {}, {}, {}, {}, {}, {}]",
+   "technologies": "a,b;c|d,e,f,g,h,i,j",
+   "founded_year": "est. 1990",
+   "description": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_size_heuristic",
+   "success": true,
+   "fields": {
+    "company_size": "201-500",
+    "company_size_basis": "estimated:jobs+funding+registry+footprint"
+   },
+   "confidence": 0.6,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sz_seed",
+  "provider": "company_size_heuristic",
+  "input": {
+   "funding_stage": "Pre-Seed",
+   "hiring_signals": "not json"
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_size_heuristic",
+   "success": true,
+   "fields": {
+    "company_size": "1-50",
+    "company_size_basis": "estimated:funding"
+   },
+   "confidence": 0.4,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "sz_badexact",
+  "provider": "company_size_heuristic",
+  "input": {
+   "employee_count_exact": "abc",
+   "decision_makers": "[1,2,3,4]"
+  },
+  "calls": [],
+  "output": {
+   "provider": "company_size_heuristic",
+   "success": true,
+   "fields": {
+    "company_size": "51-200",
+    "company_size_basis": "estimated:registry"
+   },
+   "confidence": 0.4,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "score_basic",
+  "provider": "lead_scorer",
+  "input": {
+   "company": "Acme",
+   "website": "https://acme.in",
+   "email": "a@acme.in",
+   "phone": "1",
+   "company_size": "51-200",
+   "city": "Bengaluru",
+   "specialization": "IT Staffing"
+  },
+  "calls": [],
+  "output": {
+   "provider": "lead_scorer",
+   "success": true,
+   "fields": {
+    "score": 65,
+    "score_tier": "warm"
+   },
+   "confidence": 0.95,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ },
+ {
+  "name": "score_empty",
+  "provider": "lead_scorer",
+  "input": {},
+  "calls": [],
+  "output": {
+   "provider": "lead_scorer",
+   "success": true,
+   "fields": {
+    "score": 0,
+    "score_tier": "unqualified"
+   },
+   "confidence": 0.95,
+   "error": "",
+   "billing_evidence": null,
+   "license": "unknown"
+  }
+ }
+]

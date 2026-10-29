@@ -1,0 +1,18 @@
+{
+ "method": "POST",
+ "path": "/v1/render",
+ "request": {
+  "upstream_proxy": "ftp://x:1",
+  "url": "https://acme.example/"
+ },
+ "response": {
+  "error": {
+   "code": "bad_request",
+   "fields": [
+    "upstream_proxy"
+   ],
+   "message": "invalid request"
+  }
+ },
+ "status": 400
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/activity?limit=1"
+  },
+  "response": {
+    "body": {
+      "activity": [
+        {
+          "created_at": null,
+          "id": 6,
+          "kind": null,
+          "message": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

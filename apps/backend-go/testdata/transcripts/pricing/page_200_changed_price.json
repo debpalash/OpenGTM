@@ -1,0 +1,44 @@
+{
+ "area": "pricing",
+ "scenario": "page_200_changed_price",
+ "description": "a changed price -> a different fingerprint",
+ "input": {
+  "url": "https://acme.example.com/pricing"
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://acme.example.com/pricing",
+    "headers": {
+     "host": "acme.example.com",
+     "user-agent": "OpenGTM Signal Monitor/1.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<html><head><style>a{}</style><script>var x=1</script></head><body><h1>Pricing</h1><p>Pro $59/mo</p></body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "ok": true,
+  "present": true,
+  "url": "https://acme.example.com/pricing",
+  "fingerprint": "215ec07bdd256407d5fcfbbb64d55493307bd787b26eefefcf96c0db4cb8bf85"
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "lead": {
+        "city": "Pune",
+        "company": "Viewer Co"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Viewer Co",
+      "lead_id": null,
+      "score": 10,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/unsubscribe"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid or expired token"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

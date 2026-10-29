@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "interval": "monthly"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/00000000-0000-4000-8000-000000000032"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid interval 'monthly'"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

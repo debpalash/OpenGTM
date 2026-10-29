@@ -1,0 +1,9002 @@
+{
+ "job_change_config": [
+  {
+   "max_contacts": 500,
+   "config": null,
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {},
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": null
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": []
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": "x"
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": {}
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     1
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] must be an object"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     null
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] must be an object"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": "7"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 7,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": "abc"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1.9
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": true
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": [
+       1
+      ]
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 0
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 0,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": ""
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": null,
+      "name": "Ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 3,
+      "name": "  Ada ",
+      "company": " Co ",
+      "linkedin_url": " u "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 3,
+      "name": "Ada",
+      "company": "Co",
+      "linkedin_url": "u"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": " Ada ",
+      "company": " Co "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "Co",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://linkedin.com/in/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://linkedin.com/in/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://LINKEDIN.COM/IN/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://LINKEDIN.COM/IN/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://linkedin.com/company/x"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].linkedin_url must be a linkedin.com/in profile URL"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "linkedin.com/in"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "linkedin.com/in"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://x.com/?u=linkedin.com/in/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://x.com/?u=linkedin.com/in/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "   "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "   "
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "company": "X"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {}
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "linkedin_url": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     },
+     {
+      "name": "A"
+     },
+     5
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[2] must be an object"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     },
+     {
+      "lead_id": 1
+     },
+     {
+      "lead_id": 1
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": {
+     "repeat": {
+      "lead_id": 1
+     },
+     "count": 501
+    }
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 500 contacts"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": {
+     "repeat": {
+      "lead_id": 1
+     },
+     "count": 500
+    }
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     },
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 3
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 3
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": "4"
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 4
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": "x"
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be an int"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 0
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be >= 1"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": -1
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be >= 1"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": null
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 2.9
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 2
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": true
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 1
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": [
+     1
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be an int"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "extra": "dropped"
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 500,
+   "config": [
+    "not",
+    "a",
+    "dict"
+   ],
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'list' object has no attribute 'get'"
+   }
+  },
+  {
+   "max_contacts": 500,
+   "config": "str",
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'str' object has no attribute 'get'"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     1
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] must be an object"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     null
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] must be an object"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": "7"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 7,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": "abc"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1.9
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": true
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": [
+       1
+      ]
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 0
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 0,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": ""
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].lead_id must be an int"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": null,
+      "name": "Ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 3,
+      "name": "  Ada ",
+      "company": " Co ",
+      "linkedin_url": " u "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 3,
+      "name": "Ada",
+      "company": "Co",
+      "linkedin_url": "u"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": " Ada ",
+      "company": " Co "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "Co",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://linkedin.com/in/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://linkedin.com/in/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://LINKEDIN.COM/IN/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://LINKEDIN.COM/IN/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://linkedin.com/company/x"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0].linkedin_url must be a linkedin.com/in profile URL"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "linkedin.com/in"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "linkedin.com/in"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "https://x.com/?u=linkedin.com/in/ada"
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": "https://x.com/?u=linkedin.com/in/ada"
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "linkedin_url": "   "
+     }
+    ]
+   },
+   "result": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "   "
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "company": "X"
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {}
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "contacts[0] requires lead_id or a name"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "name": "Ada",
+      "company": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "linkedin_url": 5
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "type": "AttributeError",
+    "message": "'int' object has no attribute 'strip'"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     },
+     {
+      "name": "A"
+     },
+     5
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 2 contacts"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     },
+     {
+      "lead_id": 1
+     },
+     {
+      "lead_id": 1
+     }
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 2 contacts"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 3
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 3
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": "4"
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 4
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": "x"
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be an int"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 0
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be >= 1"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": -1
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be >= 1"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": null
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": 2.9
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 2
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": true
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ],
+    "max_contacts_per_poll": 1
+   },
+   "error": null
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "max_contacts_per_poll": [
+     1
+    ]
+   },
+   "result": null,
+   "error": {
+    "status": 422,
+    "detail": "max_contacts_per_poll must be an int"
+   }
+  },
+  {
+   "max_contacts": 2,
+   "config": {
+    "contacts": [
+     {
+      "lead_id": 1
+     }
+    ],
+    "extra": "dropped"
+   },
+   "result": {
+    "contacts": [
+     {
+      "lead_id": 1,
+      "name": "",
+      "company": "",
+      "linkedin_url": ""
+     }
+    ]
+   },
+   "error": null
+  }
+ ],
+ "create": [
+  {
+   "name": "funding_defaults",
+   "body": {
+    "kind": "funding",
+    "target": "Acme Corp"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "funding_target_trimmed",
+   "body": {
+    "kind": "funding",
+    "target": "  Acme Corp  "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "funding_pinned_lead_and_interval",
+   "body": {
+    "kind": "funding",
+    "target": "Acme",
+    "lead_id": 14,
+    "interval": "hourly",
+    "signal_types": [
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": 14,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "hourly",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "hiring_defaults",
+   "body": {
+    "kind": "hiring",
+    "target": "Acme"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "hiring",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "hiring_surge",
+     "new_tech_adopted"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "feed_defaults",
+   "body": {
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "company_defaults_sorted_signal_types",
+   "body": {
+    "kind": "company",
+    "target": "Acme"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired",
+     "hiring_surge",
+     "new_tech_adopted"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "default_interval_from_settings",
+   "body": {
+    "kind": "funding",
+    "target": "Acme"
+   },
+   "flags": {
+    "INTENT_POLLER_DEFAULT_INTERVAL": "weekly"
+   },
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "weekly",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "default_interval_setting_invalid",
+   "body": {
+    "kind": "funding",
+    "target": "Acme"
+   },
+   "flags": {
+    "INTENT_POLLER_DEFAULT_INTERVAL": "monthly"
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_defaults_weekly",
+   "body": {
+    "kind": "job_change",
+    "target": "Roster",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      },
+      {
+       "name": "Ada",
+       "linkedin_url": "https://linkedin.com/in/ada"
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "Roster",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      },
+      {
+       "name": "Ada",
+       "company": "",
+       "linkedin_url": "https://linkedin.com/in/ada"
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_explicit_weekly",
+   "body": {
+    "kind": "job_change",
+    "target": "Roster",
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ],
+     "max_contacts_per_poll": 2
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "Roster",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ],
+     "max_contacts_per_poll": 2
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_daily",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "daily",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_hourly",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "hourly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_monthly",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "monthly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_empty",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_no_config",
+   "body": {
+    "kind": "job_change",
+    "target": "R"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_config_empty_contacts",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": []
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_signal_types_default",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_signal_types_wrong",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    },
+    "signal_types": [
+     "news"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['news'] not valid for kind 'job_change'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_too_many_contacts",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": {
+    "INTENT_POLLER_JOB_CHANGE_MAX_CONTACTS": 2
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 2 contacts"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind",
+   "body": {
+    "kind": "rss",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'rss'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind_empty",
+   "body": {
+    "kind": "",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind ''"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind_case",
+   "body": {
+    "kind": "Funding",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'Funding'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "account_group_refused",
+   "body": {
+    "kind": "account_group",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "account_group watches require an exact persisted workbook selection"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "account_group_refused_before_interval_check",
+   "body": {
+    "kind": "account_group",
+    "target": "x",
+    "interval": "bogus"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "account_group watches require an exact persisted workbook selection"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_interval",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "interval": "monthly"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_interval_message_quotes_value",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "interval": "every 5m"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'every 5m'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_invalid_for_kind",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "signal_types": [
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['company_funded'] not valid for kind 'feed'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_partially_invalid_lists_only_bad",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "hiring_surge",
+     "bogus",
+     "news",
+     "also_bad"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['bogus', 'news', 'also_bad'] not valid for kind 'company'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_empty_falls_back_to_all",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "signal_types": []
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_duplicates_kept",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "signal_types": [
+     "company_funded",
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_subset_order_kept",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "new_tech_adopted",
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "new_tech_adopted",
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "interval_checked_before_signal_types",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "interval": "bogus",
+    "signal_types": [
+     "bogus"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "kind_checked_before_everything",
+   "body": {
+    "kind": "bogus",
+    "target": "x",
+    "interval": "bogus",
+    "signal_types": [
+     "bogus"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_reached",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 1
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other"
+    }
+   ],
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "max watches per workspace reached (1)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_not_reached",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 2
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other"
+    }
+   ],
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "New",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_other_workspace_not_counted",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 1
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other",
+     "workspace_id": "ws-2"
+    }
+   ],
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "New",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_checked_after_validation",
+   "body": {
+    "kind": "bogus",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 0
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "duplicate_target_python_integrity_error",
+   "body": {
+    "kind": "funding",
+    "target": "Dup"
+   },
+   "flags": null,
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Dup"
+    }
+   ],
+   "response": null,
+   "error": {
+    "type": "IntegrityError",
+    "message": "(sqlite3.IntegrityError) UNIQUE constraint failed: watch_subscriptions.workspace_id, watch_subscriptions.kind, watch_subscriptions.target"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "poller_disabled",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "pg_lead_store_required",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "PG_LEAD_STORE": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "intent_poller_requires_pg_lead_store"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "disabled_precedes_pg_requirement",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false,
+    "PG_LEAD_STORE": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "enabled_check_precedes_validation",
+   "body": {
+    "kind": "bogus",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "pydantic_missing_target",
+   "body": {
+    "kind": "funding"
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "pydantic_empty_target",
+   "body": {
+    "kind": "funding",
+    "target": ""
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "blank_target_stored_empty",
+   "body": {
+    "kind": "funding",
+    "target": "   "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "pydantic_lead_id_text",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "lead_id": "abc"
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "config_ignored_for_non_job_change",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "config": {
+     "a": 1
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_ok",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_ok_with_secret",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w",
+    "webhook_secret_ref": "HOOK"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST",
+        "header_secret_ref": "HOOK"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_name_truncated_200",
+   "body": {
+    "kind": "feed",
+    "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_signal_types_follow_watch",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "hiring_surge"
+    ],
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "hiring_surge"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (company:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "hiring_surge"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_automations_disabled_409",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": {
+    "AUTOMATIONS_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "automations_disabled_cannot_create_webhook_rule"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_automations_disabled_precedes_url_checks",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true
+   },
+   "flags": {
+    "AUTOMATIONS_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "automations_disabled_cannot_create_webhook_rule"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_url_missing",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url required when create_webhook_rule is set"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_url_blank",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "  "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url required when create_webhook_rule is set"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_bad_scheme",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "ftp://h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_no_scheme",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_credentials",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://u:p@h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: credentials not allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_secret_missing",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w",
+    "webhook_secret_ref": "NOPE"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_secret_ref not found"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_templated_url_not_exempt_here",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "{proto}://h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_loopback_passes_at_create",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "http://127.0.0.1:9/x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (funding:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "company_funded",
+       "executive_hired"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "http://127.0.0.1:9/x",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_not_created_when_max_reached",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 0
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "max watches per workspace reached (0)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_fields_ignored_without_flag",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "webhook_url": "ftp://bad",
+    "webhook_secret_ref": "NOPE"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  }
+ ],
+ "patch": [
+  {
+   "name": "funding_interval_ok",
+   "body": {
+    "interval": "hourly"
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "hourly",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_interval_invalid",
+   "body": {
+    "interval": "monthly"
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_interval_empty_string_invalid",
+   "body": {
+    "interval": ""
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval ''"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_signal_types_ok",
+   "body": {
+    "signal_types": [
+     "company_funded"
+    ]
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_signal_types_invalid",
+   "body": {
+    "signal_types": [
+     "news"
+    ]
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['news'] not valid for kind 'funding'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_signal_types_empty_list_stored",
+   "body": {
+    "signal_types": []
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_lead_id_set",
+   "body": {
+    "lead_id": 9
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": 9,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_lead_id_zero_sets_zero",
+   "body": {
+    "lead_id": 0
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": 0,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_enabled_false",
+   "body": {
+    "enabled": false
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": false,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": false,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_enabled_true_when_already_enabled",
+   "body": {
+    "enabled": true
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_config_for_non_job_change",
+   "body": {
+    "config": {
+     "contacts": []
+    }
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "config not supported for kind 'funding'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_empty_body",
+   "body": {},
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_all_null",
+   "body": {
+    "enabled": null,
+    "interval": null,
+    "config": null,
+    "lead_id": null,
+    "signal_types": null
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": "http_500",
+    "consecutive_failures": 3,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_interval_invalid_precedes_signal_types",
+   "body": {
+    "interval": "x",
+    "signal_types": [
+     "x"
+    ]
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'x'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "funding_partial_apply_not_atomic_when_later_field_invalid",
+   "body": {
+    "interval": "daily",
+    "signal_types": [
+     "bogus"
+    ]
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "consecutive_failures": 3,
+    "last_error": "http_500"
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['bogus'] not valid for kind 'funding'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "enable_resets_failures_and_error",
+   "body": {
+    "enabled": true
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": false,
+    "consecutive_failures": 12,
+    "last_error": "auto_disabled"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": true
+  },
+  {
+   "name": "enable_reschedules_and_mirrors",
+   "body": {
+    "enabled": true
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": false,
+    "consecutive_failures": 0,
+    "last_error": null
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": true
+  },
+  {
+   "name": "disable_clears_next_poll_and_mirror",
+   "body": {
+    "enabled": false
+   },
+   "watch": {
+    "kind": "funding",
+    "enabled": true,
+    "next_poll_at": "2026-08-30T00:00:00+00:00"
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": false,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": false,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_interval_daily_rejected",
+   "body": {
+    "interval": "daily"
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_interval_weekly_ok",
+   "body": {
+    "interval": "weekly"
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_interval_invalid_message_precedence",
+   "body": {
+    "interval": "monthly"
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_config_valid",
+   "body": {
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 2
+      },
+      {
+       "name": "Ada"
+      }
+     ],
+     "max_contacts_per_poll": 1
+    }
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 2,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      },
+      {
+       "name": "Ada",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ],
+     "max_contacts_per_poll": 1
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_config_invalid",
+   "body": {
+    "config": {
+     "contacts": []
+    }
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_config_empty_dict_invalid",
+   "body": {
+    "config": {}
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_signal_types_job_change_ok",
+   "body": {
+    "signal_types": [
+     "job_change"
+    ]
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_signal_types_wrong",
+   "body": {
+    "signal_types": [
+     "news"
+    ]
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['news'] not valid for kind 'job_change'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "job_change_max_contacts_enforced",
+   "body": {
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "watch": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "weekly",
+    "signal_types": [
+     "job_change"
+    ],
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 2 contacts"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "account_group_config_unsupported",
+   "body": {
+    "config": {
+     "accounts": []
+    }
+   },
+   "watch": {
+    "kind": "account_group",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "config not supported for kind 'account_group'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "account_group_signal_types_valid",
+   "body": {
+    "signal_types": [
+     "pricing_page_change",
+     "funding"
+    ]
+   },
+   "watch": {
+    "kind": "account_group",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "account_group",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "pricing_page_change",
+     "funding"
+    ],
+    "interval": "daily",
+    "config": {
+     "accounts": []
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "workbook_id": null,
+    "scope_key": null,
+    "account_count": 0,
+    "account_ids": [],
+    "state": "active",
+    "attempt_count": 0,
+    "last_error_class": null,
+    "next_retry_at": null,
+    "collector_health": {},
+    "manual_retry_action": {
+     "method": "POST",
+     "url": "/api/watches/w-1/poll",
+     "label": "Retry collectors now"
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "account_group_signal_types_invalid",
+   "body": {
+    "signal_types": [
+     "news"
+    ]
+   },
+   "watch": {
+    "kind": "account_group",
+    "signal_types": [
+     "funding"
+    ],
+    "config": {
+     "accounts": []
+    }
+   },
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['news'] not valid for kind 'account_group'"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "hiring_signal_types",
+   "body": {
+    "signal_types": [
+     "hiring_surge"
+    ]
+   },
+   "watch": {
+    "kind": "hiring",
+    "signal_types": [
+     "hiring_surge",
+     "new_tech_adopted"
+    ]
+   },
+   "response": {
+    "id": "w-1",
+    "workspace_id": "ws-1",
+    "kind": "hiring",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "hiring_surge"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    }
+   },
+   "error": null,
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "poller_disabled",
+   "body": {
+    "enabled": false
+   },
+   "watch": {
+    "kind": "funding"
+   },
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "pg_required",
+   "body": {
+    "enabled": false
+   },
+   "watch": {
+    "kind": "funding"
+   },
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "intent_poller_requires_pg_lead_store"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  },
+  {
+   "name": "unknown_watch_404",
+   "body": {
+    "enabled": false
+   },
+   "watch": {
+    "kind": "funding"
+   },
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "watch not found"
+   },
+   "mirror_enabled": true,
+   "mirror_next_poll_set": false
+  }
+ ],
+ "vectors": [
+  {
+   "name": "funding_defaults",
+   "body": {
+    "kind": "funding",
+    "target": "Acme Corp"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "funding_target_trimmed",
+   "body": {
+    "kind": "funding",
+    "target": "  Acme Corp  "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme Corp",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "funding_pinned_lead_and_interval",
+   "body": {
+    "kind": "funding",
+    "target": "Acme",
+    "lead_id": 14,
+    "interval": "hourly",
+    "signal_types": [
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": 14,
+    "signal_types": [
+     "company_funded"
+    ],
+    "interval": "hourly",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "hiring_defaults",
+   "body": {
+    "kind": "hiring",
+    "target": "Acme"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "hiring",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "hiring_surge",
+     "new_tech_adopted"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "feed_defaults",
+   "body": {
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "https://f.example.com/x.xml",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "company_defaults_sorted_signal_types",
+   "body": {
+    "kind": "company",
+    "target": "Acme"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired",
+     "hiring_surge",
+     "new_tech_adopted"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "default_interval_from_settings",
+   "body": {
+    "kind": "funding",
+    "target": "Acme"
+   },
+   "flags": {
+    "INTENT_POLLER_DEFAULT_INTERVAL": "weekly"
+   },
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "Acme",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "weekly",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "default_interval_setting_invalid",
+   "body": {
+    "kind": "funding",
+    "target": "Acme"
+   },
+   "flags": {
+    "INTENT_POLLER_DEFAULT_INTERVAL": "monthly"
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_defaults_weekly",
+   "body": {
+    "kind": "job_change",
+    "target": "Roster",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      },
+      {
+       "name": "Ada",
+       "linkedin_url": "https://linkedin.com/in/ada"
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "Roster",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      },
+      {
+       "name": "Ada",
+       "company": "",
+       "linkedin_url": "https://linkedin.com/in/ada"
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_explicit_weekly",
+   "body": {
+    "kind": "job_change",
+    "target": "Roster",
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ],
+     "max_contacts_per_poll": 2
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "Roster",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ],
+     "max_contacts_per_poll": 2
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_daily",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "daily",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_hourly",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "hourly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_monthly",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "monthly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watches poll at most weekly (interval='weekly')"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_interval_empty",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "interval": "",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_no_config",
+   "body": {
+    "kind": "job_change",
+    "target": "R"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_config_empty_contacts",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": []
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch requires config.contacts (non-empty list)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_signal_types_default",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "job_change",
+    "target": "R",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "job_change"
+    ],
+    "interval": "weekly",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1,
+       "name": "",
+       "company": "",
+       "linkedin_url": ""
+      }
+     ]
+    },
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "job_change_signal_types_wrong",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      }
+     ]
+    },
+    "signal_types": [
+     "news"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['news'] not valid for kind 'job_change'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "job_change_too_many_contacts",
+   "body": {
+    "kind": "job_change",
+    "target": "R",
+    "config": {
+     "contacts": [
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      },
+      {
+       "lead_id": 1
+      }
+     ]
+    }
+   },
+   "flags": {
+    "INTENT_POLLER_JOB_CHANGE_MAX_CONTACTS": 2
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "job_change watch supports at most 2 contacts"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind",
+   "body": {
+    "kind": "rss",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'rss'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind_empty",
+   "body": {
+    "kind": "",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind ''"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_kind_case",
+   "body": {
+    "kind": "Funding",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'Funding'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "account_group_refused",
+   "body": {
+    "kind": "account_group",
+    "target": "x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "account_group watches require an exact persisted workbook selection"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "account_group_refused_before_interval_check",
+   "body": {
+    "kind": "account_group",
+    "target": "x",
+    "interval": "bogus"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "account_group watches require an exact persisted workbook selection"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_interval",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "interval": "monthly"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'monthly'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "invalid_interval_message_quotes_value",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "interval": "every 5m"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'every 5m'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_invalid_for_kind",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "signal_types": [
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['company_funded'] not valid for kind 'feed'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_partially_invalid_lists_only_bad",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "hiring_surge",
+     "bogus",
+     "news",
+     "also_bad"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "signal_types ['bogus', 'news', 'also_bad'] not valid for kind 'company'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_empty_falls_back_to_all",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "signal_types": []
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_duplicates_kept",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "signal_types": [
+     "company_funded",
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "signal_types_subset_order_kept",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "new_tech_adopted",
+     "company_funded"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "new_tech_adopted",
+     "company_funded"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "interval_checked_before_signal_types",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "interval": "bogus",
+    "signal_types": [
+     "bogus"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid interval 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "kind_checked_before_everything",
+   "body": {
+    "kind": "bogus",
+    "target": "x",
+    "interval": "bogus",
+    "signal_types": [
+     "bogus"
+    ]
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_reached",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 1
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other"
+    }
+   ],
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "max watches per workspace reached (1)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_not_reached",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 2
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other"
+    }
+   ],
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "New",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_other_workspace_not_counted",
+   "body": {
+    "kind": "funding",
+    "target": "New"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 1
+   },
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Other",
+     "workspace_id": "ws-2"
+    }
+   ],
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "New",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "max_watches_checked_after_validation",
+   "body": {
+    "kind": "bogus",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 0
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "invalid kind 'bogus'"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "duplicate_target_python_integrity_error",
+   "body": {
+    "kind": "funding",
+    "target": "Dup"
+   },
+   "flags": null,
+   "preexisting": [
+    {
+     "id": "w-9",
+     "target": "Dup"
+    }
+   ],
+   "response": null,
+   "error": {
+    "type": "IntegrityError",
+    "message": "(sqlite3.IntegrityError) UNIQUE constraint failed: watch_subscriptions.workspace_id, watch_subscriptions.kind, watch_subscriptions.target"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "poller_disabled",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "pg_lead_store_required",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "PG_LEAD_STORE": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "intent_poller_requires_pg_lead_store"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "disabled_precedes_pg_requirement",
+   "body": {
+    "kind": "funding",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false,
+    "PG_LEAD_STORE": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "enabled_check_precedes_validation",
+   "body": {
+    "kind": "bogus",
+    "target": "x"
+   },
+   "flags": {
+    "INTENT_POLLER_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 404,
+    "detail": "intent poller disabled"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "pydantic_missing_target",
+   "body": {
+    "kind": "funding"
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "pydantic_empty_target",
+   "body": {
+    "kind": "funding",
+    "target": ""
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "blank_target_stored_empty",
+   "body": {
+    "kind": "funding",
+    "target": "   "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "pydantic_lead_id_text",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "lead_id": "abc"
+   },
+   "flags": null,
+   "preexisting": null,
+   "pydantic_error": "ValidationError"
+  },
+  {
+   "name": "config_ignored_for_non_job_change",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "config": {
+     "a": 1
+    }
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_ok",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_ok_with_secret",
+   "body": {
+    "kind": "feed",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w",
+    "webhook_secret_ref": "HOOK"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST",
+        "header_secret_ref": "HOOK"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_name_truncated_200",
+   "body": {
+    "kind": "feed",
+    "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "feed",
+    "target": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "news"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (feed:tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "news"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_signal_types_follow_watch",
+   "body": {
+    "kind": "company",
+    "target": "x",
+    "signal_types": [
+     "hiring_surge"
+    ],
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "company",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "hiring_surge"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (company:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "hiring_surge"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "https://hooks.example.com/w",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_automations_disabled_409",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": {
+    "AUTOMATIONS_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "automations_disabled_cannot_create_webhook_rule"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_automations_disabled_precedes_url_checks",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true
+   },
+   "flags": {
+    "AUTOMATIONS_ENABLED": false
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 409,
+    "detail": "automations_disabled_cannot_create_webhook_rule"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_url_missing",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url required when create_webhook_rule is set"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_url_blank",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "  "
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url required when create_webhook_rule is set"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_bad_scheme",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "ftp://h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_no_scheme",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_credentials",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://u:p@h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: credentials not allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_secret_missing",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w",
+    "webhook_secret_ref": "NOPE"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_secret_ref not found"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_templated_url_not_exempt_here",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "{proto}://h.example.com"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "webhook_url: only http/https allowed"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_rule_loopback_passes_at_create",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "http://127.0.0.1:9/x"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": [
+    {
+     "name": "watch webhook (funding:x)",
+     "trigger_type": "on_signal",
+     "trigger_config": {
+      "signal_types": [
+       "company_funded",
+       "executive_hired"
+      ]
+     },
+     "actions": [
+      {
+       "type": "webhook",
+       "config": {
+        "url": "http://127.0.0.1:9/x",
+        "method": "POST"
+       }
+      }
+     ],
+     "enabled": true,
+     "scope_workbook_ids": []
+    }
+   ]
+  },
+  {
+   "name": "webhook_rule_not_created_when_max_reached",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "create_webhook_rule": true,
+    "webhook_url": "https://hooks.example.com/w"
+   },
+   "flags": {
+    "INTENT_POLLER_MAX_WATCHES_PER_WS": 0
+   },
+   "preexisting": null,
+   "response": null,
+   "error": {
+    "status": 422,
+    "detail": "max watches per workspace reached (0)"
+   },
+   "rules_created": []
+  },
+  {
+   "name": "webhook_fields_ignored_without_flag",
+   "body": {
+    "kind": "funding",
+    "target": "x",
+    "webhook_url": "ftp://bad",
+    "webhook_secret_ref": "NOPE"
+   },
+   "flags": null,
+   "preexisting": null,
+   "response": {
+    "workspace_id": "ws-1",
+    "kind": "funding",
+    "target": "x",
+    "resolved_cik": null,
+    "lead_id": null,
+    "signal_types": [
+     "company_funded",
+     "executive_hired"
+    ],
+    "interval": "daily",
+    "config": {},
+    "enabled": true,
+    "last_polled_at": null,
+    "last_error": null,
+    "consecutive_failures": 0,
+    "cursor": {
+     "bootstrapped": false
+    },
+    "has_webhook_rule_id": false
+   },
+   "error": null,
+   "rules_created": []
+  }
+ ]
+}

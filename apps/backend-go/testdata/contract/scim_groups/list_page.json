@@ -1,0 +1,50 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Groups?startIndex=2&count=1"
+  },
+  "response": {
+    "body": {
+      "Resources": [
+        {
+          "displayName": "Engineering",
+          "externalId": "grp-1",
+          "id": "400e90fd-a2b4-4db1-803e-0135fca81caa",
+          "members": [
+            {
+              "$ref": "/scim/v2/alpha/Users/4",
+              "value": "4"
+            },
+            {
+              "$ref": "/scim/v2/alpha/Users/5",
+              "value": "5"
+            }
+          ],
+          "meta": {
+            "created": "2026-10-26T07:22:55.175844+00:00",
+            "lastModified": "2026-10-26T07:22:55.175844+00:00",
+            "location": "/scim/v2/alpha/Groups/400e90fd-a2b4-4db1-803e-0135fca81caa",
+            "resourceType": "Group"
+          },
+          "schemas": [
+            "urn:ietf:params:scim:schemas:core:2.0:Group"
+          ]
+        }
+      ],
+      "itemsPerPage": 1,
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+      ],
+      "startIndex": 2,
+      "totalResults": 2
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

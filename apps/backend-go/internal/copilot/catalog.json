@@ -1,0 +1,1056 @@
+{
+  "tools": [
+    {
+      "name": "search_leads",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "search_leads",
+          "description": "Search for leads in the database by company name, city, status, tier, or any keyword. Returns matching leads with contact info and scores.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "Search query (company name, keyword, industry)"
+              },
+              "city": {
+                "type": "string",
+                "description": "Filter by city"
+              },
+              "status": {
+                "type": "string",
+                "description": "Filter by status: new, contacted, qualified, dead"
+              },
+              "score_tier": {
+                "type": "string",
+                "description": "Filter by tier: hot, warm, cold, unqualified"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Max results to return",
+                "default": 10
+              }
+            },
+            "required": [
+              "query"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "get_lead_detail",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "get_lead_detail",
+          "description": "Get complete detailed profile of a specific lead by ID, including decision makers, enrichment data, all contact info, and company details",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "get_lead_stats",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "get_lead_stats",
+          "description": "Get comprehensive pipeline statistics: total leads, breakdown by tier/status/city/source, enrichment coverage",
+          "parameters": {
+            "type": "object",
+            "properties": {}
+          }
+        }
+      }
+    },
+    {
+      "name": "update_lead_status",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "update_lead_status",
+          "description": "Update the status of a lead by ID",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "new",
+                  "contacted",
+                  "qualified",
+                  "negotiating",
+                  "converted",
+                  "dead"
+                ]
+              },
+              "note": {
+                "type": "string",
+                "description": "Optional note about the status change"
+              }
+            },
+            "required": [
+              "lead_id",
+              "status"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "start_collection",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "start_collection",
+          "description": "Start collecting leads for an explicit MARKET search. Example: 'IT staffing companies in Pune'. Never pass a bare domain or a company-research, people-at-company, technology-user, or monitoring request; those require a specialized workflow.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string",
+                "description": "The lead collection query"
+              }
+            },
+            "required": [
+              "query"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "find_people_at_company",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "find_people_at_company",
+          "description": "Research named people in a specific function at ONE target company. Returns only candidates whose public profile result explicitly matches both the exact company and function, with provenance and confidence. Use this for requests like 'people on Stripe's partnerships team'; do not use broad lead collection.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "company": {
+                "type": "string",
+                "description": "Exact target company name or domain"
+              },
+              "function": {
+                "type": "string",
+                "description": "Team/function, e.g. partnerships, alliances, sales, product"
+              },
+              "titles": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Optional title queries; omit to use function-aware defaults"
+              },
+              "location": {
+                "type": "string",
+                "description": "Optional location constraint"
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 15,
+                "default": 8
+              }
+            },
+            "required": [
+              "company",
+              "function"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "verify_people_at_company",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "verify_people_at_company",
+          "description": "Re-check an existing people-at-company result with fresh public searches. Distinguishes independent corroboration, LinkedIn/profile reconfirmation, and no fresh corroboration. This verifies role evidence, not contact ownership.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "company": {
+                "type": "string"
+              },
+              "function": {
+                "type": "string"
+              },
+              "people": {
+                "type": "array",
+                "maxItems": 15,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "linkedin_url": {
+                      "type": "string"
+                    },
+                    "evidence_url": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "company",
+              "function",
+              "people"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "enrich_people_contacts",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "enrich_people_contacts",
+          "description": "Find and verify work emails for the exact people already saved in this conversation. Uses stable person IDs, rejects generic domain contacts, records provider attempts, and requires approval before spending provider credits.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "conversation_id": {
+                "type": "string",
+                "description": "Current conversation ID containing the trusted people result"
+              },
+              "person_ids": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Optional exact subset of stable person IDs; omit to enrich the full latest result"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "Optional stable action key; retries with the same key reuse the stored result"
+              }
+            },
+            "required": [
+              "conversation_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "create_people_workbook",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "create_people_workbook",
+          "description": "Create a workbook from the exact latest people research, verification, or contact result stored in this conversation. Never re-sources companies. Requires approval.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "conversation_id": {
+                "type": "string",
+                "description": "Current conversation ID containing the trusted people result"
+              },
+              "name": {
+                "type": "string",
+                "description": "Optional workbook name"
+              },
+              "person_ids": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "type": "string"
+                },
+                "description": "Optional exact subset of stable person IDs; omit to save the full latest result"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "Optional stable action key; retries with the same key return the original workbook"
+              }
+            },
+            "required": [
+              "conversation_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "enrich_lead",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "enrich_lead",
+          "description": "Trigger on-demand enrichment for a specific lead: scrape their website for contact info, find social profiles",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID to enrich"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "find_similar_leads",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "find_similar_leads",
+          "description": "Find leads similar to a given lead by matching industry/specialization and city",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The reference lead ID"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Max similar leads to return",
+                "default": 10
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "get_enrichment_gaps",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "get_enrichment_gaps",
+          "description": "Show leads that are missing key data: email, phone, LinkedIn, or decision makers. Helps prioritize enrichment.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "missing_field": {
+                "type": "string",
+                "enum": [
+                  "email",
+                  "phone",
+                  "linkedin",
+                  "decision_makers",
+                  "any"
+                ],
+                "description": "Which field is missing"
+              },
+              "min_score": {
+                "type": "integer",
+                "description": "Only show leads with score >= this",
+                "default": 30
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Max results",
+                "default": 15
+              }
+            },
+            "required": [
+              "missing_field"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "suggest_outreach",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "suggest_outreach",
+          "description": "Generate a personalized cold outreach message (email or LinkedIn) for a specific lead",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_id": {
+                "type": "integer",
+                "description": "The lead ID"
+              },
+              "channel": {
+                "type": "string",
+                "enum": [
+                  "email",
+                  "linkedin"
+                ],
+                "description": "Outreach channel",
+                "default": "email"
+              }
+            },
+            "required": [
+              "lead_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "compare_leads",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "compare_leads",
+          "description": "Compare 2-3 leads side-by-side with scoring breakdown, data completeness, and recommendation",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "lead_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "description": "List of 2-3 lead IDs to compare"
+              }
+            },
+            "required": [
+              "lead_ids"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "ambitionbox_search",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "ambitionbox_search",
+          "description": "Search up to 100 AmbitionBox companies with ratings, reviews, employee counts, industry, and job data. For 'top N' requests, set limit=N; results are fetched across multiple 20-company pages. HR/Human Resources/Staffing map to Recruitment, and SaaS maps to Software Product. Supports filters: industry, rating. NOTE: there is no location/city filter — AmbitionBox's gateway ignores it. Do not claim results are scoped to a city.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "industry": {
+                "type": "string",
+                "description": "Industry filter, e.g. 'Recruitment', 'Human Resources', 'Software Product', 'IT Services & Consulting', 'Banking', 'BPO'"
+              },
+              "rating": {
+                "type": "string",
+                "description": "Minimum rating, e.g. '4.5' for 4.5+ rated companies"
+              },
+              "sort_by": {
+                "type": "string",
+                "enum": [
+                  "popular",
+                  "rating",
+                  "reviews"
+                ],
+                "description": "Sort order",
+                "default": "popular"
+              },
+              "page": {
+                "type": "integer",
+                "description": "Page number (1-indexed)",
+                "default": 1
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Total number of companies to return across pages (1-100). Set this to the count requested by the user.",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 10
+              }
+            },
+            "required": []
+          }
+        }
+      }
+    },
+    {
+      "name": "ambitionbox_jobs",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "ambitionbox_jobs",
+          "description": "Get current job listings for a specific company from AmbitionBox. Includes job titles, skills, experience, locations.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "company_id": {
+                "type": "integer",
+                "description": "AmbitionBox company ID (get from ambitionbox_search results)"
+              },
+              "page": {
+                "type": "integer",
+                "description": "Page number",
+                "default": 1
+              }
+            },
+            "required": [
+              "company_id"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "import_ambitionbox_to_workbook",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "import_ambitionbox_to_workbook",
+          "description": "Start a durable, checkpointed import of AmbitionBox company results into a new workbook. Use this after ambitionbox_search when the user asks to add/save/import 'them' or 'those companies'. Repeat the same industry, rating, sort_by, and limit; page retries resume without duplicate rows. Do NOT use create_source_workbook for AmbitionBox results. Requires user approval.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "industry": {
+                "type": "string",
+                "description": "The same industry used in ambitionbox_search, e.g. 'Human Resources'"
+              },
+              "rating": {
+                "type": "string",
+                "description": "The same minimum rating used in ambitionbox_search, if any"
+              },
+              "sort_by": {
+                "type": "string",
+                "enum": [
+                  "popular",
+                  "rating",
+                  "reviews"
+                ],
+                "description": "The same sort order used in ambitionbox_search",
+                "default": "popular"
+              },
+              "limit": {
+                "type": "integer",
+                "description": "Number of matching companies to snapshot (1-100)",
+                "minimum": 1,
+                "maximum": 100,
+                "default": 10
+              },
+              "name": {
+                "type": "string",
+                "description": "Workbook name"
+              }
+            },
+            "required": []
+          }
+        }
+      }
+    },
+    {
+      "name": "create_source_workbook",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "create_source_workbook",
+          "description": "Create a LIVE-sourcing workbook that finds NEW leads from scratch via the 91-source engine. Use when the user wants to FIND/SOURCE companies (not save a list they already found). Example: 'Build a workbook of IT staffing companies in Pune'. For results already returned by ambitionbox_search, use import_ambitionbox_to_workbook instead. Optionally auto-runs sourcing immediately.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "icp_description": {
+                "type": "string",
+                "description": "Who to find, incl. geo. e.g. 'IT staffing companies in Pune, 50-500 employees'"
+              },
+              "name": {
+                "type": "string",
+                "description": "Workbook name"
+              },
+              "target_rows": {
+                "type": "integer",
+                "description": "Max rows to source (0 = unlimited)"
+              },
+              "auto_run": {
+                "type": "boolean",
+                "description": "Start sourcing immediately (default true)"
+              },
+              "auto_enrich": {
+                "type": "boolean",
+                "description": "After sourcing, automatically run enrichment/agent columns (default false)"
+              },
+              "account_discovery": {
+                "type": "boolean",
+                "description": "Require a complete server-parsed account discovery brief and strict evidence gating"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "Optional stable action key; retries return the original workbook"
+              }
+            },
+            "required": [
+              "icp_description"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "set_workbook_refresh",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "set_workbook_refresh",
+          "description": "Make a workbook 'living' — re-source new matches and re-enrich stale data on a schedule. Example: 'refresh this weekly'.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "workbook_id": {
+                "type": "string"
+              },
+              "interval": {
+                "type": "string",
+                "enum": [
+                  "hourly",
+                  "daily",
+                  "weekly"
+                ],
+                "description": "Refresh cadence"
+              }
+            },
+            "required": [
+              "workbook_id",
+              "interval"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "add_agent_column",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "add_agent_column",
+          "description": "Add a goal-directed AGENT column that dynamically picks tools to achieve a goal per row (e.g. 'find the verified CEO email'), with a cost/step budget and reasoning trace.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "workbook_id": {
+                "type": "string"
+              },
+              "column_name": {
+                "type": "string"
+              },
+              "goal": {
+                "type": "string",
+                "description": "What the agent should find, e.g. 'Find the verified email of the CEO'"
+              },
+              "target_field": {
+                "type": "string",
+                "description": "Field to populate, e.g. 'email'"
+              },
+              "max_cost_usd": {
+                "type": "number",
+                "description": "Per-cell spend cap (default 0.10)"
+              }
+            },
+            "required": [
+              "workbook_id",
+              "column_name",
+              "goal",
+              "target_field"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "add_signal_trigger",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "add_signal_trigger",
+          "description": "Trigger a workbook to refresh when buying signals fire (hiring, funding, tech change, news). Example: 'when any of these start hiring, refresh and find the hiring manager'.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "workbook_id": {
+                "type": "string"
+              },
+              "signals": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "hiring",
+                    "funding",
+                    "tech_change",
+                    "news"
+                  ]
+                },
+                "description": "Signal types that trigger a refresh"
+              }
+            },
+            "required": [
+              "workbook_id",
+              "signals"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "track_account_signals",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "track_account_signals",
+          "description": "Create or update one recurring tracking schedule for exact persisted workbook account IDs. Use for account-level partnership hiring, leadership, funding, and pricing-page change monitoring. Requires approval and returns a database-confirmed receipt.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "workbook_id": {
+                "type": "string"
+              },
+              "account_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              },
+              "cadence": {
+                "type": "string",
+                "enum": [
+                  "hourly",
+                  "daily",
+                  "weekly"
+                ]
+              },
+              "signal_types": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "partnership_hiring",
+                    "leadership_change",
+                    "funding",
+                    "pricing_page_change"
+                  ]
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "idempotency_key": {
+                "type": "string",
+                "maxLength": 255
+              }
+            },
+            "required": [
+              "workbook_id",
+              "account_ids",
+              "cadence",
+              "signal_types",
+              "idempotency_key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "draft_grounded_outreach",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "draft_grounded_outreach",
+          "description": "Persist a short draft-only partnership email for one exact saved contact. Requires verified contact evidence, or explicit approval for a risky address. Generic and role inboxes are rejected. Every personalized sentence retains saved evidence. This tool never sends.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "conversation_id": {
+                "type": "string"
+              },
+              "source_action_id": {
+                "type": "string"
+              },
+              "person_id": {
+                "type": "string"
+              },
+              "allow_risky": {
+                "type": "boolean",
+                "default": false
+              },
+              "idempotency_key": {
+                "type": "string",
+                "maxLength": 255
+              }
+            },
+            "required": [
+              "conversation_id",
+              "source_action_id",
+              "person_id",
+              "allow_risky",
+              "idempotency_key"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "draft_plan",
+      "executor": "go",
+      "dangerous": false,
+      "safe": true,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "draft_plan",
+          "description": "For COMPOUND goals that need several steps (e.g. 'build a list of 50 IT staffing firms in Pune and find their founders' emails'), draft a step-by-step plan WITHOUT executing it. Returns the plan for the user to review. Do not use for single actions.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "goal": {
+                "type": "string",
+                "description": "The high-level goal in the user's words"
+              },
+              "target_count": {
+                "type": "integer",
+                "description": "How many companies/leads, if specified"
+              }
+            },
+            "required": [
+              "goal"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "execute_plan",
+      "executor": "go",
+      "dangerous": true,
+      "safe": false,
+      "schema": {
+        "type": "function",
+        "function": {
+          "name": "execute_plan",
+          "description": "Execute a plan previously produced by draft_plan. Pass the plan_id and nonce returned by draft_plan (the server executes the plan it stored under that plan_id). This builds the workbook, sources companies, and runs agent-column enrichment. Requires user approval.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "plan_id": {
+                "type": "string",
+                "description": "The plan_id returned by draft_plan"
+              },
+              "nonce": {
+                "type": "string",
+                "description": "The single-use nonce returned by draft_plan"
+              },
+              "plan": {
+                "type": "object",
+                "description": "(Optional, for display only) the plan object returned by draft_plan; the server executes the stored plan by plan_id, not this body"
+              }
+            },
+            "required": [
+              "plan_id",
+              "nonce"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "dangerous_tools": {
+    "start_collection": {
+      "level": "high",
+      "label": "🚀 Launch Lead Collection",
+      "reason": "Runs 7 parallel scraping strategies using DDG, Maps, and external APIs."
+    },
+    "update_lead_status": {
+      "level": "medium",
+      "label": "📝 Update Lead Status",
+      "reason": "Changes the pipeline status of a lead."
+    },
+    "enrich_lead": {
+      "level": "medium",
+      "label": "🔍 Enrich Lead",
+      "reason": "Triggers external website scraping and contact discovery."
+    },
+    "execute_plan": {
+      "level": "high",
+      "label": "🤖 Run Autopilot Plan",
+      "reason": "Builds a workbook and runs sourcing + agent-column enrichment (spends resources)."
+    },
+    "import_ambitionbox_to_workbook": {
+      "level": "medium",
+      "label": "📊 Create AmbitionBox Workbook",
+      "reason": "Creates a workbook and stores the matching AmbitionBox companies as rows."
+    },
+    "create_source_workbook": {
+      "level": "high",
+      "label": "📚 Create and Source Workbook",
+      "reason": "Creates persistent data and launches a background sourcing workflow."
+    },
+    "set_workbook_refresh": {
+      "level": "medium",
+      "label": "⏱️ Change Workbook Refresh",
+      "reason": "Changes a recurring schedule that can repeatedly spend resources."
+    },
+    "add_agent_column": {
+      "level": "medium",
+      "label": "🤖 Add Agent Column",
+      "reason": "Changes workbook configuration and may run paid AI tools."
+    },
+    "add_signal_trigger": {
+      "level": "medium",
+      "label": "⚡ Add Signal Trigger",
+      "reason": "Creates a persistent automation trigger."
+    },
+    "track_account_signals": {
+      "level": "medium",
+      "label": "Track Account Signals",
+      "reason": "Creates or updates a recurring collector schedule for an exact saved account selection."
+    },
+    "draft_grounded_outreach": {
+      "level": "medium",
+      "label": "Create Grounded Draft",
+      "reason": "Persists a draft for one exact saved contact. This action cannot send messages."
+    },
+    "create_people_workbook": {
+      "level": "medium",
+      "label": "📋 Create People Workbook",
+      "reason": "Creates a workbook and snapshots the people already found in this conversation."
+    },
+    "enrich_people_contacts": {
+      "level": "medium",
+      "label": "Find and Verify Work Emails",
+      "reason": "Uses configured email-finder and verification providers for the exact saved people selection."
+    }
+  },
+  "safe_tools": [
+    "ambitionbox_jobs",
+    "ambitionbox_search",
+    "compare_leads",
+    "draft_plan",
+    "find_people_at_company",
+    "find_similar_leads",
+    "get_enrichment_gaps",
+    "get_lead_detail",
+    "get_lead_stats",
+    "search_leads",
+    "suggest_outreach",
+    "verify_people_at_company"
+  ],
+  "unlisted": [],
+  "info_response": {
+    "actions": [
+      {
+        "name": "search_leads",
+        "description": "Search leads in the database"
+      },
+      {
+        "name": "get_lead_stats",
+        "description": "Get pipeline statistics"
+      },
+      {
+        "name": "update_lead_status",
+        "description": "Update a lead's status"
+      },
+      {
+        "name": "start_collection",
+        "description": "Start collecting new leads"
+      },
+      {
+        "name": "find_people_at_company",
+        "description": "Research people at one named company"
+      }
+    ]
+  }
+}

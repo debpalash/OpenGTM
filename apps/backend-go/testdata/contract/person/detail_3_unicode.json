@@ -1,0 +1,47 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/person/3"
+  },
+  "response": {
+    "body": {
+      "articles": [],
+      "companies": [
+        "Acme SAS"
+      ],
+      "created_at": "2026-08-28T12:00:00",
+      "education": [
+        "HEC Paris"
+      ],
+      "emails": [
+        "emilie@example.fr",
+        "e.d@example.fr"
+      ],
+      "headline": "Directrice des partenariats",
+      "id": 3,
+      "linkedin_url": "https://www.linkedin.com/in/\u00e9milie-d",
+      "location": "Paris",
+      "mentions": [],
+      "name": "\u00c9milie D.",
+      "raw_sources": [],
+      "skills": [
+        "Alliances"
+      ],
+      "social_links": {
+        "github": "https://github.com/emilied",
+        "twitter": "https://twitter.com/emilied"
+      },
+      "status": "completed",
+      "summary": "R\u00e9sum\u00e9 \u2014 caf\u00e9.",
+      "username": "\u00e9milie-d"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

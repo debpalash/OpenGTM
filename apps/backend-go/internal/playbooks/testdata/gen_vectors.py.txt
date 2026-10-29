@@ -1,0 +1,195 @@
+# Generator for python_vectors.json (run from legacy/python):
+#   cd legacy/python && PYTHONPATH=. uv run python /home/user/code/OpenGTM/apps/backend-go/internal/playbooks/testdata/gen_vectors.py.txt > .../python_vectors.json
+# Posts raw bodies through FastAPI so 422 bodies are exactly what the app emits.
+import json, sys
+from fastapi import FastAPI, Request
+from fastapi.testclient import TestClient
+from apps.api.routers.playbooks import PlaybookCreate, PlaybookPatch, RunCreate
+
+app = FastAPI()
+
+@app.post("/c")
+def c(body: PlaybookCreate):
+    return body.model_dump()
+
+@app.post("/p")
+def p(body: PlaybookPatch):
+    return body.model_dump(exclude_unset=True)
+
+@app.post("/r")
+def r(body: RunCreate):
+    return body.model_dump()
+
+cl = TestClient(app)
+P = "valid prompt text"
+S = lambda **kw: {"key": "k1", "name": "N", "prompt_template": P, "output_format": "text", **kw}
+create = [
+ ("minimal", {"name": "a", "prompt_template": P}),
+ ("full", {"name": "a", "description": "d", "prompt_template": P, "output_format": "json", "max_steps": 8, "cell_budget_usd": 5, "steps": [S(), S(key="k2", output_format="json")]}),
+ ("steps_default_fmt", {"name": "a", "prompt_template": P, "steps": [{"key": "k", "name": "n", "prompt_template": P}]}),
+ ("empty_object", {}),
+ ("name_empty", {"name": "", "prompt_template": P}),
+ ("name_long", {"name": "x" * 201, "prompt_template": P}),
+ ("name_int", {"name": 5, "prompt_template": P}),
+ ("name_null", {"name": None, "prompt_template": P}),
+ ("desc_long", {"name": "a", "prompt_template": P, "description": "x" * 2001}),
+ ("desc_null", {"name": "a", "prompt_template": P, "description": None}),
+ ("prompt_short", {"name": "a", "prompt_template": "short"}),
+ ("prompt_long", {"name": "a", "prompt_template": "x" * 20001}),
+ ("max_steps_0", {"name": "a", "prompt_template": P, "max_steps": 0}),
+ ("max_steps_9", {"name": "a", "prompt_template": P, "max_steps": 9}),
+ ("max_steps_str", {"name": "a", "prompt_template": P, "max_steps": "abc"}),
+ ("max_steps_numstr", {"name": "a", "prompt_template": P, "max_steps": "3"}),
+ ("max_steps_float_int", {"name": "a", "prompt_template": P, "max_steps": 3.0}),
+ ("max_steps_float_frac", {"name": "a", "prompt_template": P, "max_steps": 3.5}),
+ ("max_steps_true", {"name": "a", "prompt_template": P, "max_steps": True}),
+ ("max_steps_null", {"name": "a", "prompt_template": P, "max_steps": None}),
+ ("budget_0", {"name": "a", "prompt_template": P, "cell_budget_usd": 0}),
+ ("budget_neg", {"name": "a", "prompt_template": P, "cell_budget_usd": -1}),
+ ("budget_5_01", {"name": "a", "prompt_template": P, "cell_budget_usd": 5.01}),
+ ("budget_str", {"name": "a", "prompt_template": P, "cell_budget_usd": "x"}),
+ ("budget_numstr", {"name": "a", "prompt_template": P, "cell_budget_usd": "0.5"}),
+ ("budget_int", {"name": "a", "prompt_template": P, "cell_budget_usd": 2}),
+ ("budget_null", {"name": "a", "prompt_template": P, "cell_budget_usd": None}),
+ ("steps_9", {"name": "a", "prompt_template": P, "steps": [S(key="k%d" % i) for i in range(9)]}),
+ ("steps_not_list", {"name": "a", "prompt_template": P, "steps": "x"}),
+ ("steps_null", {"name": "a", "prompt_template": P, "steps": None}),
+ ("step_not_obj", {"name": "a", "prompt_template": P, "steps": [3]}),
+ ("step_empty", {"name": "a", "prompt_template": P, "steps": [{}]}),
+ ("step_key_bad", {"name": "a", "prompt_template": P, "steps": [S(key="Bad")]}),
+ ("step_key_long", {"name": "a", "prompt_template": P, "steps": [S(key="a" * 41)]}),
+ ("step_key_trailing_nl", {"name": "a", "prompt_template": P, "steps": [S(key="ab\n")]}),
+ ("step_name_empty", {"name": "a", "prompt_template": P, "steps": [S(name="")]}),
+ ("step_name_long", {"name": "a", "prompt_template": P, "steps": [S(name="x" * 101)]}),
+ ("step_prompt_short", {"name": "a", "prompt_template": P, "steps": [S(prompt_template="short")]}),
+ ("step_fmt_null", {"name": "a", "prompt_template": P, "steps": [S(output_format=None)]}),
+ ("step_two_bad", {"name": "a", "prompt_template": P, "steps": [S(key="Bad"), S(name="")]}),
+ ("dup_keys", {"name": "a", "prompt_template": P, "steps": [S(), S()]}),
+ ("step_fmt_bad", {"name": "a", "prompt_template": P, "steps": [S(output_format="xml")]}),
+ ("dup_and_fmt_bad", {"name": "a", "prompt_template": P, "steps": [S(output_format="xml"), S(output_format="xml")]}),
+ ("fmt_bad_toplevel_passes_pydantic", {"name": "a", "prompt_template": P, "output_format": "xml"}),
+ ("fmt_int", {"name": "a", "prompt_template": P, "output_format": 5}),
+ ("fmt_null", {"name": "a", "prompt_template": P, "output_format": None}),
+ ("field_error_and_dup_keys", {"name": "", "prompt_template": P, "steps": [S(), S()]}),
+ ("extra_ignored", {"name": "a", "prompt_template": P, "zzz": 1}),
+ ("unicode_name", {"name": "café <b>&", "prompt_template": P}),
+ ("array_body", [1]),
+ ("string_body", "x"),
+ ("null_body", None),
+ ("max_steps_str30", {"name": "a", "prompt_template": P, "max_steps": "3.0"}),
+ ("max_steps_str_space", {"name": "a", "prompt_template": P, "max_steps": " 3 "}),
+ ("max_steps_str_underscore", {"name": "a", "prompt_template": P, "max_steps": "1_0"}),
+ ("max_steps_str_exp", {"name": "a", "prompt_template": P, "max_steps": "1e2"}),
+ ("max_steps_huge", {"name": "a", "prompt_template": P, "max_steps": 10**30}),
+ ("max_steps_list", {"name": "a", "prompt_template": P, "max_steps": []}),
+ ("budget_str_inf", {"name": "a", "prompt_template": P, "cell_budget_usd": "inf"}),
+ ("budget_str_nan", {"name": "a", "prompt_template": P, "cell_budget_usd": "nan"}),
+ ("budget_str_exp", {"name": "a", "prompt_template": P, "cell_budget_usd": "1e0"}),
+ ("budget_dot5", {"name": "a", "prompt_template": P, "cell_budget_usd": ".5"}),
+ ("budget_true", {"name": "a", "prompt_template": P, "cell_budget_usd": True}),
+ ("budget_huge", {"name": "a", "prompt_template": P, "cell_budget_usd": 10**30}),
+ ("budget_5_0", {"name": "a", "prompt_template": P, "cell_budget_usd": 5.0}),
+ ("budget_tiny", {"name": "a", "prompt_template": P, "cell_budget_usd": 1e-9}),
+ ("budget_list", {"name": "a", "prompt_template": P, "cell_budget_usd": {}}),
+ ("name_exactly_200", {"name": "x" * 200, "prompt_template": P}),
+ ("name_astral_len", {"name": "\U0001F600" * 200, "prompt_template": P}),
+ ("name_astral_201", {"name": "\U0001F600" * 201, "prompt_template": P}),
+ ("prompt_exactly_10", {"name": "a", "prompt_template": "0123456789"}),
+ ("steps_8", {"name": "a", "prompt_template": P, "steps": [S(key="k%d" % i) for i in range(8)]}),
+ ("step_key_digit_first", {"name": "a", "prompt_template": P, "steps": [S(key="1a")]}),
+ ("step_key_40", {"name": "a", "prompt_template": P, "steps": [S(key="a" * 40)]}),
+ ("step_key_int", {"name": "a", "prompt_template": P, "steps": [S(key=1)]}),
+ ("step_key_underscore", {"name": "a", "prompt_template": P, "steps": [S(key="a_b9")]}),
+ ("step_key_unicode_digit", {"name": "a", "prompt_template": P, "steps": [S(key="a\u0663")]}),
+ ("step_fmt_int", {"name": "a", "prompt_template": P, "steps": [S(output_format=3)]}),
+ ("step_array_in_steps", {"name": "a", "prompt_template": P, "steps": [[]]}),
+ ("steps_extra_field_in_step", {"name": "a", "prompt_template": P, "steps": [S(zzz=1)]}),
+ ("float_literals_in_input", {"name": "a", "prompt_template": P, "max_steps": 1e2, "cell_budget_usd": 1E0}),
+ ("float_echo_error", {"name": "a", "prompt_template": P, "max_steps": 9.5e0}),
+ ("float_exp_echo", {"name": "a", "prompt_template": P, "max_steps": 1e300}),
+ ("desc_unicode", {"name": "a", "prompt_template": P, "description": "\u2028 \u00e9 \u0000 \u007f"}),
+]
+patch = [
+ ("empty", {}),
+ ("name", {"name": "b"}),
+ ("all", {"name": "b", "description": "d", "prompt_template": P, "output_format": "json", "max_steps": 2, "cell_budget_usd": 1.5, "enabled": False, "schedule_audience_id": "aud", "schedule_interval_minutes": 15, "steps": [S()]}),
+ ("name_null", {"name": None}),
+ ("description_null", {"description": None}),
+ ("prompt_null", {"prompt_template": None}),
+ ("output_format_null", {"output_format": None}),
+ ("max_steps_null", {"max_steps": None}),
+ ("budget_null", {"cell_budget_usd": None}),
+ ("enabled_null", {"enabled": None}),
+ ("schedule_audience_null", {"schedule_audience_id": None}),
+ ("schedule_interval_null", {"schedule_interval_minutes": None}),
+ ("steps_null", {"steps": None}),
+ ("interval_14", {"schedule_interval_minutes": 14}),
+ ("interval_10081", {"schedule_interval_minutes": 10081}),
+ ("interval_10080", {"schedule_interval_minutes": 10080}),
+ ("enabled_str", {"enabled": "yes"}),
+ ("enabled_str_bad", {"enabled": "maybe"}),
+ ("enabled_int", {"enabled": 1}),
+ ("enabled_int2", {"enabled": 2}),
+ ("enabled_float", {"enabled": 1.0}),
+ ("enabled_list", {"enabled": []}),
+ ("audience_int", {"schedule_audience_id": 5}),
+ ("name_empty", {"name": ""}),
+ ("prompt_short", {"prompt_template": "x"}),
+ ("max_steps_0", {"max_steps": 0}),
+ ("budget_0", {"cell_budget_usd": 0}),
+ ("steps_9", {"steps": [S(key="k%d" % i) for i in range(9)]}),
+ ("dup_keys", {"steps": [S(), S()]}),
+ ("step_fmt_bad", {"steps": [S(output_format="xml")]}),
+ ("fmt_bad_toplevel", {"output_format": "xml"}),
+ ("steps_empty_list", {"steps": []}),
+ ("array_body", [1]),
+ ("enabled_str_upper", {"enabled": "TRUE"}),
+ ("enabled_str_empty", {"enabled": ""}),
+ ("enabled_float_2", {"enabled": 2.0}),
+ ("enabled_float_frac", {"enabled": 0.5}),
+ ("enabled_str_off", {"enabled": "off"}),
+ ("interval_str", {"schedule_interval_minutes": "30"}),
+ ("interval_15", {"schedule_interval_minutes": 15}),
+ ("interval_0", {"schedule_interval_minutes": 0}),
+ ("audience_empty", {"schedule_audience_id": ""}),
+ ("steps_not_list", {"steps": {}}),
+ ("two_errors", {"name": "", "max_steps": 99, "schedule_interval_minutes": 1}),
+ ("clear_schedule", {"schedule_audience_id": None, "schedule_interval_minutes": None, "enabled": False}),
+ ("max_steps_float_frac", {"max_steps": 2.5}),
+ ("order_preserved", {"steps": [], "name": "z", "enabled": True}),
+]
+runc = [
+ ("minimal", {"audience_id": "a"}),
+ ("full", {"audience_id": "a", "max_members": 1000}),
+ ("empty", {}),
+ ("audience_null", {"audience_id": None}),
+ ("audience_int", {"audience_id": 5}),
+ ("audience_empty_ok", {"audience_id": ""}),
+ ("members_0", {"audience_id": "a", "max_members": 0}),
+ ("members_1001", {"audience_id": "a", "max_members": 1001}),
+ ("members_str", {"audience_id": "a", "max_members": "x"}),
+ ("members_null", {"audience_id": "a", "max_members": None}),
+ ("members_float_frac", {"audience_id": "a", "max_members": 1.5}),
+ ("two_errors", {"max_members": 0}),
+ ("array_body", []),
+]
+def run(url, cases):
+    out = []
+    for name, body in cases:
+        r = cl.post(url, content=json.dumps(body), headers={"content-type": "application/json"})
+        out.append({"name": name, "body": body, "status": r.status_code, "response": r.json()})
+    return out
+raw = []
+for name, content in [("invalid_json", b"{"), ("empty_body", b""), ("trailing_comma", b'{"name": "a",}')]:
+    for url in ("/c", "/p"):
+        r = cl.post(url, content=content, headers={"content-type": "application/json"})
+        raw.append({"name": name, "path": url, "content": content.decode(), "status": r.status_code, "response": r.json()})
+from apps.api.routers import playbooks as pb
+from apps.api.services.playbooks.models import ResearchPlaybook, PlaybookRun, PlaybookResult
+import inspect, re
+def keys(cls):
+    src = inspect.getsource(cls.to_api)
+    return re.findall(r'"(\w+)"', src)
+json.dump({"run_create": run("/r", runc), "create": run("/c", create), "patch": run("/p", patch), "raw": raw,
+           "to_api_keys": {"playbook": keys(ResearchPlaybook), "run": keys(PlaybookRun), "result": keys(PlaybookResult)}},
+          sys.stdout, indent=1, ensure_ascii=False)

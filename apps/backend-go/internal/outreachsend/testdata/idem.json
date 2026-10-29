@@ -1,0 +1,60 @@
+{
+  "cases": [
+    {
+      "enrollment_id": 1,
+      "expected": "seq:ws-1:seq-1:1:0",
+      "sequence_id": "seq-1",
+      "step": 0,
+      "ws": "ws-1"
+    },
+    {
+      "enrollment_id": 12345,
+      "expected": "seq:ws-1:seq-1:12345:3",
+      "sequence_id": "seq-1",
+      "step": 3,
+      "ws": "ws-1"
+    },
+    {
+      "enrollment_id": 7,
+      "expected": "seq:ws:x:s:y:7:1",
+      "sequence_id": "s:y",
+      "step": 1,
+      "ws": "ws:x"
+    },
+    {
+      "enrollment_id": 0,
+      "expected": "seq:::0:0",
+      "sequence_id": "",
+      "step": 0,
+      "ws": ""
+    },
+    {
+      "enrollment_id": 99,
+      "expected": "seq:ws-alpha:00000000-0000-4000-8000-000000001000:99:2",
+      "sequence_id": "00000000-0000-4000-8000-000000001000",
+      "step": 2,
+      "ws": "ws-alpha"
+    },
+    {
+      "enrollment_id": 5,
+      "expected": "seq:ws-ü:seq-é:5:9",
+      "sequence_id": "seq-é",
+      "step": 9,
+      "ws": "ws-ü"
+    },
+    {
+      "enrollment_id": -1,
+      "expected": "seq:ws-1:seq-1:-1:-1",
+      "sequence_id": "seq-1",
+      "step": -1,
+      "ws": "ws-1"
+    },
+    {
+      "enrollment_id": 1,
+      "expected": "seq:W:S:1:0",
+      "sequence_id": "S",
+      "step": 0,
+      "ws": "W"
+    }
+  ]
+}

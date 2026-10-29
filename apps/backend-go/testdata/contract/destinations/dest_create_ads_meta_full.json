@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "v24.0",
+        "consent_attested": true,
+        "consent_source": "s",
+        "custom_audience_id": "1"
+      },
+      "destination_type": "meta_ads",
+      "name": "Meta full"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "v24.0",
+        "consent_attested": true,
+        "consent_source": "s",
+        "custom_audience_id": "1"
+      },
+      "created_at": "2026-10-26T17:05:48.123811",
+      "destination_type": "meta_ads",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002104",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Meta full",
+      "updated_at": "2026-10-26T17:05:48.123811"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

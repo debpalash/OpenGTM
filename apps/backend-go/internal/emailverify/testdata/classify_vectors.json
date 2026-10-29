@@ -1,0 +1,402 @@
+{
+ "classify": [
+  {
+   "input": "",
+   "email": "",
+   "valid_syntax": false,
+   "local_part": "",
+   "domain": "",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "nope",
+   "email": "nope",
+   "valid_syntax": false,
+   "local_part": "",
+   "domain": "",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@b.co",
+   "email": "a@b.co",
+   "valid_syntax": true,
+   "local_part": "a",
+   "domain": "b.co",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  },
+  {
+   "input": "A@B.CO",
+   "email": "a@b.co",
+   "valid_syntax": true,
+   "local_part": "a",
+   "domain": "b.co",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  },
+  {
+   "input": "info@acme.com",
+   "email": "info@acme.com",
+   "valid_syntax": true,
+   "local_part": "info",
+   "domain": "acme.com",
+   "is_role": true,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "sales@acme.com",
+   "email": "sales@acme.com",
+   "valid_syntax": true,
+   "local_part": "sales",
+   "domain": "acme.com",
+   "is_role": true,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "john.doe@gmail.com",
+   "email": "john.doe@gmail.com",
+   "valid_syntax": true,
+   "local_part": "john.doe",
+   "domain": "gmail.com",
+   "is_role": false,
+   "is_free": true,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "x@mailinator.com",
+   "email": "x@mailinator.com",
+   "valid_syntax": true,
+   "local_part": "x",
+   "domain": "mailinator.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": true,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "x@yopmail.com",
+   "email": "x@yopmail.com",
+   "valid_syntax": true,
+   "local_part": "x",
+   "domain": "yopmail.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": true,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a b@acme.com",
+   "email": "a b@acme.com",
+   "valid_syntax": false,
+   "local_part": "a b",
+   "domain": "acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@acme",
+   "email": "a@acme",
+   "valid_syntax": false,
+   "local_part": "a",
+   "domain": "acme",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@@acme.com",
+   "email": "a@@acme.com",
+   "valid_syntax": false,
+   "local_part": "a",
+   "domain": "@acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "@acme.com",
+   "email": "@acme.com",
+   "valid_syntax": false,
+   "local_part": "",
+   "domain": "acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@.com",
+   "email": "a@.com",
+   "valid_syntax": false,
+   "local_part": "a",
+   "domain": ".com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@acme.c",
+   "email": "a@acme.c",
+   "valid_syntax": false,
+   "local_part": "a",
+   "domain": "acme.c",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a+tag@acme.io",
+   "email": "a+tag@acme.io",
+   "valid_syntax": true,
+   "local_part": "a+tag",
+   "domain": "acme.io",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  },
+  {
+   "input": "ünï@acme.com",
+   "email": "ünï@acme.com",
+   "valid_syntax": false,
+   "local_part": "ünï",
+   "domain": "acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@acme.technology",
+   "email": "a@acme.technology",
+   "valid_syntax": true,
+   "local_part": "a",
+   "domain": "acme.technology",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  },
+  {
+   "input": "admin@acme.com",
+   "email": "admin@acme.com",
+   "valid_syntax": true,
+   "local_part": "admin",
+   "domain": "acme.com",
+   "is_role": true,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "noreply@acme.com",
+   "email": "noreply@acme.com",
+   "valid_syntax": true,
+   "local_part": "noreply",
+   "domain": "acme.com",
+   "is_role": true,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "hr@outlook.com",
+   "email": "hr@outlook.com",
+   "valid_syntax": true,
+   "local_part": "hr",
+   "domain": "outlook.com",
+   "is_role": true,
+   "is_free": true,
+   "is_disposable": false,
+   "is_personal_corporate": false
+  },
+  {
+   "input": "a@ACME.COM ",
+   "email": "a@acme.com",
+   "valid_syntax": true,
+   "local_part": "a",
+   "domain": "acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  },
+  {
+   "input": "  b@acme.com",
+   "email": "b@acme.com",
+   "valid_syntax": true,
+   "local_part": "b",
+   "domain": "acme.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
+  }
+ ],
+ "data_files": {
+  "role_accounts": {
+   "count": 888,
+   "sha256_of_sorted_lines": "0b2873aab2c399f3531d4aeb70fa014c3a1848d9344722d16f854260e5b84ffb",
+   "head": [
+    "2015",
+    "2016",
+    "2017",
+    "2018",
+    "2019",
+    "2020",
+    "abuse",
+    "academy",
+    "accessibility",
+    "account",
+    "accountant",
+    "accounting",
+    "accountmanager",
+    "accountmanagers",
+    "accounts",
+    "accountspayable",
+    "acquisition",
+    "admin",
+    "admin1",
+    "administracao",
+    "administracion",
+    "administrador",
+    "administratie",
+    "administratif",
+    "administration"
+   ]
+  },
+  "free_providers": {
+   "count": 4477,
+   "sha256_of_sorted_lines": "22525cb0c9c9b030673f1cf2b3ebe1c09b54e45491a5ea88a6edd37260e8dc1f",
+   "head": [
+    "1033edge.com",
+    "11mail.com",
+    "123.com",
+    "123box.net",
+    "123india.com",
+    "123mail.cl",
+    "123mail.org",
+    "123qwe.co.uk",
+    "126.com",
+    "139.com",
+    "150mail.com",
+    "150ml.com",
+    "15meg4free.com",
+    "163.com",
+    "16mail.com",
+    "188.com",
+    "189.cn",
+    "1coolplace.com",
+    "1freeemail.com",
+    "1funplace.com",
+    "1internetdrive.com",
+    "1mail.net",
+    "1me.net",
+    "1mum.com",
+    "1musicrow.com"
+   ]
+  },
+  "disposable_domains": {
+   "count": 123312,
+   "sha256_of_sorted_lines": "86c0704ba9e5df5aa16fcdd847f060a9f9106ef0bf3efc2d978589cc701e3632",
+   "head": [
+    "0-180.com",
+    "0-30-24.com",
+    "0-420.com",
+    "0-900.com",
+    "0-aa.com",
+    "0-mail.com",
+    "0-z.xyz",
+    "0.mail.mujur.id",
+    "0.pbot.tk",
+    "00.pe",
+    "000000pay.com",
+    "00043015.com",
+    "000476.com",
+    "000521.xyz",
+    "00082aa.com",
+    "00082cc.com",
+    "00082dd.com",
+    "00082ff.com",
+    "00082ii.com",
+    "00082mm.com",
+    "00082rr.com",
+    "00082ss.com",
+    "00082uu.com",
+    "00082xx.com",
+    "00082zz.com"
+   ]
+  }
+ },
+ "resolve_mx": [
+  {
+   "name": "one",
+   "mx": {
+    "a.com": [
+     [
+      10,
+      "mx.a.com."
+     ]
+    ]
+   },
+   "result": "mx.a.com",
+   "has_mx": true,
+   "blank": null
+  },
+  {
+   "name": "none",
+   "mx": {},
+   "result": null,
+   "has_mx": false,
+   "blank": null
+  },
+  {
+   "name": "empty_list",
+   "mx": {
+    "a.com": []
+   },
+   "result": null,
+   "has_mx": false,
+   "blank": null
+  },
+  {
+   "name": "multi",
+   "mx": {
+    "a.com": [
+     [
+      20,
+      "b."
+     ],
+     [
+      5,
+      "a."
+     ]
+    ]
+   },
+   "result": "a",
+   "has_mx": true,
+   "blank": null
+  }
+ ]
+}

@@ -1,0 +1,236 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers/trg-a-01"
+  },
+  "response": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "body": {
+              "company": "{company}",
+              "site": "{website}"
+            },
+            "header_secret_ref": "AUTOMATION_HOOK_SECRET",
+            "headers": {
+              "X-Source": "opengtm"
+            },
+            "method": "POST",
+            "url": "https://hooks.example.com/auto/{company}"
+          },
+          "type": "webhook"
+        }
+      ],
+      "condition": "{company} != \"\"",
+      "created_at": "2026-08-29T08:01:00+00:00",
+      "created_by": "1",
+      "enabled": true,
+      "id": "trg-a-01",
+      "last_fired_at": "2026-08-29T12:30:00+00:00",
+      "max_actions_per_day": null,
+      "max_spend_usd_per_day": null,
+      "name": "New row webhook",
+      "next_run_at": null,
+      "recent_runs": [
+        {
+          "actions_attempted": 0,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 1,
+          "error": null,
+          "finished_at": "2026-08-29T12:12:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3012",
+          "fire_source": "row_added",
+          "id": "run-a-01-12",
+          "job_id": 912,
+          "matched_rows": 0,
+          "started_at": "2026-08-29T12:12:00+00:00",
+          "status": "completed",
+          "total_charged_usd": 0.1481,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 2,
+          "actions_failed": 0,
+          "actions_skipped": 1,
+          "actions_succeeded": 0,
+          "error": null,
+          "finished_at": "2026-08-29T12:11:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3011",
+          "fire_source": "row_added",
+          "id": "run-a-01-11",
+          "job_id": 911,
+          "matched_rows": 3,
+          "started_at": "2026-08-29T12:11:00+00:00",
+          "status": "skipped",
+          "total_charged_usd": 0.1358,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 1,
+          "actions_failed": 1,
+          "actions_skipped": 0,
+          "actions_succeeded": 0,
+          "error": "boom",
+          "finished_at": "2026-08-29T12:10:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3010",
+          "fire_source": "row_added",
+          "id": "run-a-01-10",
+          "job_id": 910,
+          "matched_rows": 2,
+          "started_at": "2026-08-29T12:10:00+00:00",
+          "status": "failed",
+          "total_charged_usd": 0.1235,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 0,
+          "actions_failed": 1,
+          "actions_skipped": 1,
+          "actions_succeeded": 1,
+          "error": null,
+          "finished_at": "2026-08-29T12:09:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3009",
+          "fire_source": "row_added",
+          "id": "run-a-01-09",
+          "job_id": 909,
+          "matched_rows": 1,
+          "started_at": "2026-08-29T12:09:00+00:00",
+          "status": "partial",
+          "total_charged_usd": 0.1111,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 2,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 1,
+          "error": null,
+          "finished_at": "2026-08-29T12:08:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3008",
+          "fire_source": "row_added",
+          "id": "run-a-01-08",
+          "job_id": 908,
+          "matched_rows": 0,
+          "started_at": "2026-08-29T12:08:00+00:00",
+          "status": "completed",
+          "total_charged_usd": 0.0988,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 1,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 1,
+          "error": null,
+          "finished_at": "2026-08-29T12:07:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3007",
+          "fire_source": "row_added",
+          "id": "run-a-01-07",
+          "job_id": 907,
+          "matched_rows": 3,
+          "started_at": "2026-08-29T12:07:00+00:00",
+          "status": "completed",
+          "total_charged_usd": 0.0864,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 0,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 0,
+          "error": null,
+          "finished_at": null,
+          "fire_key": "rowadd:wb-auto-1:3006",
+          "fire_source": "row_added",
+          "id": "run-a-01-06",
+          "job_id": 906,
+          "matched_rows": 2,
+          "started_at": "2026-08-29T12:06:00+00:00",
+          "status": "running",
+          "total_charged_usd": 0.0741,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 2,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 0,
+          "error": null,
+          "finished_at": "2026-08-29T12:05:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3005",
+          "fire_source": "row_added",
+          "id": "run-a-01-05",
+          "job_id": 905,
+          "matched_rows": 1,
+          "started_at": "2026-08-29T12:05:00+00:00",
+          "status": "dry_run",
+          "total_charged_usd": 0.0617,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 1,
+          "actions_failed": 0,
+          "actions_skipped": 1,
+          "actions_succeeded": 0,
+          "error": null,
+          "finished_at": "2026-08-29T12:04:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3004",
+          "fire_source": "row_added",
+          "id": "run-a-01-04",
+          "job_id": 904,
+          "matched_rows": 0,
+          "started_at": "2026-08-29T12:04:00+00:00",
+          "status": "skipped",
+          "total_charged_usd": 0.0494,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        },
+        {
+          "actions_attempted": 0,
+          "actions_failed": 1,
+          "actions_skipped": 0,
+          "actions_succeeded": 0,
+          "error": "boom",
+          "finished_at": "2026-08-29T12:03:30+00:00",
+          "fire_key": "rowadd:wb-auto-1:3003",
+          "fire_source": "row_added",
+          "id": "run-a-01-03",
+          "job_id": 903,
+          "matched_rows": 3,
+          "started_at": "2026-08-29T12:03:00+00:00",
+          "status": "failed",
+          "total_charged_usd": 0.037,
+          "trigger_id": "trg-a-01",
+          "trigger_name_snapshot": "New row webhook"
+        }
+      ],
+      "schedule_anchor": null,
+      "scope_workbook_ids": [
+        "wb-auto-1"
+      ],
+      "stop_on_error": false,
+      "trigger_config": {},
+      "trigger_type": "on_row_added",
+      "updated_at": "2026-08-29T08:01:00+00:00",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

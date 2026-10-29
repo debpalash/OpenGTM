@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "signal_ids": [
+        "sig-a-01",
+        "sig-a-02",
+        "sig-a-03",
+        "missing-id",
+        "sig-b-01"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/signals/mark-read"
+  },
+  "response": {
+    "body": {
+      "count": 5,
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

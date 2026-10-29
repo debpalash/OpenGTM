@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "lead": null,
+      "lead_id": null
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "detail": "provide lead_id or lead"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

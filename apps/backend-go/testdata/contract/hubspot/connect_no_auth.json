@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "token": "ctk_hubspot_anon_0009"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/crm/hubspot/connect"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

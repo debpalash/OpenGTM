@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "dedupe": "maybe",
+      "rows": [
+        {
+          "a": 1
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/rows"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "maybe",
+          "loc": [
+            "body",
+            "dedupe"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

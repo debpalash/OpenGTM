@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-gov-1"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/nope/runs"
+  },
+  "response": {
+    "body": {
+      "detail": "Playbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/copilotkit/memories"
+  },
+  "response": {
+    "body": {
+      "available": true,
+      "memories": [
+        {
+          "created_at": "<volatile>",
+          "memory": "User asked: [sim:text_plain] Say hello\nAssistant answered about: Hello from the simulator \u2014 caf\u00e9 \u2713.",
+          "metadata": {
+            "conversation_id": "000003e8-000",
+            "type": "episodic"
+          }
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

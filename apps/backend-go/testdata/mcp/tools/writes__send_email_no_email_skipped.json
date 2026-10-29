@@ -1,0 +1,61 @@
+{
+  "seq": 74,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 74,
+    "method": "tools/call",
+    "params": {
+      "name": "send_email",
+      "arguments": {
+        "lead_id": 3,
+        "subject": "x"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 74,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"skipped\", \"summary\": \"lead has no email\", \"skip_reason\": \"no_email\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "send_email",
+      "arguments_redacted": {
+        "lead_id": 3,
+        "subject": "x"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000081",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 56,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000081",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

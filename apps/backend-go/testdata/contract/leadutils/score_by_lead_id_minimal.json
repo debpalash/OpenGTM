@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "lead_id": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Acme 01",
+      "lead_id": 1,
+      "score": 20,
+      "tier": "unqualified"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

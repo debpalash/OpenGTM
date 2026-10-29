@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/filters"
+  },
+  "response": {
+    "body": {
+      "cities": [
+        "Mumbai",
+        "Pune"
+      ],
+      "sources": [
+        "contract"
+      ],
+      "statuses": [
+        "new",
+        "contacted",
+        "qualified",
+        "negotiating",
+        "converted",
+        "dead"
+      ],
+      "tiers": [
+        "hot",
+        "warm",
+        "cold",
+        "unqualified"
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

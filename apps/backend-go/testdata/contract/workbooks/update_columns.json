@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "sum",
+          "input_columns": [
+            "company"
+          ],
+          "name": "Sum",
+          "prompt": "About {Company}",
+          "type": "ai_formula"
+        },
+        {
+          "id": "extra",
+          "name": "Extra"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/e8678ace-c17d-44fc-9bad-daa5781d11d8"
+  },
+  "response": {
+    "body": {
+      "detail": "Replacement removes a referenced column. Update dependent columns first."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/6/timeline"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "Seeded funding event #11 for contract fixtures",
+          "id": "signal:sig-a-11",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/11",
+            "weight": 12
+          },
+          "occurred_at": 1787992800.0,
+          "status": "funding",
+          "title": "funding signal 11"
+        },
+        {
+          "description": "Seeded news event #13 for contract fixtures",
+          "id": "signal:sig-a-13",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/13",
+            "weight": 6
+          },
+          "occurred_at": 1787913600.0,
+          "status": "news",
+          "title": "news signal 13"
+        },
+        {
+          "description": "Seeded tech_change event #12 for contract fixtures",
+          "id": "signal:sig-a-12",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/12",
+            "weight": 6
+          },
+          "occurred_at": 1787913600.0,
+          "status": "tech_change",
+          "title": "tech_change signal 12"
+        },
+        {
+          "description": "Seeded growth event #14 for contract fixtures",
+          "id": "signal:sig-a-14",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/14",
+            "weight": 9
+          },
+          "occurred_at": 1787909999.876544,
+          "status": "growth",
+          "title": "growth"
+        },
+        {
+          "description": "Seeded tech_change event #17 for contract fixtures",
+          "id": "signal:sig-a-17",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/17",
+            "weight": 8
+          },
+          "occurred_at": 1787827200.0,
+          "status": "tech_change",
+          "title": "tech_change signal 17"
+        },
+        {
+          "description": "Seeded funding event #16 for contract fixtures",
+          "id": "signal:sig-a-16",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/16",
+            "weight": 11
+          },
+          "occurred_at": 1787827200.0,
+          "status": "funding",
+          "title": "funding signal 16"
+        },
+        {
+          "description": "Seeded hiring event #15 for contract fixtures",
+          "id": "signal:sig-a-15",
+          "kind": "signal",
+          "metadata": {
+            "source": "jobspy",
+            "source_url": "https://signals.example.com/a/15",
+            "weight": 8
+          },
+          "occurred_at": 1787827200.0,
+          "status": "hiring",
+          "title": "hiring signal 15"
+        },
+        {
+          "description": "Pushed 1 contact",
+          "id": "activation:3",
+          "kind": "activation",
+          "metadata": {
+            "destination_id": "dest-alpha-1",
+            "destination_type": "webhook",
+            "operation": "upsert"
+          },
+          "occurred_at": 1787745600.0,
+          "status": "delivered",
+          "title": "Activated to Contract Webhook"
+        },
+        {
+          "description": "Audience membership entered",
+          "id": "audience:4",
+          "kind": "audience",
+          "metadata": {
+            "audience_id": "aud-alpha-1",
+            "audience_name": "Hot accounts"
+          },
+          "occurred_at": 1787652000.0,
+          "status": "entered",
+          "title": "Entered Hot accounts"
+        },
+        {
+          "description": "",
+          "id": "lead:enriched",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787562000.0,
+          "status": "enriched",
+          "title": "Lead enriched"
+        },
+        {
+          "description": "",
+          "id": "lead:updated",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787475600.0,
+          "status": "updated",
+          "title": "Lead updated"
+        },
+        {
+          "description": "",
+          "id": "lead:created",
+          "kind": "lead",
+          "metadata": {},
+          "occurred_at": 1787302800.0,
+          "status": "created",
+          "title": "Lead created"
+        }
+      ],
+      "next_before": null,
+      "next_before_id": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

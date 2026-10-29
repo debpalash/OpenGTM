@@ -1,0 +1,89 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/triggers/trg-a-05"
+  },
+  "response": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "column_ids": [
+              "enr_email",
+              "wf_email"
+            ]
+          },
+          "type": "re_enrich"
+        }
+      ],
+      "condition": "",
+      "created_at": "2026-08-29T08:05:00+00:00",
+      "created_by": "1",
+      "enabled": false,
+      "id": "trg-a-05",
+      "last_fired_at": "2026-08-29T08:05:00+00:00",
+      "max_actions_per_day": 100,
+      "max_spend_usd_per_day": 5.0,
+      "name": "Daily sweep",
+      "next_run_at": "2026-10-26T13:05:00+00:00",
+      "recent_runs": [
+        {
+          "actions_attempted": 3,
+          "actions_failed": 1,
+          "actions_skipped": 1,
+          "actions_succeeded": 1,
+          "error": null,
+          "finished_at": "2026-08-29T13:00:09+00:00",
+          "fire_key": "manual:trg-a-05:2026-08-29T13:00:00+00:00",
+          "fire_source": "manual",
+          "id": "run-a-05-02",
+          "job_id": 951,
+          "matched_rows": 3,
+          "started_at": "2026-08-29T13:00:00+00:00",
+          "status": "partial",
+          "total_charged_usd": 0.05,
+          "trigger_id": "trg-a-05",
+          "trigger_name_snapshot": "Daily sweep"
+        },
+        {
+          "actions_attempted": 3,
+          "actions_failed": 0,
+          "actions_skipped": 0,
+          "actions_succeeded": 3,
+          "error": null,
+          "finished_at": "2026-08-29T08:05:41+00:00",
+          "fire_key": "sched:trg-a-05:2026-08-29T08:05:00+00:00",
+          "fire_source": "schedule",
+          "id": "run-a-05-01",
+          "job_id": 950,
+          "matched_rows": 3,
+          "started_at": "2026-08-29T08:05:00+00:00",
+          "status": "completed",
+          "total_charged_usd": 0.15,
+          "trigger_id": "trg-a-05",
+          "trigger_name_snapshot": "Daily sweep"
+        }
+      ],
+      "schedule_anchor": "2026-08-29T08:05:00+00:00",
+      "scope_workbook_ids": [
+        "wb-auto-1",
+        "wb-auto-2"
+      ],
+      "stop_on_error": false,
+      "trigger_config": {
+        "interval": "hourly"
+      },
+      "trigger_type": "on_schedule",
+      "updated_at": "2099-01-01T00:00:00.000001+00:00",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

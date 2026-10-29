@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "lead_id": "abc"
+          }
+        ]
+      },
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "contacts[0].lead_id must be an int"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

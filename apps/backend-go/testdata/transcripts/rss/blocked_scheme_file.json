@@ -1,0 +1,22 @@
+{
+ "area": "rss",
+ "scenario": "blocked_scheme_file",
+ "description": "non-http scheme",
+ "input": {
+  "url": "file:///etc/passwd",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "status": 0,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "blocked_url: scheme 'file' not allowed",
+  "entries": []
+ }
+}

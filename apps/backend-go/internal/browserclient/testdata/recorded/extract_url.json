@@ -1,0 +1,24 @@
+{
+ "method": "POST",
+ "path": "/v1/extract",
+ "request": {
+  "engine": "browser",
+  "url": "https://acme.example/a"
+ },
+ "response": {
+  "author": "Jane Doe",
+  "date": "",
+  "description": "Acme news",
+  "final_url": "https://acme.example/final",
+  "found": true,
+  "markdown": "Home About\n\n# Acme Robotics raises Series B\n\nParagraph 0: Acme Robotics builds warehouse automation for logistics firms.\n\nParagraph 1: Acme Robotics builds warehouse automation for logistics firms.\n\nParagraph 2: Acme Robotics builds warehouse automation for logistics firms.\n\nParagraph 3: Acme Robotics builds warehouse automation for logistics firms.\n\nParagraph 4: Acme Robotics builds warehouse automation for logistics firms.\n\nParagraph 5: Acme Robotics builds warehouse automation for logistics firms.",
+  "markdown_truncated": false,
+  "sitename": "acme.example",
+  "status": 200,
+  "text": "Acme Robotics raises Series B\nParagraph 0: Acme Robotics builds warehouse automation for logistics firms.\nParagraph 1: Acme Robotics builds warehouse automation for logistics firms.\nParagraph 2: Acme Robotics builds warehouse automation for logistics firms.\nParagraph 3: Acme Robotics builds warehouse automation for logistics firms.\nParagraph 4: Acme Robotics builds warehouse automation for logistics firms.\nParagraph 5: Acme Robotics builds warehouse automation for logistics firms.",
+  "text_truncated": false,
+  "title": "Acme Robotics raises Series B",
+  "word_count": 65
+ },
+ "status": 200
+}

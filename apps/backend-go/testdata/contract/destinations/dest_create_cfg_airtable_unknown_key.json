@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "base_id": "b",
+        "table": "t",
+        "view": "v"
+      },
+      "destination_type": "airtable",
+      "name": "cfg 51"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "unsupported airtable config: view"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

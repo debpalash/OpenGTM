@@ -1,0 +1,105 @@
+{
+ "note": "auto_title_from_message: strip, cut at 60 characters, and when the UNSTRIPPED input is longer than 60 characters cut at the last space (a title without a space keeps everything) and append '...'; empty -> 'New Chat'",
+ "cases": [
+  {
+   "input": "",
+   "title": "New Chat"
+  },
+  {
+   "input": " ",
+   "title": "New Chat"
+  },
+  {
+   "input": "   \n\t ",
+   "title": "New Chat"
+  },
+  {
+   "input": "hello",
+   "title": "hello"
+  },
+  {
+   "input": "  padded  ",
+   "title": "padded"
+  },
+  {
+   "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+  },
+  {
+   "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+  },
+  {
+   "input": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "title": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+  },
+  {
+   "input": "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab",
+   "title": "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+  },
+  {
+   "input": "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ",
+   "title": "ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab ab"
+  },
+  {
+   "input": "word word word word word word word word word word word word",
+   "title": "word word word word word word word word word word word word"
+  },
+  {
+   "input": "word word word word word word word word word word word word ",
+   "title": "word word word word word word word word word word word word"
+  },
+  {
+   "input": "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho",
+   "title": "alpha beta gamma delta epsilon zeta eta theta iota kappa..."
+  },
+  {
+   "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..."
+  },
+  {
+   "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+   "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..."
+  },
+  {
+   "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa tail",
+   "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa..."
+  },
+  {
+   "input": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+   "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé"
+  },
+  {
+   "input": "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé",
+   "title": "éééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé..."
+  },
+  {
+   "input": "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語 end",
+   "title": "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語..."
+  },
+  {
+   "input": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+   "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀..."
+  },
+  {
+   "input": "line one\nline two zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz",
+   "title": "line one\nline two..."
+  },
+  {
+   "input": "tab\tseparated qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq",
+   "title": "tab\tseparated..."
+  },
+  {
+   "input": "[sim:text_plain] hello there",
+   "title": "[sim:text_plain] hello there"
+  },
+  {
+   "input": "trailing space exactly sixty chars kkkkkkkkkkkkkkkkkkkkkkkk ",
+   "title": "trailing space exactly sixty chars kkkkkkkkkkkkkkkkkkkkkkkk"
+  }
+ ]
+}

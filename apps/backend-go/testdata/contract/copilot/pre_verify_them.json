@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "conversation_id": "conv-ed-1",
+      "messages": [
+        {
+          "content": "verify them",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"conv-ed-1\"}\n\ndata: {\"tool_call\": {\"name\": \"verify_people_at_company\", \"args\": {\"company\": \"Stripe\", \"function\": \"partnership\", \"people_count\": 2}}}\n\ndata: {\"tool_result\": {\"name\": \"verify_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Stripe\", \"function\": \"partnership\", \"people\": [{\"person_id\": \"person_seed_jane\", \"name\": \"Jane Partner\", \"title\": \"Vice President, Strategic Partnerships\", \"location\": \"San Francisco, CA\", \"retrieved_at\": \"2026-08-28T10:00:00Z\", \"confidence\": 0.9, \"linkedin_url\": \"https://www.linkedin.com/in/jane-partner\", \"evidence_url\": \"https://evidence.example/jane-partner\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.8, \"verification_sources\": [{\"url\": \"https://source.example/person_seed_jane\"}]}, {\"person_id\": \"person_seed_raj\", \"name\": \"Raj | Risky\", \"title\": \"Partnerships Manager\", \"location\": \"\", \"retrieved_at\": \"2026-08-28T10:01:00Z\", \"confidence\": 0.74, \"linkedin_url\": \"\", \"evidence_url\": \"https://evidence.example/raj\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.8, \"verification_sources\": [{\"url\": \"https://source.example/person_seed_raj\"}]}], \"count\": 2, \"summary\": {\"independent_role_evidence\": 2, \"profile_reconfirmed\": 0, \"not_corroborated\": 0}}}}\n\ndata: {\"content\": \"I re-checked **2 people** for **Stripe \\u2014 partnership** using fresh public searches.\\n\\n| Person | Public title | Verification | Fresh evidence | Confidence |\\n|---|---|---|---|---|\\n| [Jane Partner](https://www.linkedin.com/in/jane-partner) | Vice President, Strategic Partnerships | Independent role evidence | [source 1](https://source.example/person_seed_jane) | 80% |\\n| [Raj \\\\| Risky](https://evidence.example/raj) | Partnerships Manager | Independent role evidence | [source 1](https://source.example/person_seed_raj) | 80% |\\n\\n**Summary:** 2 with independent role evidence, 0 profile-reconfirmed, 0 not corroborated. \\u201cNot corroborated\\u201d is not a negative finding\\u2014it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

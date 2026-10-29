@@ -1,0 +1,67 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/__contract/rows/chat_tool_approvals"
+  },
+  "response": {
+    "body": {
+      "rows": [
+        {
+          "created_at_epoch": 1788000000,
+          "id": "000003ea000040008000000000000000",
+          "status": "approve",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 4, \\\"status\\\": \\\"contacted\\\", \\\"note\\\": \\\"from sim\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_sim_d1\",\"type\":\"function\"}",
+          "user_id": "2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "created_at_epoch": 1788000000,
+          "id": "00000406000040008000000000000000",
+          "status": "pending",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 4, \\\"status\\\": \\\"contacted\\\", \\\"note\\\": \\\"from sim\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_sim_d1\",\"type\":\"function\"}",
+          "user_id": "4",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "created_at_epoch": 1787999400,
+          "id": "apr-consumed-1",
+          "status": "approve",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 4, \\\"status\\\": \\\"qualified\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_seed_1\",\"type\":\"function\"}",
+          "user_id": "4",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "created_at_epoch": 1787992800,
+          "id": "apr-expired-1",
+          "status": "pending",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 2, \\\"status\\\": \\\"qualified\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_seed_2\",\"type\":\"function\"}",
+          "user_id": "4",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "created_at_epoch": 1787999940,
+          "id": "apr-pending-1",
+          "status": "pending",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 4, \\\"status\\\": \\\"qualified\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_seed_1\",\"type\":\"function\"}",
+          "user_id": "4",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "created_at_epoch": 1787999880,
+          "id": "apr-pending-2",
+          "status": "pending",
+          "tool_call_json": "{\"function\":{\"arguments\":\"{\\\"lead_id\\\": 2, \\\"status\\\": \\\"qualified\\\"}\",\"name\":\"update_lead_status\"},\"id\":\"call_seed_2\",\"type\":\"function\"}",
+          "user_id": "4",
+          "workspace_id": "ws-alpha"
+        }
+      ],
+      "table": "chat_tool_approvals"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

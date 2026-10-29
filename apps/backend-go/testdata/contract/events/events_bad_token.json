@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/events?token=not.a.token"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid token"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 401
+  }
+}

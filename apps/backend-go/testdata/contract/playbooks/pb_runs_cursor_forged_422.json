@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/pb-gov-multi/runs?cursor=forged"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid playbook run cursor"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

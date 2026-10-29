@@ -1,0 +1,5611 @@
+{
+ "BASE": "https://www.ambitionbox.com/servicegateway-ambitionbox",
+ "HEADERS": {
+  "appid": "125",
+  "systemid": "local",
+  "content-type": "application/json",
+  "accept": "application/json",
+  "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36",
+  "origin": "https://www.ambitionbox.com",
+  "referer": "https://www.ambitionbox.com/list-of-companies"
+ },
+ "slugify": [
+  {
+   "input": "IT Services & Consulting",
+   "slug": "it-services-and-consulting"
+  },
+  {
+   "input": "  Banking  ",
+   "slug": "banking"
+  },
+  {
+   "input": "Software Product",
+   "slug": "software-product"
+  },
+  {
+   "input": "E-commerce / Retail",
+   "slug": "e-commerce-retail"
+  },
+  {
+   "input": "R&D",
+   "slug": "randd"
+  },
+  {
+   "input": "A  B",
+   "slug": "a-b"
+  },
+  {
+   "input": "---x---",
+   "slug": "x"
+  },
+  {
+   "input": "",
+   "slug": ""
+  },
+  {
+   "input": "É-commerce",
+   "slug": "commerce"
+  },
+  {
+   "input": "100% Pure",
+   "slug": "100-pure"
+  },
+  {
+   "input": "a_b",
+   "slug": "a-b"
+  },
+  {
+   "input": "Mixed CASE & Stuff",
+   "slug": "mixed-case-and-stuff"
+  },
+  {
+   "input": "&",
+   "slug": "and"
+  },
+  {
+   "input": "a&b",
+   "slug": "aandb"
+  },
+  {
+   "input": "日本語",
+   "slug": ""
+  },
+  {
+   "input": "xxxxx!!y",
+   "slug": "xxxxx-y"
+  }
+ ],
+ "industry_slug": [
+  {
+   "input": "HR",
+   "slug": "recruitment"
+  },
+  {
+   "input": "hr",
+   "slug": "recruitment"
+  },
+  {
+   "input": "HR Services",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Human Resources",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Human Resources & Recruitment",
+   "slug": "recruitment"
+  },
+  {
+   "input": "HR & Recruitment",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Recruiting",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Staffing",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Staffing and Recruiting",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Recruitment & Staffing",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Recruitment-Staffing",
+   "slug": "recruitment"
+  },
+  {
+   "input": "SaaS",
+   "slug": "software-product"
+  },
+  {
+   "input": "saas",
+   "slug": "software-product"
+  },
+  {
+   "input": "Software as a Service",
+   "slug": "software-product"
+  },
+  {
+   "input": "IT Services & Consulting",
+   "slug": "it-services-and-consulting"
+  },
+  {
+   "input": "Banking",
+   "slug": "banking"
+  },
+  {
+   "input": " hr ",
+   "slug": "recruitment"
+  },
+  {
+   "input": "H R",
+   "slug": "h-r"
+  },
+  {
+   "input": "human_resource",
+   "slug": "recruitment"
+  },
+  {
+   "input": "Human Resource",
+   "slug": "recruitment"
+  },
+  {
+   "input": "recruitment",
+   "slug": "recruitment"
+  }
+ ],
+ "aliases": {
+  "hr": "recruitment",
+  "hr-services": "recruitment",
+  "human-resource": "recruitment",
+  "human-resources": "recruitment",
+  "human-resources-recruitment": "recruitment",
+  "human-resources-and-recruitment": "recruitment",
+  "hr-recruitment": "recruitment",
+  "hr-and-recruitment": "recruitment",
+  "recruiting": "recruitment",
+  "staffing": "recruitment",
+  "staffing-and-recruiting": "recruitment",
+  "recruitment-and-staffing": "recruitment",
+  "recruitment-staffing": "recruitment",
+  "saas": "software-product",
+  "software-as-a-service": "software-product"
+ },
+ "company_from_api": [
+  {
+   "name": "full",
+   "card": {
+    "companyId": 1,
+    "name": "Acme",
+    "shortName": "Ac",
+    "urlName": "acme",
+    "logoUrl": "https://l/1.png",
+    "primaryIndustry": "IT",
+    "companyRating": 3.456,
+    "reviewCount": 120,
+    "jobsCount": 5,
+    "salariesCount": 6,
+    "interviewsCount": 7,
+    "totalEmployeesIndia": "1L+",
+    "totalEmployees": "2L",
+    "topLocationDetail": {
+     "name": "Pune",
+     "totalLocationsCount": 4
+    },
+    "isVerifiedEmployer": true,
+    "tag": {
+     "name": "Public"
+    },
+    "highlyRatedFor": [
+     {
+      "name": "Job Security",
+      "ratings": 4.2
+     }
+    ],
+    "criticallyRatedFor": [
+     {
+      "name": "Salary",
+      "ratings": 2.1
+     }
+    ]
+   },
+   "value": {
+    "company_id": 1,
+    "name": "Acme",
+    "short_name": "Ac",
+    "url_name": "acme",
+    "logo_url": "https://l/1.png",
+    "industry": "IT",
+    "rating": 3.5,
+    "review_count": 120,
+    "jobs_count": 5,
+    "salaries_count": 6,
+    "interviews_count": 7,
+    "employee_count": "1L+",
+    "top_location": "Pune",
+    "total_locations": 4,
+    "is_verified": true,
+    "company_type": "Public",
+    "highly_rated_for": [
+     {
+      "name": "Job Security",
+      "rating": 4.2
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "Salary",
+      "rating": 2.1
+     }
+    ],
+    "profile_url": "https://www.ambitionbox.com/overview/acme-overview"
+   }
+  },
+  {
+   "name": "empty",
+   "card": {},
+   "value": {
+    "company_id": 0,
+    "name": "",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "unrated",
+   "card": {
+    "companyId": 2,
+    "name": "Unrated",
+    "companyRating": null,
+    "reviewCount": null
+   },
+   "value": {
+    "company_id": 2,
+    "name": "Unrated",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "zero_rating_and_reviews",
+   "card": {
+    "companyId": 3,
+    "name": "Zero",
+    "companyRating": 0,
+    "reviewCount": 0
+   },
+   "value": {
+    "company_id": 3,
+    "name": "Zero",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": 0,
+    "review_count": 0,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rating_rounding_half_even",
+   "card": {
+    "companyId": 4,
+    "name": "R",
+    "companyRating": 2.25
+   },
+   "value": {
+    "company_id": 4,
+    "name": "R",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": 2.2,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rating_rounding_up",
+   "card": {
+    "companyId": 5,
+    "name": "R2",
+    "companyRating": 2.35
+   },
+   "value": {
+    "company_id": 5,
+    "name": "R2",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": 2.4,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rating_int",
+   "card": {
+    "companyId": 6,
+    "name": "R3",
+    "companyRating": 4
+   },
+   "value": {
+    "company_id": 6,
+    "name": "R3",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": 4,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rating_big_precision",
+   "card": {
+    "companyId": 7,
+    "name": "R4",
+    "companyRating": 3.9499999
+   },
+   "value": {
+    "company_id": 7,
+    "name": "R4",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": 3.9,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "employees_fallback",
+   "card": {
+    "companyId": 8,
+    "name": "E",
+    "totalEmployeesIndia": "",
+    "totalEmployees": "50k"
+   },
+   "value": {
+    "company_id": 8,
+    "name": "E",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "50k",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "employees_india_null",
+   "card": {
+    "companyId": 9,
+    "name": "E2",
+    "totalEmployeesIndia": null
+   },
+   "value": {
+    "company_id": 9,
+    "name": "E2",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "counts_null",
+   "card": {
+    "companyId": 10,
+    "name": "C",
+    "jobsCount": null,
+    "salariesCount": null,
+    "interviewsCount": null
+   },
+   "value": {
+    "company_id": 10,
+    "name": "C",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "location_null",
+   "card": {
+    "companyId": 11,
+    "name": "L",
+    "topLocationDetail": null,
+    "tag": null
+   },
+   "value": {
+    "company_id": 11,
+    "name": "L",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "location_counts_null",
+   "card": {
+    "companyId": 12,
+    "name": "L2",
+    "topLocationDetail": {
+     "name": "X",
+     "totalLocationsCount": null
+    }
+   },
+   "value": {
+    "company_id": 12,
+    "name": "L2",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "X",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rated_for_null",
+   "card": {
+    "companyId": 13,
+    "name": "N",
+    "highlyRatedFor": null,
+    "criticallyRatedFor": null
+   },
+   "value": {
+    "company_id": 13,
+    "name": "N",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "verified_none",
+   "card": {
+    "companyId": 14,
+    "name": "V",
+    "isVerifiedEmployer": null
+   },
+   "value": {
+    "company_id": 14,
+    "name": "V",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": null,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "unicode",
+   "card": {
+    "companyId": 15,
+    "name": "Éco 東京",
+    "urlName": "eco-tokyo"
+   },
+   "value": {
+    "company_id": 15,
+    "name": "Éco 東京",
+    "short_name": "",
+    "url_name": "eco-tokyo",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/eco-tokyo-overview"
+   }
+  },
+  {
+   "name": "company_id_string",
+   "card": {
+    "companyId": "16",
+    "name": "S"
+   },
+   "value": {
+    "company_id": "16",
+    "name": "S",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "company_id_zero",
+   "card": {
+    "companyId": 0,
+    "name": "Z"
+   },
+   "value": {
+    "company_id": 0,
+    "name": "Z",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": null,
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  },
+  {
+   "name": "rated_for_missing_key",
+   "card": {
+    "companyId": 17,
+    "name": "K",
+    "highlyRatedFor": [
+     {
+      "name": "x"
+     }
+    ]
+   },
+   "error": "'ratings'",
+   "error_type": "KeyError"
+  },
+  {
+   "name": "review_count_string",
+   "card": {
+    "companyId": 18,
+    "name": "RS",
+    "reviewCount": "12"
+   },
+   "value": {
+    "company_id": 18,
+    "name": "RS",
+    "short_name": "",
+    "url_name": "",
+    "logo_url": "",
+    "industry": "",
+    "rating": null,
+    "review_count": "12",
+    "jobs_count": 0,
+    "salaries_count": 0,
+    "interviews_count": 0,
+    "employee_count": "",
+    "top_location": "",
+    "total_locations": 0,
+    "is_verified": false,
+    "company_type": "",
+    "highly_rated_for": [],
+    "critically_rated_for": [],
+    "profile_url": "https://www.ambitionbox.com/overview/-overview"
+   }
+  }
+ ],
+ "job_from_api": [
+  {
+   "name": "full",
+   "job": {
+    "jobId": "J1",
+    "title": "Eng",
+    "company": "Acme",
+    "companyId": 1,
+    "companyRating": 3.456,
+    "jobProfile": "Dev",
+    "locations": [
+     "Pune"
+    ],
+    "minExp": 2,
+    "maxExp": 5,
+    "skills": [
+     "go"
+    ],
+    "postedOn": "2026-08-01",
+    "portal": "ab",
+    "jdpUrl": "/jobs/x"
+   },
+   "value": {
+    "job_id": "J1",
+    "title": "Eng",
+    "company": "Acme",
+    "company_id": 1,
+    "company_rating": 3.5,
+    "job_profile": "Dev",
+    "locations": [
+     "Pune"
+    ],
+    "experience": "2-5 yrs",
+    "skills": [
+     "go"
+    ],
+    "posted_on": "2026-08-01",
+    "portal": "ab",
+    "url": "https://www.ambitionbox.com/jobs/x"
+   }
+  },
+  {
+   "name": "empty",
+   "job": {},
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "no_max_exp",
+   "job": {
+    "minExp": 3
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "3+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "zero_exp",
+   "job": {
+    "minExp": 0,
+    "maxExp": 0
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "null_exp",
+   "job": {
+    "minExp": null,
+    "maxExp": null
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "no_jdp",
+   "job": {
+    "jdpUrl": ""
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "null_jdp",
+   "job": {
+    "jdpUrl": null
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "rating_null",
+   "job": {
+    "companyRating": null
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "rating_rounding",
+   "job": {
+    "companyRating": 2.25
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 2.2,
+    "job_profile": "",
+    "locations": [],
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  },
+  {
+   "name": "locations_null",
+   "job": {
+    "locations": null
+   },
+   "value": {
+    "job_id": "",
+    "title": "",
+    "company": "",
+    "company_id": 0,
+    "company_rating": 0,
+    "job_profile": "",
+    "locations": null,
+    "experience": "0+ yrs",
+    "skills": [],
+    "posted_on": "",
+    "portal": "",
+    "url": ""
+   }
+  }
+ ],
+ "connector_page_has_more": [
+  {
+   "total_pages": null,
+   "page": 1,
+   "records": 20,
+   "page_size": 20,
+   "has_more": true
+  },
+  {
+   "total_pages": null,
+   "page": 1,
+   "records": 19,
+   "page_size": 20,
+   "has_more": false
+  },
+  {
+   "total_pages": null,
+   "page": 2,
+   "records": 0,
+   "page_size": 20,
+   "has_more": false
+  },
+  {
+   "total_pages": null,
+   "page": 1,
+   "records": 25,
+   "page_size": 20,
+   "has_more": true
+  },
+  {
+   "total_pages": 3,
+   "page": 1,
+   "records": 20,
+   "page_size": 20,
+   "has_more": true
+  },
+  {
+   "total_pages": 3,
+   "page": 3,
+   "records": 20,
+   "page_size": 20,
+   "has_more": false
+  },
+  {
+   "total_pages": 3,
+   "page": 2,
+   "records": 0,
+   "page_size": 20,
+   "has_more": true
+  },
+  {
+   "total_pages": 3,
+   "page": 4,
+   "records": 1,
+   "page_size": 20,
+   "has_more": false
+  },
+  {
+   "total_pages": 0,
+   "page": 1,
+   "records": 5,
+   "page_size": 20,
+   "has_more": false
+  },
+  {
+   "total_pages": 1,
+   "page": 1,
+   "records": 20,
+   "page_size": 20,
+   "has_more": false
+  }
+ ],
+ "fetch_company_page": [
+  {
+   "name": "page1_with_stats",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 2,
+      "name": "Co 2",
+      "urlName": "co-2",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 3,
+      "name": "Co 3",
+      "urlName": "co-3",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 4,
+      "name": "Co 4",
+      "urlName": "co-4",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 5,
+      "name": "Co 5",
+      "urlName": "co-5",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 6,
+      "name": "Co 6",
+      "urlName": "co-6",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 7,
+      "name": "Co 7",
+      "urlName": "co-7",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 8,
+      "name": "Co 8",
+      "urlName": "co-8",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 9,
+      "name": "Co 9",
+      "urlName": "co-9",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 10,
+      "name": "Co 10",
+      "urlName": "co-10",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 11,
+      "name": "Co 11",
+      "urlName": "co-11",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 12,
+      "name": "Co 12",
+      "urlName": "co-12",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 13,
+      "name": "Co 13",
+      "urlName": "co-13",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 14,
+      "name": "Co 14",
+      "urlName": "co-14",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 15,
+      "name": "Co 15",
+      "urlName": "co-15",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 16,
+      "name": "Co 16",
+      "urlName": "co-16",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 17,
+      "name": "Co 17",
+      "urlName": "co-17",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 18,
+      "name": "Co 18",
+      "urlName": "co-18",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 19,
+      "name": "Co 19",
+      "urlName": "co-19",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 20,
+      "name": "Co 20",
+      "urlName": "co-20",
+      "companyRating": 3.0
+     }
+    ],
+    "stats": {
+     "totalCards": 57,
+     "totalPages": 3
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": 57,
+    "total_pages": 3,
+    "has_more": true,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "2",
+      "rank": 1,
+      "source_url": "https://www.ambitionbox.com/overview/co-2-overview",
+      "data": {
+       "company_id": 2,
+       "name": "Co 2",
+       "short_name": "",
+       "url_name": "co-2",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-2-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "3",
+      "rank": 2,
+      "source_url": "https://www.ambitionbox.com/overview/co-3-overview",
+      "data": {
+       "company_id": 3,
+       "name": "Co 3",
+       "short_name": "",
+       "url_name": "co-3",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-3-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "4",
+      "rank": 3,
+      "source_url": "https://www.ambitionbox.com/overview/co-4-overview",
+      "data": {
+       "company_id": 4,
+       "name": "Co 4",
+       "short_name": "",
+       "url_name": "co-4",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-4-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "5",
+      "rank": 4,
+      "source_url": "https://www.ambitionbox.com/overview/co-5-overview",
+      "data": {
+       "company_id": 5,
+       "name": "Co 5",
+       "short_name": "",
+       "url_name": "co-5",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-5-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "6",
+      "rank": 5,
+      "source_url": "https://www.ambitionbox.com/overview/co-6-overview",
+      "data": {
+       "company_id": 6,
+       "name": "Co 6",
+       "short_name": "",
+       "url_name": "co-6",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-6-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "7",
+      "rank": 6,
+      "source_url": "https://www.ambitionbox.com/overview/co-7-overview",
+      "data": {
+       "company_id": 7,
+       "name": "Co 7",
+       "short_name": "",
+       "url_name": "co-7",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-7-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "8",
+      "rank": 7,
+      "source_url": "https://www.ambitionbox.com/overview/co-8-overview",
+      "data": {
+       "company_id": 8,
+       "name": "Co 8",
+       "short_name": "",
+       "url_name": "co-8",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-8-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "9",
+      "rank": 8,
+      "source_url": "https://www.ambitionbox.com/overview/co-9-overview",
+      "data": {
+       "company_id": 9,
+       "name": "Co 9",
+       "short_name": "",
+       "url_name": "co-9",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-9-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "10",
+      "rank": 9,
+      "source_url": "https://www.ambitionbox.com/overview/co-10-overview",
+      "data": {
+       "company_id": 10,
+       "name": "Co 10",
+       "short_name": "",
+       "url_name": "co-10",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-10-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "11",
+      "rank": 10,
+      "source_url": "https://www.ambitionbox.com/overview/co-11-overview",
+      "data": {
+       "company_id": 11,
+       "name": "Co 11",
+       "short_name": "",
+       "url_name": "co-11",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-11-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "12",
+      "rank": 11,
+      "source_url": "https://www.ambitionbox.com/overview/co-12-overview",
+      "data": {
+       "company_id": 12,
+       "name": "Co 12",
+       "short_name": "",
+       "url_name": "co-12",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-12-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "13",
+      "rank": 12,
+      "source_url": "https://www.ambitionbox.com/overview/co-13-overview",
+      "data": {
+       "company_id": 13,
+       "name": "Co 13",
+       "short_name": "",
+       "url_name": "co-13",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-13-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "14",
+      "rank": 13,
+      "source_url": "https://www.ambitionbox.com/overview/co-14-overview",
+      "data": {
+       "company_id": 14,
+       "name": "Co 14",
+       "short_name": "",
+       "url_name": "co-14",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-14-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "15",
+      "rank": 14,
+      "source_url": "https://www.ambitionbox.com/overview/co-15-overview",
+      "data": {
+       "company_id": 15,
+       "name": "Co 15",
+       "short_name": "",
+       "url_name": "co-15",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-15-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "16",
+      "rank": 15,
+      "source_url": "https://www.ambitionbox.com/overview/co-16-overview",
+      "data": {
+       "company_id": 16,
+       "name": "Co 16",
+       "short_name": "",
+       "url_name": "co-16",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-16-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "17",
+      "rank": 16,
+      "source_url": "https://www.ambitionbox.com/overview/co-17-overview",
+      "data": {
+       "company_id": 17,
+       "name": "Co 17",
+       "short_name": "",
+       "url_name": "co-17",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-17-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "18",
+      "rank": 17,
+      "source_url": "https://www.ambitionbox.com/overview/co-18-overview",
+      "data": {
+       "company_id": 18,
+       "name": "Co 18",
+       "short_name": "",
+       "url_name": "co-18",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-18-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "19",
+      "rank": 18,
+      "source_url": "https://www.ambitionbox.com/overview/co-19-overview",
+      "data": {
+       "company_id": 19,
+       "name": "Co 19",
+       "short_name": "",
+       "url_name": "co-19",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-19-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "20",
+      "rank": 19,
+      "source_url": "https://www.ambitionbox.com/overview/co-20-overview",
+      "data": {
+       "company_id": 20,
+       "name": "Co 20",
+       "short_name": "",
+       "url_name": "co-20",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-20-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "page2_ranks_continue",
+   "args": {
+    "page": 2,
+    "sort_by": "rating"
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 21,
+      "name": "Co 21",
+      "urlName": "co-21",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 22,
+      "name": "Co 22",
+      "urlName": "co-22",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 23,
+      "name": "Co 23",
+      "urlName": "co-23",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 24,
+      "name": "Co 24",
+      "urlName": "co-24",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 25,
+      "name": "Co 25",
+      "urlName": "co-25",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 26,
+      "name": "Co 26",
+      "urlName": "co-26",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 27,
+      "name": "Co 27",
+      "urlName": "co-27",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 28,
+      "name": "Co 28",
+      "urlName": "co-28",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 29,
+      "name": "Co 29",
+      "urlName": "co-29",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 30,
+      "name": "Co 30",
+      "urlName": "co-30",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 31,
+      "name": "Co 31",
+      "urlName": "co-31",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 32,
+      "name": "Co 32",
+      "urlName": "co-32",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 33,
+      "name": "Co 33",
+      "urlName": "co-33",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 34,
+      "name": "Co 34",
+      "urlName": "co-34",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 35,
+      "name": "Co 35",
+      "urlName": "co-35",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 36,
+      "name": "Co 36",
+      "urlName": "co-36",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 37,
+      "name": "Co 37",
+      "urlName": "co-37",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 38,
+      "name": "Co 38",
+      "urlName": "co-38",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 39,
+      "name": "Co 39",
+      "urlName": "co-39",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 40,
+      "name": "Co 40",
+      "urlName": "co-40",
+      "companyRating": 3.0
+     }
+    ],
+    "stats": {
+     "totalCards": 57,
+     "totalPages": 3
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "2",
+      "sortBy": "rating",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 2,
+    "page_size": 20,
+    "source_total": 57,
+    "total_pages": 3,
+    "has_more": true,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "21",
+      "rank": 20,
+      "source_url": "https://www.ambitionbox.com/overview/co-21-overview",
+      "data": {
+       "company_id": 21,
+       "name": "Co 21",
+       "short_name": "",
+       "url_name": "co-21",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-21-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "22",
+      "rank": 21,
+      "source_url": "https://www.ambitionbox.com/overview/co-22-overview",
+      "data": {
+       "company_id": 22,
+       "name": "Co 22",
+       "short_name": "",
+       "url_name": "co-22",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-22-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "23",
+      "rank": 22,
+      "source_url": "https://www.ambitionbox.com/overview/co-23-overview",
+      "data": {
+       "company_id": 23,
+       "name": "Co 23",
+       "short_name": "",
+       "url_name": "co-23",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-23-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "24",
+      "rank": 23,
+      "source_url": "https://www.ambitionbox.com/overview/co-24-overview",
+      "data": {
+       "company_id": 24,
+       "name": "Co 24",
+       "short_name": "",
+       "url_name": "co-24",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-24-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "25",
+      "rank": 24,
+      "source_url": "https://www.ambitionbox.com/overview/co-25-overview",
+      "data": {
+       "company_id": 25,
+       "name": "Co 25",
+       "short_name": "",
+       "url_name": "co-25",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-25-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "26",
+      "rank": 25,
+      "source_url": "https://www.ambitionbox.com/overview/co-26-overview",
+      "data": {
+       "company_id": 26,
+       "name": "Co 26",
+       "short_name": "",
+       "url_name": "co-26",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-26-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "27",
+      "rank": 26,
+      "source_url": "https://www.ambitionbox.com/overview/co-27-overview",
+      "data": {
+       "company_id": 27,
+       "name": "Co 27",
+       "short_name": "",
+       "url_name": "co-27",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-27-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "28",
+      "rank": 27,
+      "source_url": "https://www.ambitionbox.com/overview/co-28-overview",
+      "data": {
+       "company_id": 28,
+       "name": "Co 28",
+       "short_name": "",
+       "url_name": "co-28",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-28-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "29",
+      "rank": 28,
+      "source_url": "https://www.ambitionbox.com/overview/co-29-overview",
+      "data": {
+       "company_id": 29,
+       "name": "Co 29",
+       "short_name": "",
+       "url_name": "co-29",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-29-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "30",
+      "rank": 29,
+      "source_url": "https://www.ambitionbox.com/overview/co-30-overview",
+      "data": {
+       "company_id": 30,
+       "name": "Co 30",
+       "short_name": "",
+       "url_name": "co-30",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-30-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "31",
+      "rank": 30,
+      "source_url": "https://www.ambitionbox.com/overview/co-31-overview",
+      "data": {
+       "company_id": 31,
+       "name": "Co 31",
+       "short_name": "",
+       "url_name": "co-31",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-31-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "32",
+      "rank": 31,
+      "source_url": "https://www.ambitionbox.com/overview/co-32-overview",
+      "data": {
+       "company_id": 32,
+       "name": "Co 32",
+       "short_name": "",
+       "url_name": "co-32",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-32-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "33",
+      "rank": 32,
+      "source_url": "https://www.ambitionbox.com/overview/co-33-overview",
+      "data": {
+       "company_id": 33,
+       "name": "Co 33",
+       "short_name": "",
+       "url_name": "co-33",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-33-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "34",
+      "rank": 33,
+      "source_url": "https://www.ambitionbox.com/overview/co-34-overview",
+      "data": {
+       "company_id": 34,
+       "name": "Co 34",
+       "short_name": "",
+       "url_name": "co-34",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-34-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "35",
+      "rank": 34,
+      "source_url": "https://www.ambitionbox.com/overview/co-35-overview",
+      "data": {
+       "company_id": 35,
+       "name": "Co 35",
+       "short_name": "",
+       "url_name": "co-35",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-35-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "36",
+      "rank": 35,
+      "source_url": "https://www.ambitionbox.com/overview/co-36-overview",
+      "data": {
+       "company_id": 36,
+       "name": "Co 36",
+       "short_name": "",
+       "url_name": "co-36",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-36-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "37",
+      "rank": 36,
+      "source_url": "https://www.ambitionbox.com/overview/co-37-overview",
+      "data": {
+       "company_id": 37,
+       "name": "Co 37",
+       "short_name": "",
+       "url_name": "co-37",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-37-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "38",
+      "rank": 37,
+      "source_url": "https://www.ambitionbox.com/overview/co-38-overview",
+      "data": {
+       "company_id": 38,
+       "name": "Co 38",
+       "short_name": "",
+       "url_name": "co-38",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-38-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "39",
+      "rank": 38,
+      "source_url": "https://www.ambitionbox.com/overview/co-39-overview",
+      "data": {
+       "company_id": 39,
+       "name": "Co 39",
+       "short_name": "",
+       "url_name": "co-39",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-39-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "40",
+      "rank": 39,
+      "source_url": "https://www.ambitionbox.com/overview/co-40-overview",
+      "data": {
+       "company_id": 40,
+       "name": "Co 40",
+       "short_name": "",
+       "url_name": "co-40",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-40-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "last_page_has_no_more",
+   "args": {
+    "page": 3
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 41,
+      "name": "Co 41",
+      "urlName": "co-41",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 42,
+      "name": "Co 42",
+      "urlName": "co-42",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 43,
+      "name": "Co 43",
+      "urlName": "co-43",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 44,
+      "name": "Co 44",
+      "urlName": "co-44",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 45,
+      "name": "Co 45",
+      "urlName": "co-45",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 46,
+      "name": "Co 46",
+      "urlName": "co-46",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 47,
+      "name": "Co 47",
+      "urlName": "co-47",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 48,
+      "name": "Co 48",
+      "urlName": "co-48",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 49,
+      "name": "Co 49",
+      "urlName": "co-49",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 50,
+      "name": "Co 50",
+      "urlName": "co-50",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 51,
+      "name": "Co 51",
+      "urlName": "co-51",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 52,
+      "name": "Co 52",
+      "urlName": "co-52",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 53,
+      "name": "Co 53",
+      "urlName": "co-53",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 54,
+      "name": "Co 54",
+      "urlName": "co-54",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 55,
+      "name": "Co 55",
+      "urlName": "co-55",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 56,
+      "name": "Co 56",
+      "urlName": "co-56",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 57,
+      "name": "Co 57",
+      "urlName": "co-57",
+      "companyRating": 3.0
+     }
+    ],
+    "stats": {
+     "totalCards": 57,
+     "totalPages": 3
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "3",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 3,
+    "page_size": 20,
+    "source_total": 57,
+    "total_pages": 3,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "41",
+      "rank": 40,
+      "source_url": "https://www.ambitionbox.com/overview/co-41-overview",
+      "data": {
+       "company_id": 41,
+       "name": "Co 41",
+       "short_name": "",
+       "url_name": "co-41",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-41-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "42",
+      "rank": 41,
+      "source_url": "https://www.ambitionbox.com/overview/co-42-overview",
+      "data": {
+       "company_id": 42,
+       "name": "Co 42",
+       "short_name": "",
+       "url_name": "co-42",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-42-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "43",
+      "rank": 42,
+      "source_url": "https://www.ambitionbox.com/overview/co-43-overview",
+      "data": {
+       "company_id": 43,
+       "name": "Co 43",
+       "short_name": "",
+       "url_name": "co-43",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-43-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "44",
+      "rank": 43,
+      "source_url": "https://www.ambitionbox.com/overview/co-44-overview",
+      "data": {
+       "company_id": 44,
+       "name": "Co 44",
+       "short_name": "",
+       "url_name": "co-44",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-44-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "45",
+      "rank": 44,
+      "source_url": "https://www.ambitionbox.com/overview/co-45-overview",
+      "data": {
+       "company_id": 45,
+       "name": "Co 45",
+       "short_name": "",
+       "url_name": "co-45",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-45-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "46",
+      "rank": 45,
+      "source_url": "https://www.ambitionbox.com/overview/co-46-overview",
+      "data": {
+       "company_id": 46,
+       "name": "Co 46",
+       "short_name": "",
+       "url_name": "co-46",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-46-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "47",
+      "rank": 46,
+      "source_url": "https://www.ambitionbox.com/overview/co-47-overview",
+      "data": {
+       "company_id": 47,
+       "name": "Co 47",
+       "short_name": "",
+       "url_name": "co-47",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-47-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "48",
+      "rank": 47,
+      "source_url": "https://www.ambitionbox.com/overview/co-48-overview",
+      "data": {
+       "company_id": 48,
+       "name": "Co 48",
+       "short_name": "",
+       "url_name": "co-48",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-48-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "49",
+      "rank": 48,
+      "source_url": "https://www.ambitionbox.com/overview/co-49-overview",
+      "data": {
+       "company_id": 49,
+       "name": "Co 49",
+       "short_name": "",
+       "url_name": "co-49",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-49-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "50",
+      "rank": 49,
+      "source_url": "https://www.ambitionbox.com/overview/co-50-overview",
+      "data": {
+       "company_id": 50,
+       "name": "Co 50",
+       "short_name": "",
+       "url_name": "co-50",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-50-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "51",
+      "rank": 50,
+      "source_url": "https://www.ambitionbox.com/overview/co-51-overview",
+      "data": {
+       "company_id": 51,
+       "name": "Co 51",
+       "short_name": "",
+       "url_name": "co-51",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-51-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "52",
+      "rank": 51,
+      "source_url": "https://www.ambitionbox.com/overview/co-52-overview",
+      "data": {
+       "company_id": 52,
+       "name": "Co 52",
+       "short_name": "",
+       "url_name": "co-52",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-52-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "53",
+      "rank": 52,
+      "source_url": "https://www.ambitionbox.com/overview/co-53-overview",
+      "data": {
+       "company_id": 53,
+       "name": "Co 53",
+       "short_name": "",
+       "url_name": "co-53",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-53-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "54",
+      "rank": 53,
+      "source_url": "https://www.ambitionbox.com/overview/co-54-overview",
+      "data": {
+       "company_id": 54,
+       "name": "Co 54",
+       "short_name": "",
+       "url_name": "co-54",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-54-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "55",
+      "rank": 54,
+      "source_url": "https://www.ambitionbox.com/overview/co-55-overview",
+      "data": {
+       "company_id": 55,
+       "name": "Co 55",
+       "short_name": "",
+       "url_name": "co-55",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-55-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "56",
+      "rank": 55,
+      "source_url": "https://www.ambitionbox.com/overview/co-56-overview",
+      "data": {
+       "company_id": 56,
+       "name": "Co 56",
+       "short_name": "",
+       "url_name": "co-56",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-56-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "57",
+      "rank": 56,
+      "source_url": "https://www.ambitionbox.com/overview/co-57-overview",
+      "data": {
+       "company_id": 57,
+       "name": "Co 57",
+       "short_name": "",
+       "url_name": "co-57",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-57-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_stats_full_page_has_more",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 2,
+      "name": "Co 2",
+      "urlName": "co-2",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 3,
+      "name": "Co 3",
+      "urlName": "co-3",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 4,
+      "name": "Co 4",
+      "urlName": "co-4",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 5,
+      "name": "Co 5",
+      "urlName": "co-5",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 6,
+      "name": "Co 6",
+      "urlName": "co-6",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 7,
+      "name": "Co 7",
+      "urlName": "co-7",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 8,
+      "name": "Co 8",
+      "urlName": "co-8",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 9,
+      "name": "Co 9",
+      "urlName": "co-9",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 10,
+      "name": "Co 10",
+      "urlName": "co-10",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 11,
+      "name": "Co 11",
+      "urlName": "co-11",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 12,
+      "name": "Co 12",
+      "urlName": "co-12",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 13,
+      "name": "Co 13",
+      "urlName": "co-13",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 14,
+      "name": "Co 14",
+      "urlName": "co-14",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 15,
+      "name": "Co 15",
+      "urlName": "co-15",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 16,
+      "name": "Co 16",
+      "urlName": "co-16",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 17,
+      "name": "Co 17",
+      "urlName": "co-17",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 18,
+      "name": "Co 18",
+      "urlName": "co-18",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 19,
+      "name": "Co 19",
+      "urlName": "co-19",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 20,
+      "name": "Co 20",
+      "urlName": "co-20",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": true,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "2",
+      "rank": 1,
+      "source_url": "https://www.ambitionbox.com/overview/co-2-overview",
+      "data": {
+       "company_id": 2,
+       "name": "Co 2",
+       "short_name": "",
+       "url_name": "co-2",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-2-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "3",
+      "rank": 2,
+      "source_url": "https://www.ambitionbox.com/overview/co-3-overview",
+      "data": {
+       "company_id": 3,
+       "name": "Co 3",
+       "short_name": "",
+       "url_name": "co-3",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-3-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "4",
+      "rank": 3,
+      "source_url": "https://www.ambitionbox.com/overview/co-4-overview",
+      "data": {
+       "company_id": 4,
+       "name": "Co 4",
+       "short_name": "",
+       "url_name": "co-4",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-4-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "5",
+      "rank": 4,
+      "source_url": "https://www.ambitionbox.com/overview/co-5-overview",
+      "data": {
+       "company_id": 5,
+       "name": "Co 5",
+       "short_name": "",
+       "url_name": "co-5",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-5-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "6",
+      "rank": 5,
+      "source_url": "https://www.ambitionbox.com/overview/co-6-overview",
+      "data": {
+       "company_id": 6,
+       "name": "Co 6",
+       "short_name": "",
+       "url_name": "co-6",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-6-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "7",
+      "rank": 6,
+      "source_url": "https://www.ambitionbox.com/overview/co-7-overview",
+      "data": {
+       "company_id": 7,
+       "name": "Co 7",
+       "short_name": "",
+       "url_name": "co-7",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-7-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "8",
+      "rank": 7,
+      "source_url": "https://www.ambitionbox.com/overview/co-8-overview",
+      "data": {
+       "company_id": 8,
+       "name": "Co 8",
+       "short_name": "",
+       "url_name": "co-8",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-8-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "9",
+      "rank": 8,
+      "source_url": "https://www.ambitionbox.com/overview/co-9-overview",
+      "data": {
+       "company_id": 9,
+       "name": "Co 9",
+       "short_name": "",
+       "url_name": "co-9",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-9-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "10",
+      "rank": 9,
+      "source_url": "https://www.ambitionbox.com/overview/co-10-overview",
+      "data": {
+       "company_id": 10,
+       "name": "Co 10",
+       "short_name": "",
+       "url_name": "co-10",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-10-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "11",
+      "rank": 10,
+      "source_url": "https://www.ambitionbox.com/overview/co-11-overview",
+      "data": {
+       "company_id": 11,
+       "name": "Co 11",
+       "short_name": "",
+       "url_name": "co-11",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-11-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "12",
+      "rank": 11,
+      "source_url": "https://www.ambitionbox.com/overview/co-12-overview",
+      "data": {
+       "company_id": 12,
+       "name": "Co 12",
+       "short_name": "",
+       "url_name": "co-12",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-12-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "13",
+      "rank": 12,
+      "source_url": "https://www.ambitionbox.com/overview/co-13-overview",
+      "data": {
+       "company_id": 13,
+       "name": "Co 13",
+       "short_name": "",
+       "url_name": "co-13",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-13-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "14",
+      "rank": 13,
+      "source_url": "https://www.ambitionbox.com/overview/co-14-overview",
+      "data": {
+       "company_id": 14,
+       "name": "Co 14",
+       "short_name": "",
+       "url_name": "co-14",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-14-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "15",
+      "rank": 14,
+      "source_url": "https://www.ambitionbox.com/overview/co-15-overview",
+      "data": {
+       "company_id": 15,
+       "name": "Co 15",
+       "short_name": "",
+       "url_name": "co-15",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-15-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "16",
+      "rank": 15,
+      "source_url": "https://www.ambitionbox.com/overview/co-16-overview",
+      "data": {
+       "company_id": 16,
+       "name": "Co 16",
+       "short_name": "",
+       "url_name": "co-16",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-16-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "17",
+      "rank": 16,
+      "source_url": "https://www.ambitionbox.com/overview/co-17-overview",
+      "data": {
+       "company_id": 17,
+       "name": "Co 17",
+       "short_name": "",
+       "url_name": "co-17",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-17-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "18",
+      "rank": 17,
+      "source_url": "https://www.ambitionbox.com/overview/co-18-overview",
+      "data": {
+       "company_id": 18,
+       "name": "Co 18",
+       "short_name": "",
+       "url_name": "co-18",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-18-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "19",
+      "rank": 18,
+      "source_url": "https://www.ambitionbox.com/overview/co-19-overview",
+      "data": {
+       "company_id": 19,
+       "name": "Co 19",
+       "short_name": "",
+       "url_name": "co-19",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-19-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "20",
+      "rank": 19,
+      "source_url": "https://www.ambitionbox.com/overview/co-20-overview",
+      "data": {
+       "company_id": 20,
+       "name": "Co 20",
+       "short_name": "",
+       "url_name": "co-20",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-20-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "no_stats_short_page_no_more",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 2,
+      "name": "Co 2",
+      "urlName": "co-2",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 3,
+      "name": "Co 3",
+      "urlName": "co-3",
+      "companyRating": 3.0
+     },
+     {
+      "companyId": 4,
+      "name": "Co 4",
+      "urlName": "co-4",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "2",
+      "rank": 1,
+      "source_url": "https://www.ambitionbox.com/overview/co-2-overview",
+      "data": {
+       "company_id": 2,
+       "name": "Co 2",
+       "short_name": "",
+       "url_name": "co-2",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-2-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "3",
+      "rank": 2,
+      "source_url": "https://www.ambitionbox.com/overview/co-3-overview",
+      "data": {
+       "company_id": 3,
+       "name": "Co 3",
+       "short_name": "",
+       "url_name": "co-3",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-3-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "4",
+      "rank": 3,
+      "source_url": "https://www.ambitionbox.com/overview/co-4-overview",
+      "data": {
+       "company_id": 4,
+       "name": "Co 4",
+       "short_name": "",
+       "url_name": "co-4",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-4-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "stats_strings_are_ints",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ],
+    "stats": {
+     "totalCards": "57",
+     "totalPages": "3"
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": 57,
+    "total_pages": 3,
+    "has_more": true,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "stats_null_values",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ],
+    "stats": {
+     "totalCards": null,
+     "totalPages": null
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "cards_null",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": null,
+    "stats": {
+     "totalCards": 0,
+     "totalPages": 0
+    }
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": 0,
+    "total_pages": 0,
+    "has_more": false,
+    "records": []
+   }
+  },
+  {
+   "name": "body_without_cards_key",
+   "args": {
+    "page": 1
+   },
+   "response_body": {},
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": []
+   }
+  },
+  {
+   "name": "id_zero_keys_by_name",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 0,
+      "name": "  Zero Co  "
+     },
+     {
+      "name": "No Id"
+     },
+     {
+      "companyId": "",
+      "name": "Empty Id"
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "name:zero co",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/-overview",
+      "data": {
+       "company_id": 0,
+       "name": "  Zero Co  ",
+       "short_name": "",
+       "url_name": "",
+       "logo_url": "",
+       "industry": "",
+       "rating": null,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "name:no id",
+      "rank": 1,
+      "source_url": "https://www.ambitionbox.com/overview/-overview",
+      "data": {
+       "company_id": 0,
+       "name": "No Id",
+       "short_name": "",
+       "url_name": "",
+       "logo_url": "",
+       "industry": "",
+       "rating": null,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/-overview"
+      }
+     },
+     {
+      "provider": "ambitionbox",
+      "record_id": "name:empty id",
+      "rank": 2,
+      "source_url": "https://www.ambitionbox.com/overview/-overview",
+      "data": {
+       "company_id": "",
+       "name": "Empty Id",
+       "short_name": "",
+       "url_name": "",
+       "logo_url": "",
+       "industry": "",
+       "rating": null,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "id_none_keys_by_name_casefold",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": null,
+      "name": "ÄÖ Straße"
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "name:äö strasse",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/-overview",
+      "data": {
+       "company_id": null,
+       "name": "ÄÖ Straße",
+       "short_name": "",
+       "url_name": "",
+       "logo_url": "",
+       "industry": "",
+       "rating": null,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "industry_slugs_and_rating_in_request",
+   "args": {
+    "page": 2,
+    "industry": [
+     "IT Services & Consulting",
+     "HR",
+     "SaaS"
+    ],
+    "rating": "4.5",
+    "sort_by": "reviews"
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "2",
+      "sortBy": "reviews",
+      "limit": 20,
+      "industries": [
+       "it-services-and-consulting",
+       "recruitment",
+       "software-product"
+      ],
+      "ratings": "4.5"
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 2,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 20,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "rating_empty_string_not_sent",
+   "args": {
+    "page": 1,
+    "rating": "",
+    "industry": []
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 0,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "location_not_implemented",
+   "args": {
+    "page": 1,
+    "location": [
+     "Pune"
+    ]
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [],
+   "error": "AmbitionBox's gateway ignores location filters -- refusing to return silently unfiltered results",
+   "error_type": "NotImplementedError"
+  },
+  {
+   "name": "company_type_not_implemented",
+   "args": {
+    "page": 1,
+    "company_type": [
+     "Public"
+    ]
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [],
+   "error": "AmbitionBox's gateway ignores company_type filters -- refusing to return silently unfiltered results",
+   "error_type": "NotImplementedError"
+  },
+  {
+   "name": "page_number_is_string_in_body",
+   "args": {
+    "page": 7
+   },
+   "response_body": {
+    "cards": [
+     {
+      "companyId": 1,
+      "name": "Co 1",
+      "urlName": "co-1",
+      "companyRating": 3.0
+     }
+    ]
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "7",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 7,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": [
+     {
+      "provider": "ambitionbox",
+      "record_id": "1",
+      "rank": 120,
+      "source_url": "https://www.ambitionbox.com/overview/co-1-overview",
+      "data": {
+       "company_id": 1,
+       "name": "Co 1",
+       "short_name": "",
+       "url_name": "co-1",
+       "logo_url": "",
+       "industry": "",
+       "rating": 3.0,
+       "review_count": null,
+       "jobs_count": 0,
+       "salaries_count": 0,
+       "interviews_count": 0,
+       "employee_count": "",
+       "top_location": "",
+       "total_locations": 0,
+       "is_verified": false,
+       "company_type": "",
+       "highly_rated_for": [],
+       "critically_rated_for": [],
+       "profile_url": "https://www.ambitionbox.com/overview/co-1-overview"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "name": "search_body_error_status_500",
+   "args": {
+    "page": 1
+   },
+   "response_body": {
+    "x": 1
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+     "json": {
+      "isFilterApplied": true,
+      "page": "1",
+      "sortBy": "popular",
+      "limit": 20
+     },
+     "timeout_total": 15
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "page": 1,
+    "page_size": 20,
+    "source_total": null,
+    "total_pages": null,
+    "has_more": false,
+    "records": []
+   }
+  }
+ ],
+ "collect_companies": [
+  {
+   "name": "target_met_on_first_page",
+   "args": {
+    "requested_count": 10
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 3,
+     "source_total": 57
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 10,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": 57,
+    "target_met": true,
+    "exhausted": false,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10"
+    ],
+    "ranks": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9
+    ]
+   }
+  },
+  {
+   "name": "target_met_on_second_page_truncates",
+   "args": {
+    "requested_count": 25
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 3
+    },
+    {
+     "ids": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+     ],
+     "total_pages": 3
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    },
+    {
+     "page": 2,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 25,
+    "pages_fetched": 2,
+    "next_page": 3,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": false,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25"
+    ],
+    "ranks": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24
+    ]
+   }
+  },
+  {
+   "name": "exhausted_before_target",
+   "args": {
+    "requested_count": 100
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 2
+    },
+    {
+     "ids": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30
+     ],
+     "total_pages": 2
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    },
+    {
+     "page": 2,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 100,
+    "pages_fetched": 2,
+    "next_page": 3,
+    "source_total": null,
+    "target_met": false,
+    "exhausted": true,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25",
+     "26",
+     "27",
+     "28",
+     "29",
+     "30"
+    ],
+    "ranks": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29
+    ]
+   }
+  },
+  {
+   "name": "max_pages_reached",
+   "args": {
+    "requested_count": 100,
+    "max_pages": 2
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 9
+    },
+    {
+     "ids": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40
+     ],
+     "total_pages": 9
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    },
+    {
+     "page": 2,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 100,
+    "pages_fetched": 2,
+    "next_page": 3,
+    "source_total": null,
+    "target_met": false,
+    "exhausted": false,
+    "max_pages_reached": true,
+    "warnings": [
+     "maximum page budget reached before requested target"
+    ],
+    "record_ids": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25",
+     "26",
+     "27",
+     "28",
+     "29",
+     "30",
+     "31",
+     "32",
+     "33",
+     "34",
+     "35",
+     "36",
+     "37",
+     "38",
+     "39",
+     "40"
+    ],
+    "ranks": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     20,
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31,
+     32,
+     33,
+     34,
+     35,
+     36,
+     37,
+     38,
+     39
+    ]
+   }
+  },
+  {
+   "name": "duplicates_across_pages_deduped",
+   "args": {
+    "requested_count": 25
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 3
+    },
+    {
+     "ids": [
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+     ],
+     "total_pages": 3
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    },
+    {
+     "page": 2,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 25,
+    "pages_fetched": 2,
+    "next_page": 3,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": false,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "6",
+     "7",
+     "8",
+     "9",
+     "10",
+     "11",
+     "12",
+     "13",
+     "14",
+     "15",
+     "16",
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "24",
+     "25"
+    ],
+    "ranks": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14,
+     15,
+     16,
+     17,
+     18,
+     19,
+     31,
+     32,
+     33,
+     34,
+     35
+    ]
+   }
+  },
+  {
+   "name": "max_pages_clamped_to_25_and_1",
+   "args": {
+    "requested_count": 1000,
+    "max_pages": 0
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1
+     ],
+     "total_pages": 99
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 1000,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": null,
+    "target_met": false,
+    "exhausted": false,
+    "max_pages_reached": true,
+    "warnings": [
+     "maximum page budget reached before requested target"
+    ],
+    "record_ids": [
+     "1"
+    ],
+    "ranks": [
+     0
+    ]
+   }
+  },
+  {
+   "name": "requested_count_floor_one",
+   "args": {
+    "requested_count": 0
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2
+     ],
+     "total_pages": 1
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 1,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": true,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1"
+    ],
+    "ranks": [
+     0
+    ]
+   }
+  },
+  {
+   "name": "start_page_offsets_ranks",
+   "args": {
+    "requested_count": 2,
+    "start_page": 3
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2
+     ],
+     "total_pages": 9
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 3,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 2,
+    "pages_fetched": 1,
+    "next_page": 4,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": false,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1",
+     "2"
+    ],
+    "ranks": [
+     40,
+     41
+    ]
+   }
+  },
+  {
+   "name": "start_page_floor_one",
+   "args": {
+    "requested_count": 1,
+    "start_page": -4
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1
+     ],
+     "total_pages": 9
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 1,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": false,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1"
+    ],
+    "ranks": [
+     0
+    ]
+   }
+  },
+  {
+   "name": "empty_first_page_exhausted",
+   "args": {
+    "requested_count": 5
+   },
+   "scripted_pages": [
+    {
+     "ids": [],
+     "total_pages": null
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 5,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": null,
+    "target_met": false,
+    "exhausted": true,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [],
+    "ranks": []
+   }
+  },
+  {
+   "name": "page_failure_wraps_message",
+   "args": {
+    "requested_count": 5
+   },
+   "scripted_pages": [
+    "boom"
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "error": "AmbitionBox company search failed on page 1: boom",
+   "error_type": "RuntimeError"
+  },
+  {
+   "name": "second_page_failure_wraps_message",
+   "args": {
+    "requested_count": 100
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+     ],
+     "total_pages": 5
+    },
+    "kaput"
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    },
+    {
+     "page": 2,
+     "sort_by": "popular",
+     "industry": null,
+     "location": null,
+     "rating": null
+    }
+   ],
+   "error": "AmbitionBox company search failed on page 2: kaput",
+   "error_type": "RuntimeError"
+  },
+  {
+   "name": "filters_forwarded",
+   "args": {
+    "requested_count": 1,
+    "industry": [
+     "Banking"
+    ],
+    "sort_by": "rating",
+    "rating": "4"
+   },
+   "scripted_pages": [
+    {
+     "ids": [
+      1
+     ],
+     "total_pages": 1
+    }
+   ],
+   "fetch_calls": [
+    {
+     "page": 1,
+     "sort_by": "rating",
+     "industry": [
+      "Banking"
+     ],
+     "location": null,
+     "rating": "4"
+    }
+   ],
+   "value": {
+    "provider": "ambitionbox",
+    "requested_count": 1,
+    "pages_fetched": 1,
+    "next_page": 2,
+    "source_total": null,
+    "target_met": true,
+    "exhausted": true,
+    "max_pages_reached": false,
+    "warnings": [],
+    "record_ids": [
+     "1"
+    ],
+    "ranks": [
+     0
+    ]
+   }
+  }
+ ]
+}

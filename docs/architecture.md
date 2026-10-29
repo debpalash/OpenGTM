@@ -145,6 +145,19 @@ network-level guarantee for every third-party browser/TLS stack.
   secrets, and collection-stage ledgers move from SQLite to PostgreSQL or a
   strongly consistent control-plane service.
 
+### Worker capacity settings
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `WORKER_CONCURRENCY` | 1 | Concurrent durable-job slots per API/standalone worker process. |
+| `WORKER_MAX_ACTIVE_PER_WORKSPACE` | 2 | Best-effort cross-replica cap on simultaneously processing jobs per workspace (0 disables). |
+| `WORKER_SHUTDOWN_GRACE_SECONDS` | 30 | Grace period for in-flight jobs on shutdown. |
+| `WORKBOOK_REFRESH_SCAN_BATCH_SIZE` | 1000 | Rows per keyset page when selecting stale refresh cells in SQL. |
+
+Outbound HTTP clients (leadgen Tier 1 and declarative providers) are pooled per
+event loop and proxy, never follow redirects, keep no cookies, and are closed on
+worker shutdown; the SSRF check still runs before every request.
+
 ## Verification floor
 
 The release floor for this architecture is:

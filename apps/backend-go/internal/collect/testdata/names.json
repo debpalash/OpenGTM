@@ -1,0 +1,1222 @@
+{
+ "region": [
+  {
+   "in": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": "india"
+  },
+  {
+   "in": "IT staffing companies in Bangalore",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "HR consultancy Mumbai",
+   "city": "Mumbai",
+   "out": "india"
+  },
+  {
+   "in": "HR consultancy Mumbai",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "recruitment agency in bengaluru",
+   "city": "Bangalore",
+   "out": "india"
+  },
+  {
+   "in": "recruitment agency in bengaluru",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "software companies",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "software companies",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "marketing agency in New York",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "marketing agency in New York",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "logistics firms Gurugram",
+   "city": "Gurgaon",
+   "out": "india"
+  },
+  {
+   "in": "logistics firms Gurugram",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "fintech startups in Pune",
+   "city": "Pune",
+   "out": "india"
+  },
+  {
+   "in": "fintech startups in Pune",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "staffing agencies",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "staffing agencies",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "SaaS companies London",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "SaaS companies London",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "manufacturing companies in Chennai pvt ltd",
+   "city": "Chennai",
+   "out": "india"
+  },
+  {
+   "in": "manufacturing companies in Chennai pvt ltd",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "AI startups in San Francisco",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "AI startups in San Francisco",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "chemical exporters india",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "chemical exporters india",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "cloud consultancies Berlin",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "cloud consultancies Berlin",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "payroll firms Noida",
+   "city": "Noida",
+   "out": "india"
+  },
+  {
+   "in": "payroll firms Noida",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "data analytics companies in Hyderabad",
+   "city": "Hyderabad",
+   "out": "india"
+  },
+  {
+   "in": "data analytics companies in Hyderabad",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "EdTech in Delhi",
+   "city": "Delhi",
+   "out": "india"
+  },
+  {
+   "in": "EdTech in Delhi",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "construction staffing in Kolkata",
+   "city": "Kolkata",
+   "out": "india"
+  },
+  {
+   "in": "construction staffing in Kolkata",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "Bangalore",
+   "city": "Bangalore",
+   "out": "india"
+  },
+  {
+   "in": "Bangalore",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "  ",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "  ",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "consultancies in Ahmedabad",
+   "city": "Ahmedabad",
+   "out": "india"
+  },
+  {
+   "in": "consultancies in Ahmedabad",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "agencies list",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "agencies list",
+   "city": "",
+   "out": "global"
+  },
+  {
+   "in": "IT Services in DELHI",
+   "city": "Delhi",
+   "out": "india"
+  },
+  {
+   "in": "IT Services in DELHI",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "companies in Thane",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "companies in Thane",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "bpo in Gurgaon India",
+   "city": "Gurgaon",
+   "out": "india"
+  },
+  {
+   "in": "bpo in Gurgaon India",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "Pvt Ltd manufacturers",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "Pvt Ltd manufacturers",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "ad agencies in Miami USA",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "ad agencies in Miami USA",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "Mumbai Delhi Pune",
+   "city": "Mumbai",
+   "out": "india"
+  },
+  {
+   "in": "Mumbai Delhi Pune",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "café owners in Paris",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "café owners in Paris",
+   "city": "",
+   "out": "eu"
+  },
+  {
+   "in": "Ünïcode Firms Bengaluru",
+   "city": "Bangalore",
+   "out": "india"
+  },
+  {
+   "in": "Ünïcode Firms Bengaluru",
+   "city": "",
+   "out": "india"
+  },
+  {
+   "in": "biotech united states",
+   "city": "",
+   "out": "us"
+  },
+  {
+   "in": "biotech united states",
+   "city": "",
+   "out": "us"
+  }
+ ],
+ "city": [
+  {
+   "in": "IT staffing companies in Bangalore",
+   "out": "Bangalore"
+  },
+  {
+   "in": "HR consultancy Mumbai",
+   "out": "Mumbai"
+  },
+  {
+   "in": "recruitment agency in bengaluru",
+   "out": "Bangalore"
+  },
+  {
+   "in": "software companies",
+   "out": ""
+  },
+  {
+   "in": "marketing agency in New York",
+   "out": ""
+  },
+  {
+   "in": "logistics firms Gurugram",
+   "out": "Gurgaon"
+  },
+  {
+   "in": "fintech startups in Pune",
+   "out": "Pune"
+  },
+  {
+   "in": "staffing agencies",
+   "out": ""
+  },
+  {
+   "in": "SaaS companies London",
+   "out": ""
+  },
+  {
+   "in": "manufacturing companies in Chennai pvt ltd",
+   "out": "Chennai"
+  },
+  {
+   "in": "AI startups in San Francisco",
+   "out": ""
+  },
+  {
+   "in": "chemical exporters india",
+   "out": ""
+  },
+  {
+   "in": "cloud consultancies Berlin",
+   "out": ""
+  },
+  {
+   "in": "payroll firms Noida",
+   "out": "Noida"
+  },
+  {
+   "in": "data analytics companies in Hyderabad",
+   "out": "Hyderabad"
+  },
+  {
+   "in": "EdTech in Delhi",
+   "out": "Delhi"
+  },
+  {
+   "in": "construction staffing in Kolkata",
+   "out": "Kolkata"
+  },
+  {
+   "in": "Bangalore",
+   "out": "Bangalore"
+  },
+  {
+   "in": "  ",
+   "out": ""
+  },
+  {
+   "in": "consultancies in Ahmedabad",
+   "out": "Ahmedabad"
+  },
+  {
+   "in": "agencies list",
+   "out": ""
+  },
+  {
+   "in": "IT Services in DELHI",
+   "out": "Delhi"
+  },
+  {
+   "in": "companies in Thane",
+   "out": ""
+  },
+  {
+   "in": "bpo in Gurgaon India",
+   "out": "Gurgaon"
+  },
+  {
+   "in": "Pvt Ltd manufacturers",
+   "out": ""
+  },
+  {
+   "in": "ad agencies in Miami USA",
+   "out": ""
+  },
+  {
+   "in": "Mumbai Delhi Pune",
+   "out": "Mumbai"
+  },
+  {
+   "in": "café owners in Paris",
+   "out": ""
+  },
+  {
+   "in": "Ünïcode Firms Bengaluru",
+   "out": "Bangalore"
+  },
+  {
+   "in": "biotech united states",
+   "out": ""
+  }
+ ],
+ "location": [
+  {
+   "in": "IT staffing companies in Bangalore",
+   "out": true
+  },
+  {
+   "in": "HR consultancy Mumbai",
+   "out": true
+  },
+  {
+   "in": "recruitment agency in bengaluru",
+   "out": true
+  },
+  {
+   "in": "software companies",
+   "out": false
+  },
+  {
+   "in": "marketing agency in New York",
+   "out": false
+  },
+  {
+   "in": "logistics firms Gurugram",
+   "out": true
+  },
+  {
+   "in": "fintech startups in Pune",
+   "out": true
+  },
+  {
+   "in": "staffing agencies",
+   "out": false
+  },
+  {
+   "in": "SaaS companies London",
+   "out": false
+  },
+  {
+   "in": "manufacturing companies in Chennai pvt ltd",
+   "out": true
+  },
+  {
+   "in": "AI startups in San Francisco",
+   "out": false
+  },
+  {
+   "in": "chemical exporters india",
+   "out": false
+  },
+  {
+   "in": "cloud consultancies Berlin",
+   "out": false
+  },
+  {
+   "in": "payroll firms Noida",
+   "out": true
+  },
+  {
+   "in": "data analytics companies in Hyderabad",
+   "out": true
+  },
+  {
+   "in": "EdTech in Delhi",
+   "out": true
+  },
+  {
+   "in": "construction staffing in Kolkata",
+   "out": true
+  },
+  {
+   "in": "Bangalore",
+   "out": true
+  },
+  {
+   "in": "  ",
+   "out": false
+  },
+  {
+   "in": "consultancies in Ahmedabad",
+   "out": true
+  },
+  {
+   "in": "agencies list",
+   "out": false
+  },
+  {
+   "in": "IT Services in DELHI",
+   "out": true
+  },
+  {
+   "in": "companies in Thane",
+   "out": false
+  },
+  {
+   "in": "bpo in Gurgaon India",
+   "out": true
+  },
+  {
+   "in": "Pvt Ltd manufacturers",
+   "out": false
+  },
+  {
+   "in": "ad agencies in Miami USA",
+   "out": false
+  },
+  {
+   "in": "Mumbai Delhi Pune",
+   "out": true
+  },
+  {
+   "in": "café owners in Paris",
+   "out": false
+  },
+  {
+   "in": "Ünïcode Firms Bengaluru",
+   "out": true
+  },
+  {
+   "in": "biotech united states",
+   "out": false
+  }
+ ],
+ "expand": [
+  {
+   "in": "IT staffing companies in Bangalore",
+   "out": [
+    "IT staffing companies in Bangalore",
+    "it staffing companies in agencies Bangalore",
+    "top it staffing companies in Bangalore",
+    "it staffing companies in list Bangalore 2024"
+   ]
+  },
+  {
+   "in": "HR consultancy Mumbai",
+   "out": [
+    "HR consultancy Mumbai",
+    "hr consultancy companies Mumbai",
+    "top hr consultancy Mumbai",
+    "hr consultancy list Mumbai 2024"
+   ]
+  },
+  {
+   "in": "recruitment agency in bengaluru",
+   "out": [
+    "recruitment agency in bengaluru",
+    "recruitment agency in bengaluru companies Bangalore",
+    "top recruitment agency in bengaluru Bangalore",
+    "recruitment agency in bengaluru list Bangalore 2024"
+   ]
+  },
+  {
+   "in": "software companies",
+   "out": [
+    "software companies",
+    "software companies agencies",
+    "top software companies India",
+    "software companies list India 2024"
+   ]
+  },
+  {
+   "in": "marketing agency in New York",
+   "out": [
+    "marketing agency in New York",
+    "marketing agency in new york companies",
+    "top marketing agency in new york India",
+    "marketing agency in new york list India 2024"
+   ]
+  },
+  {
+   "in": "logistics firms Gurugram",
+   "out": [
+    "logistics firms Gurugram",
+    "logistics firms gurugram companies Gurgaon",
+    "top logistics firms gurugram Gurgaon",
+    "logistics firms gurugram list Gurgaon 2024"
+   ]
+  },
+  {
+   "in": "fintech startups in Pune",
+   "out": [
+    "fintech startups in Pune",
+    "fintech startups in companies Pune",
+    "top fintech startups in Pune",
+    "fintech startups in list Pune 2024"
+   ]
+  },
+  {
+   "in": "staffing agencies",
+   "out": [
+    "staffing agencies",
+    "staffing agencies companies",
+    "top staffing agencies India",
+    "staffing agencies list India 2024"
+   ]
+  },
+  {
+   "in": "SaaS companies London",
+   "out": [
+    "SaaS companies London",
+    "saas companies london agencies",
+    "top saas companies london India",
+    "saas companies london list India 2024"
+   ]
+  },
+  {
+   "in": "manufacturing companies in Chennai pvt ltd",
+   "out": [
+    "manufacturing companies in Chennai pvt ltd",
+    "manufacturing companies in  pvt ltd agencies Chennai",
+    "top manufacturing companies in  pvt ltd Chennai",
+    "manufacturing companies in  pvt ltd list Chennai 2024"
+   ]
+  },
+  {
+   "in": "AI startups in San Francisco",
+   "out": [
+    "AI startups in San Francisco",
+    "ai startups in san francisco companies",
+    "top ai startups in san francisco India",
+    "ai startups in san francisco list India 2024"
+   ]
+  },
+  {
+   "in": "chemical exporters india",
+   "out": [
+    "chemical exporters india",
+    "chemical exporters india companies",
+    "top chemical exporters india India",
+    "chemical exporters india list India 2024"
+   ]
+  },
+  {
+   "in": "cloud consultancies Berlin",
+   "out": [
+    "cloud consultancies Berlin",
+    "cloud consultancies berlin companies",
+    "top cloud consultancies berlin India",
+    "cloud consultancies berlin list India 2024"
+   ]
+  },
+  {
+   "in": "payroll firms Noida",
+   "out": [
+    "payroll firms Noida",
+    "payroll firms companies Noida",
+    "top payroll firms Noida",
+    "payroll firms list Noida 2024"
+   ]
+  },
+  {
+   "in": "data analytics companies in Hyderabad",
+   "out": [
+    "data analytics companies in Hyderabad",
+    "data analytics companies in agencies Hyderabad",
+    "top data analytics companies in Hyderabad",
+    "data analytics companies in list Hyderabad 2024"
+   ]
+  },
+  {
+   "in": "EdTech in Delhi",
+   "out": [
+    "EdTech in Delhi",
+    "edtech in companies Delhi",
+    "top edtech in Delhi",
+    "edtech in list Delhi 2024"
+   ]
+  },
+  {
+   "in": "construction staffing in Kolkata",
+   "out": [
+    "construction staffing in Kolkata",
+    "construction staffing in companies Kolkata",
+    "top construction staffing in Kolkata",
+    "construction staffing in list Kolkata 2024"
+   ]
+  },
+  {
+   "in": "Bangalore",
+   "out": [
+    "Bangalore",
+    " companies Bangalore",
+    "top  Bangalore",
+    " list Bangalore 2024"
+   ]
+  },
+  {
+   "in": "  ",
+   "out": [
+    "  ",
+    "   companies",
+    "top    India",
+    "   list India 2024"
+   ]
+  },
+  {
+   "in": "consultancies in Ahmedabad",
+   "out": [
+    "consultancies in Ahmedabad",
+    "consultancies in companies Ahmedabad",
+    "top consultancies in Ahmedabad",
+    "consultancies in list Ahmedabad 2024"
+   ]
+  },
+  {
+   "in": "agencies list",
+   "out": [
+    "agencies list",
+    "agencies list companies",
+    "top agencies list India",
+    "agencies list list India 2024"
+   ]
+  },
+  {
+   "in": "IT Services in DELHI",
+   "out": [
+    "IT Services in DELHI",
+    "it services in companies Delhi",
+    "top it services in Delhi",
+    "it services in list Delhi 2024"
+   ]
+  },
+  {
+   "in": "companies in Thane",
+   "out": [
+    "companies in Thane",
+    "companies in thane agencies",
+    "top companies in thane India",
+    "companies in thane list India 2024"
+   ]
+  },
+  {
+   "in": "bpo in Gurgaon India",
+   "out": [
+    "bpo in Gurgaon India",
+    "bpo in  india companies Gurgaon",
+    "top bpo in  india Gurgaon",
+    "bpo in  india list Gurgaon 2024"
+   ]
+  },
+  {
+   "in": "Pvt Ltd manufacturers",
+   "out": [
+    "Pvt Ltd manufacturers",
+    "pvt ltd manufacturers companies",
+    "top pvt ltd manufacturers India",
+    "pvt ltd manufacturers list India 2024"
+   ]
+  },
+  {
+   "in": "ad agencies in Miami USA",
+   "out": [
+    "ad agencies in Miami USA",
+    "ad agencies in miami usa companies",
+    "top ad agencies in miami usa India",
+    "ad agencies in miami usa list India 2024"
+   ]
+  },
+  {
+   "in": "Mumbai Delhi Pune",
+   "out": [
+    "Mumbai Delhi Pune",
+    "delhi pune companies Mumbai",
+    "top delhi pune Mumbai",
+    "delhi pune list Mumbai 2024"
+   ]
+  },
+  {
+   "in": "café owners in Paris",
+   "out": [
+    "café owners in Paris",
+    "café owners in paris companies",
+    "top café owners in paris India",
+    "café owners in paris list India 2024"
+   ]
+  },
+  {
+   "in": "Ünïcode Firms Bengaluru",
+   "out": [
+    "Ünïcode Firms Bengaluru",
+    "ünïcode firms bengaluru companies Bangalore",
+    "top ünïcode firms bengaluru Bangalore",
+    "ünïcode firms bengaluru list Bangalore 2024"
+   ]
+  },
+  {
+   "in": "biotech united states",
+   "out": [
+    "biotech united states",
+    "biotech united states companies",
+    "top biotech united states India",
+    "biotech united states list India 2024"
+   ]
+  }
+ ],
+ "business_name": [
+  {
+   "in": "Acme Corp | LinkedIn",
+   "out": "Acme Corp"
+  },
+  {
+   "in": "Top 10 IT Staffing Companies in Bangalore 2024",
+   "out": "Top 10 IT Staffing Companies in Bangalore 2024"
+  },
+  {
+   "in": "Infosys - Wikipedia",
+   "out": "Infosys"
+  },
+  {
+   "in": "TechNova Solutions — Home",
+   "out": "TechNova Solutions"
+  },
+  {
+   "in": "Best HR Firms – Guide",
+   "out": "Guide"
+  },
+  {
+   "in": "GoodFirms | Clutch.co",
+   "out": ""
+  },
+  {
+   "in": "Zeta Labs · Careers",
+   "out": "Zeta Labs"
+  },
+  {
+   "in": "Ranking of companies",
+   "out": "Ranking of companies"
+  },
+  {
+   "in": "Quess Corp Reviews",
+   "out": "Quess Corp"
+  },
+  {
+   "in": "Company Profile - Wipro",
+   "out": ""
+  },
+  {
+   "in": "A | B",
+   "out": "A | B"
+  },
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "This is a very long title that goes on and on about nothing in particular at all, really long",
+   "out": ""
+  },
+  {
+   "in": "Teamlease Services Ltd - Jobs",
+   "out": "Teamlease Services Ltd"
+  },
+  {
+   "in": "Clutch.co",
+   "out": ""
+  },
+  {
+   "in": "Hiring: Freshworks",
+   "out": ": Freshworks"
+  },
+  {
+   "in": "Naukri.com - Jobs in India",
+   "out": "Naukri.com"
+  },
+  {
+   "in": "Mphasis — IT Services 2025 – Bangalore",
+   "out": "Mphasis"
+  },
+  {
+   "in": "Datamatics Global Services Ltd | Company Profile",
+   "out": "Datamatics Global Services Ltd"
+  },
+  {
+   "in": "XYZ – – –",
+   "out": "XYZ"
+  },
+  {
+   "in": "Søren & Co | Profile",
+   "out": "Søren & Co"
+  },
+  {
+   "in": "LinkedIn",
+   "out": ""
+  },
+  {
+   "in": "Best 5 CRM Software | Capterra",
+   "out": "Capterra"
+  }
+ ],
+ "clean_name": [
+  {
+   "in": "Acme Corp | LinkedIn",
+   "out": "Acme Corp |"
+  },
+  {
+   "in": "Top 10 IT Staffing Companies in Bangalore 2024",
+   "out": "Top 10 IT Staffing Companies in Bangalore 2024"
+  },
+  {
+   "in": "Infosys - Wikipedia",
+   "out": "Infosys - Wikipedia"
+  },
+  {
+   "in": "TechNova Solutions — Home",
+   "out": "TechNova Solutions — Home"
+  },
+  {
+   "in": "Best HR Firms – Guide",
+   "out": "Best HR Firms – Guide"
+  },
+  {
+   "in": "GoodFirms | Clutch.co",
+   "out": "|"
+  },
+  {
+   "in": "Zeta Labs · Careers",
+   "out": "Zeta Labs ·"
+  },
+  {
+   "in": "Ranking of companies",
+   "out": "Ranking of companies"
+  },
+  {
+   "in": "Quess Corp Reviews",
+   "out": "Quess Corp"
+  },
+  {
+   "in": "Company Profile - Wipro",
+   "out": "- Wipro"
+  },
+  {
+   "in": "A | B",
+   "out": "A | B"
+  },
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "This is a very long title that goes on and on about nothing in particular at all, really long",
+   "out": "This is a very long title that goes on and on about nothing in particular at all"
+  },
+  {
+   "in": "Teamlease Services Ltd - Jobs",
+   "out": "Teamlease Services Ltd -"
+  },
+  {
+   "in": "Clutch.co",
+   "out": ""
+  },
+  {
+   "in": "Hiring: Freshworks",
+   "out": ": Freshworks"
+  },
+  {
+   "in": "Naukri.com - Jobs in India",
+   "out": "Naukri.com -  in India"
+  },
+  {
+   "in": "Mphasis — IT Services 2025 – Bangalore",
+   "out": "Mphasis — IT Services 2025 – Bangalore"
+  },
+  {
+   "in": "Datamatics Global Services Ltd | Company Profile",
+   "out": "Datamatics Global Services Ltd |"
+  },
+  {
+   "in": "XYZ – – –",
+   "out": "XYZ – – –"
+  },
+  {
+   "in": "Søren & Co | Profile",
+   "out": "Søren & Co |"
+  },
+  {
+   "in": "LinkedIn",
+   "out": ""
+  },
+  {
+   "in": "Best 5 CRM Software | Capterra",
+   "out": "Best 5 CRM Software | Capterra"
+  }
+ ],
+ "company_from_domain": [
+  {
+   "in": "www.datamatics.com",
+   "out": "Datamatics"
+  },
+  {
+   "in": "talentleads.co.in",
+   "out": "Talentleads"
+  },
+  {
+   "in": "v3staffing.in",
+   "out": "V 3 Staffing"
+  },
+  {
+   "in": "linkedin.com",
+   "out": ""
+  },
+  {
+   "in": "my-company_name.io",
+   "out": "My Company Name"
+  },
+  {
+   "in": "www.ab.com",
+   "out": ""
+  },
+  {
+   "in": "abc.co",
+   "out": "Abc"
+  },
+  {
+   "in": "clutch.co",
+   "out": ""
+  },
+  {
+   "in": "sub.domain.example.org",
+   "out": "Sub.Domain.Example"
+  },
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "www.naukri.com",
+   "out": ""
+  },
+  {
+   "in": "teamLease.net",
+   "out": "Team Lease"
+  },
+  {
+   "in": "123go.com",
+   "out": "123 Go"
+  },
+  {
+   "in": "go2market-labs.co.in",
+   "out": "Go 2 Market Labs"
+  },
+  {
+   "in": "x.in",
+   "out": ""
+  },
+  {
+   "in": "www.Zeta-Tech.com",
+   "out": "Zeta Tech"
+  },
+  {
+   "in": "quora.com",
+   "out": ""
+  },
+  {
+   "in": "medium.com",
+   "out": ""
+  },
+  {
+   "in": "cafe-münchen.de",
+   "out": "Cafe München.De"
+  }
+ ],
+ "size": [
+  {
+   "in": "We have 150 employees",
+   "out": "51-200"
+  },
+  {
+   "in": "1,200 people work here",
+   "out": "500+"
+  },
+  {
+   "in": "40 staff",
+   "out": "1-50"
+  },
+  {
+   "in": "5000 workers",
+   "out": "500+"
+  },
+  {
+   "in": "10 employees",
+   "out": "1-50"
+  },
+  {
+   "in": "no number",
+   "out": ""
+  },
+  {
+   "in": "employees 50",
+   "out": ""
+  },
+  {
+   "in": "199 Employees",
+   "out": "51-200"
+  },
+  {
+   "in": "200 people",
+   "out": "201-500"
+  },
+  {
+   "in": "499 staff",
+   "out": "201-500"
+  },
+  {
+   "in": "500 employees",
+   "out": "500+"
+  },
+  {
+   "in": "1,0 employees",
+   "out": "1-50"
+  },
+  {
+   "in": "Team of 25 people and 2 offices",
+   "out": "1-50"
+  },
+  {
+   "in": "٣٤٥ employees",
+   "out": "201-500"
+  }
+ ],
+ "skip_domain": [
+  {
+   "in": "www.datamatics.com",
+   "out": false
+  },
+  {
+   "in": "talentleads.co.in",
+   "out": false
+  },
+  {
+   "in": "v3staffing.in",
+   "out": false
+  },
+  {
+   "in": "linkedin.com",
+   "out": true
+  },
+  {
+   "in": "my-company_name.io",
+   "out": false
+  },
+  {
+   "in": "www.ab.com",
+   "out": false
+  },
+  {
+   "in": "abc.co",
+   "out": false
+  },
+  {
+   "in": "clutch.co",
+   "out": true
+  },
+  {
+   "in": "sub.domain.example.org",
+   "out": false
+  },
+  {
+   "in": "",
+   "out": false
+  },
+  {
+   "in": "www.naukri.com",
+   "out": true
+  },
+  {
+   "in": "teamLease.net",
+   "out": false
+  },
+  {
+   "in": "123go.com",
+   "out": false
+  },
+  {
+   "in": "go2market-labs.co.in",
+   "out": false
+  },
+  {
+   "in": "x.in",
+   "out": false
+  },
+  {
+   "in": "www.Zeta-Tech.com",
+   "out": false
+  },
+  {
+   "in": "quora.com",
+   "out": true
+  },
+  {
+   "in": "medium.com",
+   "out": true
+  },
+  {
+   "in": "cafe-münchen.de",
+   "out": false
+  }
+ ]
+}

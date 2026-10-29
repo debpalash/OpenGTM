@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/retention/runs?offset=50"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 20,
+      "next_cursor": null,
+      "offset": 50,
+      "runs": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

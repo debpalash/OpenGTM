@@ -1,0 +1,52 @@
+{
+  "seq": 43,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 42,
+    "method": "tools/call",
+    "params": {
+      "name": "get_hiring_signals",
+      "arguments": {
+        "company": "Acme Robotics"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 42,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"company\": \"Acme Robotics\",\n  \"hiring\": true,\n  \"data\": {\n    \"open_roles\": 3,\n    \"titles\": [\n      \"Engineer\",\n      \"Designer\",\n      \"\\u00dcn\\u00efcode Role\"\n    ],\n    \"velocity\": 0.1\n  }\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "stubs": {
+    "get_hiring_signals": {
+      "success": true,
+      "fields": {
+        "open_roles": 3,
+        "titles": [
+          "Engineer",
+          "Designer",
+          "Ünïcode Role"
+        ],
+        "velocity": 0.1
+      }
+    }
+  },
+  "stub_calls": [
+    {
+      "stub": "get_hiring_signals",
+      "lead_id": 0,
+      "company": "Acme Robotics"
+    }
+  ]
+}

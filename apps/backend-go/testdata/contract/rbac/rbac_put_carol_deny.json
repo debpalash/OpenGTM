@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "effect": "deny"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/3/agents.write"
+  },
+  "response": {
+    "body": {
+      "effect": "deny",
+      "effective": false,
+      "permission": "agents.write",
+      "user_id": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

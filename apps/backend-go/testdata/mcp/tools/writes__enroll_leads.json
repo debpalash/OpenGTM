@@ -1,0 +1,105 @@
+{
+  "seq": 22,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 22,
+    "method": "tools/call",
+    "params": {
+      "name": "enroll_leads",
+      "arguments": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          1,
+          2,
+          3,
+          4,
+          999,
+          7
+        ]
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 22,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"enrolled\": 2, \"skipped\": [{\"lead_id\": 3, \"reason\": \"no_email\"}, {\"lead_id\": 4, \"reason\": \"suppressed\"}, {\"lead_id\": 999, \"reason\": \"no_email\"}, {\"lead_id\": 7, \"reason\": \"no_email\"}], \"total_lead_ids\": 6}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "enroll_leads",
+      "arguments_redacted": {
+        "sequence_id": "seq-alpha-1",
+        "lead_ids": [
+          1,
+          2,
+          3,
+          4,
+          999,
+          7
+        ]
+      },
+      "idempotency_key": "mcpw_0000000000004000800000000000001f",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 16,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000001f",
+          "reserved_actions": 1
+        }
+      ]
+    },
+    "outreach_enrollments": {
+      "added": [
+        {
+          "id": 1,
+          "error": "",
+          "status": "pending",
+          "lead_id": 1,
+          "sent_count": 0,
+          "sequence_id": "seq-alpha-1",
+          "current_step": 0,
+          "workspace_id": "ws-alpha",
+          "consent_source": "mcp_enroll",
+          "soft_bounce_count": 0,
+          "to_email_snapshot": "info@acme.example.com"
+        },
+        {
+          "id": 2,
+          "error": "",
+          "status": "pending",
+          "lead_id": 2,
+          "sent_count": 0,
+          "sequence_id": "seq-alpha-1",
+          "current_step": 0,
+          "workspace_id": "ws-alpha",
+          "consent_source": "mcp_enroll",
+          "soft_bounce_count": 0,
+          "to_email_snapshot": "hello@globex.example.com"
+        }
+      ]
+    }
+  }
+}

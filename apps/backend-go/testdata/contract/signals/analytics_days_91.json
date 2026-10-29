@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/analytics?days=91"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 90
+          },
+          "input": "91",
+          "loc": [
+            "query",
+            "days"
+          ],
+          "msg": "Input should be less than or equal to 90",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

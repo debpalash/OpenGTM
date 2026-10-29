@@ -1,0 +1,1674 @@
+{
+ "columns": [
+  {
+   "id": "website",
+   "name": "Website"
+  },
+  {
+   "id": "company",
+   "name": "Company"
+  },
+  {
+   "id": "k",
+   "name": "Key"
+  },
+  {
+   "id": "website_ip",
+   "name": "IP"
+  }
+ ],
+ "lead_data": {
+  "website": "https://acme.example.com",
+  "company": "Acme & Co",
+  "k": "s3cr3t-test-value",
+  "website_ip": "127.0.0.1"
+ },
+ "cases": [
+  {
+   "name": "no_url",
+   "column": {},
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_url"
+   }
+  },
+  {
+   "name": "blank_url",
+   "column": {
+    "http_url": "   "
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_url"
+   }
+  },
+  {
+   "name": "unresolved_placeholder",
+   "column": {
+    "http_url": "https://api.example.test/{nope}"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "unresolved_url_placeholder"
+   }
+  },
+  {
+   "name": "get_json_extract",
+   "column": {
+    "http_url": "https://api.example.test/find?d={website}",
+    "http_extract": "$.data.email"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/find?d=https://acme.example.com",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "a@b.co"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "url_value_is_not_percent_encoded",
+   "column": {
+    "http_url": "https://api.example.test/find?c={company}",
+    "http_extract": "$.x"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/find?c=Acme%20&%20Co",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "int",
+     "v": "1"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_number_zero_kept",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.n"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "int",
+     "v": "0"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_false_kept",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.n"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "bool",
+     "v": false
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_empty_string_no_match",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.n"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_match"
+   }
+  },
+  {
+   "name": "extract_null_no_match",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.n"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_match"
+   }
+  },
+  {
+   "name": "extract_missing_no_match",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.zz"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "no_match"
+   }
+  },
+  {
+   "name": "extract_dict_dumped",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.d"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "{\"b\": 1, \"a\": [1, 2]}"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_list_dumped",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.d"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "[1, \"\\u00e9\"]"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_list_index",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.d[1].x"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "y"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_dict_truncated_2000",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.d"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "{\"k\": \"vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "extract_non_json",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$.a"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "non_json_response"
+   }
+  },
+  {
+   "name": "extract_json_array_root",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_extract": "$[0]"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "$[0]"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "no_extract_raw_text",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "hello"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "no_extract_raw_truncated",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "no_extract_empty_body",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty"
+   }
+  },
+  {
+   "name": "no_extract_unicode_text",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本語日本"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "status_404",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "http_404"
+   }
+  },
+  {
+   "name": "status_500",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "http_500"
+   }
+  },
+  {
+   "name": "status_301_not_followed",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "http_301"
+   }
+  },
+  {
+   "name": "status_199_like_204",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "empty"
+   }
+  },
+  {
+   "name": "timeout",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "timeout"
+   }
+  },
+  {
+   "name": "connect_timeout",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "timeout"
+   }
+  },
+  {
+   "name": "connect_error_message",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "connection refused by peer"
+   }
+  },
+  {
+   "name": "long_error_truncated_120",
+   "column": {
+    "http_url": "https://api.example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   }
+  },
+  {
+   "name": "post_json_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "post",
+    "http_body": {
+     "q": "{company}",
+     "n": [
+      1,
+      "{website}"
+     ],
+     "k": {
+      "d": "{k}"
+     }
+    },
+    "http_extract": "$.ok"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "82",
+      "content-type": "application/json"
+     },
+     "body": "{\"q\":\"Acme & Co\",\"n\":[1,\"https://acme.example.com\"],\"k\":{\"d\":\"s3cr3t-test-value\"}}",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "y"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "post_str_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "POST",
+    "http_body": "name={company}"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "14"
+     },
+     "body": "name=Acme & Co",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "done"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "post_list_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "POST",
+    "http_body": [
+     "{company}",
+     1
+    ]
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "15",
+      "content-type": "application/json"
+     },
+     "body": "[\"Acme & Co\",1]",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "done"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "put_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "put",
+    "http_body": {
+     "a": 1
+    }
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "PUT",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "7",
+      "content-type": "application/json"
+     },
+     "body": "{\"a\":1}",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "patch_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "PATCH",
+    "http_body": {
+     "a": 1
+    }
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "PATCH",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "7",
+      "content-type": "application/json"
+     },
+     "body": "{\"a\":1}",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "get_ignores_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "GET",
+    "http_body": {
+     "a": 1
+    }
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "delete_method_passthrough",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "delete"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "DELETE",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "post_no_body",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "POST"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "0"
+     },
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "post_body_number_not_sent",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": "POST",
+    "http_body": 5
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "url": "https://api.example.test/",
+     "headers": {
+      "content-length": "0"
+     },
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "headers_templated",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_headers": {
+     "X-Api-Key": "{k}",
+     "X-Co": "{company}",
+     "X-Num": 5
+    }
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {
+      "x-api-key": "s3cr3t-test-value",
+      "x-co": "Acme & Co",
+      "x-num": "5"
+     },
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "headers_missing_ref_text",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_headers": {
+     "X-A": "{nope}"
+    }
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {
+      "x-a": "[nope: not found]"
+     },
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "default_method_empty_string",
+   "column": {
+    "http_url": "https://api.example.test/",
+    "http_method": ""
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "url_leading_trailing_space",
+   "column": {
+    "http_url": "  https://api.example.test/x  "
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [
+    {
+     "method": "GET",
+     "url": "https://api.example.test/x",
+     "headers": {},
+     "body": "",
+     "follow_redirects": false,
+     "timeout": 20.0
+    }
+   ],
+   "result": {
+    "success": true,
+    "value": {
+     "t": "str",
+     "v": "ok"
+    },
+    "error": null
+   }
+  },
+  {
+   "name": "url_with_bracket_not_found_text",
+   "column": {
+    "http_url": "https://api.example.test/?q=[x: not found]"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "unresolved_url_placeholder"
+   }
+  },
+  {
+   "name": "blocked_loopback_v4",
+   "column": {
+    "http_url": "http://127.0.0.1/x"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_loopback_v4_other",
+   "column": {
+    "http_url": "http://127.1.2.3:8080/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.1.2.3' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_metadata",
+   "column": {
+    "http_url": "http://169.254.169.254/latest/meta-data/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '169.254.169.254' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_private_10",
+   "column": {
+    "http_url": "http://10.0.0.5/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '10.0.0.5' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_private_172",
+   "column": {
+    "http_url": "http://172.16.0.1/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '172.16.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_private_192",
+   "column": {
+    "http_url": "http://192.168.1.1/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '192.168.1.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_loopback_v6",
+   "column": {
+    "http_url": "http://[::1]/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '::1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_mapped_v6",
+   "column": {
+    "http_url": "http://[::ffff:127.0.0.1]/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '::ffff:127.0.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_unspecified",
+   "column": {
+    "http_url": "http://0.0.0.0/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '0.0.0.0' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_localhost_name",
+   "column": {
+    "http_url": "http://localhost/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: host 'localhost' is blocked"
+   }
+  },
+  {
+   "name": "blocked_decimal_ip",
+   "column": {
+    "http_url": "http://2130706433/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_hex_ip",
+   "column": {
+    "http_url": "http://0x7f000001/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_userinfo",
+   "column": {
+    "http_url": "http://user:pw@127.0.0.1/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+   }
+  },
+  {
+   "name": "blocked_scheme_file",
+   "column": {
+    "http_url": "file:///etc/passwd"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: scheme 'file' not allowed"
+   }
+  },
+  {
+   "name": "blocked_scheme_ftp",
+   "column": {
+    "http_url": "ftp://example.test/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: scheme 'ftp' not allowed"
+   }
+  },
+  {
+   "name": "blocked_empty_host",
+   "column": {
+    "http_url": "http:///x"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: no host"
+   }
+  },
+  {
+   "name": "blocked_no_scheme",
+   "column": {
+    "http_url": "127.0.0.1/x"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: scheme '' not allowed"
+   }
+  },
+  {
+   "name": "blocked_template_resolves_to_ip",
+   "column": {
+    "http_url": "http://{website_ip}/"
+   },
+   "lead_data": {
+    "website": "https://acme.example.com",
+    "company": "Acme & Co",
+    "k": "s3cr3t-test-value",
+    "website_ip": "127.0.0.1"
+   },
+   "requests": [],
+   "result": {
+    "success": false,
+    "value": {
+     "t": "none"
+    },
+    "error": "blocked_url: ip '127.0.0.1' is private/blocked"
+   }
+  }
+ ]
+}

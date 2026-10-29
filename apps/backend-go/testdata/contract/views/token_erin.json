@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "password": "erin-pass-4",
+      "username": "erin"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/auth/token"
+  },
+  "response": {
+    "body": {
+      "access_token": "<redacted>",
+      "refresh_token": "<redacted>",
+      "token_type": "bearer"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

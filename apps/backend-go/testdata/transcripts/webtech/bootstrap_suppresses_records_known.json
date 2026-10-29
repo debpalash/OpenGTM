@@ -1,0 +1,100 @@
+{
+ "area": "webtech",
+ "scenario": "bootstrap_suppresses_records_known",
+ "description": "first poll: nothing emitted, known_web_tech recorded",
+ "input": {
+  "target": "Acme",
+  "website": "https://www.acme.example.com/pricing",
+  "cursor": {
+   "bootstrapped": false
+  },
+  "backfill": false,
+  "flag": true
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.example.com/robots.txt",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "host": "www.acme.example.com",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/plain"
+    },
+    "body": "User-agent: *\nAllow: /\n"
+   }
+  },
+  {
+   "dns": {
+    "host": "www.acme.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.example.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "accept-language": "en-US,en;q=0.9",
+     "host": "www.acme.example.com",
+     "user-agent": "Yupcha-TechDetect/1.0 (+https://yupcha.com/bot)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html",
+     "server": "nginx",
+     "x-powered-by": "PHP/8.2"
+    },
+    "body": "<html><head><meta name=\"generator\" content=\"WordPress 6.4\"><link rel=\"stylesheet\" href=\"/wp-content/themes/x/style.css\"><script src=\"https://cdn.shopify.com/s/files/x.js\"></script></head><body><script src=\"https://www.googletagmanager.com/gtm.js?id=GTM-XXXX\"></script></body></html>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {
+   "known_web_tech": [
+    "abicart",
+    "choices",
+    "google analytics",
+    "google tag manager",
+    "nginx",
+    "php",
+    "shopify",
+    "wordpress",
+    "mysql"
+   ]
+  }
+ }
+}

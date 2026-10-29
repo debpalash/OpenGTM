@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/crm/hubspot/contacts?limit=1"
+  },
+  "response": {
+    "body": {
+      "contacts": [
+        {
+          "archived": false,
+          "createdAt": "2026-08-01T10:00:00.000Z",
+          "id": "501",
+          "properties": {
+            "company": "Globex",
+            "email": "hello@globex.example.com",
+            "firstname": "Gil",
+            "jobtitle": "CTO",
+            "lastname": "Obex",
+            "phone": "+15550101"
+          },
+          "updatedAt": "2026-08-02T10:00:00.000Z"
+        }
+      ],
+      "count": 1
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

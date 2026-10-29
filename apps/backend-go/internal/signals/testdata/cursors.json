@@ -1,0 +1,280 @@
+{
+ "encode": [
+  {
+   "created_at_repr": "1788000000.0",
+   "created_at_is_nan": false,
+   "id": "sig-a-05",
+   "cursor": "WzE3ODgwMDAwMDAuMCwic2lnLWEtMDUiXQ"
+  },
+  {
+   "created_at_repr": "1788043200.0",
+   "created_at_is_nan": false,
+   "id": "sig-a-21",
+   "cursor": "WzE3ODgwNDMyMDAuMCwic2lnLWEtMjEiXQ"
+  },
+  {
+   "created_at_repr": "1787909999.876544",
+   "created_at_is_nan": false,
+   "id": "sig-a-14",
+   "cursor": "WzE3ODc5MDk5OTkuODc2NTQ0LCJzaWctYS0xNCJd"
+  },
+  {
+   "created_at_repr": "1e-05",
+   "created_at_is_nan": false,
+   "id": "x",
+   "cursor": "WzFlLTA1LCJ4Il0"
+  },
+  {
+   "created_at_repr": "1e+16",
+   "created_at_is_nan": false,
+   "id": "big",
+   "cursor": "WzFlKzE2LCJiaWciXQ"
+  },
+  {
+   "created_at_repr": "1.5",
+   "created_at_is_nan": false,
+   "id": "é-ünï-東京",
+   "cursor": "WzEuNSwiXHUwMGU5LVx1MDBmY25cdTAwZWYtXHU2NzcxXHU0ZWFjIl0"
+  },
+  {
+   "created_at_repr": "0.0",
+   "created_at_is_nan": false,
+   "id": "",
+   "cursor": "WzAuMCwiIl0"
+  },
+  {
+   "created_at_repr": "-1.25",
+   "created_at_is_nan": false,
+   "id": "neg",
+   "cursor": "Wy0xLjI1LCJuZWciXQ"
+  },
+  {
+   "created_at_repr": "1788000000.5",
+   "created_at_is_nan": false,
+   "id": "quote\"and\\slash",
+   "cursor": "WzE3ODgwMDAwMDAuNSwicXVvdGVcImFuZFxcc2xhc2giXQ"
+  },
+  {
+   "created_at_repr": "1e+22",
+   "created_at_is_nan": false,
+   "id": "e22",
+   "cursor": "WzFlKzIyLCJlMjIiXQ"
+  },
+  {
+   "created_at_repr": "123456789.12345679",
+   "created_at_is_nan": false,
+   "id": "long-frac",
+   "cursor": "WzEyMzQ1Njc4OS4xMjM0NTY3OSwibG9uZy1mcmFjIl0"
+  },
+  {
+   "created_at_repr": "1788000000",
+   "created_at_is_nan": false,
+   "id": "int-as-int",
+   "cursor": "WzE3ODgwMDAwMDAsImludC1hcy1pbnQiXQ"
+  }
+ ],
+ "decode": [
+  {
+   "name": "valid",
+   "cursor": "WzE3ODgwMDAwMDAuMCwic2lnLWEtMDUiXQ",
+   "ok": true,
+   "created_at_repr": "1788000000.0",
+   "id": "sig-a-05"
+  },
+  {
+   "name": "valid_padded_input",
+   "cursor": "WzE3ODgwMDAwMDAuMCwic2lnLWEtMDUiXQ==",
+   "ok": true,
+   "created_at_repr": "1788000000.0",
+   "id": "sig-a-05"
+  },
+  {
+   "name": "valid_unicode_id",
+   "cursor": "WzEuNSwiXHUwMGU5LVx1Njc3MVx1NGVhYyJd",
+   "ok": true,
+   "created_at_repr": "1.5",
+   "id": "é-東京"
+  },
+  {
+   "name": "garbage_bang",
+   "cursor": "!!!",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "bad_base64_len",
+   "cursor": "A",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "not_json",
+   "cursor": "aGVsbG8",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "empty_json_array",
+   "cursor": "W10",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "wrong_arity_2_ints",
+   "cursor": "WzEsMl0",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "wrong_arity_1",
+   "cursor": "WzEuMF0",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "wrong_arity_3",
+   "cursor": "WzEuMCwiYSIsImIiXQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "non_string_id",
+   "cursor": "WzE3ODgwMDAwMDAuMCw1XQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "null_id",
+   "cursor": "WzE3ODgwMDAwMDAuMCxudWxsXQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "non_numeric_ts",
+   "cursor": "WyJ4IiwieSJd",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "numeric_string_ts",
+   "cursor": "WyIxMi41IiwiYSJd",
+   "ok": true,
+   "created_at_repr": "12.5",
+   "id": "a"
+  },
+  {
+   "name": "nan_string_ts",
+   "cursor": "WyJuYW4iLCJhIl0",
+   "ok": true,
+   "created_at_repr": "nan",
+   "id": "a"
+  },
+  {
+   "name": "null_ts",
+   "cursor": "W251bGwsImEiXQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "bool_ts_true",
+   "cursor": "W3RydWUsImEiXQ",
+   "ok": true,
+   "created_at_repr": "1.0",
+   "id": "a"
+  },
+  {
+   "name": "object",
+   "cursor": "eyJhIjoxfQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "string_top_level",
+   "cursor": "ImFiYyI",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "nan_literal",
+   "cursor": "W05hTiwiYSJd",
+   "ok": true,
+   "created_at_repr": "nan",
+   "id": "a"
+  },
+  {
+   "name": "infinity_literal",
+   "cursor": "W0luZmluaXR5LCJhIl0",
+   "ok": true,
+   "created_at_repr": "inf",
+   "id": "a"
+  },
+  {
+   "name": "neg_infinity_literal",
+   "cursor": "Wy1JbmZpbml0eSwiYSJd",
+   "ok": true,
+   "created_at_repr": "-inf",
+   "id": "a"
+  },
+  {
+   "name": "int_ts",
+   "cursor": "WzUsImEiXQ",
+   "ok": true,
+   "created_at_repr": "5.0",
+   "id": "a"
+  },
+  {
+   "name": "huge_int_ts",
+   "cursor": "WzEwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwLCJhIl0",
+   "ok": false,
+   "python_error": "OverflowError",
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "huge_exp_ts",
+   "cursor": "WzFlOTk5LCJhIl0",
+   "ok": true,
+   "created_at_repr": "inf",
+   "id": "a"
+  },
+  {
+   "name": "non_utf8_bytes",
+   "cursor": "__5bMSwiYSJd",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "standard_alphabet_plus_slash",
+   "cursor": "WzEuNSwiYT8+YiJd",
+   "ok": true,
+   "created_at_repr": "1.5",
+   "id": "a?>b"
+  },
+  {
+   "name": "urlsafe_dash_underscore",
+   "cursor": "WzEuNSwiYT8-Yn5-Il0",
+   "ok": true,
+   "created_at_repr": "1.5",
+   "id": "a?>b~~"
+  },
+  {
+   "name": "whitespace_in_json",
+   "cursor": "WyAxLjUgLCAiYSIgXQ",
+   "ok": true,
+   "created_at_repr": "1.5",
+   "id": "a"
+  },
+  {
+   "name": "nested_list_id",
+   "cursor": "WzEuNSxbImEiXV0",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  },
+  {
+   "name": "deep_nesting",
+   "cursor": "W1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tdXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXQ",
+   "ok": false,
+   "detail": "invalid signal cursor"
+  }
+ ],
+ "note": "created_at_repr is Python repr(float); Go compares with canonjson.FloatRepr. Rows whose Python result is ok with NaN/Infinity filter nothing out (all rows or an empty page); Go must not 500 on any case."
+}

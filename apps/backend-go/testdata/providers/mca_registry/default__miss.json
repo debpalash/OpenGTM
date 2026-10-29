@@ -1,0 +1,167 @@
+{
+ "provider": "mca_registry",
+ "input_name": "default",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme Technologies",
+  "city": "Pune"
+ },
+ "secrets": {
+  "DATA_GOV_IN_KEY": "ctk_datagov_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+PRIVATE+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+SERVICES+PRIVATE+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+TECHNOLOGIES+PRIVATE+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+SOLUTIONS+PRIVATE+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+CONSULTING+PRIVATE+LIMITED",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES+LLP",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.data.gov.in/resource/4dbe5667-7b6b-41d7-82af-211562424d9a?api-key={{secret:DATA_GOV_IN_KEY}}&format=json&limit=1&filters%5BCompanyName%5D=ACME+TECHNOLOGIES",
+    "headers": {
+     "accept": "application/json",
+     "user-agent": "curl/8.4.0"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"records\":[]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "mca_registry",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "not_in_mca"
+ }
+}

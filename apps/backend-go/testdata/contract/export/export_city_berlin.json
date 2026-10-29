@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/export/csv?city=Berlin"
+  },
+  "response": {
+    "body": "Company,Website,Email,Phone,City,State,Address,Specialization,Description,Industry Tags,Score,Tier,Status,Source,LinkedIn,Contact Person,Company Size,Employee Count,Founded Year,Technologies,Funding Stage,Revenue Range,Glassdoor Rating,Decision Makers,Secondary Emails,Secondary Phones,Notes\r\nGlobex,https://globex.example.com,hello@globex.example.com,,Berlin,,,,,,,,new,contract,,,,,,,,,,,,,\r\nBerlin Bakery,https://berlinbakery.example.com,hi@berlinbakery.example.com,,Berlin,,,Food,,,65,warm,new,import,,,1-10,,,,,,,,,,\r\nDead Letter Co,,,,Berlin,,,,,,10,unqualified,dead,contract,,,,,,,,,,,,,\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

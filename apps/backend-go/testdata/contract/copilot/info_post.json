@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "POST",
+    "path": "/api/copilotkit/info"
+  },
+  "response": {
+    "body": {
+      "actions": [
+        {
+          "description": "Search leads in the database",
+          "name": "search_leads"
+        },
+        {
+          "description": "Get pipeline statistics",
+          "name": "get_lead_stats"
+        },
+        {
+          "description": "Update a lead's status",
+          "name": "update_lead_status"
+        },
+        {
+          "description": "Start collecting new leads",
+          "name": "start_collection"
+        },
+        {
+          "description": "Research people at one named company",
+          "name": "find_people_at_company"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

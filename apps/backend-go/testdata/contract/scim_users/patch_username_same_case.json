@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "Operations": [
+        {
+          "op": "replace",
+          "path": "userName",
+          "value": " DAVE.EXAMPLE "
+        }
+      ],
+      "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": {
+      "active": true,
+      "displayName": "Dave D",
+      "externalId": "ext-1",
+      "id": "4",
+      "meta": {
+        "created": "2026-10-26T07:13:12.998543+00:00",
+        "lastModified": "2026-10-26T07:13:13.727743+00:00",
+        "location": "/scim/v2/alpha/Users/4",
+        "resourceType": "User"
+      },
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:User"
+      ],
+      "userName": "dave.example"
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

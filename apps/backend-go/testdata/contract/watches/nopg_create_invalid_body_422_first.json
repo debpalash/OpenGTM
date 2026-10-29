@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "target": "x"
+          },
+          "loc": [
+            "body",
+            "kind"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

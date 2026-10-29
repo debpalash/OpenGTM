@@ -1,0 +1,205 @@
+{
+  "note": "destination_health arithmetic extracted from routers/destinations.py: success_rate = round(succeeded/total, 4) (banker's rounding, null when total is 0); consecutive_unhealthy_runs counts newest-first runs whose status is failed or completed_with_errors, stopping at the first other status, over at most the newest 20.",
+  "success_rate": [
+    {
+      "succeeded": 0,
+      "total": 0,
+      "success_rate": null
+    },
+    {
+      "succeeded": 1,
+      "total": 1,
+      "success_rate": 1.0
+    },
+    {
+      "succeeded": 0,
+      "total": 1,
+      "success_rate": 0.0
+    },
+    {
+      "succeeded": 1,
+      "total": 3,
+      "success_rate": 0.3333
+    },
+    {
+      "succeeded": 2,
+      "total": 3,
+      "success_rate": 0.6667
+    },
+    {
+      "succeeded": 2,
+      "total": 7,
+      "success_rate": 0.2857
+    },
+    {
+      "succeeded": 1,
+      "total": 8,
+      "success_rate": 0.125
+    },
+    {
+      "succeeded": 3,
+      "total": 8,
+      "success_rate": 0.375
+    },
+    {
+      "succeeded": 5,
+      "total": 8,
+      "success_rate": 0.625
+    },
+    {
+      "succeeded": 7,
+      "total": 8,
+      "success_rate": 0.875
+    },
+    {
+      "succeeded": 1,
+      "total": 6,
+      "success_rate": 0.1667
+    },
+    {
+      "succeeded": 5,
+      "total": 6,
+      "success_rate": 0.8333
+    },
+    {
+      "succeeded": 1,
+      "total": 9,
+      "success_rate": 0.1111
+    },
+    {
+      "succeeded": 999,
+      "total": 1000,
+      "success_rate": 0.999
+    },
+    {
+      "succeeded": 1,
+      "total": 1000,
+      "success_rate": 0.001
+    },
+    {
+      "succeeded": 123,
+      "total": 456,
+      "success_rate": 0.2697
+    },
+    {
+      "succeeded": 1,
+      "total": 16,
+      "success_rate": 0.0625
+    },
+    {
+      "succeeded": 3,
+      "total": 16,
+      "success_rate": 0.1875
+    },
+    {
+      "succeeded": 1,
+      "total": 32,
+      "success_rate": 0.0312
+    }
+  ],
+  "consecutive": [
+    {
+      "latest_first": [],
+      "consecutive_unhealthy_runs": 0,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 1,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "completed"
+      ],
+      "consecutive_unhealthy_runs": 0,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "failed",
+        "failed",
+        "completed",
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 2,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "completed_with_errors",
+        "failed",
+        "cancelled",
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 2,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "pending",
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 0,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed",
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 20,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "running",
+        "failed"
+      ],
+      "consecutive_unhealthy_runs": 0,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "cancelled"
+      ],
+      "consecutive_unhealthy_runs": 0,
+      "note": "only the newest 20 runs are inspected"
+    },
+    {
+      "latest_first": [
+        "failed",
+        "completed_with_errors",
+        "failed",
+        "completed_with_errors"
+      ],
+      "consecutive_unhealthy_runs": 4,
+      "note": "only the newest 20 runs are inspected"
+    }
+  ]
+}

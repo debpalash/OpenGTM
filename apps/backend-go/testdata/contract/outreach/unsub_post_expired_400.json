@@ -1,0 +1,17 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "POST",
+    "path": "/api/outreach/unsubscribe?token=eyJlbWFpbCI6InVuc3ViLWV4cGlyZWRAZXhhbXBsZS5jb20iLCJleHAiOjE3ODc5MTM2MDAsInNlcSI6InNlcS1vdXQtYS0wMSIsIndzIjoid3MtYWxwaGEifQ.6CnUrA9t480USmE-rnkhyFP4uJ53wu58vGfJpecPG_s"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid or expired token"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

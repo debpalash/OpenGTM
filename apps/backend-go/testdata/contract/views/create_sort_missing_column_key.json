@@ -1,0 +1,40 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "sort": [
+          {}
+        ]
+      },
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-alpha-2/views"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "config",
+            "sort",
+            0,
+            "column"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

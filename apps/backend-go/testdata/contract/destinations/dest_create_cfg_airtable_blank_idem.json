@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "base_id": "b",
+        "idempotency_field": "  ",
+        "table": "t"
+      },
+      "destination_type": "airtable",
+      "name": "cfg 54"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "detail": "airtable idempotency_field cannot be blank"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

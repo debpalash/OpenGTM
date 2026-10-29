@@ -1,0 +1,76 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-2/accounts?limit=2&offset=6"
+  },
+  "response": {
+    "body": {
+      "accounts": [
+        {
+          "avg_score": 50.0,
+          "company": "Zenith Robotics",
+          "contacts": 1,
+          "decision_makers": 0,
+          "email_coverage_pct": 100,
+          "key": "company:zenith robotics",
+          "phone_coverage_pct": 100,
+          "profiles": [
+            {
+              "email": "sales@zenithrobotics.example.com",
+              "lead_id": 8,
+              "name": "Lead 8",
+              "title": ""
+            }
+          ],
+          "signal_count": 0,
+          "signal_weight": 0,
+          "website": "",
+          "with_email": 1,
+          "with_phone": 1
+        },
+        {
+          "avg_score": 10.0,
+          "company": "Dead Letter Co",
+          "contacts": 1,
+          "decision_makers": 0,
+          "email_coverage_pct": 0,
+          "key": "company:dead letter co",
+          "phone_coverage_pct": 0,
+          "profiles": [
+            {
+              "email": "",
+              "lead_id": 13,
+              "name": "Lead 13",
+              "title": "Intern"
+            }
+          ],
+          "signal_count": 0,
+          "signal_weight": 0,
+          "website": "",
+          "with_email": 0,
+          "with_phone": 0
+        }
+      ],
+      "pagination": {
+        "limit": 2,
+        "next_offset": null,
+        "offset": 6,
+        "total": 8
+      },
+      "summary": {
+        "account_count": 8,
+        "accounts_with_decision_makers": 4,
+        "accounts_with_signals": 4,
+        "contact_count": 10
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

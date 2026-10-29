@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "plat_x"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/run"
+  },
+  "response": {
+    "body": {
+      "job_id": 3,
+      "message": "Enqueued run: 6 rows \u00d7 1 columns",
+      "run_id": "7903d99f03ac45d69156bb3105bd1ebf",
+      "status": "started",
+      "total_jobs": 6
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

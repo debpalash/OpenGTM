@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "type": "sequencer"
+        },
+        {
+          "type": "bogus"
+        }
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "legacy_outreach_disabled"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

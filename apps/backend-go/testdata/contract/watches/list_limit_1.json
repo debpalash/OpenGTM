@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches?limit=1"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 1,
+      "next_cursor": "WyIyMDI2LTA4LTI5VDA5OjEyOjAwKzAwOjAwIiwid2F0Y2gtYS0xMiJd",
+      "offset": 0,
+      "watches": [
+        {
+          "config": {},
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:12:00+00:00",
+          "cursor": {
+            "bootstrapped": true
+          },
+          "enabled": true,
+          "id": "watch-a-12",
+          "interval": "daily",
+          "kind": "company",
+          "last_error": null,
+          "last_polled_at": "2100-01-01T00:00:00+00:00",
+          "lead_id": 4,
+          "next_poll_at": "2026-08-30T09:12:00+00:00",
+          "resolved_cik": null,
+          "signal_types": [
+            "hiring_surge"
+          ],
+          "target": "Rate Limited Co",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

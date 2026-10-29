@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        17,
+        18
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/crm/hubspot/sync"
+  },
+  "response": {
+    "body": {
+      "created": 0,
+      "failed": 0,
+      "message": "No leads with emails to sync",
+      "updated": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

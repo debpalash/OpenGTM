@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "cell_budget_usd": 5,
+        "max_tokens": 100
+      },
+      "expected": {
+        "cell_budget_usd": null,
+        "max_tokens": null
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/summary/settings"
+  },
+  "response": {
+    "body": {
+      "changes": {
+        "cell_budget_usd": 5.0,
+        "max_tokens": 100
+      },
+      "column_id": "summary"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

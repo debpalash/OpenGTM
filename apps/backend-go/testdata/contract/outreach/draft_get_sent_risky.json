@@ -1,0 +1,45 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/drafts/d-out-2"
+  },
+  "response": {
+    "body": {
+      "body_text": "Hi Rhea,\n\nCongrats on the funding.",
+      "company": "Zenith Robotics Pvt Ltd",
+      "contact_status": "risky",
+      "created_at": "2026-08-29T09:00:00+00:00",
+      "generic_inbox": true,
+      "id": "d-out-2",
+      "is_role_address": true,
+      "person_id": "person-2",
+      "person_name": "Rhea Kapoor",
+      "risky_approved": true,
+      "send_performed": true,
+      "sent_at": "2026-08-29T09:00:00+00:00",
+      "sentence_evidence": [
+        {
+          "sentence": "Congrats on the funding.",
+          "source_id": "sig-a-02",
+          "url": "https://signals.example.com/a/2"
+        }
+      ],
+      "source_snapshot": {
+        "company": "Zenith Robotics Pvt Ltd"
+      },
+      "state": "sent",
+      "subject": "Warehouse robots",
+      "title": "",
+      "to_email": "info@zenithrobotics.example.com",
+      "updated_at": "2026-08-29T09:00:00+00:00"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

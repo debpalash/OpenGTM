@@ -1,0 +1,83 @@
+{
+  "request": {
+    "body": {
+      "create_columns": "maybe",
+      "dedupe": [],
+      "file_name": 7,
+      "mapping": {
+        "a": 5
+      },
+      "rows": [
+        {
+          "a": 1
+        }
+      ],
+      "source_system": "hubspot"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "mapping",
+            "a"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "input": "maybe",
+          "loc": [
+            "body",
+            "create_columns"
+          ],
+          "msg": "Input should be a valid boolean, unable to interpret input",
+          "type": "bool_parsing"
+        },
+        {
+          "input": [],
+          "loc": [
+            "body",
+            "dedupe"
+          ],
+          "msg": "Input should be a valid boolean",
+          "type": "bool_type"
+        },
+        {
+          "input": 7,
+          "loc": [
+            "body",
+            "file_name"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        },
+        {
+          "ctx": {
+            "expected": "'auto', 'clay' or 'generic'"
+          },
+          "input": "hubspot",
+          "loc": [
+            "body",
+            "source_system"
+          ],
+          "msg": "Input should be 'auto', 'clay' or 'generic'",
+          "type": "literal_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

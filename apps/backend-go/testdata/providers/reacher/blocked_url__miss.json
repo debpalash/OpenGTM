@@ -1,0 +1,28 @@
+{
+ "provider": "reacher",
+ "input_name": "blocked_url",
+ "scenario": "miss",
+ "input": {
+  "email": "ada@acme.com",
+  "_config_overrides": [
+   "REACHER_URL"
+  ]
+ },
+ "secrets": {
+  "REACHER_API_KEY": "ctk_reacher_0001"
+ },
+ "config": {
+  "REACHER_ENABLED": "1",
+  "REACHER_URL": "http://169.254.169.254"
+ },
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "email": "ada@acme.com",
+  "status": "unknown",
+  "source": "reacher",
+  "confidence": 0.0,
+  "detail": "unconfigured",
+  "is_available": false
+ }
+}

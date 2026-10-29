@@ -1,0 +1,73 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/connector-runs?limit=2&offset=1&cursor=eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0wOC0zMVQwODowMDowMCswMDowMCIsInJ1bi1hbHBoYS02Il19"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "eyJ2IjoxLCJ2YWx1ZXMiOlsiMjAyNi0wOC0zMFQwOTozMDowMCswMDowMCIsInJ1bi1hbHBoYS00Il19",
+      "offset": null,
+      "runs": [
+        {
+          "added_count": 1,
+          "completed_at": null,
+          "connector": "pdl",
+          "created_at": "2026-08-31T08:00:00+00:00",
+          "cursor": {
+            "page": 1
+          },
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 1,
+          "id": "run-alpha-5",
+          "pages_fetched": 1,
+          "query": {},
+          "requested_count": 1,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "completed",
+          "target_met": false,
+          "updated_at": "2026-08-31T08:00:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "added_count": 0,
+          "completed_at": null,
+          "connector": "apollo2",
+          "created_at": "2026-08-30T09:30:00+00:00",
+          "cursor": {},
+          "error": null,
+          "exhausted": true,
+          "fetched_count": 0,
+          "id": "run-alpha-4",
+          "pages_fetched": 1,
+          "query": {},
+          "requested_count": 50,
+          "skipped_count": 0,
+          "source_total": null,
+          "started_at": null,
+          "status": "running",
+          "target_met": false,
+          "updated_at": "2026-08-30T09:30:00+00:00",
+          "updated_count": 0,
+          "workbook_id": "wb-alpha-2",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

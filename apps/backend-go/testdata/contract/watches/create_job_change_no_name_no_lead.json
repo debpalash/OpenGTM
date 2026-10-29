@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "company": "Only Co"
+          }
+        ]
+      },
+      "kind": "job_change",
+      "target": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/watches"
+  },
+  "response": {
+    "body": {
+      "detail": "contacts[0] requires lead_id or a name"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

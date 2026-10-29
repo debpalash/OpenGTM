@@ -1,0 +1,7 @@
+# Audience and destination routes that stay on FastAPI (plan 10, decision D1). One "METHOD /path/{param}" per line.
+# None after plan 15 WP-ROUTES-A: the two signed-certification maturity catalogs (GET /api/audiences/capabilities,
+# GET /api/audience-destinations/types) are served by internal/api/capabilityroutes.go behind
+# GO_CAPABILITY_ROUTES_ENABLED (byte-equal to FastAPI, pinned by internal/api/capabilityroutes_test.go and
+# testdata/contract/capabilities). All 25 routes of routers/audiences.py and routers/destinations.py are ported (22 mux
+# patterns, the public inbound callback served by a pre-mux hook, and those 2 catalogs); parity is pinned by
+# internal/api/audience_coverage_test.go. nginx still pins the two catalog paths to api_backend until WP-RETIRE-INFRA.

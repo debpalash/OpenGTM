@@ -1,0 +1,410 @@
+{
+ "note": "the deterministic chat renderers; _describe_action stays on Python and is not vectored",
+ "people_research": [
+  {
+   "input": {},
+   "output": "I couldn't verify any **requested** people at **the target company** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed."
+  },
+  {
+   "input": {
+    "people": []
+   },
+   "output": "I couldn't verify any **requested** people at **the target company** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed."
+  },
+  {
+   "input": {
+    "company": "Stripe",
+    "function": "partnership",
+    "people": [],
+    "candidates_rejected": {
+     "company_relationship_missing": 3,
+     "function_evidence_missing": 1
+    }
+   },
+   "output": "I couldn't verify any **partnership** people at **Stripe** from the public profile evidence available right now. I rejected 3 candidate(s) without an exact company relationship and 1 without function evidence. No broad collection was run and no contacts were guessed."
+  },
+  {
+   "input": {
+    "company": "Stripe",
+    "function": "partnership",
+    "people": [
+     {
+      "name": "Jane Valid",
+      "title": "VP Partnerships",
+      "location": "Berlin",
+      "retrieved_at": "2026-08-28T10:00:00Z",
+      "confidence": 0.9,
+      "linkedin_url": "https://www.linkedin.com/in/jane",
+      "evidence_url": "https://e.example/j"
+     }
+    ]
+   },
+   "output": "I found **1 evidence-matched candidate(s)** for **Stripe — partnership**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| [Jane Valid](https://www.linkedin.com/in/jane) | VP Partnerships | Berlin | 2026-08-28T10:00:00Z | 90% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred."
+  },
+  {
+   "input": {
+    "company": "Stripe",
+    "function": "partnership",
+    "people": [
+     {
+      "name": "Jane Valid",
+      "title": "VP Partnerships",
+      "location": "Berlin",
+      "retrieved_at": "2026-08-28T10:00:00Z",
+      "confidence": 0.9,
+      "linkedin_url": "https://www.linkedin.com/in/jane",
+      "evidence_url": "https://e.example/j"
+     },
+     {
+      "name": "A | B",
+      "title": "Head\nof\nPartners",
+      "confidence": 0.745,
+      "evidence_url": "https://e.example/ab"
+     },
+     {
+      "name": "",
+      "confidence": 0.005
+     },
+     {
+      "name": null,
+      "title": null,
+      "location": "",
+      "confidence": null
+     },
+     {
+      "name": "Zoë Ünïcode 日本",
+      "title": "Directrice",
+      "confidence": 1,
+      "linkedin_url": "https://www.linkedin.com/in/zoe"
+     },
+     {
+      "name": "Third",
+      "confidence": "0.5"
+     },
+     {
+      "name": "Edge",
+      "confidence": 0.125
+     },
+     {
+      "name": "Edge2",
+      "confidence": 0.135
+     }
+    ]
+   },
+   "output": "I found **8 evidence-matched candidate(s)** for **Stripe — partnership**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| [Jane Valid](https://www.linkedin.com/in/jane) | VP Partnerships | Berlin | 2026-08-28T10:00:00Z | 90% |\n| [A \\| B](https://e.example/ab) | Head of Partners | — | — | 74% |\n| — | — | — | — | 0% |\n| — | — | — | — | 0% |\n| [Zoë Ünïcode 日本](https://www.linkedin.com/in/zoe) | Directrice | — | — | 100% |\n| Third | — | — | — | 50% |\n| Edge | — | — | — | 12% |\n| Edge2 | — | — | — | 14% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred."
+  },
+  {
+   "input": {
+    "people": [
+     {
+      "name": "No company"
+     }
+    ]
+   },
+   "output": "I found **1 evidence-matched candidate(s)** for **the target company — requested**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| No company | — | — | — | 0% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred."
+  },
+  {
+   "input": {
+    "company": "Acme",
+    "function": "",
+    "people": [
+     {
+      "name": "X",
+      "confidence": 0.333333
+     }
+    ]
+   },
+   "output": "I found **1 evidence-matched candidate(s)** for **Acme — requested**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| X | — | — | — | 33% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred."
+  }
+ ],
+ "people_verification": [
+  {
+   "input": {},
+   "output": "There are no saved people candidates in this conversation to verify."
+  },
+  {
+   "input": {
+    "people": []
+   },
+   "output": "There are no saved people candidates in this conversation to verify."
+  },
+  {
+   "input": {
+    "company": "Stripe",
+    "function": "partnership",
+    "summary": {
+     "independent_role_evidence": 1,
+     "profile_reconfirmed": 1,
+     "not_corroborated": 1
+    },
+    "people": [
+     {
+      "name": "Jane Valid",
+      "title": "VP Partnerships",
+      "location": "Berlin",
+      "retrieved_at": "2026-08-28T10:00:00Z",
+      "confidence": 0.9,
+      "linkedin_url": "https://www.linkedin.com/in/jane",
+      "evidence_url": "https://e.example/j",
+      "verification_status": "independent_role_evidence",
+      "verification_confidence": 0.8,
+      "verification_sources": [
+       {
+        "url": "https://s.example/1"
+       },
+       {
+        "url": ""
+       },
+       {
+        "url": "https://s.example/3"
+       },
+       {
+        "url": "https://s.example/4"
+       },
+       {
+        "url": "https://s.example/5"
+       }
+      ]
+     },
+     {
+      "name": "B|C",
+      "title": "VP Partnerships",
+      "location": "Berlin",
+      "retrieved_at": "2026-08-28T10:00:00Z",
+      "confidence": 0.9,
+      "linkedin_url": "https://www.linkedin.com/in/jane",
+      "evidence_url": "https://e.example/j",
+      "verification_status": "profile_reconfirmed",
+      "verification_confidence": 0.55
+     },
+     {
+      "name": "Slow",
+      "verification_status": "verification_timeout"
+     },
+     {
+      "name": "Odd",
+      "verification_status": "something_new",
+      "verification_confidence": 0.0
+     },
+     {
+      "name": "NoStatus"
+     },
+     {
+      "name": "Unc",
+      "verification_status": "not_corroborated",
+      "verification_confidence": 0.1,
+      "verification_sources": []
+     }
+    ]
+   },
+   "output": "I re-checked **6 people** for **Stripe — partnership** using fresh public searches.\n\n| Person | Public title | Verification | Fresh evidence | Confidence |\n|---|---|---|---|---|\n| [Jane Valid](https://www.linkedin.com/in/jane) | VP Partnerships | Independent role evidence | [source 1](https://s.example/1), [source 3](https://s.example/3) | 80% |\n| [B\\|C](https://www.linkedin.com/in/jane) | VP Partnerships | Profile reconfirmed | — | 55% |\n| Slow | — | Timed out | — | 0% |\n| Odd | — | something_new | — | 0% |\n| NoStatus | — | Unknown | — | 0% |\n| Unc | — | Not corroborated | — | 10% |\n\n**Summary:** 1 with independent role evidence, 1 profile-reconfirmed, 1 not corroborated. “Not corroborated” is not a negative finding—it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership."
+  },
+  {
+   "input": {
+    "company": "Acme",
+    "function": "ops",
+    "people": [
+     {
+      "name": "Only",
+      "verification_status": "profile_reconfirmed"
+     }
+    ]
+   },
+   "output": "I re-checked **1 people** for **Acme — ops** using fresh public searches.\n\n| Person | Public title | Verification | Fresh evidence | Confidence |\n|---|---|---|---|---|\n| Only | — | Profile reconfirmed | — | 0% |\n\n**Summary:** 0 with independent role evidence, 0 profile-reconfirmed, 0 not corroborated. “Not corroborated” is not a negative finding—it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership."
+  }
+ ],
+ "people_contacts": [
+  {
+   "input": {},
+   "output": "No saved people were available for contact enrichment."
+  },
+  {
+   "input": {
+    "people": []
+   },
+   "output": "No saved people were available for contact enrichment."
+  },
+  {
+   "input": {
+    "company": "Stripe",
+    "summary": {
+     "verified": 1,
+     "catch_all": 1,
+     "risky": 1,
+     "invalid": 1,
+     "unavailable": 1
+    },
+    "people": [
+     {
+      "name": "Jane",
+      "contactability": {
+       "email": "jane@stripe.example",
+       "status": "verified",
+       "finder_provider": "prospeo",
+       "verifier_provider": "reacher"
+      }
+     },
+     {
+      "full_name": "Raj | R",
+      "contactability": {
+       "email": "raj@s.example",
+       "status": "risky",
+       "finder_provider": "p|q"
+      }
+     },
+     {
+      "name": "Cat",
+      "contactability": {
+       "status": "catch_all",
+       "email": "cat@s.example",
+       "verifier_provider": "reacher"
+      }
+     },
+     {
+      "name": "Inv",
+      "contactability": {
+       "status": "invalid",
+       "email": "x@y.example"
+      }
+     },
+     {
+      "name": "NoContact"
+     },
+     {
+      "contactability": {
+       "status": "weird"
+      }
+     },
+     {
+      "name": "Una",
+      "contactability": {
+       "status": "unavailable"
+      }
+     }
+    ]
+   },
+   "output": "Checked work-email contactability for **7 saved people** at **Stripe**.\n\n| Person | Work email | Status | Finder | Verifier |\n|---|---|---|---|---|\n| Jane | jane@stripe.example | Verified | prospeo | reacher |\n| Raj \\| R | raj@s.example | Risky | p\\|q | Not run |\n| Cat | cat@s.example | Catch-all | None | reacher |\n| Inv | x@y.example | Invalid | None | Not run |\n| NoContact | Not found | Unavailable | None | Not run |\n| Unknown | Not found | Unavailable | None | Not run |\n| Una | Not found | Unavailable | None | Not run |\n\nSummary: 1 verified, 1 catch-all, 1 risky, 1 invalid, and 1 unavailable. Verified means a separate verifier returned a valid mailbox result. Catch-all and risky addresses still need caution before outreach."
+  },
+  {
+   "input": {
+    "people": [
+     {
+      "name": "Only"
+     }
+    ]
+   },
+   "output": "Checked work-email contactability for **1 saved people** at **the target company**.\n\n| Person | Work email | Status | Finder | Verifier |\n|---|---|---|---|---|\n| Only | Not found | Unavailable | None | Not run |\n\nSummary: 0 verified, 0 catch-all, 0 risky, 0 invalid, and 0 unavailable. Verified means a separate verifier returned a valid mailbox result. Catch-all and risky addresses still need caution before outreach."
+  }
+ ],
+ "signal_tracking": [
+  {
+   "input": {},
+   "output": "I could not save the tracking schedule: unknown error."
+  },
+  {
+   "input": {
+    "ok": false
+   },
+   "output": "I could not save the tracking schedule: unknown error."
+  },
+  {
+   "input": {
+    "ok": false,
+    "error": "schedule_conflict"
+   },
+   "output": "I could not save the tracking schedule: schedule_conflict."
+  },
+  {
+   "input": {
+    "ok": true,
+    "state": "active",
+    "scope": {
+     "account_count": 12
+    },
+    "cadence": "weekly",
+    "signal_types": [
+     "partnership_hiring",
+     "leadership_change",
+     "funding",
+     "pricing_page_change"
+    ],
+    "next_run_at": "2026-09-01T00:00:00Z",
+    "schedule_id": "sched-1",
+    "url": "/watches/sched-1"
+   },
+   "output": "Tracking is **active** for **12 exact accounts** on a **weekly** cadence. Collectors: partnership hiring, leadership changes, funding, pricing-page changes. Next run: 2026-09-01T00:00:00Z. I read schedule `sched-1` back from saved state before confirming it. [Open tracking](/watches/sched-1)"
+  },
+  {
+   "input": {
+    "ok": true,
+    "signal_types": [
+     "custom_signal",
+     "funding"
+    ],
+    "scope": {},
+    "schedule_id": null,
+    "url": null
+   },
+   "output": "Tracking is **active** for **0 exact accounts** on a **weekly** cadence. Collectors: custom_signal, funding. Next run: not scheduled. I read schedule `None` back from saved state before confirming it. [Open tracking](None)"
+  },
+  {
+   "input": {
+    "ok": true,
+    "state": "paused",
+    "scope": {
+     "account_count": 0
+    },
+    "cadence": "daily",
+    "signal_types": [],
+    "next_run_at": null,
+    "schedule_id": "s",
+    "url": "u"
+   },
+   "output": "Tracking is **paused** for **0 exact accounts** on a **daily** cadence. Collectors: . Next run: not scheduled. I read schedule `s` back from saved state before confirming it. [Open tracking](u)"
+  }
+ ],
+ "grounded_draft": [
+  {
+   "input": {},
+   "output": "I could not create the draft: unknown error. No message was sent."
+  },
+  {
+   "input": {
+    "ok": false
+   },
+   "output": "I could not create the draft: unknown error. No message was sent."
+  },
+  {
+   "input": {
+    "ok": false,
+    "error": "contact_not_eligible"
+   },
+   "output": "I could not create the draft: contact_not_eligible. No message was sent."
+  },
+  {
+   "input": {
+    "ok": true,
+    "person_name": "Jane Partner",
+    "company": "Stripe",
+    "to_email": "jane@stripe.example",
+    "subject": "Partnership idea",
+    "body_text": "Hi Jane,\n\nShort note.\n\nBest",
+    "personalized_sentence_count": 2,
+    "url": "/outreach/drafts/d1"
+   },
+   "output": "Saved a **draft only** for **Jane Partner** at **Stripe**. No message was sent.\n\n**To:** jane@stripe.example  \n**Subject:** Partnership idea\n\nHi Jane,\n\nShort note.\n\nBest\n\nThe 2 personalized lines retain their saved evidence. [Inspect draft and evidence](/outreach/drafts/d1)"
+  },
+  {
+   "input": {
+    "ok": true,
+    "person_name": "Zoë",
+    "company": "Café 日本",
+    "to_email": "z@c.example",
+    "subject": "S",
+    "body_text": "B",
+    "url": "/u"
+   },
+   "output": "Saved a **draft only** for **Zoë** at **Café 日本**. No message was sent.\n\n**To:** z@c.example  \n**Subject:** S\n\nB\n\nThe 0 personalized lines retain their saved evidence. [Inspect draft and evidence](/u)"
+  }
+ ]
+}

@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "interval": "hourly",
+      "on_signal": [
+        "hiring",
+        "funding"
+      ],
+      "staleness_ttl_days": {
+        "email": 3
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-enrich-1/refresh-policy"
+  },
+  "response": {
+    "body": {
+      "next_in_minutes": 60,
+      "refresh_policy": {
+        "enabled": true,
+        "interval": "hourly",
+        "on_signal": [
+          "hiring",
+          "funding"
+        ],
+        "staleness_ttl_days": {
+          "email": 3
+        }
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

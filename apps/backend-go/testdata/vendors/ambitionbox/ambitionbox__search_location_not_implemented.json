@@ -1,0 +1,20 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "search_location_not_implemented",
+ "call": {
+  "function": "search_companies",
+  "args": {
+   "page": 1,
+   "location": [
+    "Pune"
+   ]
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "raises": {
+  "type": "NotImplementedError",
+  "message": "AmbitionBox's gateway ignores location filters -- refusing to return silently unfiltered results"
+ }
+}

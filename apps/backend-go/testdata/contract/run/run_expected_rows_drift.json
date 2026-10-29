@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "calc_len"
+      ],
+      "expected_rows": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/run"
+  },
+  "response": {
+    "body": {
+      "detail": "The matching row count changed. Refresh the run review before starting."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

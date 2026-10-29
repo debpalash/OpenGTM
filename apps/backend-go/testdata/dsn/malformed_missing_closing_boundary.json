@@ -1,0 +1,13 @@
+{
+  "name": "malformed_missing_closing_boundary",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.1.1 gone",
+      "kind": "hard",
+      "original_message_id": "<orig-0037@contract.example.com>",
+      "recipient": "a@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0037@mx.example.net>"
+}

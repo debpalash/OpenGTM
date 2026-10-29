@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "daily_limit": "many",
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": "many",
+          "loc": [
+            "body",
+            "daily_limit"
+          ],
+          "msg": "Input should be a valid integer, unable to parse string as an integer",
+          "type": "int_parsing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": [
+      1,
+      2
+    ],
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/lead/10"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [
+            1,
+            2
+          ],
+          "loc": [
+            "body"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

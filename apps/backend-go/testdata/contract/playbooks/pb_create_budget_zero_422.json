@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "cell_budget_usd": 0,
+      "name": "Budget",
+      "prompt_template": "Describe {company} please."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "gt": 0.0
+          },
+          "input": 0,
+          "loc": [
+            "body",
+            "cell_budget_usd"
+          ],
+          "msg": "Input should be greater than 0",
+          "type": "greater_than"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

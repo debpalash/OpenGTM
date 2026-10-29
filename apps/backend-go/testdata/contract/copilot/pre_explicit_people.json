@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "Find named people currently working on Stripe's partnership team. Require evidence for current employment and their partnership remit.",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"0000045c-000\"}\n\ndata: {\"tool_call\": {\"name\": \"find_people_at_company\", \"args\": {\"company\": \"Stripe\", \"function\": \"partnership\", \"limit\": 8}}}\n\ndata: {\"tool_result\": {\"name\": \"find_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Stripe\", \"function\": \"partnership\", \"people\": [{\"person_id\": \"person_stub_ada\", \"name\": \"Ada Alliance\", \"title\": \"Head of Partnership\", \"location\": \"Remote\", \"retrieved_at\": \"2026-08-29T10:00:00Z\", \"confidence\": 0.88, \"linkedin_url\": \"https://www.linkedin.com/in/ada-alliance\", \"evidence_url\": \"https://evidence.example/ada\"}], \"count\": 1, \"candidates_rejected\": {\"company_relationship_missing\": 2, \"function_evidence_missing\": 0}}}}\n\ndata: {\"content\": \"I found **1 evidence-matched candidate(s)** for **Stripe \\u2014 partnership**.\\n\\n| Person | Public title | Location | Retrieved | Confidence |\\n|---|---|---|---|---|\\n| [Ada Alliance](https://www.linkedin.com/in/ada-alliance) | Head of Partnership | Remote | 2026-08-29T10:00:00Z | 88% |\\n\\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

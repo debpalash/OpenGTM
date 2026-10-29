@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "SALESFORCE_INSTANCE_URL": 5
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/integrations/salesforce"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "values",
+            "SALESFORCE_INSTANCE_URL"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

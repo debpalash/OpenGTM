@@ -1,0 +1,39 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "detail_400",
+ "call": {
+  "function": "get_company_detail",
+  "args": {
+   "company_id": 400
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/company/400/sectionalDetails",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 400,
+    "body": "{\"message\": \"invalid company id\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "raises": {
+  "type": "RuntimeError",
+  "message": "AmbitionBox API 400: {\"message\": \"invalid company id\"}"
+ }
+}

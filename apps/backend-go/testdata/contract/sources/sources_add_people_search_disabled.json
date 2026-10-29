@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "companies": [
+        "Acme"
+      ],
+      "kind": "people_search",
+      "titles": [
+        "CTO"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/sources"
+  },
+  "response": {
+    "body": {
+      "detail": "people_search source is disabled (PEOPLE_SEARCH_SOURCE_ENABLED)"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

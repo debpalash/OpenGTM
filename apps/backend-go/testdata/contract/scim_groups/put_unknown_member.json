@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "displayName": "Engineering 2",
+      "members": [
+        {
+          "value": "99999"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/scim/v2/alpha/Groups/400e90fd-a2b4-4db1-803e-0135fca81caa"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM user 99999 not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

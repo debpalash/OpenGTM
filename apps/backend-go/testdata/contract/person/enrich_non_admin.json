@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "linkedin_url": "https://www.linkedin.com/in/x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/person/enrich"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authorized"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "config": {
+        "custom_audience_id": "42"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002084"
+  },
+  "response": {
+    "body": {
+      "detail": "ad destinations require consent_attested=true and a consent_source"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

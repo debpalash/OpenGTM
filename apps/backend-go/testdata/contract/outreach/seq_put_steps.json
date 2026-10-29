@@ -1,0 +1,34 @@
+{
+  "request": {
+    "body": {
+      "steps": [
+        {
+          "body_html": "<p>b0</p>",
+          "delay_hours": 0,
+          "step_number": 0,
+          "subject": "S0 {{name}}"
+        },
+        {
+          "body_html": "<p>b1</p>",
+          "step_number": 1,
+          "subject": "S1"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/outreach/sequences/00000000-0000-4000-8000-000000001000"
+  },
+  "response": {
+    "body": {
+      "id": "00000000-0000-4000-8000-000000001000",
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

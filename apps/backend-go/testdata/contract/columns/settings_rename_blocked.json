@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "changes": {
+        "name": "Email Lookup"
+      },
+      "expected": {
+        "name": "Email Finder"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/email_wf/settings"
+  },
+  "response": {
+    "body": {
+      "detail": "Rename breaks column-name references in: Summary. Change those references to stable column IDs first."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

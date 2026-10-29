@@ -1,0 +1,66 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/19"
+  },
+  "response": {
+    "body": {
+      "address": "",
+      "city": "Oslo",
+      "collection_job_id": "",
+      "company": "Fresh Co",
+      "company_need": "",
+      "company_size": "",
+      "company_size_basis": "",
+      "contact_person": "",
+      "contact_title": "",
+      "created_at": "2026-10-26T10:27:13.776911+00:00",
+      "decision_makers": "",
+      "description": "",
+      "email": "",
+      "email_confidence": "",
+      "email_provider": "",
+      "employee_count_exact": 0,
+      "enrichment_attempts": 0,
+      "enrichment_waterfall": "",
+      "facebook_url": "",
+      "field_provenance": "",
+      "founded_year": "",
+      "funding_stage": "",
+      "glassdoor_rating": "",
+      "hiring_signals": "",
+      "id": 19,
+      "industry_tags": "",
+      "last_enriched_at": "",
+      "linkedin_url": "",
+      "notes": "",
+      "phone": "",
+      "phone_provider": "",
+      "revenue_range": "",
+      "score": 0,
+      "score_tier": "unqualified",
+      "secondary_emails": "",
+      "secondary_phones": "",
+      "source": "manual",
+      "source_url": "",
+      "specialization": "",
+      "state": "",
+      "status": "new",
+      "technographics": "",
+      "technologies": "",
+      "twitter_url": "",
+      "updated_at": "2026-10-26T10:27:13.776934+00:00",
+      "website": "https://fresh.example.com",
+      "workspace_id": "ws-alpha",
+      "yupcha_value_prop": ""
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/Schemas/urn:ietf:params:scim:schemas:core:2.0:Group"
+  },
+  "response": {
+    "body": {
+      "attributes": [
+        {
+          "caseExact": false,
+          "multiValued": false,
+          "mutability": "readWrite",
+          "name": "displayName",
+          "required": true,
+          "returned": "default",
+          "type": "string",
+          "uniqueness": "server"
+        },
+        {
+          "caseExact": false,
+          "multiValued": false,
+          "mutability": "readWrite",
+          "name": "externalId",
+          "required": false,
+          "returned": "default",
+          "type": "string",
+          "uniqueness": "none"
+        },
+        {
+          "caseExact": false,
+          "multiValued": true,
+          "mutability": "readWrite",
+          "name": "members",
+          "required": false,
+          "returned": "default",
+          "subAttributes": [
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "immutable",
+              "name": "value",
+              "required": false,
+              "returned": "default",
+              "type": "string",
+              "uniqueness": "none"
+            },
+            {
+              "caseExact": false,
+              "multiValued": false,
+              "mutability": "immutable",
+              "name": "$ref",
+              "referenceTypes": [
+                "User"
+              ],
+              "required": false,
+              "returned": "default",
+              "type": "reference",
+              "uniqueness": "none"
+            }
+          ],
+          "type": "complex",
+          "uniqueness": "none"
+        }
+      ],
+      "description": "OpenGTM workspace group",
+      "id": "urn:ietf:params:scim:schemas:core:2.0:Group",
+      "name": "Group",
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:Schema"
+      ]
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

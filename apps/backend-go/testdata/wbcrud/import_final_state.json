@@ -1,0 +1,429 @@
+{
+ "rows": [
+  {
+   "id": 1,
+   "workbook_id": "wb-alpha-2",
+   "position": 0,
+   "data": "{\"company\": \"Acme 01\", \"website\": \"https://acme01.example.com\", \"email\": \"info@acme01.example.com\", \"city\": \"Austin\", \"phone\": \"+1-555-0101\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found01@acme01.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 01 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 2,
+   "workbook_id": "wb-alpha-2",
+   "position": 1,
+   "data": "{\"company\": \"Acme 02\", \"website\": \"https://acme02.example.com\", \"email\": \"info@acme02.example.com\", \"city\": \"Pune\", \"phone\": \"+1-555-0102\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found02@acme02.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 02 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 3,
+   "workbook_id": "wb-alpha-2",
+   "position": 2,
+   "data": "{\"company\": \"Acme 03\", \"website\": \"https://acme03.example.com\", \"email\": \"info@acme03.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0103\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found03@acme03.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 4,
+   "workbook_id": "wb-alpha-2",
+   "position": 3,
+   "data": "{\"company\": \"Acme 04\", \"website\": \"https://acme04.example.com\", \"email\": \"info@acme04.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0104\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 04 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 5,
+   "workbook_id": "wb-alpha-2",
+   "position": 4,
+   "data": "{\"company\": \"Acme 05\", \"website\": \"https://acme05.example.com\", \"email\": \"info@acme05.example.com\", \"city\": \"Berlin\", \"phone\": \"+1-555-0105\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found05@acme05.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 05 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 6,
+   "workbook_id": "wb-alpha-2",
+   "position": 5,
+   "data": "{\"company\": \"Acme 06\", \"website\": \"https://acme06.example.com\", \"email\": \"info@acme06.example.com\", \"city\": \"Austin\", \"phone\": \"+1-555-0106\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found06@acme06.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 7,
+   "workbook_id": "wb-alpha-2",
+   "position": 6,
+   "data": "{\"company\": \"Acme 07\", \"website\": \"https://acme07.example.com\", \"email\": null, \"city\": \"Pune\", \"phone\": \"+1-555-0107\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found07@acme07.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 07 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 8,
+   "workbook_id": "wb-alpha-2",
+   "position": 7,
+   "data": "{\"company\": \"Acme 08\", \"website\": \"https://acme08.example.com\", \"email\": \"info@acme08.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0108\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 08 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 9,
+   "workbook_id": "wb-alpha-2",
+   "position": 8,
+   "data": "{\"company\": \"Acme 09\", \"website\": \"\", \"email\": \"info@acme09.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0109\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found09@acme09.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 10,
+   "workbook_id": "wb-alpha-2",
+   "position": 9,
+   "data": "{\"company\": \"Acme 10\", \"website\": \"https://acme10.example.com\", \"email\": \"info@acme10.example.com\", \"city\": \"Berlin\", \"phone\": \"+1-555-0110\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found10@acme10.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 10 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 11,
+   "workbook_id": "wb-alpha-2",
+   "position": 10,
+   "data": "{\"company\": \"Acme 11\", \"website\": \"https://acme11.example.com\", \"email\": \"info@acme11.example.com\", \"city\": null, \"phone\": \"+1-555-0111\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found11@acme11.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 11 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 12,
+   "workbook_id": "wb-alpha-2",
+   "position": 11,
+   "data": "{\"company\": \"Acme 12\", \"website\": \"https://acme12.example.com\", \"email\": \"info@acme12.example.com\", \"city\": \"Pune\", \"phone\": \"+1-555-0112\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 13,
+   "workbook_id": "wb-alpha-2",
+   "position": 12,
+   "data": "{\"company\": \"Acme 13\", \"website\": \"https://acme13.example.com\", \"email\": \"info@acme13.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0113\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found13@acme13.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 13 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 14,
+   "workbook_id": "wb-alpha-2",
+   "position": 13,
+   "data": "{\"company\": \"Acme 14\", \"website\": \"https://acme14.example.com\", \"email\": null, \"city\": \"Oslo\", \"phone\": \"+1-555-0114\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found14@acme14.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 14 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 15,
+   "workbook_id": "wb-alpha-2",
+   "position": 14,
+   "data": "{\"company\": \"Acme 15\", \"website\": \"https://acme15.example.com\", \"email\": \"info@acme15.example.com\", \"city\": \"Berlin\", \"phone\": \"+1-555-0115\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found15@acme15.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 16,
+   "workbook_id": "wb-alpha-2",
+   "position": 15,
+   "data": "{\"company\": \"Acme 16\", \"website\": \"https://acme16.example.com\", \"email\": \"info@acme16.example.com\", \"city\": \"Austin\", \"phone\": \"+1-555-0116\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 16 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 17,
+   "workbook_id": "wb-alpha-2",
+   "position": 16,
+   "data": "{\"company\": \"Acme 17\", \"website\": \"https://acme17.example.com\", \"email\": \"info@acme17.example.com\", \"city\": \"Pune\", \"phone\": \"+1-555-0117\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found17@acme17.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 17 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 18,
+   "workbook_id": "wb-alpha-2",
+   "position": 17,
+   "data": "{\"company\": \"Acme 18\", \"website\": \"\", \"email\": \"info@acme18.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0118\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found18@acme18.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 19,
+   "workbook_id": "wb-alpha-2",
+   "position": 18,
+   "data": "{\"company\": \"Acme 19\", \"website\": \"https://acme19.example.com\", \"email\": \"info@acme19.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0119\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found19@acme19.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 19 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 20,
+   "workbook_id": "wb-alpha-2",
+   "position": 19,
+   "data": "{\"company\": \"Acme 20\", \"website\": \"https://acme20.example.com\", \"email\": \"info@acme20.example.com\", \"city\": \"Berlin\", \"phone\": \"+1-555-0120\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": \"Acme 20 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 21,
+   "workbook_id": "wb-alpha-2",
+   "position": 20,
+   "data": "{\"company\": \"Acme 21\", \"website\": \"https://acme21.example.com\", \"email\": null, \"city\": \"Austin\", \"phone\": \"+1-555-0121\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found21@acme21.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 22,
+   "workbook_id": "wb-alpha-2",
+   "position": 21,
+   "data": "{\"company\": \"Acme 22\", \"website\": \"https://acme22.example.com\", \"email\": \"info@acme22.example.com\", \"city\": null, \"phone\": \"+1-555-0122\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found22@acme22.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 22 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 23,
+   "workbook_id": "wb-alpha-2",
+   "position": 22,
+   "data": "{\"company\": \"Acme 23\", \"website\": \"https://acme23.example.com\", \"email\": \"info@acme23.example.com\", \"city\": \"Lyon\", \"phone\": \"+1-555-0123\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found23@acme23.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 23 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 24,
+   "workbook_id": "wb-alpha-2",
+   "position": 23,
+   "data": "{\"company\": \"Acme 24\", \"website\": \"https://acme24.example.com\", \"email\": \"info@acme24.example.com\", \"city\": \"Oslo\", \"phone\": \"+1-555-0124\"}",
+   "enrichments": "{\"email_wf\": {\"value\": null, \"status\": \"failed\", \"provider\": null, \"error\": \"no result\"}, \"summary\": {\"value\": null, \"status\": \"pending\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 25,
+   "workbook_id": "wb-alpha-2",
+   "position": 24,
+   "data": "{\"company\": \"Acme 25\", \"website\": \"https://acme25.example.com\", \"email\": \"info@acme25.example.com\", \"city\": \"Berlin\", \"phone\": \"+1-555-0125\"}",
+   "enrichments": "{\"email_wf\": {\"value\": \"found25@acme25.example.com\", \"status\": \"complete\", \"provider\": \"hunter\", \"error\": null}, \"summary\": {\"value\": \"Acme 25 sells widgets.\", \"status\": \"complete\", \"provider\": \"llm\", \"error\": null}}",
+   "lead_id": null,
+   "corroboration_count": null
+  },
+  {
+   "id": 26,
+   "workbook_id": "wb-alpha-1",
+   "position": 0,
+   "data": "{\"company\": \"Newco One\", \"website\": \"https://www.newco-one.io/about\", \"email\": \"a@newco-one.io\", \"notes\": \"first\", \"custom_field\": \"x\", \"score\": 1.5, \"tags\": [\"a\", {\"b\": null}]}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 27,
+   "workbook_id": "wb-alpha-1",
+   "position": 1,
+   "data": "{\"company\": \"Newco Two\", \"website\": \"\", \"email\": \"\", \"notes\": \"\", \"custom_field\": 0, \"score\": 2}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 28,
+   "workbook_id": "wb-alpha-1",
+   "position": 2,
+   "data": "{\"company\": \"Newco Three, Inc.\", \"website\": \"newco-three.io\", \"email\": \"t@newco-three.io\", \"custom_field\": false}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 29,
+   "workbook_id": "wb-alpha-1",
+   "position": 3,
+   "data": "{\"company\": \"newco three llc\", \"custom_field\": \"dup by name\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 30,
+   "workbook_id": "wb-alpha-1",
+   "position": 4,
+   "data": "{\"notes\": \"no identity a\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 31,
+   "workbook_id": "wb-alpha-1",
+   "position": 5,
+   "data": "{\"notes\": \"no identity b\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 32,
+   "workbook_id": "wb-alpha-1",
+   "position": 6,
+   "data": "{\"company\": \"Caf\\u00e9 M\\u00fcnch GmbH\", \"custom_field\": \"unicode\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 33,
+   "workbook_id": "wb-alpha-1",
+   "position": 7,
+   "data": "{\"company\": \"Brand New Co\", \"custom_field\": \"n\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 34,
+   "workbook_id": "wb-alpha-1",
+   "position": 8,
+   "data": "{\"company\": \"Newco One\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 35,
+   "workbook_id": "wb-alpha-1",
+   "position": 9,
+   "data": "{\"company\": \"Newco One\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 36,
+   "workbook_id": "wb-alpha-2",
+   "position": 25,
+   "data": "{\"company\": \"Globex Corp\", \"website\": \"globex.example.org\", \"email\": \"hank@globex.example.org\", \"linkedin_url\": \"https://linkedin.com/in/hank\", \"claygent\": \"ok\", \"enrichment_status\": \"done\", \"contact_title\": \"CTO\", \"email_finder\": \"x@y.z\", \"summary\": \"s\", \"city\": \"Berlin\", \"phone\": \"+1-555-0100\", \"custom_score\": 7.5}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 37,
+   "workbook_id": "wb-alpha-2",
+   "position": 26,
+   "data": "{\"company\": \"Acme 03\", \"website\": \"\", \"email\": \"\", \"linkedin_url\": \"\", \"claygent\": \"\", \"enrichment_status\": \"\", \"contact_title\": \"\", \"email_finder\": \"\", \"summary\": \"\", \"city\": \"\", \"phone\": \"\", \"custom_score\": \"\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 38,
+   "workbook_id": "wb-alpha-2",
+   "position": 27,
+   "data": "{\"company\": \"Mapped Org\", \"phone\": \"123\", \"extra_col\": \"e\", \"description\": \"long text\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 39,
+   "workbook_id": "wb-alpha-2",
+   "position": 28,
+   "data": "{\"company\": \"Mapped Two\", \"phone\": \"\", \"extra_col\": \"\", \"description\": \"b2\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 40,
+   "workbook_id": "wb-alpha-2",
+   "position": 29,
+   "data": "{\"email\": \"c1@collide.example\", \"company\": \"Collide Co\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 41,
+   "workbook_id": "wb-alpha-2",
+   "position": 30,
+   "data": "{\"company\": \"No Cols Co\", \"whatever\": \"w\", \"other\": \"o\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 42,
+   "workbook_id": "wb-alpha-2",
+   "position": 31,
+   "data": "{\"n_code_f_eld\": \"a\", \"imported_column\": \"b\", \"i_stanbul\": \"c\", \"stra_e\": \"d\", \"imported_column_2\": \"e\", \"nicode_field\": \"f\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 43,
+   "workbook_id": "wb-alpha-2",
+   "position": 32,
+   "data": "{\"company\": \"Editor Imported\", \"notes\": \"n\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  },
+  {
+   "id": 44,
+   "workbook_id": "wb-alpha-2",
+   "position": 33,
+   "data": "{\"company\": \"Second One\", \"zed\": \"z\"}",
+   "enrichments": "{}",
+   "lead_id": null,
+   "corroboration_count": 1
+  }
+ ],
+ "workbooks": [
+  {
+   "id": "wb-alpha-1",
+   "source_type": "manual",
+   "status": "idle",
+   "total_rows": 0,
+   "columns_config": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":200},{\"id\":\"website\",\"name\":\"Website\",\"type\":\"lead_field\",\"lead_field\":\"website\",\"width\":200},{\"id\":\"email\",\"name\":\"Email\",\"type\":\"lead_field\",\"lead_field\":\"email\",\"width\":200},{\"id\":\"notes\",\"name\":\"Notes\",\"type\":\"lead_field\",\"lead_field\":\"notes\",\"width\":200},{\"id\":\"custom_field\",\"name\":\"Custom Field\",\"type\":\"lead_field\",\"lead_field\":\"custom_field\",\"width\":200},{\"id\":\"score\",\"name\":\"Score\",\"type\":\"lead_field\",\"lead_field\":\"score\",\"width\":200},{\"id\":\"tags\",\"name\":\"Tags\",\"type\":\"lead_field\",\"lead_field\":\"tags\",\"width\":200}]",
+   "source_config": "{\"last_csv_import\":{\"file_name\":null,\"source_system\":\"generic\",\"mapping\":{\"Company\":\"company\"},\"collisions\":[],\"rows\":2,\"columns_added\":0,\"imported_at\":\"<ts>\"}}",
+   "updated_at_advanced": true
+  },
+  {
+   "id": "wb-alpha-2",
+   "source_type": "manual",
+   "status": "idle",
+   "total_rows": 25,
+   "columns_config": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"width\":200,\"lead_field\":\"company\"},{\"id\":\"website\",\"name\":\"Website\",\"type\":\"lead_field\",\"width\":200,\"lead_field\":\"website\"},{\"id\":\"email\",\"name\":\"Email\",\"type\":\"lead_field\",\"width\":220,\"lead_field\":\"email\"},{\"id\":\"city\",\"name\":\"City\",\"type\":\"lead_field\",\"width\":150,\"lead_field\":\"city\"},{\"id\":\"phone\",\"name\":\"Phone\",\"type\":\"lead_field\",\"width\":150,\"lead_field\":\"phone\"},{\"id\":\"email_wf\",\"name\":\"Email Finder\",\"type\":\"waterfall\",\"width\":220,\"waterfall\":[\"hunter\",\"apollo\"],\"target_field\":\"email\",\"verify\":true},{\"id\":\"summary\",\"name\":\"Summary\",\"type\":\"ai_formula\",\"width\":300,\"prompt\":\"Summarize {Company} in one sentence\",\"input_columns\":[\"company\"]},{\"id\":\"linkedin_url\",\"name\":\"Person LinkedIn URL\",\"type\":\"lead_field\",\"lead_field\":\"linkedin_url\",\"width\":200},{\"id\":\"claygent\",\"name\":\"Claygent\",\"type\":\"lead_field\",\"lead_field\":\"claygent\",\"width\":200},{\"id\":\"enrichment_status\",\"name\":\"Enrichment Status\",\"type\":\"lead_field\",\"lead_field\":\"enrichment_status\",\"width\":200},{\"id\":\"contact_title\",\"name\":\"Job Title\",\"type\":\"lead_field\",\"lead_field\":\"contact_title\",\"width\":200},{\"id\":\"email_finder\",\"name\":\"Email Finder\",\"type\":\"lead_field\",\"lead_field\":\"email_finder\",\"width\":200},{\"id\":\"summary_2\",\"name\":\"Summary\",\"type\":\"lead_field\",\"lead_field\":\"summary\",\"width\":200},{\"id\":\"custom_score\",\"name\":\"Custom Score\",\"type\":\"lead_field\",\"lead_field\":\"custom_score\",\"width\":200},{\"id\":\"extra_col\",\"name\":\"Extra Col\",\"type\":\"lead_field\",\"lead_field\":\"extra_col\",\"width\":200},{\"id\":\"description\",\"name\":\"Description\",\"type\":\"lead_field\",\"lead_field\":\"description\",\"width\":200},{\"id\":\"n_code_f_eld\",\"name\":\"Ünïcode Fïeld\",\"type\":\"lead_field\",\"lead_field\":\"n_code_f_eld\",\"width\":200},{\"id\":\"imported_column\",\"name\":\"日本語\",\"type\":\"lead_field\",\"lead_field\":\"imported_column\",\"width\":200},{\"id\":\"i_stanbul\",\"name\":\"İstanbul\",\"type\":\"lead_field\",\"lead_field\":\"i_stanbul\",\"width\":200},{\"id\":\"stra_e\",\"name\":\"straße\",\"type\":\"lead_field\",\"lead_field\":\"stra_e\",\"width\":200},{\"id\":\"imported_column_2\",\"name\":\"ΑΣ\",\"type\":\"lead_field\",\"lead_field\":\"imported_column_2\",\"width\":200},{\"id\":\"nicode_field\",\"name\":\"Ünicode Field\",\"type\":\"lead_field\",\"lead_field\":\"nicode_field\",\"width\":200},{\"id\":\"notes\",\"name\":\"Notes\",\"type\":\"lead_field\",\"lead_field\":\"notes\",\"width\":200},{\"id\":\"zed\",\"name\":\"Zed\",\"type\":\"lead_field\",\"lead_field\":\"zed\",\"width\":200}]",
+   "source_config": "{\"last_csv_import\":{\"file_name\":null,\"source_system\":\"generic\",\"mapping\":{\"Company\":\"company\",\"Zed\":\"zed\"},\"collisions\":[],\"rows\":1,\"columns_added\":1,\"imported_at\":\"<ts>\"}}",
+   "updated_at_advanced": true
+  },
+  {
+   "id": "wb-beta-1",
+   "source_type": "manual",
+   "status": "idle",
+   "total_rows": 0,
+   "columns_config": "[]",
+   "source_config": "{}",
+   "updated_at_advanced": false
+  }
+ ]
+}

@@ -1,0 +1,14 @@
+{
+  "seq": 77,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "stdin": "Content-Length: 120\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 78, \"method\": \"tools/call\", \"params\": {\"name\": \"get_lead_detail\", \"arguments\": {\"lead_id\": 6}}}"
+  },
+  "response": {
+    "stdout": "Content-Length: 1561\r\n\r\n{\"jsonrpc\": \"2.0\", \"id\": 78, \"result\": {\"content\": [{\"type\": \"text\", \"text\": \"{\\n  \\\"id\\\": 6,\\n  \\\"company\\\": \\\"\\\\u6771\\\\u4eac\\\\u30c6\\\\u30c3\\\\u30af\\\",\\n  \\\"website\\\": \\\"https://tokyo.example.com\\\",\\n  \\\"email\\\": \\\"hi@tokyo.example.com\\\",\\n  \\\"email_confidence\\\": null,\\n  \\\"email_provider\\\": null,\\n  \\\"phone\\\": \\\"\\\",\\n  \\\"phone_provider\\\": null,\\n  \\\"contact_person\\\": \\\"\\\",\\n  \\\"contact_title\\\": null,\\n  \\\"city\\\": \\\"\\\\u6771\\\\u4eac\\\",\\n  \\\"state\\\": null,\\n  \\\"address\\\": null,\\n  \\\"specialization\\\": \\\"Software\\\",\\n  \\\"company_size\\\": \\\"11-50\\\",\\n  \\\"employee_count_exact\\\": null,\\n  \\\"description\\\": null,\\n  \\\"revenue_range\\\": null,\\n  \\\"founded_year\\\": null,\\n  \\\"industry_tags\\\": null,\\n  \\\"technologies\\\": null,\\n  \\\"technographics\\\": null,\\n  \\\"funding_stage\\\": null,\\n  \\\"company_size_basis\\\": \\\"\\\",\\n  \\\"linkedin_url\\\": null,\\n  \\\"twitter_url\\\": null,\\n  \\\"facebook_url\\\": null,\\n  \\\"secondary_emails\\\": null,\\n  \\\"secondary_phones\\\": null,\\n  \\\"decision_makers\\\": null,\\n  \\\"glassdoor_rating\\\": null,\\n  \\\"hiring_signals\\\": null,\\n  \\\"enrichment_attempts\\\": null,\\n  \\\"enrichment_waterfall\\\": null,\\n  \\\"field_provenance\\\": null,\\n  \\\"source\\\": \\\"mcp-seed\\\",\\n  \\\"source_url\\\": null,\\n  \\\"collection_job_id\\\": null,\\n  \\\"workspace_id\\\": \\\"ws-alpha\\\",\\n  \\\"score\\\": 55,\\n  \\\"score_tier\\\": \\\"warm\\\",\\n  \\\"status\\\": \\\"qualified\\\",\\n  \\\"yupcha_value_prop\\\": null,\\n  \\\"company_need\\\": null,\\n  \\\"notes\\\": null,\\n  \\\"created_at\\\": \\\"2026-08-29T10:00:00\\\",\\n  \\\"updated_at\\\": \\\"2026-08-29T10:00:00\\\",\\n  \\\"last_enriched_at\\\": null\\n}\"}], \"isError\": false}}",
+    "exit_code": 0
+  },
+  "audit": [],
+  "effects": {}
+}

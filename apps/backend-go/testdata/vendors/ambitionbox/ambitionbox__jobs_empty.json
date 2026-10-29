@@ -1,0 +1,42 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "jobs_empty",
+ "call": {
+  "function": "get_company_jobs",
+  "args": {
+   "company_id": 778,
+   "page": 1
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/jobs-services/v0/jobs/company/778?page=1",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": null,
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 200,
+    "body": {}
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "jobs": [],
+  "total": 0,
+  "page": 1,
+  "total_pages": 1
+ }
+}

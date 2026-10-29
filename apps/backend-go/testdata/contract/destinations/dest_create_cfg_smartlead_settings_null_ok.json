@@ -1,0 +1,41 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "campaign_id": "1",
+        "settings": null
+      },
+      "destination_type": "smartlead",
+      "name": "sl null ok"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "campaign_id": "1",
+        "settings": null
+      },
+      "created_at": "2026-10-26T17:05:49.467593",
+      "destination_type": "smartlead",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002111",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "sl null ok",
+      "updated_at": "2026-10-26T17:05:49.467593"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

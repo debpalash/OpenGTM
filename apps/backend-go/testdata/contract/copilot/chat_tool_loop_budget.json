@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:tool_loop] keep searching",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": "data: {\"conversation_id\": \"0000040e-000\"}\n\ndata: {\"tool_call\": {\"name\": \"search_leads\", \"args\": {\"query\": \"round-0\", \"limit\": 1}}}\n\ndata: {\"tool_result\": {\"name\": \"search_leads\", \"result\": {\"leads\": [], \"count\": 0}}}\n\ndata: {\"tool_call\": {\"name\": \"search_leads\", \"args\": {\"query\": \"round-1\", \"limit\": 1}}}\n\ndata: {\"tool_result\": {\"name\": \"search_leads\", \"result\": {\"leads\": [], \"count\": 0}}}\n\ndata: {\"tool_call\": {\"name\": \"search_leads\", \"args\": {\"query\": \"round-2\", \"limit\": 1}}}\n\ndata: {\"tool_result\": {\"name\": \"search_leads\", \"result\": {\"leads\": [], \"count\": 0}}}\n\ndata: {\"content\": \"Budget reached; here is the summary.\"}\n\ndata: [DONE]\n\n",
+    "headers": {
+      "cache-control": "no-cache",
+      "connection": "keep-alive",
+      "content-type": "text/event-stream; charset=utf-8",
+      "x-accel-buffering": "no"
+    },
+    "status": 200
+  }
+}

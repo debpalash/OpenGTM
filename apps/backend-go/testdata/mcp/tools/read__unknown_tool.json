@@ -1,0 +1,29 @@
+{
+  "seq": 47,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 46,
+    "method": "tools/call",
+    "params": {
+      "name": "no_such_tool",
+      "arguments": {}
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 46,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Unknown tool: no_such_tool\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

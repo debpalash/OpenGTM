@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "evt-d",
+      "fields": {}
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-salesforce"
+  },
+  "response": {
+    "body": {
+      "detail": "invalid or revoked destination token"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

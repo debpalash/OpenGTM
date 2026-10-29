@@ -1,0 +1,13 @@
+{
+  "name": "outlook_dsn_5_4_1_access_denied",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 550 5.4.1 Recipient address rejected: Access denied. AS(201806281)",
+      "kind": "hard",
+      "original_message_id": "<orig-0006@contract.example.com>",
+      "recipient": "blocked@example.net"
+    }
+  ],
+  "source_message_id": "<dsn-0006@mx.example.net>"
+}

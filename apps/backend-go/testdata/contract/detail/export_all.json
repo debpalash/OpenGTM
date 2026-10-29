@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-alpha-2/export.csv"
+  },
+  "response": {
+    "body": "\ufeffCompany,Website,Email,City,Phone,Email Finder,Summary\r\nAcme 01,https://acme01.example.com,info@acme01.example.com,Austin,'+1-555-0101,found01@acme01.example.com,Acme 01 sells widgets.\r\nAcme 02,https://acme02.example.com,info@acme02.example.com,Pune,'+1-555-0102,found02@acme02.example.com,Acme 02 sells widgets.\r\nAcme 03,https://acme03.example.com,info@acme03.example.com,Lyon,'+1-555-0103,found03@acme03.example.com,\r\nAcme 04,https://acme04.example.com,info@acme04.example.com,Oslo,'+1-555-0104,,Acme 04 sells widgets.\r\nAcme 05,https://acme05.example.com,info@acme05.example.com,Berlin,'+1-555-0105,found05@acme05.example.com,Acme 05 sells widgets.\r\nAcme 06,https://acme06.example.com,info@acme06.example.com,Austin,'+1-555-0106,found06@acme06.example.com,\r\nAcme 07,https://acme07.example.com,,Pune,'+1-555-0107,found07@acme07.example.com,Acme 07 sells widgets.\r\nAcme 08,https://acme08.example.com,info@acme08.example.com,Lyon,'+1-555-0108,,Acme 08 sells widgets.\r\nAcme 09,,info@acme09.example.com,Oslo,'+1-555-0109,found09@acme09.example.com,\r\nAcme 10,https://acme10.example.com,info@acme10.example.com,Berlin,'+1-555-0110,found10@acme10.example.com,Acme 10 sells widgets.\r\nAcme 11,https://acme11.example.com,info@acme11.example.com,,'+1-555-0111,found11@acme11.example.com,Acme 11 sells widgets.\r\nAcme 12,https://acme12.example.com,info@acme12.example.com,Pune,'+1-555-0112,,\r\nAcme 13,https://acme13.example.com,info@acme13.example.com,Lyon,'+1-555-0113,found13@acme13.example.com,Acme 13 sells widgets.\r\nAcme 14,https://acme14.example.com,,Oslo,'+1-555-0114,found14@acme14.example.com,Acme 14 sells widgets.\r\nAcme 15,https://acme15.example.com,info@acme15.example.com,Berlin,'+1-555-0115,found15@acme15.example.com,\r\nAcme 16,https://acme16.example.com,info@acme16.example.com,Austin,'+1-555-0116,,Acme 16 sells widgets.\r\nAcme 17,https://acme17.example.com,info@acme17.example.com,Pune,'+1-555-0117,found17@acme17.example.com,Acme 17 sells widgets.\r\nAcme 18,,info@acme18.example.com,Lyon,'+1-555-0118,found18@acme18.example.com,\r\nAcme 19,https://acme19.example.com,info@acme19.example.com,Oslo,'+1-555-0119,found19@acme19.example.com,Acme 19 sells widgets.\r\nAcme 20,https://acme20.example.com,info@acme20.example.com,Berlin,'+1-555-0120,,Acme 20 sells widgets.\r\nAcme 21,https://acme21.example.com,,Austin,'+1-555-0121,found21@acme21.example.com,\r\nAcme 22,https://acme22.example.com,info@acme22.example.com,,'+1-555-0122,found22@acme22.example.com,Acme 22 sells widgets.\r\nAcme 23,https://acme23.example.com,info@acme23.example.com,Lyon,'+1-555-0123,found23@acme23.example.com,Acme 23 sells widgets.\r\nAcme 24,https://acme24.example.com,info@acme24.example.com,Oslo,'+1-555-0124,,\r\nAcme 25,https://acme25.example.com,info@acme25.example.com,Berlin,'+1-555-0125,found25@acme25.example.com,Acme 25 sells widgets.\r\n",
+    "headers": {
+      "content-disposition": "attachment; filename=\"Alpha_Leads.csv\"",
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

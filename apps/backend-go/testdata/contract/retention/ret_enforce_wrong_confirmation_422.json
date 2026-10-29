@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "purge expired data"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/governance/retention/enforce"
+  },
+  "response": {
+    "body": {
+      "detail": "confirmation must equal PURGE EXPIRED DATA"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

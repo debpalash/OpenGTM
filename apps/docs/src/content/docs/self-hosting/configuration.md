@@ -18,7 +18,7 @@ environment. Provider keys can also be set per workspace in
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | 30 | Access-token TTL |
 | `REFRESH_TOKEN_EXPIRE_MINUTES` | 20160 | Refresh-token TTL (14 days) |
 | `OPENGTM_SCIM_TOKEN_TTL_DAYS` | 90 | Workspace SCIM bearer-token TTL, clamped to 1-365 days |
-| `API_HOST`, `API_PORT` | `0.0.0.0`, 8000 | Bind address for uvicorn |
+| `API_ADDR` | `:8000` | Listen address of the Go API |
 | `CORS_ORIGINS` | `*` | Allowed origins |
 | `LOG_LEVEL` | `info` | Logging |
 | `PORT` | 3000 | Host port for nginx in Compose |
@@ -27,18 +27,19 @@ environment. Provider keys can also be set per workspace in
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `DATABASE_URL` | `postgresql+psycopg://localhost:5432/yupcha` | Schema-owner connection (migrations). SQLite `sqlite:///data/data.db` works for single-process dev |
-| `APP_DATABASE_URL` | runtime role URL in Compose | Non-superuser connection for API, worker, scheduler |
+| `DATABASE_URL` | owner URL in Compose | Schema-owner connection for `migrate`; outside Compose, the connection each Go binary uses |
+| `GO_DATABASE_URL` | runtime role URL in Compose | Compose: non-superuser connection for the Go services (built from the runtime user and password when unset) |
 | `APP_DB_ROLE` | `yupcha_app` | Expected runtime role |
 | `PG_LEAD_STORE` | on | Use the shared RLS-protected lead tables on PostgreSQL |
 | `PG_RLS_REQUIRE_SAFE_ROLE` | on | Refuse to boot if the role bypasses RLS |
-| `YUPCHA_DB_INIT` | `alembic` | `alembic`, `create_all` (dev only) or `skip` |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | `yupcha` / `yupcha` / `yupcha` / 5432 | Bundled Postgres container |
 | `YUPCHA_RUNTIME_DB_USER`, `YUPCHA_RUNTIME_DB_PASSWORD` | `yupcha_runtime` | Runtime role provisioned by `migrate` |
-| `REDIS_URL` | unset | `redis://redis:6379` in Compose; optional for single-process dev |
-| `RUN_INLINE_WORKER` | 0 in Compose | Set to 1 only for single-process development |
-| `WORKER_CONCURRENCY` | 10 | Concurrent jobs per worker |
-| `SCHEDULER_RECONCILE_SECONDS` | 60 | Stale-job reconciliation interval |
+| `REDIS_URL` | unset | `redis://redis:6379` in Compose; without it SSE sends heartbeats only |
+| `GO_WORKER_CONCURRENCY` | 4 | Concurrent jobs per worker |
+| `SCHEDULER_RECONCILE_SECONDS` | 60 | Recurring-job reconciliation interval (minimum 10) |
+| `INTERNAL_SERVICE_TOKEN` | required | Service-to-service token (>= 32 chars) |
+| `BROWSER_SERVICE_URL`, `BROWSER_SERVICE_TOKEN` | `http://browser:8090`, required | Internal browser service and its bearer token (>= 32 chars) |
+| `GO_ALL_NATIVE` | `true` in Compose | Turns on every Go route/executor flag not set explicitly |
 
 ## Secrets and billing
 
@@ -57,7 +58,8 @@ environment. Provider keys can also be set per workspace in
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD` | `admin` / `admin` | Created by the `seed` service; change the password |
+| `SETUP_TOKEN` | generated, logged once | Token required by first-run `/setup`; set it explicitly with more than one api-go replica |
+| `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD` | `admin` / `admin` | Only with `--profile demo`: created by the `seed` service. Demo hosts only |
 | `SEED_FORCE_RUN` | | Re-run the demo enrichment on next boot |
 
 ## LLM providers

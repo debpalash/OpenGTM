@@ -1,0 +1,33 @@
+{
+  "platform": "google_ads",
+  "operation": "add",
+  "scenario": "missing_access_token",
+  "config": {
+    "customer_id": "1234567890",
+    "user_list_id": "9876543210",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "Ada@Example.com",
+      "phone": "+1 (512) 555-0014"
+    },
+    {
+      "email": " bob@example.com "
+    },
+    {
+      "phone": "+91 22 5550 1001"
+    },
+    {
+      "email": "no-identifiers-here",
+      "phone": "12"
+    }
+  ],
+  "http_exchanges": [],
+  "unrouted_requests": [],
+  "raises": "RuntimeError: missing workspace secret GOOGLE_ADS_ACCESS_TOKEN"
+}

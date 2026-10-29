@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "email": "valid@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "confidence": 0.95,
+      "deliverable": true,
+      "detail": "250 recipient ok",
+      "email": "valid@example.com",
+      "source": "smtp_probe",
+      "status": "valid",
+      "valid": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

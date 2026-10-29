@@ -1,0 +1,5 @@
+# Enrichment routes that stay on FastAPI after plan 06. One "METHOD /path/{param}" per line.
+# Go must not register them; infra/nginx/go-routes.conf (plan 06 section) keeps them on api_backend at every
+# canary percentage. generate-column and provider-accuracy moved to internal/api/{generatecolumn,provideraccuracy}.go
+# in plan 15 WP-LLMROUTES (GO_LLM_ROUTES_ENABLED); the source preview moved to internal/api/workbooksources.go in
+# plan 15 WP-SOURCEWB (GO_SOURCE_PREVIEW_ENABLED). No enrichment route remains retained.

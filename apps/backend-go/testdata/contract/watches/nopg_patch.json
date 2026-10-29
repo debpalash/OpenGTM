@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "enabled": false
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-01"
+  },
+  "response": {
+    "body": {
+      "detail": "intent_poller_requires_pg_lead_store"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

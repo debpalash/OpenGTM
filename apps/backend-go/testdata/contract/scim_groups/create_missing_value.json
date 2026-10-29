@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "displayName": "Bad",
+      "members": [
+        {
+          "display": "x"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Groups"
+  },
+  "response": {
+    "body": {
+      "detail": "SCIM group already exists"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

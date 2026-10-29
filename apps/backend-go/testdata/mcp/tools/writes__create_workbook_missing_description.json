@@ -1,0 +1,56 @@
+{
+  "seq": 35,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 35,
+    "method": "tools/call",
+    "params": {
+      "name": "create_workbook",
+      "arguments": {}
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 35,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"'description'\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_workbook",
+      "arguments_redacted": {},
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "'description'",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 28,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000003c",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  },
+  "deviation": "D3: Python answers the exception text of the missing/mistyped argument; Go answers '<field> is required|must be <type>'"
+}

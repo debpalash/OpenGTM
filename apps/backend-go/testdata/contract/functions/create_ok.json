@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "category": "enrichment",
+      "columns_chain": [
+        {
+          "extra": {
+            "a": [
+              1.5,
+              null
+            ],
+            "z": 1
+          },
+          "id": "c1",
+          "name": "C1",
+          "type": "lead_field"
+        },
+        {
+          "key": "legacy"
+        }
+      ],
+      "description": "d",
+      "name": "Chain A"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/functions"
+  },
+  "response": {
+    "body": {
+      "columns_count": 2,
+      "id": "39a6a52d-a173-4579-9c98-9f8afc76bfac",
+      "name": "Chain A"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

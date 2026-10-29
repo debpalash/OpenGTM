@@ -1,0 +1,880 @@
+{
+  "python": "3.13.7",
+  "note": "_account_key(snapshot) -> (key, company) (urllib.parse behaviour is Python-version dependent: see 'python'); 'error' = the Python exception (an accounts request 500s on it: urlparse of an invalid IPv6 literal raises ValueError; Go decides, see the task report).",
+  "cases": [
+    {
+      "snapshot": {
+        "website": "https://acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "http://acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "HTTPS://WWW.ACME.COM",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "www.acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "  acme.com  ",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www.acme.com/path?q=1#frag",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "acme.com/path/only",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com:8443/x",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "acme.com:8080",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "localhost:8080",
+        "company": "Acme Inc"
+      },
+      "key": "localhost",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://user:pw@acme.com/",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://user@www.acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "ftp://files.acme.com/x",
+        "company": "Acme Inc"
+      },
+      "key": "files.acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "//acme.com/x",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www.www.acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "www.acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www./",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www",
+        "company": "Acme Inc"
+      },
+      "key": "www",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "WWW.ACME.COM",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://sub.domain.acme.co.uk/a",
+        "company": "Acme Inc"
+      },
+      "key": "sub.domain.acme.co.uk",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com.",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com.",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://ACME.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://xn--bcher-kva.example/",
+        "company": "Acme Inc"
+      },
+      "key": "xn--bcher-kva.example",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://bücher.example/",
+        "company": "Acme Inc"
+      },
+      "key": "bücher.example",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://東京.jp/",
+        "company": "Acme Inc"
+      },
+      "key": "東京.jp",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://127.0.0.1:8000/x",
+        "company": "Acme Inc"
+      },
+      "key": "127.0.0.1",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "http://[::1]:80/x",
+        "company": "Acme Inc"
+      },
+      "key": "::1",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://[2001:db8::1]/",
+        "company": "Acme Inc"
+      },
+      "key": "2001:db8::1",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "http://[bad",
+        "company": "Acme Inc"
+      },
+      "error": "ValueError: Invalid IPv6 URL"
+    },
+    {
+      "snapshot": {
+        "website": "https://[",
+        "company": "Acme Inc"
+      },
+      "error": "ValueError: Invalid IPv6 URL"
+    },
+    {
+      "snapshot": {
+        "website": "[::1",
+        "company": "Acme Inc"
+      },
+      "error": "ValueError: Invalid IPv6 URL"
+    },
+    {
+      "snapshot": {
+        "website": "https://[::1",
+        "company": "Acme Inc"
+      },
+      "error": "ValueError: Invalid IPv6 URL"
+    },
+    {
+      "snapshot": {
+        "website": "https://a.b]/",
+        "company": "Acme Inc"
+      },
+      "error": "ValueError: Invalid IPv6 URL"
+    },
+    {
+      "snapshot": {
+        "website": "mailto:x@acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "javascript:alert(1)",
+        "company": "Acme Inc"
+      },
+      "key": "javascript",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "http://",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "://",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https:///path",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://:80",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com:notaport",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com:99999",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "   ",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Acme Inc"
+      },
+      "key": "company:acme inc",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "N/A",
+        "company": "Acme Inc"
+      },
+      "key": "n",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "none",
+        "company": "Acme Inc"
+      },
+      "key": "none",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "nan",
+        "company": "Acme Inc"
+      },
+      "key": "nan",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com\n",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "acme .com",
+        "company": "Acme Inc"
+      },
+      "key": "acme .com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme com",
+        "company": "Acme Inc"
+      },
+      "key": "acme com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://a_b.example",
+        "company": "Acme Inc"
+      },
+      "key": "a_b.example",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www.acme.com:443",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "HTTP://User:Pass@Host.Example:81/Path",
+        "company": "Acme Inc"
+      },
+      "key": "host.example",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www.xn--acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "xn--acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://wwwacme.com",
+        "company": "Acme Inc"
+      },
+      "key": "wwwacme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://www.acme.com/www.other.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "tel:+15550100",
+        "company": "Acme Inc"
+      },
+      "key": "tel",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "data:text/plain,hello",
+        "company": "Acme Inc"
+      },
+      "key": "data",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com?x=www.evil.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://acme.com#@evil.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://evil.com\\@acme.com",
+        "company": "Acme Inc"
+      },
+      "key": "acme.com",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "http://0x7f.1/",
+        "company": "Acme Inc"
+      },
+      "key": "0x7f.1",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": "https://１２３.example/",
+        "company": "Acme Inc"
+      },
+      "key": "１２３.example",
+      "company": "Acme Inc"
+    },
+    {
+      "snapshot": {
+        "website": null,
+        "company": "Acme"
+      },
+      "key": "company:acme",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": 5,
+        "company": "Acme"
+      },
+      "key": "5",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": 0,
+        "company": "Acme"
+      },
+      "key": "company:acme",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": 1.5,
+        "company": "Acme"
+      },
+      "key": "1.5",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": true,
+        "company": "Acme"
+      },
+      "key": "true",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": false,
+        "company": "Acme"
+      },
+      "key": "company:acme",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": [
+          "a.com"
+        ],
+        "company": "Acme"
+      },
+      "error": "ValueError: \"'a.com'\" does not appear to be an IPv4 or IPv6 address"
+    },
+    {
+      "snapshot": {
+        "website": {
+          "a": 1
+        },
+        "company": "Acme"
+      },
+      "key": "{'a'",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Acme"
+      },
+      "key": "company:acme",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Acme"
+      },
+      "key": "company:acme",
+      "company": "Acme"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "  Acme   Inc  "
+      },
+      "key": "company:acme inc",
+      "company": "  Acme   Inc  "
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "  Acme   Inc  "
+      },
+      "key": "company:acme inc",
+      "company": "  Acme   Inc  "
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "ACME  INC"
+      },
+      "key": "company:acme inc",
+      "company": "ACME  INC"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "ACME  INC"
+      },
+      "key": "company:acme inc",
+      "company": "ACME  INC"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "İstanbul Ticaret"
+      },
+      "key": "company:i̇stanbul ticaret",
+      "company": "İstanbul Ticaret"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "İstanbul Ticaret"
+      },
+      "key": "company:i̇stanbul ticaret",
+      "company": "İstanbul Ticaret"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Straße GmbH"
+      },
+      "key": "company:straße gmbh",
+      "company": "Straße GmbH"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Straße GmbH"
+      },
+      "key": "company:straße gmbh",
+      "company": "Straße GmbH"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "東京テック"
+      },
+      "key": "company:東京テック",
+      "company": "東京テック"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "東京テック"
+      },
+      "key": "company:東京テック",
+      "company": "東京テック"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Ünï  Co"
+      },
+      "key": "company:ünï co",
+      "company": "Ünï  Co"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Ünï  Co"
+      },
+      "key": "company:ünï co",
+      "company": "Ünï  Co"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": ""
+      },
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": ""
+      },
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": null
+      },
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": null
+      },
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "   "
+      },
+      "key": "company:",
+      "company": "   "
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "   "
+      },
+      "key": "company:",
+      "company": "   "
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "a\tb\nc"
+      },
+      "key": "company:a b c",
+      "company": "a\tb\nc"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "a\tb\nc"
+      },
+      "key": "company:a b c",
+      "company": "a\tb\nc"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Ａｃｍｅ Ｉｎｃ"
+      },
+      "key": "company:ａｃｍｅ ｉｎｃ",
+      "company": "Ａｃｍｅ Ｉｎｃ"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Ａｃｍｅ Ｉｎｃ"
+      },
+      "key": "company:ａｃｍｅ ｉｎｃ",
+      "company": "Ａｃｍｅ Ｉｎｃ"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Ǆ co"
+      },
+      "key": "company:ǆ co",
+      "company": "Ǆ co"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Ǆ co"
+      },
+      "key": "company:ǆ co",
+      "company": "Ǆ co"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "ΑΣ co"
+      },
+      "key": "company:ας co",
+      "company": "ΑΣ co"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "ΑΣ co"
+      },
+      "key": "company:ας co",
+      "company": "ΑΣ co"
+    },
+    {
+      "snapshot": {
+        "website": "",
+        "company": "Σίσυφος"
+      },
+      "key": "company:σίσυφος",
+      "company": "Σίσυφος"
+    },
+    {
+      "snapshot": {
+        "website": "www.",
+        "company": "Σίσυφος"
+      },
+      "key": "company:σίσυφος",
+      "company": "Σίσυφος"
+    },
+    {
+      "snapshot": {},
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "company": null,
+        "website": null
+      },
+      "key": "company:unknown account",
+      "company": "Unknown account"
+    },
+    {
+      "snapshot": {
+        "website": "https://a.com"
+      },
+      "key": "a.com",
+      "company": "a.com"
+    },
+    {
+      "snapshot": {
+        "website": "https://a.com",
+        "company": ""
+      },
+      "key": "a.com",
+      "company": "a.com"
+    },
+    {
+      "snapshot": {
+        "website": "https://a.com",
+        "company": 0
+      },
+      "key": "a.com",
+      "company": "a.com"
+    },
+    {
+      "snapshot": {
+        "company": 5
+      },
+      "key": "company:5",
+      "company": "5"
+    },
+    {
+      "snapshot": {
+        "company": [
+          "x"
+        ]
+      },
+      "key": "company:['x']",
+      "company": "['x']"
+    },
+    {
+      "snapshot": {
+        "website": "https://a.com",
+        "company": "  X  "
+      },
+      "key": "a.com",
+      "company": "  X  "
+    }
+  ]
+}

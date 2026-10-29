@@ -1,0 +1,89 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/meta/ai-column-presets"
+  },
+  "response": {
+    "body": {
+      "categories": [
+        "personalization",
+        "qualification",
+        "research"
+      ],
+      "presets": [
+        {
+          "category": "qualification",
+          "column_type": "ai_formula",
+          "description": "Score how well a company matches your ICP. Number only \u2014 easy to sort/filter.",
+          "id": "icp_fit_score",
+          "name": "ICP Fit Score (0-100)",
+          "output_format": "number",
+          "prompt": "ROLE: You are a B2B sales qualification analyst.\nCONTEXT: Company: {company}. Website: {website}. City: {city}. Size: {company_size}. Description: {description}.\nTASK: Score 0-100 how well this company fits an ICP of mid-market B2B companies that would buy sales-intelligence software. Weight: firmographic fit 40, buying-signal/intent 25, technographic fit 20, trigger events 15.\nFORMAT: Output ONLY the integer score (0-100). No words, no symbols.\nFALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "research",
+          "column_type": "ai_formula",
+          "description": "Infer the company's most likely operational pain points from its profile.",
+          "id": "company_pain",
+          "name": "Likely Pain Points",
+          "output_format": "text",
+          "prompt": "ROLE: You are a B2B growth strategist.\nCONTEXT: Company: {company} ({website}). What they do: {description}. Size: {company_size}.\nTASK: Identify the 2 most likely operational pain points this specific company faces, grounded in their business model and size \u2014 not generic platitudes.\nFORMAT: Two short bullet points, max 12 words each.\nFALLBACK: If the profile is too thin to infer real pains, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "personalization",
+          "column_type": "ai_formula",
+          "description": "A one-sentence cold-email opener referencing something specific about the company.",
+          "id": "opening_line",
+          "name": "Personalized Opening Line",
+          "output_format": "text",
+          "prompt": "ROLE: You are an expert cold-email copywriter.\nCONTEXT: Company: {company}. About: {description}. City: {city}. Website: {website}.\nTASK: Write ONE personalized opening line for a cold email that references something specific and true about this company. No flattery, no 'I came across your company'.\nFORMAT: One sentence, max 20 words, plain text.\nFALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "qualification",
+          "column_type": "ai_formula",
+          "description": "Classify a contact's seniority from their title \u2014 one word, easy to filter.",
+          "id": "seniority_tier",
+          "name": "Contact Seniority Tier",
+          "output_format": "text",
+          "prompt": "ROLE: You classify B2B contact seniority.\nCONTEXT: Contact: {contact_person}. Title: {contact_title}. Company: {company}.\nTASK: Classify the seniority tier of this contact.\nFORMAT: Output exactly one of: C_SUITE, VP, DIRECTOR, MANAGER, IC, UNKNOWN. Nothing else.\nFALLBACK: If there is no title, output UNKNOWN."
+        },
+        {
+          "category": "research",
+          "column_type": "ai_formula",
+          "description": "A crisp one-sentence description of what the company does.",
+          "id": "company_one_liner",
+          "name": "Company One-Liner",
+          "output_format": "text",
+          "prompt": "ROLE: You write crisp company descriptions.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: In one sentence, state what this company does and who they serve.\nFORMAT: One sentence, max 25 words, no marketing fluff.\nFALLBACK: If you don't know what they do, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "research",
+          "column_type": "research",
+          "description": "Research the company's website/job posts to detect their tech stack.",
+          "id": "tech_stack_research",
+          "name": "Tech-Stack Detection (web research)",
+          "output_format": "text",
+          "prompt": "ROLE: You are a technographic researcher.\nCONTEXT: Company: {company}. Website: {website}.\nTASK: Search the company's site and job postings to determine the key technologies they use (languages, frameworks, cloud, major SaaS tools). Only report tech you find concrete evidence for \u2014 never guess.\nFORMAT: Comma-separated list of technologies.\nFALLBACK: If you find no concrete tech evidence, output INSUFFICIENT_DATA."
+        },
+        {
+          "category": "research",
+          "column_type": "research",
+          "description": "A short pre-call account brief: what they do, a recent signal, and an angle.",
+          "id": "account_brief",
+          "name": "3-Bullet Account Brief",
+          "output_format": "text",
+          "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2."
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals"
+  },
+  "response": {
+    "body": {
+      "counts": {
+        "funding": 2,
+        "growth": 1,
+        "hiring": 1,
+        "news": 1,
+        "tech_change": 1,
+        "total": 6,
+        "unread": 6
+      },
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "signal_types": {
+        "funding": "Funding",
+        "growth": "Growth Signal",
+        "hiring": "Hiring",
+        "job_change": "Job Change",
+        "news": "News Mention",
+        "social_activity": "Social Activity",
+        "tech_change": "Tech Change",
+        "website_change": "Website Update"
+      },
+      "signals": [
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787998200.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-01",
+          "lead_id": 17,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/1",
+          "title": "beta funding 1",
+          "weight": 10,
+          "workspace_id": "ws-beta"
+        },
+        {
+          "company": "Initech Two",
+          "created_at": 1787996400.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-02",
+          "lead_id": 18,
+          "read": 0,
+          "signal_type": "tech_change",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/2",
+          "title": "beta tech_change 2",
+          "weight": 6,
+          "workspace_id": "ws-beta"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787994600.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-03",
+          "lead_id": 17,
+          "read": 0,
+          "signal_type": "news",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/3",
+          "title": "beta news 3",
+          "weight": 5,
+          "workspace_id": "ws-beta"
+        },
+        {
+          "company": "Initech Two",
+          "created_at": 1787992800.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-04",
+          "lead_id": 18,
+          "read": 0,
+          "signal_type": "growth",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/4",
+          "title": "beta growth 4",
+          "weight": 7,
+          "workspace_id": "ws-beta"
+        },
+        {
+          "company": "Zenith Robotics Pvt Ltd",
+          "created_at": 1787991000.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-05",
+          "lead_id": 17,
+          "read": 0,
+          "signal_type": "hiring",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/5",
+          "title": "beta hiring 5",
+          "weight": 8,
+          "workspace_id": "ws-beta"
+        },
+        {
+          "company": "Initech Two",
+          "created_at": 1787989200.0,
+          "description": "beta tenant signal",
+          "id": "sig-b-06",
+          "lead_id": 18,
+          "read": 0,
+          "signal_type": "funding",
+          "source": "jobspy",
+          "source_url": "https://signals.example.com/b/6",
+          "title": "beta funding 6",
+          "weight": 10,
+          "workspace_id": "ws-beta"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

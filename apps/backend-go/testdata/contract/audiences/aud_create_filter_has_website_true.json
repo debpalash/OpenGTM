@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "has_website": true
+      },
+      "name": "Filter has_website_true"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:44.723346",
+      "description": "",
+      "filters": {
+        "has_website": true
+      },
+      "id": "00000000-0000-4000-8000-000000002026",
+      "last_refresh_error": null,
+      "member_count": 13,
+      "name": "Filter has_website_true",
+      "next_refresh_at": "2026-10-26T18:05:44.758000",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:44.736512",
+      "updated_at": "2026-10-26T17:05:44.756858"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

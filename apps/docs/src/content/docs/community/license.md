@@ -20,6 +20,21 @@ In plain terms:
 This is not legal advice; read the full licence if you plan to offer OpenGTM as
 a hosted service.
 
+## Commercial licence
+
+If the AGPL does not fit your use, for example a proprietary deployment or
+product, Yupcha Softwares Private Limited offers OpenGTM under a commercial
+licence. Contact legal@yupcha.com.
+
+## Contributions
+
+Contributors sign the
+[Contributor License Agreement](https://github.com/debpalash/opengtm/blob/main/CLA.md).
+Contributors keep their copyright, and grant Yupcha the right to distribute
+their work under the AGPL and under commercial licences. Whatever Yupcha
+includes in the public source release stays available under the AGPL or
+another OSI-approved licence.
+
 ## Third-party components
 
 - The optional [Reacher](https://github.com/reacherhq/check-if-email-exists)

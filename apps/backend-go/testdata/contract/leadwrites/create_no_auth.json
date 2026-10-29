@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "company": "Nope"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

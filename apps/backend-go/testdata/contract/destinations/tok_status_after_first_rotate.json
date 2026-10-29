@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/00000000-0000-4000-8000-000000002081/inbound-token"
+  },
+  "response": {
+    "body": {
+      "active": true,
+      "created_at": "2026-10-26T17:05:52.910420",
+      "created_by": 1,
+      "expired": false,
+      "expires_at": "2027-01-24T17:05:52.920289+00:00",
+      "last_used_at": null,
+      "prefix": "dsi_00000001"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

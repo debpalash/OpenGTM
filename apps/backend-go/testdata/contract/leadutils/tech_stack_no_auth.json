@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "domain": "example.com"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/leads/tech-stack"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

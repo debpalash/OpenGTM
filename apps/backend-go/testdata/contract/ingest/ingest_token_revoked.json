@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "company": "x"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/v2/workbooks/wb-enrich-1/rows/ingest"
+  },
+  "response": {
+    "body": {
+      "detail": "ingest token revoked"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 401
+  }
+}

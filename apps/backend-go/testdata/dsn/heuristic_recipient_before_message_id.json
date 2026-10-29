@@ -1,0 +1,13 @@
+{
+  "name": "heuristic_recipient_before_message_id",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "hard",
+      "original_message_id": "<orig-0025@contract.example.com>",
+      "recipient": "first@example.org"
+    }
+  ],
+  "source_message_id": "<plain-0001@mx.example.net>"
+}

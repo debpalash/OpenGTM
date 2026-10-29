@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "enabled": true,
+      "retention_days": {
+        "audit": 100.5
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 100.5,
+          "loc": [
+            "body",
+            "retention_days",
+            "audit"
+          ],
+          "msg": "Input should be a valid integer, got a number with a fractional part",
+          "type": "int_from_float"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

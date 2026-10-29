@@ -1,0 +1,61 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/a1000000000000000000000000000005"
+  },
+  "response": {
+    "body": {
+      "attempts": 3,
+      "completed_at": "2026-08-26T11:09:59.000005+00:00",
+      "created_at": "2026-08-26T11:00:00.750000+00:00",
+      "error": "Search provider rate limited (HTTP 429)",
+      "id": "a1000000000000000000000000000005",
+      "intent": "market_search",
+      "intent_details": {},
+      "leads_found": 0,
+      "max_attempts": 3,
+      "proxy_used": "",
+      "query": "payroll outsourcing Delhi",
+      "stages": [
+        {
+          "completed_at": "2026-08-25T09:01:00.000006+00:00",
+          "details": {
+            "error": "Timed out after 60s"
+          },
+          "id": 9,
+          "input_count": 17,
+          "job_id": "a1000000000000000000000000000005",
+          "output_count": 15,
+          "rejected_count": 2,
+          "stage": "validate",
+          "started_at": "2026-08-25T09:00:00.000005+00:00",
+          "status": "failed"
+        },
+        {
+          "completed_at": "",
+          "details": {},
+          "id": 10,
+          "input_count": 15,
+          "job_id": "a1000000000000000000000000000005",
+          "output_count": 14,
+          "rejected_count": 1,
+          "stage": "dedup",
+          "started_at": "2026-08-25T09:01:00.000007+00:00",
+          "status": "running"
+        }
+      ],
+      "started_at": "2026-08-26T11:05:00+00:00",
+      "status": "failed",
+      "tier": 1,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,43 @@
+{
+ "area": "sec_funding",
+ "scenario": "submissions_no_d_filings",
+ "description": "no Form D in recent filings",
+ "input": {
+  "target": "sec_cik:2000934",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "resolved_cik": null,
+  "want_funding": true,
+  "want_exec": true,
+  "backfill": false
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://data.sec.gov/submissions/CIK0002000934.json",
+    "headers": {
+     "host": "data.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"filings\":{\"recent\":{\"form\":[\"8-K\"],\"accessionNumber\":[\"0002000934-24-000012\"],\"filingDate\":[\"2024-06-01\"]}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {
+   "sec_known_execs": []
+  }
+ }
+}

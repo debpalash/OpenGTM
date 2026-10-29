@@ -1,0 +1,85 @@
+{
+  "request": {
+    "body": {
+      "row_ids": [
+        "3001",
+        "3002",
+        "3003"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers/trg-a-01/preview"
+  },
+  "response": {
+    "body": {
+      "matched": 3,
+      "projected_total_usd": 0.0,
+      "sample": [
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Hot Pursuit Labs",
+                  "site": "https://hotpursuit.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Hot Pursuit Labs"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3001",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Quantum Foods",
+                  "site": "https://quantumfoods.example.com"
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Quantum Foods"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3002",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "actions": [
+            {
+              "resolved_payload_preview": {
+                "body": {
+                  "company": "Soylent",
+                  "site": ""
+                },
+                "method": "POST",
+                "url": "https://hooks.example.com/auto/Soylent"
+              },
+              "type": "webhook",
+              "would_charge_usd": 0.0
+            }
+          ],
+          "condition_pass": true,
+          "row_id": "3003",
+          "workbook_id": "wb-auto-1"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": "oops",
+          "type": "webhook"
+        }
+      ],
+      "name": "x",
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": "Internal Server Error",
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "status": 500
+  }
+}

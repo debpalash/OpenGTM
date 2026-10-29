@@ -1,0 +1,1299 @@
+{
+ "workspace_id": "ws-1",
+ "user_id": 7,
+ "conversation_id": "conv-1",
+ "uuid_hex_sequence": [
+  "00000000000000000000000000000001",
+  "00000000000000000000000000000002",
+  "00000000000000000000000000000003"
+ ],
+ "cases": [
+  {
+   "name": "explicit_people",
+   "message": "Find named people currently working on Stripe's partnerships team. Require evidence for current employment and their partnerships remit. Return name, title, location, LinkedIn profile, evidence URL, retrieval date, and confidence. Reject similarly named companies and do not guess emails.",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"find_people_at_company\", \"args\": {\"company\": \"Stripe\", \"function\": \"partnerships\", \"limit\": 8}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"find_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Acme\", \"function\": \"partnerships\", \"result_set_id\": \"\", \"company_resolution\": {\"status\": \"resolved\", \"canonical_domain\": \"Acme.com\"}, \"people\": [{\"name\": \"Ann Lee\", \"title\": \"Head of Partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"confidence\": 0.8, \"retrieved_at\": \"2026-01-01\", \"verification_status\": \"profile_evidence\"}, {\"name\": \"Bob Roy\", \"title\": \"VP Alliances\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"evidence_url\": \"https://acme.com/team\", \"confidence\": 0.6}], \"count\": 2}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I found **2 evidence-matched candidate(s)** for **Acme \\u2014 partnerships**.\\n\\n| Person | Public title | Location | Retrieved | Confidence |\\n|---|---|---|---|---|\\n| [Ann Lee](https://www.linkedin.com/in/annlee/) | Head of Partnerships | \\u2014 | 2026-01-01 | 80% |\\n| [Bob Roy](https://acme.com/team) | VP Alliances | Pune | \\u2014 | 60% |\\n\\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "find_people_at_company result",
+     "tool_data": "{\"name\": \"find_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Acme\", \"function\": \"partnerships\", \"result_set_id\": \"\", \"company_resolution\": {\"status\": \"resolved\", \"canonical_domain\": \"Acme.com\"}, \"people\": [{\"name\": \"Ann Lee\", \"title\": \"Head of Partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"confidence\": 0.8, \"retrieved_at\": \"2026-01-01\", \"verification_status\": \"profile_evidence\"}, {\"name\": \"Bob Roy\", \"title\": \"VP Alliances\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"evidence_url\": \"https://acme.com/team\", \"confidence\": 0.6}], \"count\": 2}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I found **2 evidence-matched candidate(s)** for **Acme — partnerships**.\n\n| Person | Public title | Location | Retrieved | Confidence |\n|---|---|---|---|---|\n| [Ann Lee](https://www.linkedin.com/in/annlee/) | Head of Partnerships | — | 2026-01-01 | 80% |\n| [Bob Roy](https://acme.com/team) | VP Alliances | Pune | — | 60% |\n\nEvery row passed an exact target-company employment pattern and function-term check. Public profile snippets can still be stale, so re-check the linked profile before outreach. No email addresses were inferred.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": [
+    {
+     "fn": "research",
+     "kwargs": {
+      "company": "Stripe",
+      "function": "partnerships",
+      "limit": 8
+     }
+    }
+   ]
+  },
+  {
+   "name": "explicit_people_boom",
+   "message": "Find named people currently working on boom's partnerships team.",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"find_people_at_company\", \"args\": {\"company\": \"boom\", \"function\": \"partnerships\", \"limit\": 8}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"find_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_research_unavailable\", \"detail\": \"search backend down\", \"company\": \"boom\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I couldn't verify any **partnerships** people at **boom** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "find_people_at_company result",
+     "tool_data": "{\"name\": \"find_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_research_unavailable\", \"detail\": \"search backend down\", \"company\": \"boom\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I couldn't verify any **partnerships** people at **boom** from the public profile evidence available right now. I rejected 0 candidate(s) without an exact company relationship and 0 without function evidence. No broad collection was run and no contacts were guessed.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": [
+    {
+     "fn": "research",
+     "kwargs": {
+      "company": "boom",
+      "function": "partnerships",
+      "limit": 8
+     }
+    }
+   ]
+  },
+  {
+   "name": "contacts",
+   "message": "please find their work emails",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "ok": true,
+     "company": "Acme",
+     "function": "partnerships",
+     "result_set_id": "",
+     "company_resolution": {
+      "status": "resolved",
+      "canonical_domain": "Acme.com"
+     },
+     "people": [
+      {
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "evidence_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 0.8,
+       "retrieved_at": "2026-01-01",
+       "verification_status": "profile_evidence"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP Alliances",
+       "linkedin_url": "",
+       "location": "Pune",
+       "evidence_url": "https://acme.com/team",
+       "confidence": 0.6
+      }
+     ],
+     "count": 2
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can look for work emails for the exact 2 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"enrich_people_contacts\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"person_ids\\\": [\\\"person_f5b2ccd8a48b7f5048332611\\\", \\\"person_d57a68c631c266fbe1357a7d\\\"], \\\"idempotency_key\\\": \\\"chat-contacts:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\\\"}\"}}, \"name\": \"enrich_people_contacts\", \"args\": {\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_d57a68c631c266fbe1357a7d\"], \"idempotency_key\": \"chat-contacts:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\"}, \"description\": \"Find and Verify Work Emails\\nUses configured email-finder and verification providers for the exact saved people selection.\\nConversation: conv-1 \\u00b7 People: 2\", \"level\": \"medium\", \"label\": \"Find and Verify Work Emails\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can look for work emails for the exact 2 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "enrich_people_contacts",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_d57a68c631c266fbe1357a7d\"], \"idempotency_key\": \"chat-contacts:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "contacts_with_set_id",
+   "message": "get e-mail addresses",
+   "approved": false,
+   "priors": {
+    "verify_people_at_company": {
+     "ok": true,
+     "company": "Acme",
+     "function": "partnerships",
+     "people": [
+      {
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "evidence_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 0.8,
+       "retrieved_at": "2026-01-01",
+       "verification_status": "independent_role_evidence",
+       "verification_confidence": 0.95,
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team"
+        }
+       ],
+       "checked_at": "2026-01-05"
+      }
+     ],
+     "count": 1,
+     "result_set_id": "people_fixed"
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can look for work emails for the exact 1 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"enrich_people_contacts\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"person_ids\\\": [\\\"person_f5b2ccd8a48b7f5048332611\\\"], \\\"idempotency_key\\\": \\\"chat-contacts:conv-1:people_fixed:0f9cb04586fc3a6a\\\"}\"}}, \"name\": \"enrich_people_contacts\", \"args\": {\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\"], \"idempotency_key\": \"chat-contacts:conv-1:people_fixed:0f9cb04586fc3a6a\"}, \"description\": \"Find and Verify Work Emails\\nUses configured email-finder and verification providers for the exact saved people selection.\\nConversation: conv-1 \\u00b7 People: 1\", \"level\": \"medium\", \"label\": \"Find and Verify Work Emails\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can look for work emails for the exact 1 people saved in this conversation, then check each found address with a separate deliverability verifier. This may use configured provider credits.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "enrich_people_contacts",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\"], \"idempotency_key\": \"chat-contacts:conv-1:people_fixed:0f9cb04586fc3a6a\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "verify",
+   "message": "verify them",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "ok": true,
+     "company": "Acme",
+     "function": "partnerships",
+     "result_set_id": "",
+     "company_resolution": {
+      "status": "resolved",
+      "canonical_domain": "Acme.com"
+     },
+     "people": [
+      {
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "evidence_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 0.8,
+       "retrieved_at": "2026-01-01",
+       "verification_status": "profile_evidence"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP Alliances",
+       "linkedin_url": "",
+       "location": "Pune",
+       "evidence_url": "https://acme.com/team",
+       "confidence": 0.6
+      }
+     ],
+     "count": 2
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"verify_people_at_company\", \"args\": {\"company\": \"Acme\", \"function\": \"partnerships\", \"people_count\": 2}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"verify_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Acme\", \"function\": \"partnerships\", \"people\": [{\"name\": \"Ann Lee\", \"title\": \"Head of Partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"confidence\": 0.8, \"retrieved_at\": \"2026-01-01\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"url\": \"https://acme.com/team\", \"label\": \"Team\"}], \"checked_at\": \"2026-01-05\"}], \"count\": 1}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I re-checked **1 people** for **Acme \\u2014 partnerships** using fresh public searches.\\n\\n| Person | Public title | Verification | Fresh evidence | Confidence |\\n|---|---|---|---|---|\\n| [Ann Lee](https://www.linkedin.com/in/annlee/) | Head of Partnerships | Independent role evidence | [source 1](https://acme.com/team) | 95% |\\n\\n**Summary:** 0 with independent role evidence, 0 profile-reconfirmed, 0 not corroborated. \\u201cNot corroborated\\u201d is not a negative finding\\u2014it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "verify_people_at_company result",
+     "tool_data": "{\"name\": \"verify_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Acme\", \"function\": \"partnerships\", \"people\": [{\"name\": \"Ann Lee\", \"title\": \"Head of Partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"confidence\": 0.8, \"retrieved_at\": \"2026-01-01\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"url\": \"https://acme.com/team\", \"label\": \"Team\"}], \"checked_at\": \"2026-01-05\"}], \"count\": 1}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I re-checked **1 people** for **Acme — partnerships** using fresh public searches.\n\n| Person | Public title | Verification | Fresh evidence | Confidence |\n|---|---|---|---|---|\n| [Ann Lee](https://www.linkedin.com/in/annlee/) | Head of Partnerships | Independent role evidence | [source 1](https://acme.com/team) | 95% |\n\n**Summary:** 0 with independent role evidence, 0 profile-reconfirmed, 0 not corroborated. “Not corroborated” is not a negative finding—it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": [
+    {
+     "fn": "verify",
+     "kwargs": {
+      "company": "Acme",
+      "function": "partnerships",
+      "people": [
+       {
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "evidence_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 0.8,
+        "retrieved_at": "2026-01-01",
+        "verification_status": "profile_evidence"
+       },
+       {
+        "name": "Bob Roy",
+        "title": "VP Alliances",
+        "linkedin_url": "",
+        "location": "Pune",
+        "evidence_url": "https://acme.com/team",
+        "confidence": 0.6
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "verify_boom",
+   "message": "check these",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "ok": true,
+     "company": "boom",
+     "function": "partnerships",
+     "result_set_id": "",
+     "company_resolution": {
+      "status": "resolved",
+      "canonical_domain": "Acme.com"
+     },
+     "people": [
+      {
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "evidence_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 0.8,
+       "retrieved_at": "2026-01-01",
+       "verification_status": "profile_evidence"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP Alliances",
+       "linkedin_url": "",
+       "location": "Pune",
+       "evidence_url": "https://acme.com/team",
+       "confidence": 0.6
+      }
+     ],
+     "count": 2
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_call\": {\"name\": \"verify_people_at_company\", \"args\": {\"company\": \"boom\", \"function\": \"partnerships\", \"people_count\": 2}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"tool_result\": {\"name\": \"verify_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_verification_unavailable\", \"detail\": \"verify backend down\", \"company\": \"boom\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"There are no saved people candidates in this conversation to verify.\"}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "tool",
+     "content": "verify_people_at_company result",
+     "tool_data": "{\"name\": \"verify_people_at_company\", \"result\": {\"ok\": false, \"error\": \"people_verification_unavailable\", \"detail\": \"verify backend down\", \"company\": \"boom\", \"function\": \"partnerships\", \"people\": [], \"count\": 0}}"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "There are no saved people candidates in this conversation to verify.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": [
+    {
+     "fn": "verify",
+     "kwargs": {
+      "company": "boom",
+      "function": "partnerships",
+      "people": [
+       {
+        "name": "Ann Lee",
+        "title": "Head of Partnerships",
+        "linkedin_url": "https://www.linkedin.com/in/annlee/",
+        "evidence_url": "https://www.linkedin.com/in/annlee/",
+        "confidence": 0.8,
+        "retrieved_at": "2026-01-01",
+        "verification_status": "profile_evidence"
+       },
+       {
+        "name": "Bob Roy",
+        "title": "VP Alliances",
+        "linkedin_url": "",
+        "location": "Pune",
+        "evidence_url": "https://acme.com/team",
+        "confidence": 0.6
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "name": "workbook",
+   "message": "save them to a workbook",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "ok": true,
+     "company": "Acme",
+     "function": "partnerships",
+     "result_set_id": "",
+     "company_resolution": {
+      "status": "resolved",
+      "canonical_domain": "Acme.com"
+     },
+     "people": [
+      {
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "evidence_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 0.8,
+       "retrieved_at": "2026-01-01",
+       "verification_status": "profile_evidence"
+      },
+      {
+       "name": "Bob Roy",
+       "title": "VP Alliances",
+       "linkedin_url": "",
+       "location": "Pune",
+       "evidence_url": "https://acme.com/team",
+       "confidence": 0.6
+      }
+     ],
+     "count": 2
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can create **Acme \\u2014 Partnerships People** with the exact 2 people already stored in this conversation. This will not run a new lead search.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_people_workbook\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"name\\\": \\\"Acme \\\\u2014 Partnerships People\\\", \\\"person_ids\\\": [\\\"person_f5b2ccd8a48b7f5048332611\\\", \\\"person_d57a68c631c266fbe1357a7d\\\"], \\\"idempotency_key\\\": \\\"chat-people:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\\\"}\"}}, \"name\": \"create_people_workbook\", \"args\": {\"conversation_id\": \"conv-1\", \"name\": \"Acme \\u2014 Partnerships People\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_d57a68c631c266fbe1357a7d\"], \"idempotency_key\": \"chat-people:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\"}, \"description\": \"\\ud83d\\udccb Create People Workbook\\nCreates a workbook and snapshots the people already found in this conversation.\\nConversation: conv-1 \\u00b7 People: 2 \\u00b7 Workbook: Acme \\u2014 Partnerships People\", \"level\": \"medium\", \"label\": \"\\ud83d\\udccb Create People Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can create **Acme — Partnerships People** with the exact 2 people already stored in this conversation. This will not run a new lead search.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_people_workbook",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"name\": \"Acme \\u2014 Partnerships People\", \"person_ids\": [\"person_f5b2ccd8a48b7f5048332611\", \"person_d57a68c631c266fbe1357a7d\"], \"idempotency_key\": \"chat-people:conv-1:people_3eb7fe4cb6d23e64e32ae4bc:3bae3cc8721e987f\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "workbook_defaults",
+   "message": "create a workbook with these",
+   "approved": false,
+   "priors": {
+    "find_people_at_company": {
+     "people": [
+      {
+       "name": "Solo",
+       "x": 1
+      },
+      "bad"
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can create **People \\u2014 Research People** with the exact 1 people already stored in this conversation. This will not run a new lead search.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"create_people_workbook\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"name\\\": \\\"People \\\\u2014 Research People\\\", \\\"person_ids\\\": [\\\"person_3dde14223277114006b32255\\\"], \\\"idempotency_key\\\": \\\"chat-people:conv-1:people_1adad9739dbd47380368e6ce:09a9614e6d0e8f6f\\\"}\"}}, \"name\": \"create_people_workbook\", \"args\": {\"conversation_id\": \"conv-1\", \"name\": \"People \\u2014 Research People\", \"person_ids\": [\"person_3dde14223277114006b32255\"], \"idempotency_key\": \"chat-people:conv-1:people_1adad9739dbd47380368e6ce:09a9614e6d0e8f6f\"}, \"description\": \"\\ud83d\\udccb Create People Workbook\\nCreates a workbook and snapshots the people already found in this conversation.\\nConversation: conv-1 \\u00b7 People: 1 \\u00b7 Workbook: People \\u2014 Research People\", \"level\": \"medium\", \"label\": \"\\ud83d\\udccb Create People Workbook\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can create **People — Research People** with the exact 1 people already stored in this conversation. This will not run a new lead search.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "create_people_workbook",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"name\": \"People \\u2014 Research People\", \"person_ids\": [\"person_3dde14223277114006b32255\"], \"idempotency_key\": \"chat-people:conv-1:people_1adad9739dbd47380368e6ce:09a9614e6d0e8f6f\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "draft_eligible",
+   "message": "Draft a partnership email to the verified contact. Do not send.",
+   "approved": false,
+   "priors": {
+    "enrich_people_contacts": {
+     "ok": true,
+     "company": "Acme",
+     "function": "partnerships",
+     "action_id": "chat-contacts:conv-1:a:b",
+     "people": [
+      {
+       "person_id": "person_a",
+       "name": "Ann Lee",
+       "title": "Head of Partnerships",
+       "function": "partnerships",
+       "contactability": {
+        "email": "Ann.Lee@Acme.com",
+        "status": "verified",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "verification_confidence": 0.9
+      },
+      {
+       "person_id": "person_b",
+       "name": "Bob Roy",
+       "title": "Partnerships Manager",
+       "function": "partnerships",
+       "contactability": {
+        "email": "bob@acme.com",
+        "status": "risky",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 1.7
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can save a short draft for **Ann Lee** at **Acme** using the saved **verified** address and public role evidence. The draft action has no send capability.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"draft_grounded_outreach\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"source_action_id\\\": \\\"chat-contacts:conv-1:a:b\\\", \\\"person_id\\\": \\\"person_a\\\", \\\"allow_risky\\\": false, \\\"idempotency_key\\\": \\\"chat-draft:conv-1:90b8598fd3c98675\\\"}\"}}, \"name\": \"draft_grounded_outreach\", \"args\": {\"conversation_id\": \"conv-1\", \"source_action_id\": \"chat-contacts:conv-1:a:b\", \"person_id\": \"person_a\", \"allow_risky\": false, \"idempotency_key\": \"chat-draft:conv-1:90b8598fd3c98675\"}, \"description\": \"Create Grounded Draft\\nPersists a draft for one exact saved contact. This action cannot send messages.\\nConversation: conv-1 \\u00b7 Person: person_a \\u00b7 Risky address approved: False \\u00b7 Send: disabled\", \"level\": \"medium\", \"label\": \"Create Grounded Draft\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can save a short draft for **Ann Lee** at **Acme** using the saved **verified** address and public role evidence. The draft action has no send capability.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "draft_grounded_outreach",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"source_action_id\": \"chat-contacts:conv-1:a:b\", \"person_id\": \"person_a\", \"allow_risky\": false, \"idempotency_key\": \"chat-draft:conv-1:90b8598fd3c98675\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "draft_risky_denied",
+   "message": "draft a message for the contact, don't send",
+   "approved": false,
+   "priors": {
+    "enrich_people_contacts": {
+     "ok": true,
+     "company": "Acme",
+     "action_id": "act-r",
+     "people": [
+      {
+       "person_id": "person_b",
+       "name": "Bob Roy",
+       "title": "Partnerships Manager",
+       "function": "partnerships",
+       "contactability": {
+        "email": "bob@acme.com",
+        "status": "risky",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 1.7
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. Blocked by: risky_address_requires_approval. No draft was created and no message was sent.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"draft_blocked\": {\"error\": \"No saved contact has an eligible evidence-backed address for drafting\", \"contact_flags\": [{\"person_id\": \"person_b\", \"person_name\": \"Bob Roy\", \"email\": \"bob@acme.com\", \"contact_status\": \"risky\", \"generic_inbox\": false, \"is_role_address\": false, \"reason\": \"risky_address_requires_approval\"}], \"send_performed\": false}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. Blocked by: risky_address_requires_approval. No draft was created and no message was sent.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": []
+  },
+  {
+   "name": "draft_risky_allowed",
+   "message": "draft an email to the contact and use the risky address; never send",
+   "approved": false,
+   "priors": {
+    "enrich_people_contacts": {
+     "ok": true,
+     "company": "Acme",
+     "action_id": "act-r",
+     "people": [
+      {
+       "person_id": "person_b",
+       "name": "Bob Roy",
+       "title": "Partnerships Manager",
+       "function": "partnerships",
+       "contactability": {
+        "email": "bob@acme.com",
+        "status": "risky",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/",
+       "confidence": 1.7
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I can save a short draft for **Bob Roy** at **Acme** using the saved **risky** address and public role evidence. The draft action has no send capability.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"confirmation_required\": {\"confirmation_id\": \"appr-1\", \"tool_call\": {\"id\": \"appr-1\", \"type\": \"function\", \"function\": {\"name\": \"draft_grounded_outreach\", \"arguments\": \"{\\\"conversation_id\\\": \\\"conv-1\\\", \\\"source_action_id\\\": \\\"act-r\\\", \\\"person_id\\\": \\\"person_b\\\", \\\"allow_risky\\\": true, \\\"idempotency_key\\\": \\\"chat-draft:conv-1:9a361100004a5a0c\\\"}\"}}, \"name\": \"draft_grounded_outreach\", \"args\": {\"conversation_id\": \"conv-1\", \"source_action_id\": \"act-r\", \"person_id\": \"person_b\", \"allow_risky\": true, \"idempotency_key\": \"chat-draft:conv-1:9a361100004a5a0c\"}, \"description\": \"Create Grounded Draft\\nPersists a draft for one exact saved contact. This action cannot send messages.\\nConversation: conv-1 \\u00b7 Person: person_b \\u00b7 Risky address approved: True \\u00b7 Send: disabled\", \"level\": \"medium\", \"label\": \"Create Grounded Draft\"}}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"awaiting_confirmation\": true}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I can save a short draft for **Bob Roy** at **Acme** using the saved **risky** address and public role evidence. The draft action has no send capability.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [
+    {
+     "workspace_id": "ws-1",
+     "user_id": 7,
+     "tool_call": {
+      "id": "call_00000000000000000000000000000001",
+      "type": "function",
+      "function": {
+       "name": "draft_grounded_outreach",
+       "arguments": "{\"conversation_id\": \"conv-1\", \"source_action_id\": \"act-r\", \"person_id\": \"person_b\", \"allow_risky\": true, \"idempotency_key\": \"chat-draft:conv-1:9a361100004a5a0c\"}"
+      }
+     }
+    }
+   ],
+   "calls": []
+  },
+  {
+   "name": "draft_blocked",
+   "message": "draft an email to the verified contact but do not send",
+   "approved": false,
+   "priors": {
+    "enrich_people_contacts": {
+     "ok": true,
+     "company": "Acme",
+     "action_id": "act-x",
+     "people": [
+      {
+       "person_id": "person_d",
+       "name": "Dee",
+       "title": "VP Partnerships",
+       "function": "partnerships",
+       "contactability": {
+        "email": "not-an-email",
+        "status": "verified",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/"
+      },
+      {
+       "person_id": "person_i",
+       "name": "Ivy",
+       "title": "Director of Alliances",
+       "function": "partnerships",
+       "contactability": {
+        "email": "ivy@acme.com",
+        "status": "catch_all",
+        "attempts": [
+         {
+          "stage": "verification",
+          "status": "VALID",
+          "provider": "zerobounce"
+         }
+        ],
+        "verification_confidence": 0.87,
+        "observed_at": "2026-01-03T00:00:00+00:00",
+        "is_role": false,
+        "finder_provider": "hunter",
+        "verifier_provider": "zb"
+       },
+       "checked_at": "2026-01-02",
+       "verification_sources": [
+        {
+         "url": "https://acme.com/team",
+         "label": "Team page"
+        },
+        {
+         "url": "ftp://x/y",
+         "label": "bad"
+        },
+        {
+         "url": "https://acme.com/team",
+         "title": "dup"
+        },
+        {
+         "url": "https://news.example/a",
+         "title": "News title"
+        },
+        "junk"
+       ],
+       "evidence_url": "https://acme.com/about",
+       "linkedin_url": "https://www.linkedin.com/in/annlee/"
+      }
+     ]
+    }
+   },
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. Blocked by: contact_not_eligible, missing_valid_email. No draft was created and no message was sent.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"draft_blocked\": {\"error\": \"No saved contact has an eligible evidence-backed address for drafting\", \"contact_flags\": [{\"person_id\": \"person_d\", \"person_name\": \"Dee\", \"email\": \"not-an-email\", \"contact_status\": \"verified\", \"generic_inbox\": false, \"is_role_address\": false, \"reason\": \"missing_valid_email\"}, {\"person_id\": \"person_i\", \"person_name\": \"Ivy\", \"email\": \"ivy@acme.com\", \"contact_status\": \"catch_all\", \"generic_inbox\": false, \"is_role_address\": false, \"reason\": \"contact_not_eligible\"}], \"send_performed\": false}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. Blocked by: contact_not_eligible, missing_valid_email. No draft was created and no message was sent.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": []
+  },
+  {
+   "name": "draft_no_prior",
+   "message": "draft an email to the verified contact but do not send",
+   "approved": false,
+   "priors": {},
+   "settings": {
+    "INTENT_POLLER_ENABLED": true,
+    "PG_LEAD_STORE": true
+   },
+   "accounts": {},
+   "frames": [
+    {
+     "t": "sse",
+     "line": "data: {\"conversation_id\": \"conv-1\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"content\": \"I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. No draft was created and no message was sent.\"}\n\n"
+    },
+    {
+     "t": "sse",
+     "line": "data: {\"draft_blocked\": {\"error\": \"No saved contact has an eligible evidence-backed address for drafting\", \"contact_flags\": [], \"send_performed\": false}}\n\n"
+    },
+    {
+     "t": "persist",
+     "role": "assistant",
+     "content": "I could not choose an eligible saved contact: No saved contact has an eligible evidence-backed address for drafting. No draft was created and no message was sent.",
+     "tool_data": null
+    },
+    {
+     "t": "sse",
+     "line": "data: [DONE]\n\n"
+    }
+   ],
+   "approvals": [],
+   "calls": []
+  }
+ ],
+ "person_ids": {
+  "[\"Acme\", {\"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_status\": \"profile_evidence\"}]": "person_f5b2ccd8a48b7f5048332611",
+  "[\"Acme\", {\"confidence\": 0.6, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_d57a68c631c266fbe1357a7d",
+  "[\"People\", {\"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_status\": \"profile_evidence\"}]": "person_a90a948042e4df0b52a203b8",
+  "[\"People\", {\"confidence\": 0.6, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_01d30a1c823e6004b6b50349",
+  "[\"Target Company\", {\"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_status\": \"profile_evidence\"}]": "person_9985a3b1bcc1041d93634a7b",
+  "[\"Target Company\", {\"confidence\": 0.6, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_166d3392af6fa65bba979665",
+  "[\"Acme\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_f5b2ccd8a48b7f5048332611",
+  "[\"People\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_a90a948042e4df0b52a203b8",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_9985a3b1bcc1041d93634a7b",
+  "[\"Acme\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ann@acme.com\", \"finder_provider\": \"hunter\", \"observed_at\": \"2026-01-06\", \"status\": \"verified\", \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_f5b2ccd8a48b7f5048332611",
+  "[\"Acme\", {\"confidence\": 0.6, \"contactability\": {\"email\": \"bob@acme.com\", \"status\": \"risky\"}, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_d57a68c631c266fbe1357a7d",
+  "[\"Acme\", {\"canonical_company_domain\": \"acme.io\", \"company\": \"Acme Inc\", \"confidence\": 0.3, \"contactability\": {\"email\": \"cat@acme.com\", \"status\": \"unavailable\"}, \"full_name\": \"ignored\", \"function\": \"alliances\", \"linkedin_url\": \"https://www.linkedin.com/in/catdee\", \"name\": \"Cat Dee\", \"title\": \"Partner Manager\", \"verification_confidence\": null}]": "person_ede46de5f1a6be078c093736",
+  "[\"Acme\", {\"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"title\": \"dup\"}]": "person_f5b2ccd8a48b7f5048332611",
+  "[\"Acme\", {\"full_name\": \"\", \"linkedin_url\": \"https://www.linkedin.com/in/noname\"}]": "person_35a527f3329752a76215c6cd",
+  "[\"People\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ann@acme.com\", \"finder_provider\": \"hunter\", \"observed_at\": \"2026-01-06\", \"status\": \"verified\", \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_a90a948042e4df0b52a203b8",
+  "[\"People\", {\"confidence\": 0.6, \"contactability\": {\"email\": \"bob@acme.com\", \"status\": \"risky\"}, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_01d30a1c823e6004b6b50349",
+  "[\"People\", {\"canonical_company_domain\": \"acme.io\", \"company\": \"Acme Inc\", \"confidence\": 0.3, \"contactability\": {\"email\": \"cat@acme.com\", \"status\": \"unavailable\"}, \"full_name\": \"ignored\", \"function\": \"alliances\", \"linkedin_url\": \"https://www.linkedin.com/in/catdee\", \"name\": \"Cat Dee\", \"title\": \"Partner Manager\", \"verification_confidence\": null}]": "person_1394407cfa90ed8bcc0b73d5",
+  "[\"People\", {\"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"title\": \"dup\"}]": "person_a90a948042e4df0b52a203b8",
+  "[\"People\", {\"full_name\": \"\", \"linkedin_url\": \"https://www.linkedin.com/in/noname\"}]": "person_ac021cbebff08f9757d08f33",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-05\", \"confidence\": 0.8, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ann@acme.com\", \"finder_provider\": \"hunter\", \"observed_at\": \"2026-01-06\", \"status\": \"verified\", \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://www.linkedin.com/in/annlee/\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"retrieved_at\": \"2026-01-01\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.95, \"verification_sources\": [{\"label\": \"Team\", \"url\": \"https://acme.com/team\"}], \"verification_status\": \"independent_role_evidence\"}]": "person_9985a3b1bcc1041d93634a7b",
+  "[\"Target Company\", {\"confidence\": 0.6, \"contactability\": {\"email\": \"bob@acme.com\", \"status\": \"risky\"}, \"evidence_url\": \"https://acme.com/team\", \"linkedin_url\": \"\", \"location\": \"Pune\", \"name\": \"Bob Roy\", \"title\": \"VP Alliances\"}]": "person_166d3392af6fa65bba979665",
+  "[\"Target Company\", {\"canonical_company_domain\": \"acme.io\", \"company\": \"Acme Inc\", \"confidence\": 0.3, \"contactability\": {\"email\": \"cat@acme.com\", \"status\": \"unavailable\"}, \"full_name\": \"ignored\", \"function\": \"alliances\", \"linkedin_url\": \"https://www.linkedin.com/in/catdee\", \"name\": \"Cat Dee\", \"title\": \"Partner Manager\", \"verification_confidence\": null}]": "person_347ee928f05536a98bef8df0",
+  "[\"Target Company\", {\"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"title\": \"dup\"}]": "person_9985a3b1bcc1041d93634a7b",
+  "[\"Target Company\", {\"full_name\": \"\", \"linkedin_url\": \"https://www.linkedin.com/in/noname\"}]": "person_75003dc13b7adefe806fd6f2",
+  "[\"Acme\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"Ann.Lee@Acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"person_id\": \"person_a\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.9, \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_a",
+  "[\"Acme\", {\"checked_at\": \"2026-01-02\", \"confidence\": 1.7, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"bob@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"risky\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Bob Roy\", \"person_id\": \"person_b\", \"title\": \"Partnerships Manager\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_b",
+  "[\"People\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"Ann.Lee@Acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"person_id\": \"person_a\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.9, \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_a",
+  "[\"People\", {\"checked_at\": \"2026-01-02\", \"confidence\": 1.7, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"bob@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"risky\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Bob Roy\", \"person_id\": \"person_b\", \"title\": \"Partnerships Manager\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_b",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"Ann.Lee@Acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ann Lee\", \"person_id\": \"person_a\", \"title\": \"Head of Partnerships\", \"verification_confidence\": 0.9, \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_a",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-02\", \"confidence\": 1.7, \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"bob@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"risky\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Bob Roy\", \"person_id\": \"person_b\", \"title\": \"Partnerships Manager\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_b",
+  "[\"Acme\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"not-an-email\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Dee\", \"person_id\": \"person_d\", \"title\": \"VP Partnerships\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_d",
+  "[\"Acme\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ivy@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"catch_all\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ivy\", \"person_id\": \"person_i\", \"title\": \"Director of Alliances\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_i",
+  "[\"People\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"not-an-email\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Dee\", \"person_id\": \"person_d\", \"title\": \"VP Partnerships\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_d",
+  "[\"People\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ivy@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"catch_all\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ivy\", \"person_id\": \"person_i\", \"title\": \"Director of Alliances\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_i",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"not-an-email\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"verified\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Dee\", \"person_id\": \"person_d\", \"title\": \"VP Partnerships\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_d",
+  "[\"Target Company\", {\"checked_at\": \"2026-01-02\", \"contactability\": {\"attempts\": [{\"provider\": \"zerobounce\", \"stage\": \"verification\", \"status\": \"VALID\"}], \"email\": \"ivy@acme.com\", \"finder_provider\": \"hunter\", \"is_role\": false, \"observed_at\": \"2026-01-03T00:00:00+00:00\", \"status\": \"catch_all\", \"verification_confidence\": 0.87, \"verifier_provider\": \"zb\"}, \"evidence_url\": \"https://acme.com/about\", \"function\": \"partnerships\", \"linkedin_url\": \"https://www.linkedin.com/in/annlee/\", \"name\": \"Ivy\", \"person_id\": \"person_i\", \"title\": \"Director of Alliances\", \"verification_sources\": [{\"label\": \"Team page\", \"url\": \"https://acme.com/team\"}, {\"label\": \"bad\", \"url\": \"ftp://x/y\"}, {\"title\": \"dup\", \"url\": \"https://acme.com/team\"}, {\"title\": \"News title\", \"url\": \"https://news.example/a\"}, \"junk\"]}]": "person_i",
+  "[\"Acme\", {\"linkedin_url\": \"https://www.linkedin.com/in/solo\", \"name\": \"Solo Person\"}]": "person_52277f1926684a13b30a7003",
+  "[\"People\", {\"linkedin_url\": \"https://www.linkedin.com/in/solo\", \"name\": \"Solo Person\"}]": "person_dfad75f799f1c55113ab1d3c",
+  "[\"Target Company\", {\"linkedin_url\": \"https://www.linkedin.com/in/solo\", \"name\": \"Solo Person\"}]": "person_d76758f4337dd4e29d19346a",
+  "[\"Acme\", {\"name\": \"Solo\", \"x\": 1}]": "person_1a75b25675674862fb797ef8",
+  "[\"People\", {\"name\": \"Solo\", \"x\": 1}]": "person_3dde14223277114006b32255",
+  "[\"Target Company\", {\"name\": \"Solo\", \"x\": 1}]": "person_8da67ced4720d8ee7c549423"
+ },
+ "result_set_ids": {
+  "[\"Acme\", \"partnerships\", [\"person_d57a68c631c266fbe1357a7d\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_3eb7fe4cb6d23e64e32ae4bc",
+  "[\"Acme\", \"Research\", [\"person_d57a68c631c266fbe1357a7d\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_5ae0308b77ddb6b2457ba78b",
+  "[\"Acme\", \"Team\", [\"person_d57a68c631c266fbe1357a7d\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_f97b1a276f612bf373824ed2",
+  "[\"People\", \"partnerships\", [\"person_01d30a1c823e6004b6b50349\", \"person_a90a948042e4df0b52a203b8\"]]": "people_af7aed711fe42cb79305ce0a",
+  "[\"People\", \"Research\", [\"person_01d30a1c823e6004b6b50349\", \"person_a90a948042e4df0b52a203b8\"]]": "people_4a4c32476fd13c07bf11576f",
+  "[\"People\", \"Team\", [\"person_01d30a1c823e6004b6b50349\", \"person_a90a948042e4df0b52a203b8\"]]": "people_6b7fd1d7cfd77e4526fff47e",
+  "[\"Target Company\", \"partnerships\", [\"person_166d3392af6fa65bba979665\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_70abde9b61b523851cd79a4b",
+  "[\"Target Company\", \"Research\", [\"person_166d3392af6fa65bba979665\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_f1563ddb518ff05840a4811c",
+  "[\"Target Company\", \"Team\", [\"person_166d3392af6fa65bba979665\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_bdb0c1b0a731ed8473263b17",
+  "[\"Acme\", \"partnerships\", [\"person_f5b2ccd8a48b7f5048332611\"]]": "people_7f9ef0a06de6bb1c217a85f4",
+  "[\"Acme\", \"Research\", [\"person_f5b2ccd8a48b7f5048332611\"]]": "people_d715d973e354554c921f5ea1",
+  "[\"Acme\", \"Team\", [\"person_f5b2ccd8a48b7f5048332611\"]]": "people_2420aaf091a91f356cbc3887",
+  "[\"People\", \"partnerships\", [\"person_a90a948042e4df0b52a203b8\"]]": "people_68fe6b3088077b8de23831da",
+  "[\"People\", \"Research\", [\"person_a90a948042e4df0b52a203b8\"]]": "people_e6faa9e5daa447c08f8ebf29",
+  "[\"People\", \"Team\", [\"person_a90a948042e4df0b52a203b8\"]]": "people_299addbfa96e12323429a765",
+  "[\"Target Company\", \"partnerships\", [\"person_9985a3b1bcc1041d93634a7b\"]]": "people_f912d54693e9b0ae68b4dcec",
+  "[\"Target Company\", \"Research\", [\"person_9985a3b1bcc1041d93634a7b\"]]": "people_526d3e50ac3605a7b2747b8f",
+  "[\"Target Company\", \"Team\", [\"person_9985a3b1bcc1041d93634a7b\"]]": "people_9d1cb808399f06cefa502a5b",
+  "[\"Acme\", \"partnerships\", [\"person_35a527f3329752a76215c6cd\", \"person_d57a68c631c266fbe1357a7d\", \"person_ede46de5f1a6be078c093736\", \"person_f5b2ccd8a48b7f5048332611\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_a1fdf85ba9da6db2b4becaa4",
+  "[\"Acme\", \"Research\", [\"person_35a527f3329752a76215c6cd\", \"person_d57a68c631c266fbe1357a7d\", \"person_ede46de5f1a6be078c093736\", \"person_f5b2ccd8a48b7f5048332611\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_6408fdfed0b7196418382f4f",
+  "[\"Acme\", \"Team\", [\"person_35a527f3329752a76215c6cd\", \"person_d57a68c631c266fbe1357a7d\", \"person_ede46de5f1a6be078c093736\", \"person_f5b2ccd8a48b7f5048332611\", \"person_f5b2ccd8a48b7f5048332611\"]]": "people_c2d1118a4a1541fadd1ec03c",
+  "[\"People\", \"partnerships\", [\"person_01d30a1c823e6004b6b50349\", \"person_1394407cfa90ed8bcc0b73d5\", \"person_a90a948042e4df0b52a203b8\", \"person_a90a948042e4df0b52a203b8\", \"person_ac021cbebff08f9757d08f33\"]]": "people_5fbeac1eebe9f64c5c4f2488",
+  "[\"People\", \"Research\", [\"person_01d30a1c823e6004b6b50349\", \"person_1394407cfa90ed8bcc0b73d5\", \"person_a90a948042e4df0b52a203b8\", \"person_a90a948042e4df0b52a203b8\", \"person_ac021cbebff08f9757d08f33\"]]": "people_2dbf1fef1702399c37e0c357",
+  "[\"People\", \"Team\", [\"person_01d30a1c823e6004b6b50349\", \"person_1394407cfa90ed8bcc0b73d5\", \"person_a90a948042e4df0b52a203b8\", \"person_a90a948042e4df0b52a203b8\", \"person_ac021cbebff08f9757d08f33\"]]": "people_43ae1a4a9d6b030aa7fee1f4",
+  "[\"Target Company\", \"partnerships\", [\"person_166d3392af6fa65bba979665\", \"person_347ee928f05536a98bef8df0\", \"person_75003dc13b7adefe806fd6f2\", \"person_9985a3b1bcc1041d93634a7b\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_456c97fb81ab592805b372c4",
+  "[\"Target Company\", \"Research\", [\"person_166d3392af6fa65bba979665\", \"person_347ee928f05536a98bef8df0\", \"person_75003dc13b7adefe806fd6f2\", \"person_9985a3b1bcc1041d93634a7b\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_762740d82322860ff3a24911",
+  "[\"Target Company\", \"Team\", [\"person_166d3392af6fa65bba979665\", \"person_347ee928f05536a98bef8df0\", \"person_75003dc13b7adefe806fd6f2\", \"person_9985a3b1bcc1041d93634a7b\", \"person_9985a3b1bcc1041d93634a7b\"]]": "people_b50efc1838e037e7d785eb67",
+  "[\"Acme\", \"partnerships\", [\"person_a\", \"person_b\"]]": "people_bc7fdb7497aa91d657b5ede8",
+  "[\"Acme\", \"Research\", [\"person_a\", \"person_b\"]]": "people_b0df1f080a48ce5f227dd41d",
+  "[\"Acme\", \"Team\", [\"person_a\", \"person_b\"]]": "people_eb2149871b93fe95adef4750",
+  "[\"People\", \"partnerships\", [\"person_a\", \"person_b\"]]": "people_e983b602acd48ad9070f76cd",
+  "[\"People\", \"Research\", [\"person_a\", \"person_b\"]]": "people_5ac2df5b1c16bcaed57dbe3a",
+  "[\"People\", \"Team\", [\"person_a\", \"person_b\"]]": "people_0b92bfe1cc177deae938b6bb",
+  "[\"Target Company\", \"partnerships\", [\"person_a\", \"person_b\"]]": "people_a76d5a51cf702755ae2ef8c6",
+  "[\"Target Company\", \"Research\", [\"person_a\", \"person_b\"]]": "people_3fafe70a6f0801b278e0ac64",
+  "[\"Target Company\", \"Team\", [\"person_a\", \"person_b\"]]": "people_33d7aec5bc71ed641e36e134",
+  "[\"Acme\", \"\", [\"person_b\"]]": "people_02feb114d594541d1eca51eb",
+  "[\"Acme\", \"partnerships\", [\"person_b\"]]": "people_2df89c05da326406baf7c1c1",
+  "[\"Acme\", \"Research\", [\"person_b\"]]": "people_170987ed9dd0d7242e1cdd6f",
+  "[\"Acme\", \"Team\", [\"person_b\"]]": "people_993133ea0fd29432c91b9a7c",
+  "[\"People\", \"\", [\"person_b\"]]": "people_f2f8e864d33c1675b4901198",
+  "[\"People\", \"partnerships\", [\"person_b\"]]": "people_28f1fa6d6e0b4e370dbfd920",
+  "[\"People\", \"Research\", [\"person_b\"]]": "people_39365e0e84c779ab058ffe1d",
+  "[\"People\", \"Team\", [\"person_b\"]]": "people_d3b3e5377400b1d2b947ce79",
+  "[\"Target Company\", \"\", [\"person_b\"]]": "people_aa8052fdc428db960146b315",
+  "[\"Target Company\", \"partnerships\", [\"person_b\"]]": "people_75fdcb69984ea8b028020f8c",
+  "[\"Target Company\", \"Research\", [\"person_b\"]]": "people_8f4a8ef5204c0d31c3c7e031",
+  "[\"Target Company\", \"Team\", [\"person_b\"]]": "people_c390a60ebeb6cb12bc9aecd3",
+  "[\"Acme\", \"\", [\"person_d\", \"person_i\"]]": "people_33689156c9f833a629f018a2",
+  "[\"Acme\", \"partnerships\", [\"person_d\", \"person_i\"]]": "people_29fc6ac52d358688878e5a87",
+  "[\"Acme\", \"Research\", [\"person_d\", \"person_i\"]]": "people_46a4fdf86689165ae92512b5",
+  "[\"Acme\", \"Team\", [\"person_d\", \"person_i\"]]": "people_c970e44beeb10738e00d21df",
+  "[\"People\", \"\", [\"person_d\", \"person_i\"]]": "people_fdf31f86d928888a8161bf12",
+  "[\"People\", \"partnerships\", [\"person_d\", \"person_i\"]]": "people_9c9200abada451123ece87e4",
+  "[\"People\", \"Research\", [\"person_d\", \"person_i\"]]": "people_9ad4e5935eb19b734d627c8f",
+  "[\"People\", \"Team\", [\"person_d\", \"person_i\"]]": "people_ec5029708042d22972c55763",
+  "[\"Target Company\", \"\", [\"person_d\", \"person_i\"]]": "people_fc6f2c8370d5559796033eea",
+  "[\"Target Company\", \"partnerships\", [\"person_d\", \"person_i\"]]": "people_5ab3f76a25932d595613e4a8",
+  "[\"Target Company\", \"Research\", [\"person_d\", \"person_i\"]]": "people_eb2c54bae555c44386ad68ec",
+  "[\"Target Company\", \"Team\", [\"person_d\", \"person_i\"]]": "people_0dd644e5f71c9c2329c8d96c",
+  "[\"Acme\", \"\", [\"person_52277f1926684a13b30a7003\"]]": "people_25ad2971bfdf3c5109563fdc",
+  "[\"Acme\", \"partnerships\", [\"person_52277f1926684a13b30a7003\"]]": "people_0c39d6eef19e7be3c473e0b2",
+  "[\"Acme\", \"Research\", [\"person_52277f1926684a13b30a7003\"]]": "people_29940badd4595bf724d57bae",
+  "[\"Acme\", \"Team\", [\"person_52277f1926684a13b30a7003\"]]": "people_22b97621fc813f523fb230d0",
+  "[\"People\", \"\", [\"person_dfad75f799f1c55113ab1d3c\"]]": "people_0448867f198d5a8ebc938ff9",
+  "[\"People\", \"partnerships\", [\"person_dfad75f799f1c55113ab1d3c\"]]": "people_b6c7574ae9132380691b2634",
+  "[\"People\", \"Research\", [\"person_dfad75f799f1c55113ab1d3c\"]]": "people_c4993700422e32859416b735",
+  "[\"People\", \"Team\", [\"person_dfad75f799f1c55113ab1d3c\"]]": "people_97a7bdb792541e7ead405409",
+  "[\"Target Company\", \"\", [\"person_d76758f4337dd4e29d19346a\"]]": "people_f6aeaa431c5b043a17684d53",
+  "[\"Target Company\", \"partnerships\", [\"person_d76758f4337dd4e29d19346a\"]]": "people_68c26bea261979c922c38769",
+  "[\"Target Company\", \"Research\", [\"person_d76758f4337dd4e29d19346a\"]]": "people_b0037253c499aae94aef9439",
+  "[\"Target Company\", \"Team\", [\"person_d76758f4337dd4e29d19346a\"]]": "people_11a3c5e2ea5e574378a8a8de",
+  "[\"Acme\", \"\", [\"person_1a75b25675674862fb797ef8\"]]": "people_e18fe6eb9ee8e7f68bea8b53",
+  "[\"Acme\", \"partnerships\", [\"person_1a75b25675674862fb797ef8\"]]": "people_7e0934d6b3109b774d466c63",
+  "[\"Acme\", \"Research\", [\"person_1a75b25675674862fb797ef8\"]]": "people_1cfce9d5304414c899009c67",
+  "[\"Acme\", \"Team\", [\"person_1a75b25675674862fb797ef8\"]]": "people_b8b50680fd3c3512e18cb57c",
+  "[\"People\", \"\", [\"person_3dde14223277114006b32255\"]]": "people_1c9391e02cd861735ee567fb",
+  "[\"People\", \"partnerships\", [\"person_3dde14223277114006b32255\"]]": "people_c2d6885bfba6432faa792e74",
+  "[\"People\", \"Research\", [\"person_3dde14223277114006b32255\"]]": "people_1adad9739dbd47380368e6ce",
+  "[\"People\", \"Team\", [\"person_3dde14223277114006b32255\"]]": "people_1dba456f7cdb3e8316f044b5",
+  "[\"Target Company\", \"\", [\"person_8da67ced4720d8ee7c549423\"]]": "people_c494b68be49593dbdb1a218b",
+  "[\"Target Company\", \"partnerships\", [\"person_8da67ced4720d8ee7c549423\"]]": "people_0f7c803b73ae4b90c6b3f635",
+  "[\"Target Company\", \"Research\", [\"person_8da67ced4720d8ee7c549423\"]]": "people_8a05dc6afa746d71212a0461",
+  "[\"Target Company\", \"Team\", [\"person_8da67ced4720d8ee7c549423\"]]": "people_8464bb9c25b8ed825e099b29"
+ }
+}

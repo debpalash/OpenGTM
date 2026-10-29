@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-gov-b"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/pb-gov-multi/runs"
+  },
+  "response": {
+    "body": {
+      "detail": "Audience not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

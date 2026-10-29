@@ -1,0 +1,41 @@
+{
+ "provider": "numverify",
+ "input_name": "default",
+ "scenario": "valid_without_international_format",
+ "input": {
+  "phone": "+1 (555) 010-0100"
+ },
+ "secrets": {
+  "NUMVERIFY_API_KEY": "ctk_numverify_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "http://apilayer.net/api/validate?access_key={{secret:NUMVERIFY_API_KEY}}&number=%2B15550100100&format=1",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"valid\":true,\"carrier\":\"\",\"line_type\":\"\"}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "numverify",
+  "success": true,
+  "fields": {
+   "phone": "+15550100100",
+   "phone_carrier": "",
+   "phone_line_type": ""
+  },
+  "confidence": 0.9,
+  "error": ""
+ }
+}

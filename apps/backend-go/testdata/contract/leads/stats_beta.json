@@ -1,0 +1,44 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/stats"
+  },
+  "response": {
+    "body": {
+      "by_city": {
+        "Mumbai": 1,
+        "Pune": 2
+      },
+      "by_source": {
+        "contract": 3
+      },
+      "by_status": {
+        "new": 3
+      },
+      "by_tier": {
+        "cold": 1,
+        "null": 1,
+        "warm": 1
+      },
+      "enrichment": {
+        "avg_score": 50.0,
+        "total": 3,
+        "with_contact": 0,
+        "with_email": 2,
+        "with_linkedin": 0,
+        "with_phone": 0,
+        "with_website": 3
+      },
+      "total": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,85 @@
+{
+ "provider": "gleif",
+ "input_name": "default",
+ "scenario": "fuzzy_hit_record_404_exact_hit",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q=Acme+Corporation",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":[{\"attributes\":{\"value\":\"ACME WIDGETS GMBH\"},\"relationships\":{\"lei-records\":{\"data\":{\"id\":\"OTHER00000000000000\"}}}},{\"attributes\":{\"value\":\"ACME CORPORATION\"},\"relationships\":{\"lei-records\":{\"data\":{\"id\":\"5493001KJTIIGC8Y1R12\"}}}}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R12",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 404,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":null}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records?filter%5Bentity.legalName%5D=Acme+Corporation&page%5Bsize%5D=1",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":[{\"id\":\"5493001KJTIIGC8Y1R12\",\"attributes\":{\"entity\":{\"legalName\":{\"name\":\"ACME CORPORATION\"},\"legalAddress\":{\"country\":\"US\",\"city\":\"Springfield\",\"region\":\"US-IL\"},\"status\":\"ACTIVE\",\"registeredAt\":{\"id\":\"RA000602\"},\"jurisdiction\":\"US-DE\"}},\"relationships\":{}}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "gleif",
+  "success": true,
+  "fields": {
+   "lei": "5493001KJTIIGC8Y1R12",
+   "legal_name": "ACME CORPORATION",
+   "country": "US",
+   "city": "Springfield",
+   "region": "US-IL",
+   "entity_status": "ACTIVE",
+   "registration_authority": "RA000602",
+   "jurisdiction": "US-DE",
+   "gleif_source": "gleif",
+   "gleif_license": "CC0-1.0"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

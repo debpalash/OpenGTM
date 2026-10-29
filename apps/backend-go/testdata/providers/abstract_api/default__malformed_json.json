@@ -1,0 +1,37 @@
+{
+ "provider": "abstract_api",
+ "input_name": "default",
+ "scenario": "malformed_json",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "ABSTRACT_API_KEY": "ctk_abstract_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://emailvalidation.abstractapi.com/v1?api_key={{secret:ABSTRACT_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "<html><body>not json {"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "abstract_api",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

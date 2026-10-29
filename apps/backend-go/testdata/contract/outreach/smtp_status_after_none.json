@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/outreach/smtp/status"
+  },
+  "response": {
+    "body": {
+      "configured": false,
+      "email": null,
+      "from_name": "OpenGTM",
+      "host": null,
+      "max_per_hour": 50
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

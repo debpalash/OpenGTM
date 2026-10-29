@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "a",
+          "name": "A"
+        },
+        {
+          "id": "a",
+          "name": "B"
+        }
+      ],
+      "name": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/"
+  },
+  "response": {
+    "body": {
+      "detail": "Column IDs must be unique"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "actions": [
+        {
+          "config": {
+            "column_ids": [
+              "beta_col"
+            ]
+          },
+          "type": "re_enrich"
+        }
+      ],
+      "name": "x",
+      "scope_workbook_ids": [
+        "wb-auto-beta"
+      ],
+      "trigger_type": "on_row_added"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/automations/triggers"
+  },
+  "response": {
+    "body": {
+      "detail": "re_enrich action 0: column_ids not in scoped workbook(s): ['beta_col']"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

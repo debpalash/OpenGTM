@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/jobs/a1000000000000000000000000000002/retry"
+  },
+  "response": {
+    "body": {
+      "message": "Job a1000000000000000000000000000002 queued for retry",
+      "ok": true,
+      "queue_job_id": 39
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

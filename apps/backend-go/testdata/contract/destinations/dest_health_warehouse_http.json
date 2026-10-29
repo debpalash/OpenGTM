@@ -1,0 +1,75 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audience-destinations/dst-act-warehouse_http/health"
+  },
+  "response": {
+    "body": {
+      "consecutive_unhealthy_runs": 1,
+      "delivery_counts": {
+        "failed": 2,
+        "succeeded": 1,
+        "total": 3
+      },
+      "destination_id": "dst-act-warehouse_http",
+      "health_status": "degraded",
+      "last_error": "2 deliveries failed",
+      "last_success_at": null,
+      "latest_run": {
+        "attempted": 3,
+        "created_at": "2026-08-28T13:00:00",
+        "destination_id": "dst-act-warehouse_http",
+        "error": "Final failure: warehouse HTTP 503: unavailable",
+        "failed": 2,
+        "finished_at": "2026-08-28T13:02:00",
+        "id": "run-act-wh1",
+        "skipped": 0,
+        "started_at": "2026-08-28T13:00:00",
+        "status": "failed",
+        "succeeded": 1
+      },
+      "recent_failures": [
+        {
+          "attempts": 1,
+          "created_at": "2026-08-28T13:00:07",
+          "delivered_at": null,
+          "destination_id": "dst-act-warehouse_http",
+          "error": "warehouse HTTP 503: unavailable",
+          "external_id": null,
+          "id": 19,
+          "lead_id": 10,
+          "operation": "upsert",
+          "run_id": "run-act-wh1",
+          "status": "failed",
+          "summary": ""
+        },
+        {
+          "attempts": 1,
+          "created_at": "2026-08-28T13:00:06",
+          "delivered_at": null,
+          "destination_id": "dst-act-warehouse_http",
+          "error": "warehouse HTTP 503: unavailable",
+          "external_id": null,
+          "id": 18,
+          "lead_id": 6,
+          "operation": "upsert",
+          "run_id": "run-act-wh1",
+          "status": "failed",
+          "summary": ""
+        }
+      ],
+      "run_counts": {
+        "failed": 1
+      },
+      "success_rate": 0.3333
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

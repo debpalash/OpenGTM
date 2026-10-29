@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "e",
+      "fields": {
+        "a": [
+          1
+        ]
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "a": [
+              1
+            ]
+          },
+          "loc": [
+            "body",
+            "fields"
+          ],
+          "msg": "Value error, field values must be scalar",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

@@ -1,0 +1,9 @@
+.git
+*.test
+*.out
+coverage*
+*.coverprofile
+.env
+.env.*
+internal/webui/dist
+bin

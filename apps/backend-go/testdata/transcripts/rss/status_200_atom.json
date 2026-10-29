@@ -1,0 +1,65 @@
+{
+ "area": "rss",
+ "scenario": "status_200_atom",
+ "description": "200 Atom feed",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/rss+xml"
+    },
+    "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>A</title>\n<entry><title>A1</title><id>urn:uuid:1</id><link href=\"https://a.example.com/1\"/><updated>2026-08-29T09:00:00Z</updated><summary>S1</summary></entry>\n<entry><title>A2</title><link href=\"https://a.example.com/2\"/><published>2026-08-28T09:00:00+05:30</published></entry></feed>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 200,
+  "not_modified": false,
+  "etag": "W/\"a1\"",
+  "last_modified": null,
+  "error": null,
+  "entries": [
+   {
+    "guid": "urn:uuid:1",
+    "title": "A1",
+    "link": "https://a.example.com/1",
+    "summary": "S1",
+    "published_epoch": 1787994000.0
+   },
+   {
+    "guid": "https://a.example.com/2",
+    "title": "A2",
+    "link": "https://a.example.com/2",
+    "summary": "",
+    "published_epoch": 1787887800.0
+   }
+  ]
+ }
+}

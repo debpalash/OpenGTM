@@ -1,0 +1,73 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/jobs/b1000000000000000000000000000001"
+  },
+  "response": {
+    "body": {
+      "attempts": 1,
+      "completed_at": "2026-08-28T07:05:00.222222+00:00",
+      "created_at": "2026-08-28T07:00:00.111111+00:00",
+      "error": "",
+      "id": "b1000000000000000000000000000001",
+      "intent": "market_search",
+      "intent_details": {
+        "clarification_kind": "",
+        "clarification_required": false,
+        "domain": "",
+        "entity": "",
+        "intent": "market_search",
+        "options": [],
+        "query": "beta staffing search",
+        "reason": ""
+      },
+      "leads_found": 1,
+      "max_attempts": 3,
+      "proxy_used": "",
+      "query": "beta staffing search",
+      "stages": [
+        {
+          "completed_at": "2026-08-27T07:01:05+00:00",
+          "details": {
+            "reasons": {
+              "no_email": 1
+            }
+          },
+          "id": 15,
+          "input_count": 5,
+          "job_id": "b1000000000000000000000000000001",
+          "output_count": 4,
+          "rejected_count": 1,
+          "stage": "validate",
+          "started_at": "2026-08-27T07:00:05+00:00",
+          "status": "done"
+        },
+        {
+          "completed_at": "2026-08-27T07:03:05+00:00",
+          "details": {},
+          "id": 16,
+          "input_count": 4,
+          "job_id": "b1000000000000000000000000000001",
+          "output_count": 4,
+          "rejected_count": 0,
+          "stage": "dedup",
+          "started_at": "2026-08-27T07:02:05+00:00",
+          "status": "done"
+        }
+      ],
+      "started_at": "2026-08-28T07:01:00+00:00",
+      "status": "done",
+      "tier": 1,
+      "workspace_id": "ws-beta"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

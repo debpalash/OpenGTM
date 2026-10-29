@@ -1,0 +1,6267 @@
+{
+ "select": [
+  {
+   "name": "all",
+   "people": [
+    {
+     "person_id": "person_a",
+     "name": "Ann Lee",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "Ann.Lee@Acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": 0.9
+    },
+    {
+     "person_id": "person_b",
+     "name": "Bob Roy",
+     "title": "Partnerships Manager",
+     "function": "partnerships",
+     "contactability": {
+      "email": "bob@acme.com",
+      "status": "risky",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "confidence": 1.7
+    },
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    },
+    {
+     "person_id": "person_l",
+     "name": "Lou Ng",
+     "title": "Chief Partnership Officer",
+     "function": "partnerships",
+     "contactability": {
+      "email": "lou@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": "0.9",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": true
+    },
+    {
+     "person_id": "person_m",
+     "name": "Mo",
+     "title": "Head of Partner Ecosystem",
+     "function": "partnerships",
+     "contactability": {
+      "email": "mo@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [],
+     "evidence_url": "javascript:x",
+     "linkedin_url": "",
+     "retrieved_at": "2026-02-02"
+    },
+    {
+     "person_id": "person_n",
+     "full_name": "Nia Kay",
+     "contact_title": "VP Channel Partner Programs",
+     "email": "nia@acme.com",
+     "contactability": {
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ]
+     },
+     "confidence": 0.4,
+     "contactability_extra": 1,
+     "linkedin_url": "https://linkedin.com/in/nia",
+     "checked_at": "2026-03-03"
+    },
+    "not a dict"
+   ],
+   "requested": "",
+   "allow_risky": false,
+   "selected": {
+    "person_id": "person_a",
+    "name": "Ann Lee",
+    "title": "Head of Partnerships",
+    "function": "partnerships",
+    "email": "ann.lee@acme.com",
+    "contact_status": "verified",
+    "generic_inbox": false,
+    "is_role_address": false,
+    "evidence": [
+     {
+      "source_url": "https://acme.com/team",
+      "label": "Team page",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://news.example/a",
+      "label": "News title",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://acme.com/about",
+      "label": "Saved role evidence",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://www.linkedin.com/in/annlee/",
+      "label": "Saved public profile",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     }
+    ],
+    "score": 132
+   },
+   "selected_person_id": "person_a",
+   "contact_flags": [
+    {
+     "person_id": "person_a",
+     "person_name": "Ann Lee",
+     "email": "ann.lee@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_b",
+     "person_name": "Bob Roy",
+     "email": "bob@acme.com",
+     "contact_status": "risky",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "risky_address_requires_approval"
+    },
+    {
+     "person_id": "",
+     "person_name": "No Id",
+     "email": "x@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_c",
+     "person_name": "",
+     "email": "c@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_d",
+     "person_name": "Dee",
+     "email": "not-an-email",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_valid_email"
+    },
+    {
+     "person_id": "person_e",
+     "person_name": "Eve",
+     "email": "partners@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_f",
+     "person_name": "Fay",
+     "email": "partnerships+eu@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_g",
+     "person_name": "Gus",
+     "email": "gus@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": true,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_h",
+     "person_name": "Hal",
+     "email": "hal@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "verified_without_valid_verifier"
+    },
+    {
+     "person_id": "person_i",
+     "person_name": "Ivy",
+     "email": "ivy@acme.com",
+     "contact_status": "catch_all",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "contact_not_eligible"
+    },
+    {
+     "person_id": "person_j",
+     "person_name": "Jon",
+     "email": "jon@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "partnership_function_not_supported"
+    },
+    {
+     "person_id": "person_k",
+     "person_name": "Kim",
+     "email": "kim@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_l",
+     "person_name": "Lou Ng",
+     "email": "lou@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_m",
+     "person_name": "Mo",
+     "email": "mo@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "personalization_evidence_missing"
+    },
+    {
+     "person_id": "person_n",
+     "person_name": "Nia Kay",
+     "email": "nia@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    }
+   ]
+  },
+  {
+   "name": "all_risky",
+   "people": [
+    {
+     "person_id": "person_a",
+     "name": "Ann Lee",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "Ann.Lee@Acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": 0.9
+    },
+    {
+     "person_id": "person_b",
+     "name": "Bob Roy",
+     "title": "Partnerships Manager",
+     "function": "partnerships",
+     "contactability": {
+      "email": "bob@acme.com",
+      "status": "risky",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "confidence": 1.7
+    },
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    },
+    {
+     "person_id": "person_l",
+     "name": "Lou Ng",
+     "title": "Chief Partnership Officer",
+     "function": "partnerships",
+     "contactability": {
+      "email": "lou@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": "0.9",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": true
+    },
+    {
+     "person_id": "person_m",
+     "name": "Mo",
+     "title": "Head of Partner Ecosystem",
+     "function": "partnerships",
+     "contactability": {
+      "email": "mo@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [],
+     "evidence_url": "javascript:x",
+     "linkedin_url": "",
+     "retrieved_at": "2026-02-02"
+    },
+    {
+     "person_id": "person_n",
+     "full_name": "Nia Kay",
+     "contact_title": "VP Channel Partner Programs",
+     "email": "nia@acme.com",
+     "contactability": {
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ]
+     },
+     "confidence": 0.4,
+     "contactability_extra": 1,
+     "linkedin_url": "https://linkedin.com/in/nia",
+     "checked_at": "2026-03-03"
+    },
+    "not a dict"
+   ],
+   "requested": "",
+   "allow_risky": true,
+   "selected": {
+    "person_id": "person_a",
+    "name": "Ann Lee",
+    "title": "Head of Partnerships",
+    "function": "partnerships",
+    "email": "ann.lee@acme.com",
+    "contact_status": "verified",
+    "generic_inbox": false,
+    "is_role_address": false,
+    "evidence": [
+     {
+      "source_url": "https://acme.com/team",
+      "label": "Team page",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://news.example/a",
+      "label": "News title",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://acme.com/about",
+      "label": "Saved role evidence",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     },
+     {
+      "source_url": "https://www.linkedin.com/in/annlee/",
+      "label": "Saved public profile",
+      "observed_at": "2026-01-02",
+      "confidence": 0.9
+     }
+    ],
+    "score": 132
+   },
+   "selected_person_id": "person_a",
+   "contact_flags": [
+    {
+     "person_id": "person_a",
+     "person_name": "Ann Lee",
+     "email": "ann.lee@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_b",
+     "person_name": "Bob Roy",
+     "email": "bob@acme.com",
+     "contact_status": "risky",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "",
+     "person_name": "No Id",
+     "email": "x@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_c",
+     "person_name": "",
+     "email": "c@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_d",
+     "person_name": "Dee",
+     "email": "not-an-email",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_valid_email"
+    },
+    {
+     "person_id": "person_e",
+     "person_name": "Eve",
+     "email": "partners@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_f",
+     "person_name": "Fay",
+     "email": "partnerships+eu@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_g",
+     "person_name": "Gus",
+     "email": "gus@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": true,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_h",
+     "person_name": "Hal",
+     "email": "hal@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "verified_without_valid_verifier"
+    },
+    {
+     "person_id": "person_i",
+     "person_name": "Ivy",
+     "email": "ivy@acme.com",
+     "contact_status": "catch_all",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "contact_not_eligible"
+    },
+    {
+     "person_id": "person_j",
+     "person_name": "Jon",
+     "email": "jon@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "partnership_function_not_supported"
+    },
+    {
+     "person_id": "person_k",
+     "person_name": "Kim",
+     "email": "kim@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_l",
+     "person_name": "Lou Ng",
+     "email": "lou@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_m",
+     "person_name": "Mo",
+     "email": "mo@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "personalization_evidence_missing"
+    },
+    {
+     "person_id": "person_n",
+     "person_name": "Nia Kay",
+     "email": "nia@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    }
+   ]
+  },
+  {
+   "name": "requested_b_no_risky",
+   "people": [
+    {
+     "person_id": "person_a",
+     "name": "Ann Lee",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "Ann.Lee@Acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": 0.9
+    },
+    {
+     "person_id": "person_b",
+     "name": "Bob Roy",
+     "title": "Partnerships Manager",
+     "function": "partnerships",
+     "contactability": {
+      "email": "bob@acme.com",
+      "status": "risky",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "confidence": 1.7
+    },
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    },
+    {
+     "person_id": "person_l",
+     "name": "Lou Ng",
+     "title": "Chief Partnership Officer",
+     "function": "partnerships",
+     "contactability": {
+      "email": "lou@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": "0.9",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": true
+    },
+    {
+     "person_id": "person_m",
+     "name": "Mo",
+     "title": "Head of Partner Ecosystem",
+     "function": "partnerships",
+     "contactability": {
+      "email": "mo@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [],
+     "evidence_url": "javascript:x",
+     "linkedin_url": "",
+     "retrieved_at": "2026-02-02"
+    },
+    {
+     "person_id": "person_n",
+     "full_name": "Nia Kay",
+     "contact_title": "VP Channel Partner Programs",
+     "email": "nia@acme.com",
+     "contactability": {
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ]
+     },
+     "confidence": 0.4,
+     "contactability_extra": 1,
+     "linkedin_url": "https://linkedin.com/in/nia",
+     "checked_at": "2026-03-03"
+    },
+    "not a dict"
+   ],
+   "requested": "person_b",
+   "allow_risky": false,
+   "error": "No saved contact has an eligible evidence-backed address for drafting",
+   "contact_flags": [
+    {
+     "person_id": "person_b",
+     "person_name": "Bob Roy",
+     "email": "bob@acme.com",
+     "contact_status": "risky",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "risky_address_requires_approval"
+    }
+   ]
+  },
+  {
+   "name": "requested_b_risky",
+   "people": [
+    {
+     "person_id": "person_a",
+     "name": "Ann Lee",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "Ann.Lee@Acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": 0.9
+    },
+    {
+     "person_id": "person_b",
+     "name": "Bob Roy",
+     "title": "Partnerships Manager",
+     "function": "partnerships",
+     "contactability": {
+      "email": "bob@acme.com",
+      "status": "risky",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "confidence": 1.7
+    },
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    },
+    {
+     "person_id": "person_l",
+     "name": "Lou Ng",
+     "title": "Chief Partnership Officer",
+     "function": "partnerships",
+     "contactability": {
+      "email": "lou@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": "0.9",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": true
+    },
+    {
+     "person_id": "person_m",
+     "name": "Mo",
+     "title": "Head of Partner Ecosystem",
+     "function": "partnerships",
+     "contactability": {
+      "email": "mo@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [],
+     "evidence_url": "javascript:x",
+     "linkedin_url": "",
+     "retrieved_at": "2026-02-02"
+    },
+    {
+     "person_id": "person_n",
+     "full_name": "Nia Kay",
+     "contact_title": "VP Channel Partner Programs",
+     "email": "nia@acme.com",
+     "contactability": {
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ]
+     },
+     "confidence": 0.4,
+     "contactability_extra": 1,
+     "linkedin_url": "https://linkedin.com/in/nia",
+     "checked_at": "2026-03-03"
+    },
+    "not a dict"
+   ],
+   "requested": "person_b",
+   "allow_risky": true,
+   "selected": {
+    "person_id": "person_b",
+    "name": "Bob Roy",
+    "title": "Partnerships Manager",
+    "function": "partnerships",
+    "email": "bob@acme.com",
+    "contact_status": "risky",
+    "generic_inbox": false,
+    "is_role_address": false,
+    "evidence": [
+     {
+      "source_url": "https://acme.com/team",
+      "label": "Team page",
+      "observed_at": "2026-01-02",
+      "confidence": 1.0
+     },
+     {
+      "source_url": "https://news.example/a",
+      "label": "News title",
+      "observed_at": "2026-01-02",
+      "confidence": 1.0
+     },
+     {
+      "source_url": "https://acme.com/about",
+      "label": "Saved role evidence",
+      "observed_at": "2026-01-02",
+      "confidence": 1.0
+     },
+     {
+      "source_url": "https://www.linkedin.com/in/annlee/",
+      "label": "Saved public profile",
+      "observed_at": "2026-01-02",
+      "confidence": 1.0
+     }
+    ],
+    "score": 67
+   },
+   "selected_person_id": "person_b",
+   "contact_flags": [
+    {
+     "person_id": "person_b",
+     "person_name": "Bob Roy",
+     "email": "bob@acme.com",
+     "contact_status": "risky",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    }
+   ]
+  },
+  {
+   "name": "requested_missing",
+   "people": [
+    {
+     "person_id": "person_a",
+     "name": "Ann Lee",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "Ann.Lee@Acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": 0.9
+    },
+    {
+     "person_id": "person_b",
+     "name": "Bob Roy",
+     "title": "Partnerships Manager",
+     "function": "partnerships",
+     "contactability": {
+      "email": "bob@acme.com",
+      "status": "risky",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "confidence": 1.7
+    },
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    },
+    {
+     "person_id": "person_l",
+     "name": "Lou Ng",
+     "title": "Chief Partnership Officer",
+     "function": "partnerships",
+     "contactability": {
+      "email": "lou@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": "0.9",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "verification_confidence": true
+    },
+    {
+     "person_id": "person_m",
+     "name": "Mo",
+     "title": "Head of Partner Ecosystem",
+     "function": "partnerships",
+     "contactability": {
+      "email": "mo@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [],
+     "evidence_url": "javascript:x",
+     "linkedin_url": "",
+     "retrieved_at": "2026-02-02"
+    },
+    {
+     "person_id": "person_n",
+     "full_name": "Nia Kay",
+     "contact_title": "VP Channel Partner Programs",
+     "email": "nia@acme.com",
+     "contactability": {
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ]
+     },
+     "confidence": 0.4,
+     "contactability_extra": 1,
+     "linkedin_url": "https://linkedin.com/in/nia",
+     "checked_at": "2026-03-03"
+    },
+    "not a dict"
+   ],
+   "requested": "person_zz",
+   "allow_risky": false,
+   "error": "Selected person is not in the saved contact result",
+   "contact_flags": []
+  },
+  {
+   "name": "none_eligible",
+   "people": [
+    {
+     "person_id": "",
+     "name": "No Id",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "x@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_c",
+     "name": "",
+     "title": "Head of Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "c@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_d",
+     "name": "Dee",
+     "title": "VP Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "not-an-email",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_e",
+     "name": "Eve",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partners@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_f",
+     "name": "Fay",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "partnerships+eu@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_g",
+     "name": "Gus",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "gus@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": true,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_h",
+     "name": "Hal",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "hal@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "finder",
+        "status": "valid"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_i",
+     "name": "Ivy",
+     "title": "Director of Alliances",
+     "function": "partnerships",
+     "contactability": {
+      "email": "ivy@acme.com",
+      "status": "catch_all",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_j",
+     "name": "Jon",
+     "title": "VP Sales",
+     "function": "sales",
+     "contactability": {
+      "email": "jon@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_k",
+     "name": "Kim",
+     "title": "Business Development Lead",
+     "function": "partnerships",
+     "contactability": {
+      "email": "kim@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.87,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/",
+     "retrieved_at": null
+    }
+   ],
+   "requested": "",
+   "allow_risky": true,
+   "selected": {
+    "person_id": "person_k",
+    "name": "Kim",
+    "title": "Business Development Lead",
+    "function": "partnerships",
+    "email": "kim@acme.com",
+    "contact_status": "verified",
+    "generic_inbox": false,
+    "is_role_address": false,
+    "evidence": [
+     {
+      "source_url": "https://acme.com/team",
+      "label": "Team page",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://news.example/a",
+      "label": "News title",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://acme.com/about",
+      "label": "Saved role evidence",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://www.linkedin.com/in/annlee/",
+      "label": "Saved public profile",
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "confidence": 0.0
+     }
+    ],
+    "score": 122
+   },
+   "selected_person_id": "person_k",
+   "contact_flags": [
+    {
+     "person_id": "",
+     "person_name": "No Id",
+     "email": "x@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_c",
+     "person_name": "",
+     "email": "c@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_person_identity"
+    },
+    {
+     "person_id": "person_d",
+     "person_name": "Dee",
+     "email": "not-an-email",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "missing_valid_email"
+    },
+    {
+     "person_id": "person_e",
+     "person_name": "Eve",
+     "email": "partners@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_f",
+     "person_name": "Fay",
+     "email": "partnerships+eu@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": true,
+     "is_role_address": false,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_g",
+     "person_name": "Gus",
+     "email": "gus@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": true,
+     "reason": "generic_or_role_address"
+    },
+    {
+     "person_id": "person_h",
+     "person_name": "Hal",
+     "email": "hal@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "verified_without_valid_verifier"
+    },
+    {
+     "person_id": "person_i",
+     "person_name": "Ivy",
+     "email": "ivy@acme.com",
+     "contact_status": "catch_all",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "contact_not_eligible"
+    },
+    {
+     "person_id": "person_j",
+     "person_name": "Jon",
+     "email": "jon@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "partnership_function_not_supported"
+    },
+    {
+     "person_id": "person_k",
+     "person_name": "Kim",
+     "email": "kim@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    }
+   ]
+  },
+  {
+   "name": "empty",
+   "people": [],
+   "requested": "",
+   "allow_risky": false,
+   "error": "No saved contact has an eligible evidence-backed address for drafting",
+   "contact_flags": []
+  },
+  {
+   "name": "tie",
+   "people": [
+    {
+     "person_id": "person_z2",
+     "name": "Zed",
+     "title": "Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "z2@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.5,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    },
+    {
+     "person_id": "person_z1",
+     "name": "Zoe",
+     "title": "Partnerships",
+     "function": "partnerships",
+     "contactability": {
+      "email": "z1@acme.com",
+      "status": "verified",
+      "attempts": [
+       {
+        "stage": "verification",
+        "status": "VALID",
+        "provider": "zerobounce"
+       }
+      ],
+      "verification_confidence": 0.5,
+      "observed_at": "2026-01-03T00:00:00+00:00",
+      "is_role": false,
+      "finder_provider": "hunter",
+      "verifier_provider": "zb"
+     },
+     "checked_at": "2026-01-02",
+     "verification_sources": [
+      {
+       "url": "https://acme.com/team",
+       "label": "Team page"
+      },
+      {
+       "url": "ftp://x/y",
+       "label": "bad"
+      },
+      {
+       "url": "https://acme.com/team",
+       "title": "dup"
+      },
+      {
+       "url": "https://news.example/a",
+       "title": "News title"
+      },
+      "junk"
+     ],
+     "evidence_url": "https://acme.com/about",
+     "linkedin_url": "https://www.linkedin.com/in/annlee/"
+    }
+   ],
+   "requested": "",
+   "allow_risky": false,
+   "selected": {
+    "person_id": "person_z1",
+    "name": "Zoe",
+    "title": "Partnerships",
+    "function": "partnerships",
+    "email": "z1@acme.com",
+    "contact_status": "verified",
+    "generic_inbox": false,
+    "is_role_address": false,
+    "evidence": [
+     {
+      "source_url": "https://acme.com/team",
+      "label": "Team page",
+      "observed_at": "2026-01-02",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://news.example/a",
+      "label": "News title",
+      "observed_at": "2026-01-02",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://acme.com/about",
+      "label": "Saved role evidence",
+      "observed_at": "2026-01-02",
+      "confidence": 0.0
+     },
+     {
+      "source_url": "https://www.linkedin.com/in/annlee/",
+      "label": "Saved public profile",
+      "observed_at": "2026-01-02",
+      "confidence": 0.0
+     }
+    ],
+    "score": 108
+   },
+   "selected_person_id": "person_z1",
+   "contact_flags": [
+    {
+     "person_id": "person_z2",
+     "person_name": "Zed",
+     "email": "z2@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    },
+    {
+     "person_id": "person_z1",
+     "person_name": "Zoe",
+     "email": "z1@acme.com",
+     "contact_status": "verified",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": ""
+    }
+   ]
+  }
+ ],
+ "create": [
+  {
+   "name": "new",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "",
+   "allow_risky": false,
+   "key": "key-1",
+   "receipt": {
+    "ok": true,
+    "persisted": true,
+    "reused": false,
+    "readback_confirmed": true,
+    "action_id": "key-1",
+    "draft_id": "00000000-0000-0000-0000-000000000001",
+    "workspace_id": "ws-1",
+    "state": "draft",
+    "person_id": "person_a",
+    "person_name": "Ann Lee",
+    "company": "Acme",
+    "title": "Head of Partnerships",
+    "to_email": "ann.lee@acme.com",
+    "contact_status": "verified",
+    "risky_approved": false,
+    "generic_inbox": false,
+    "is_role_address": false,
+    "subject": "Partnership idea for Acme",
+    "body_text": "Hi Ann,\n\nI came across your work in Head of Partnerships at Acme while researching partnership teams.\n\nI would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.\n\nWould you be open to a brief conversation next week?\n\nBest,",
+    "sentence_evidence": [
+     {
+      "sentence_id": "subject",
+      "text": "Partnership idea for Acme",
+      "personalized": true,
+      "claim_ids": [
+       "claim_71fb434b27312152"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s1",
+      "text": "Hi Ann,",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s2",
+      "text": "I came across your work in Head of Partnerships at Acme while researching partnership teams.",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06",
+       "claim_71fb434b27312152",
+       "claim_46c0f1a762010534"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s3",
+      "text": "I would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s4",
+      "text": "Would you be open to a brief conversation next week?",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s5",
+      "text": "Best,",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     }
+    ],
+    "personalized_sentence_count": 3,
+    "send_performed": false,
+    "sent_at": null,
+    "url": "/outreach?draft=00000000-0000-0000-0000-000000000001"
+   },
+   "row": {
+    "conversation_id": "conv-1",
+    "source_action_id": "act-1",
+    "source_snapshot": {
+     "contract_hash": "d8831706effc53edaf4fa65342ce3877b082ba3146051f0fffd113f89bbcd703",
+     "company": "Acme",
+     "function": "partnerships",
+     "person_id": "person_a",
+     "contact_status": "verified",
+     "contact_observed_at": "2026-01-03T00:00:00+00:00",
+     "contact_attempts": [
+      {
+       "stage": "verification",
+       "status": "VALID",
+       "provider": "zerobounce"
+      }
+     ],
+     "public_evidence": [
+      {
+       "source_url": "https://acme.com/team",
+       "label": "Team page",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://news.example/a",
+       "label": "News title",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://acme.com/about",
+       "label": "Saved role evidence",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://www.linkedin.com/in/annlee/",
+       "label": "Saved public profile",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      }
+     ],
+     "contact_flags": [
+      {
+       "person_id": "person_a",
+       "person_name": "Ann Lee",
+       "email": "ann.lee@acme.com",
+       "contact_status": "verified",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": ""
+      },
+      {
+       "person_id": "person_b",
+       "person_name": "Bob Roy",
+       "email": "bob@acme.com",
+       "contact_status": "risky",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": "risky_address_requires_approval"
+      },
+      {
+       "person_id": "person_i",
+       "person_name": "Ivy",
+       "email": "ivy@acme.com",
+       "contact_status": "catch_all",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": "contact_not_eligible"
+      }
+     ]
+    },
+    "state": "draft",
+    "sent_at": null
+   }
+  },
+  {
+   "name": "replay",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "",
+   "allow_risky": false,
+   "key": "key-1",
+   "receipt": {
+    "ok": true,
+    "persisted": true,
+    "reused": true,
+    "readback_confirmed": true,
+    "action_id": "key-1",
+    "draft_id": "00000000-0000-0000-0000-000000000001",
+    "workspace_id": "ws-1",
+    "state": "draft",
+    "person_id": "person_a",
+    "person_name": "Ann Lee",
+    "company": "Acme",
+    "title": "Head of Partnerships",
+    "to_email": "ann.lee@acme.com",
+    "contact_status": "verified",
+    "risky_approved": false,
+    "generic_inbox": false,
+    "is_role_address": false,
+    "subject": "Partnership idea for Acme",
+    "body_text": "Hi Ann,\n\nI came across your work in Head of Partnerships at Acme while researching partnership teams.\n\nI would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.\n\nWould you be open to a brief conversation next week?\n\nBest,",
+    "sentence_evidence": [
+     {
+      "sentence_id": "subject",
+      "text": "Partnership idea for Acme",
+      "personalized": true,
+      "claim_ids": [
+       "claim_71fb434b27312152"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s1",
+      "text": "Hi Ann,",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s2",
+      "text": "I came across your work in Head of Partnerships at Acme while researching partnership teams.",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06",
+       "claim_71fb434b27312152",
+       "claim_46c0f1a762010534"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s3",
+      "text": "I would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s4",
+      "text": "Would you be open to a brief conversation next week?",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s5",
+      "text": "Best,",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     }
+    ],
+    "personalized_sentence_count": 3,
+    "send_performed": false,
+    "sent_at": null,
+    "url": "/outreach?draft=00000000-0000-0000-0000-000000000001"
+   },
+   "row": {
+    "conversation_id": "conv-1",
+    "source_action_id": "act-1",
+    "source_snapshot": {
+     "contract_hash": "d8831706effc53edaf4fa65342ce3877b082ba3146051f0fffd113f89bbcd703",
+     "company": "Acme",
+     "function": "partnerships",
+     "person_id": "person_a",
+     "contact_status": "verified",
+     "contact_observed_at": "2026-01-03T00:00:00+00:00",
+     "contact_attempts": [
+      {
+       "stage": "verification",
+       "status": "VALID",
+       "provider": "zerobounce"
+      }
+     ],
+     "public_evidence": [
+      {
+       "source_url": "https://acme.com/team",
+       "label": "Team page",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://news.example/a",
+       "label": "News title",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://acme.com/about",
+       "label": "Saved role evidence",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://www.linkedin.com/in/annlee/",
+       "label": "Saved public profile",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      }
+     ],
+     "contact_flags": [
+      {
+       "person_id": "person_a",
+       "person_name": "Ann Lee",
+       "email": "ann.lee@acme.com",
+       "contact_status": "verified",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": ""
+      },
+      {
+       "person_id": "person_b",
+       "person_name": "Bob Roy",
+       "email": "bob@acme.com",
+       "contact_status": "risky",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": "risky_address_requires_approval"
+      },
+      {
+       "person_id": "person_i",
+       "person_name": "Ivy",
+       "email": "ivy@acme.com",
+       "contact_status": "catch_all",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": "contact_not_eligible"
+      }
+     ]
+    },
+    "state": "draft",
+    "sent_at": null
+   }
+  },
+  {
+   "name": "conflict",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "",
+   "allow_risky": true,
+   "key": "key-1",
+   "error": "Idempotency key already belongs to a different draft request",
+   "contact_flags": []
+  },
+  {
+   "name": "risky_new",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "person_b",
+   "allow_risky": true,
+   "key": "key-2",
+   "receipt": {
+    "ok": true,
+    "persisted": true,
+    "reused": false,
+    "readback_confirmed": true,
+    "action_id": "key-2",
+    "draft_id": "00000000-0000-0000-0000-000000000002",
+    "workspace_id": "ws-1",
+    "state": "draft",
+    "person_id": "person_b",
+    "person_name": "Bob Roy",
+    "company": "Acme",
+    "title": "Partnerships Manager",
+    "to_email": "bob@acme.com",
+    "contact_status": "risky",
+    "risky_approved": true,
+    "generic_inbox": false,
+    "is_role_address": false,
+    "subject": "Partnership idea for Acme",
+    "body_text": "Hi Bob,\n\nI came across your work in Partnerships Manager at Acme while researching partnership teams.\n\nI would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.\n\nWould you be open to a brief conversation next week?\n\nBest,",
+    "sentence_evidence": [
+     {
+      "sentence_id": "subject",
+      "text": "Partnership idea for Acme",
+      "personalized": true,
+      "claim_ids": [
+       "claim_93565f9307ff20c2"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       }
+      ]
+     },
+     {
+      "sentence_id": "s1",
+      "text": "Hi Bob,",
+      "personalized": true,
+      "claim_ids": [
+       "claim_a30424ee42d24566"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       }
+      ]
+     },
+     {
+      "sentence_id": "s2",
+      "text": "I came across your work in Partnerships Manager at Acme while researching partnership teams.",
+      "personalized": true,
+      "claim_ids": [
+       "claim_a30424ee42d24566",
+       "claim_93565f9307ff20c2",
+       "claim_77c1615ea31e3936"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 1.0
+       }
+      ]
+     },
+     {
+      "sentence_id": "s3",
+      "text": "I would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s4",
+      "text": "Would you be open to a brief conversation next week?",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s5",
+      "text": "Best,",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     }
+    ],
+    "personalized_sentence_count": 3,
+    "send_performed": false,
+    "sent_at": null,
+    "url": "/outreach?draft=00000000-0000-0000-0000-000000000002"
+   },
+   "row": {
+    "conversation_id": "conv-1",
+    "source_action_id": "act-1",
+    "source_snapshot": {
+     "contract_hash": "fc22b2325a5cd40e4c396f07ebe6e547304846e453a607fb70f64f3356c42ad3",
+     "company": "Acme",
+     "function": "partnerships",
+     "person_id": "person_b",
+     "contact_status": "risky",
+     "contact_observed_at": "2026-01-03T00:00:00+00:00",
+     "contact_attempts": [
+      {
+       "stage": "verification",
+       "status": "VALID",
+       "provider": "zerobounce"
+      }
+     ],
+     "public_evidence": [
+      {
+       "source_url": "https://acme.com/team",
+       "label": "Team page",
+       "observed_at": "2026-01-02",
+       "confidence": 1.0
+      },
+      {
+       "source_url": "https://news.example/a",
+       "label": "News title",
+       "observed_at": "2026-01-02",
+       "confidence": 1.0
+      },
+      {
+       "source_url": "https://acme.com/about",
+       "label": "Saved role evidence",
+       "observed_at": "2026-01-02",
+       "confidence": 1.0
+      },
+      {
+       "source_url": "https://www.linkedin.com/in/annlee/",
+       "label": "Saved public profile",
+       "observed_at": "2026-01-02",
+       "confidence": 1.0
+      }
+     ],
+     "contact_flags": [
+      {
+       "person_id": "person_b",
+       "person_name": "Bob Roy",
+       "email": "bob@acme.com",
+       "contact_status": "risky",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": ""
+      }
+     ]
+    },
+    "state": "draft",
+    "sent_at": null
+   }
+  },
+  {
+   "name": "no_key",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "",
+   "allow_risky": false,
+   "key": "  ",
+   "error": "A valid idempotency key is required",
+   "contact_flags": []
+  },
+  {
+   "name": "long_key",
+   "source": {
+    "ok": true,
+    "company": "Acme",
+    "function": "partnerships",
+    "action_id": "chat-contacts:x",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     },
+     {
+      "person_id": "person_b",
+      "name": "Bob Roy",
+      "title": "Partnerships Manager",
+      "function": "partnerships",
+      "contactability": {
+       "email": "bob@acme.com",
+       "status": "risky",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "confidence": 1.7
+     },
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-1",
+   "requested": "",
+   "allow_risky": false,
+   "key": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+   "error": "A valid idempotency key is required",
+   "contact_flags": []
+  },
+  {
+   "name": "company_from_person",
+   "source": {
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9,
+      "company": "PersonCo"
+     }
+    ]
+   },
+   "source_action_id": "act-2",
+   "requested": "",
+   "allow_risky": false,
+   "key": "key-3",
+   "receipt": {
+    "ok": true,
+    "persisted": true,
+    "reused": false,
+    "readback_confirmed": true,
+    "action_id": "key-3",
+    "draft_id": "00000000-0000-0000-0000-000000000003",
+    "workspace_id": "ws-1",
+    "state": "draft",
+    "person_id": "person_a",
+    "person_name": "Ann Lee",
+    "company": "PersonCo",
+    "title": "Head of Partnerships",
+    "to_email": "ann.lee@acme.com",
+    "contact_status": "verified",
+    "risky_approved": false,
+    "generic_inbox": false,
+    "is_role_address": false,
+    "subject": "Partnership idea for PersonCo",
+    "body_text": "Hi Ann,\n\nI came across your work in Head of Partnerships at PersonCo while researching partnership teams.\n\nI would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.\n\nWould you be open to a brief conversation next week?\n\nBest,",
+    "sentence_evidence": [
+     {
+      "sentence_id": "subject",
+      "text": "Partnership idea for PersonCo",
+      "personalized": true,
+      "claim_ids": [
+       "claim_71fb434b27312152"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s1",
+      "text": "Hi Ann,",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s2",
+      "text": "I came across your work in Head of Partnerships at PersonCo while researching partnership teams.",
+      "personalized": true,
+      "claim_ids": [
+       "claim_1c42b53cff850f06",
+       "claim_71fb434b27312152",
+       "claim_46c0f1a762010534"
+      ],
+      "evidence": [
+       {
+        "source_url": "https://acme.com/team",
+        "label": "Team page",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://news.example/a",
+        "label": "News title",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://acme.com/about",
+        "label": "Saved role evidence",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       },
+       {
+        "source_url": "https://www.linkedin.com/in/annlee/",
+        "label": "Saved public profile",
+        "observed_at": "2026-01-02",
+        "confidence": 0.9
+       }
+      ]
+     },
+     {
+      "sentence_id": "s3",
+      "text": "I would like to compare notes on whether OpenGTM's evidence-backed account research and workflow automation could support your team.",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s4",
+      "text": "Would you be open to a brief conversation next week?",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     },
+     {
+      "sentence_id": "s5",
+      "text": "Best,",
+      "personalized": false,
+      "claim_ids": [],
+      "evidence": []
+     }
+    ],
+    "personalized_sentence_count": 3,
+    "send_performed": false,
+    "sent_at": null,
+    "url": "/outreach?draft=00000000-0000-0000-0000-000000000003"
+   },
+   "row": {
+    "conversation_id": "conv-1",
+    "source_action_id": "act-2",
+    "source_snapshot": {
+     "contract_hash": "81e95282e0930d0fe214afa7b18e0005274b5dc97a68b9b5ee758c7760403762",
+     "company": "PersonCo",
+     "function": "",
+     "person_id": "person_a",
+     "contact_status": "verified",
+     "contact_observed_at": "2026-01-03T00:00:00+00:00",
+     "contact_attempts": [
+      {
+       "stage": "verification",
+       "status": "VALID",
+       "provider": "zerobounce"
+      }
+     ],
+     "public_evidence": [
+      {
+       "source_url": "https://acme.com/team",
+       "label": "Team page",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://news.example/a",
+       "label": "News title",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://acme.com/about",
+       "label": "Saved role evidence",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      },
+      {
+       "source_url": "https://www.linkedin.com/in/annlee/",
+       "label": "Saved public profile",
+       "observed_at": "2026-01-02",
+       "confidence": 0.9
+      }
+     ],
+     "contact_flags": [
+      {
+       "person_id": "person_a",
+       "person_name": "Ann Lee",
+       "email": "ann.lee@acme.com",
+       "contact_status": "verified",
+       "generic_inbox": false,
+       "is_role_address": false,
+       "reason": ""
+      }
+     ]
+    },
+    "state": "draft",
+    "sent_at": null
+   }
+  },
+  {
+   "name": "no_company",
+   "source": {
+    "company": "  ",
+    "people": [
+     {
+      "person_id": "person_a",
+      "name": "Ann Lee",
+      "title": "Head of Partnerships",
+      "function": "partnerships",
+      "contactability": {
+       "email": "Ann.Lee@Acme.com",
+       "status": "verified",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/",
+      "verification_confidence": 0.9
+     }
+    ]
+   },
+   "source_action_id": "act-2",
+   "requested": "",
+   "allow_risky": false,
+   "key": "key-4",
+   "error": "Saved company identity is missing",
+   "contact_flags": []
+  },
+  {
+   "name": "blocked",
+   "source": {
+    "company": "Acme",
+    "people": [
+     {
+      "person_id": "person_i",
+      "name": "Ivy",
+      "title": "Director of Alliances",
+      "function": "partnerships",
+      "contactability": {
+       "email": "ivy@acme.com",
+       "status": "catch_all",
+       "attempts": [
+        {
+         "stage": "verification",
+         "status": "VALID",
+         "provider": "zerobounce"
+        }
+       ],
+       "verification_confidence": 0.87,
+       "observed_at": "2026-01-03T00:00:00+00:00",
+       "is_role": false,
+       "finder_provider": "hunter",
+       "verifier_provider": "zb"
+      },
+      "checked_at": "2026-01-02",
+      "verification_sources": [
+       {
+        "url": "https://acme.com/team",
+        "label": "Team page"
+       },
+       {
+        "url": "ftp://x/y",
+        "label": "bad"
+       },
+       {
+        "url": "https://acme.com/team",
+        "title": "dup"
+       },
+       {
+        "url": "https://news.example/a",
+        "title": "News title"
+       },
+       "junk"
+      ],
+      "evidence_url": "https://acme.com/about",
+      "linkedin_url": "https://www.linkedin.com/in/annlee/"
+     }
+    ]
+   },
+   "source_action_id": "act-2",
+   "requested": "",
+   "allow_risky": false,
+   "key": "key-5",
+   "error": "No saved contact has an eligible evidence-backed address for drafting",
+   "contact_flags": [
+    {
+     "person_id": "person_i",
+     "person_name": "Ivy",
+     "email": "ivy@acme.com",
+     "contact_status": "catch_all",
+     "generic_inbox": false,
+     "is_role_address": false,
+     "reason": "contact_not_eligible"
+    }
+   ]
+  }
+ ]
+}

@@ -10,69 +10,68 @@ install serves a team.
 
 ## Must do
 
-- **Set `SECRET_KEY`.** The JWT signing key. The app refuses to boot on the
-  insecure default whenever `APP_ENV` is anything other than `dev`, `test` or
-  `local`. Generate one:
+- **Set `SECRET_KEY`, `INTERNAL_SERVICE_TOKEN` and `BROWSER_SERVICE_TOKEN`.**
+  `SECRET_KEY` is the JWT signing key (at least 32 bytes); the Go services
+  refuse to boot without it unless `APP_ENV=test`. The two tokens (at least 32
+  characters) authenticate service-to-service calls and the internal browser
+  service. `scripts/install.sh` generates all three; by hand:
 
   ```bash
-  python -c "import secrets; print(secrets.token_urlsafe(48))"
+  openssl rand -hex 48   # SECRET_KEY
+  openssl rand -hex 32   # INTERNAL_SERVICE_TOKEN, BROWSER_SERVICE_TOKEN
   ```
 
 - **Set `APP_ENV=production`.** This turns the safety checks above into hard
-  failures and disables development fallbacks such as `create_all` schema
-  initialisation.
-- **Change the seed admin password.** `SEED_ADMIN_PASSWORD` defaults to
-  `admin`. Set it before the first boot or reset it immediately afterwards.
+  failures and disables development fallbacks.
+- **Create the admin through `/setup`.** The default stack has no seeded admin.
+  Open `/setup` right after the first start, using the setup token from
+  `docker compose logs api-go | grep -i 'setup token'` (or a `SETUP_TOKEN` you
+  set).
 - **Change the database passwords.** `POSTGRES_PASSWORD` and
   `YUPCHA_RUNTIME_DB_PASSWORD` default to well-known values. Keep the schema
-  owner (`DATABASE_URL`) and the runtime role (`APP_DATABASE_URL`) separate so
-  forced row-level security applies to API and worker traffic.
+  owner (`DATABASE_URL`, used only by `migrate`) and the runtime role (used by
+  the Go services) separate so forced row-level security applies to all runtime
+  traffic.
 - **Put TLS in front.** The bundled nginx listens on plain HTTP on port 3000.
   Terminate TLS with your reverse proxy of choice and forward to it.
-- **Back up both storage planes.** PostgreSQL holds the data plane, and the
-  `data/` volume holds the workspace control plane (`workspaces.db`, encrypted
-  workspace secrets, collection ledgers). The built-in backup command captures
-  both, snapshots live SQLite files through SQLite's backup API, and writes a
-  SHA-256 inventory:
+- **Back up PostgreSQL.** All application state, including encrypted
+  workspace secrets, lives in PostgreSQL (Redis holds only live progress). Use
+  `pg_dump` with the owner role and store the dump in encrypted,
+  access-controlled storage:
 
   ```bash
-  uv run python cli.py backup --output /secure/opengtm-$(date +%F).tar.gz
-  uv run python cli.py backup-verify /secure/opengtm-$(date +%F).tar.gz
+  docker compose exec -T postgres pg_dump -U yupcha -Fc yupcha > /secure/opengtm-$(date +%F).dump
   ```
 
-  The command invokes `pg_dump`, which must be installed and compatible with
-  the PostgreSQL server. The archive includes encrypted workspace secrets but
-  is not itself encrypted: store it in encrypted, access-controlled storage.
+  Keep `SECRET_KEY` and `SECRETS_MASTER_KEY` (if set) with the backup: without
+  them the workspace secrets cannot be decrypted.
 
 ## Restore drill
 
-Run this against a disposable PostgreSQL database and a nonexistent or empty
-data directory. `pg_restore --clean --if-exists` replaces objects in the target
-database, so the exact confirmation phrase is mandatory:
+Restore into a disposable database, never with production credentials:
 
 ```bash
-uv run python cli.py restore /secure/opengtm-2026-09-13.tar.gz \
-  --database-url postgresql://restore_user:password@restore-db/opengtm_drill \
-  --data-dir /tmp/opengtm-restore-drill \
-  --confirm "RESTORE OPENGTM BACKUP"
+pg_restore --clean --if-exists --no-owner \
+  -d postgresql://restore_user:password@restore-db/opengtm_drill /secure/opengtm-2026-09-13.dump
 ```
 
-After restoration, point a temporary API instance at the restored database and
-data directory, run migrations only if restoring into a newer application
-version, then verify login, workspace membership, workbook row counts, and one
-read-only export. Record the archive SHA-256 printed by `backup-verify`, the
-application version, elapsed recovery time, and drill date in your operations
-log. Never run the drill against production credentials.
+Point a temporary stack at the restored database (run `migrate` only when
+restoring into a newer application version), then verify login, workspace
+membership, workbook row counts and one read-only export. Record the dump's
+SHA-256, the application version, elapsed recovery time and drill date in your
+operations log.
 
 ## Should do
 
-- **Run exactly one scheduler.** Scale `worker` freely; do not scale
-  `scheduler` until leadership election exists.
+- **Scale workers, not the scheduler.** Scale `worker-go` freely. Extra
+  `scheduler-go` replicas are safe (a Postgres advisory lock keeps one active)
+  but add nothing.
 - **Keep PostgreSQL and Redis private.** Compose binds them to loopback for
   host administration; do not publish them on a LAN interface.
-- **Pin an image tag.** Deploy from a tagged GHCR image
-  (`ghcr.io/debpalash/opengtm:<version>`) rather than `latest`, and run
-  migrations once with the owner role before starting the runtime services.
+- **Pin a release.** Deploy from a release tag (or the tagged
+  `ghcr.io/debpalash/opengtm-*` images) rather than `main` or `latest`; the
+  `migrate` service applies schema changes with the owner role before the
+  runtime services start.
 - **Rotate provider keys per workspace.** Keys entered in
   **Settings → API Keys** are encrypted per workspace and never placed in queue
   payloads; prefer them over global `.env` keys when more than one team shares

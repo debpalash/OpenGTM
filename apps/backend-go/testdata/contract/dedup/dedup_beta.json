@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup"
+  },
+  "response": {
+    "body": {
+      "clusters": {},
+      "merge_suggestions": [],
+      "pairs": [],
+      "scanned": 3,
+      "stats": {
+        "clusters": 0,
+        "duplicates_found": 0,
+        "pairs_compared": 1,
+        "total_leads": 3,
+        "unique_leads": 3
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

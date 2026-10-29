@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "query": "   payroll   outsourcing\tDelhi  "
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/collect"
+  },
+  "response": {
+    "body": {
+      "intent": "market_search",
+      "job_id": "00000000000040008000000000005001",
+      "ok": true,
+      "query": "payroll   outsourcing\tDelhi",
+      "queue_job_id": 11,
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

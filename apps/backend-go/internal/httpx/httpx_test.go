@@ -1,0 +1,330 @@
+package httpx
+
+import (
+	"bytes"
+	"compress/gzip"
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+)
+
+func do(h http.Handler, method, path string, hdr map[string]string) *httptest.ResponseRecorder {
+	req := httptest.NewRequest(method, path, nil)
+	for k, v := range hdr {
+		req.Header.Set(k, v)
+	}
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	return rec
+}
+
+func ok(w http.ResponseWriter, _ *http.Request) { WriteJSON(w, 200, map[string]string{"ok": "yes"}) }
+
+func TestUnknownPathIs404Detail(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /a", http.HandlerFunc(ok))
+	rec := do(r.Handler(), "GET", "/nope", nil)
+	if rec.Code != 404 || strings.TrimSpace(rec.Body.String()) != `{"detail":"Not Found"}` {
+		t.Fatalf("got %d %q", rec.Code, rec.Body.String())
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("content-type %q", ct)
+	}
+}
+
+func TestWrongMethodIs405WithAllow(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /a", http.HandlerFunc(ok))
+	r.Handle("POST /a", http.HandlerFunc(ok))
+	rec := do(r.Handler(), "DELETE", "/a", nil)
+	if rec.Code != 405 || strings.TrimSpace(rec.Body.String()) != `{"detail":"Method Not Allowed"}` {
+		t.Fatalf("got %d %q", rec.Code, rec.Body.String())
+	}
+	if a := rec.Header().Get("Allow"); a != "GET, POST" {
+		t.Fatalf("allow %q", a)
+	}
+}
+
+func TestPatternWildcardParams(t *testing.T) {
+	r := NewRouter()
+	var got string
+	r.Handle("GET /w/{ws_id}/x", http.HandlerFunc(func(w http.ResponseWriter, q *http.Request) {
+		got = q.PathValue("ws_id")
+	}))
+	do(r.Handler(), "GET", "/w/42/x", nil)
+	if got != "42" {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestRouteMiddlewareAndUseOrder(t *testing.T) {
+	r := NewRouter()
+	var order []string
+	mk := func(n string) Middleware {
+		return func(next http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, q *http.Request) {
+				order = append(order, n)
+				next.ServeHTTP(w, q)
+			})
+		}
+	}
+	r.Use(mk("g1"), mk("g2"))
+	r.Handle("GET /a", http.HandlerFunc(ok), mk("r1"), mk("r2"))
+	do(r.Handler(), "GET", "/a", nil)
+	if strings.Join(order, ",") != "g1,g2,r1,r2" {
+		t.Fatalf("order %v", order)
+	}
+}
+
+func TestRequestIDHonoursSafeHeaderRejectsUnsafe(t *testing.T) {
+	var seen string
+	h := RequestID()(http.HandlerFunc(func(w http.ResponseWriter, q *http.Request) { seen = RequestIDFrom(q.Context()) }))
+	rec := do(h, "GET", "/", map[string]string{"X-Request-Id": "abc.1:2_x-y"})
+	if seen != "abc.1:2_x-y" || rec.Header().Get("X-Request-Id") != seen {
+		t.Fatalf("seen %q hdr %q", seen, rec.Header().Get("X-Request-Id"))
+	}
+	for _, bad := range []string{"a b", strings.Repeat("a", 65), "a/b"} {
+		rec = do(h, "GET", "/", map[string]string{"X-Request-Id": bad})
+		id := rec.Header().Get("X-Request-Id")
+		if id == bad || len(id) != 36 || id[14] != '4' || seen != id {
+			t.Fatalf("bad %q -> %q (ctx %q)", bad, id, seen)
+		}
+	}
+}
+
+func TestCORSPreflight(t *testing.T) {
+	h := CORS("")(http.HandlerFunc(ok))
+	rec := do(h, "OPTIONS", "/x", map[string]string{
+		"Origin": "http://e.com", "Access-Control-Request-Method": "POST", "Access-Control-Request-Headers": "authorization, x-workspace-id",
+	})
+	if rec.Code != 200 || rec.Body.String() != "OK" {
+		t.Fatalf("got %d %q", rec.Code, rec.Body.String())
+	}
+	hd := rec.Header()
+	if hd.Get("Access-Control-Allow-Origin") != "*" || hd.Get("Access-Control-Max-Age") != "600" ||
+		hd.Get("Access-Control-Allow-Headers") != "authorization, x-workspace-id" ||
+		!strings.Contains(hd.Get("Access-Control-Allow-Methods"), "PATCH") ||
+		hd.Get("Access-Control-Allow-Credentials") != "" {
+		t.Fatalf("headers %v", hd)
+	}
+	rec = do(h, "GET", "/x", map[string]string{"Origin": "http://e.com"})
+	if rec.Header().Get("Access-Control-Allow-Origin") != "*" || rec.Code != 200 {
+		t.Fatalf("simple: %v", rec.Header())
+	}
+	rec = do(h, "GET", "/x", nil)
+	if rec.Header().Get("Access-Control-Allow-Origin") != "" {
+		t.Fatal("no origin must add no header")
+	}
+}
+
+func TestCORSSpecificOriginList(t *testing.T) {
+	h := CORS("https://a.com, https://b.com")(http.HandlerFunc(ok))
+	rec := do(h, "GET", "/x", map[string]string{"Origin": "https://b.com"})
+	if rec.Header().Get("Access-Control-Allow-Origin") != "https://b.com" || rec.Header().Get("Vary") != "Origin" {
+		t.Fatalf("headers %v", rec.Header())
+	}
+	rec = do(h, "GET", "/x", map[string]string{"Origin": "https://evil.com"})
+	if rec.Header().Get("Access-Control-Allow-Origin") != "" || rec.Code != 200 {
+		t.Fatalf("headers %v", rec.Header())
+	}
+	rec = do(h, "OPTIONS", "/x", map[string]string{"Origin": "https://evil.com", "Access-Control-Request-Method": "GET"})
+	if rec.Code != 400 || rec.Body.String() != "Disallowed CORS origin" {
+		t.Fatalf("got %d %q", rec.Code, rec.Body.String())
+	}
+}
+
+func TestGzipSkipsSSEAndSmallBodies(t *testing.T) {
+	big := strings.Repeat("x", 5000)
+	mk := func(ct string, body string, extra func(http.Header)) http.Handler {
+		return Gzip(1000)(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			w.Header().Set("Content-Type", ct)
+			if extra != nil {
+				extra(w.Header())
+			}
+			io.WriteString(w, body)
+		}))
+	}
+	ae := map[string]string{"Accept-Encoding": "gzip"}
+	rec := do(mk("application/json", big, nil), "GET", "/", ae)
+	if rec.Header().Get("Content-Encoding") != "gzip" || rec.Header().Get("Content-Length") != "" {
+		t.Fatalf("big: %v", rec.Header())
+	}
+	zr, err := gzip.NewReader(bytes.NewReader(rec.Body.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b, _ := io.ReadAll(zr); string(b) != big {
+		t.Fatal("roundtrip mismatch")
+	}
+	rec = do(mk("application/json", "small", nil), "GET", "/", ae)
+	if rec.Header().Get("Content-Encoding") != "" || rec.Body.String() != "small" {
+		t.Fatalf("small: %v %q", rec.Header(), rec.Body.String())
+	}
+	rec = do(mk("text/event-stream", big, nil), "GET", "/", ae)
+	if rec.Header().Get("Content-Encoding") != "" || rec.Body.String() != big {
+		t.Fatal("sse must not be compressed")
+	}
+	rec = do(mk("application/json", big, func(h http.Header) { h.Set("Content-Encoding", "br") }), "GET", "/", ae)
+	if rec.Header().Get("Content-Encoding") != "br" || rec.Body.String() != big {
+		t.Fatal("pre-encoded must pass through")
+	}
+	rec = do(mk("application/json", big, nil), "GET", "/", nil)
+	if rec.Header().Get("Content-Encoding") != "" || rec.Body.String() != big {
+		t.Fatal("no accept-encoding must not compress")
+	}
+}
+
+func TestValidationErrorShape(t *testing.T) {
+	rec := httptest.NewRecorder()
+	ValidationError(rec, FieldError{Type: "missing", Loc: []any{"body", "username"}, Msg: "Field required"})
+	if rec.Code != 422 {
+		t.Fatalf("code %d", rec.Code)
+	}
+	want := `{"detail":[{"type":"missing","loc":["body","username"],"msg":"Field required","input":null}]}`
+	if strings.TrimSpace(rec.Body.String()) != want {
+		t.Fatalf("got %s", rec.Body.String())
+	}
+}
+
+func TestDetailHeadersAndJSONNoHTMLEscape(t *testing.T) {
+	rec := httptest.NewRecorder()
+	Detail(rec, 401, "a<b", Header{"WWW-Authenticate", "Bearer"})
+	var m map[string]string
+	json.Unmarshal(rec.Body.Bytes(), &m)
+	if rec.Code != 401 || rec.Header().Get("WWW-Authenticate") != "Bearer" || m["detail"] != "a<b" || !strings.Contains(rec.Body.String(), "a<b") {
+		t.Fatalf("got %d %v %q", rec.Code, rec.Header(), rec.Body.String())
+	}
+}
+
+func TestTrailingSlashPatternIsExact(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /prefix/", http.HandlerFunc(ok))
+	r.Handle("POST /prefix/", http.HandlerFunc(ok))
+	h := r.Handler()
+	if rec := do(h, "GET", "/prefix/", nil); rec.Code != 200 {
+		t.Fatalf("exact: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/prefix/anything", nil); rec.Code != 404 {
+		t.Fatalf("subtree leaked: %d", rec.Code)
+	}
+	rec := do(h, "DELETE", "/prefix/", nil)
+	if rec.Code != 405 || rec.Header().Get("Allow") != "GET, POST" {
+		t.Fatalf("405: %d %v", rec.Code, rec.Header())
+	}
+	// bare root pattern must not swallow everything
+	r.Handle("GET /", http.HandlerFunc(ok))
+	if rec := do(r.Handler(), "GET", "/zzz", nil); rec.Code != 404 {
+		t.Fatalf("root swallowed: %d", rec.Code)
+	}
+}
+
+func TestRedirectSlashesBothDirections(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /with/", http.HandlerFunc(ok))
+	r.Handle("GET /without", http.HandlerFunc(ok))
+	h := r.Handler()
+	rec := do(h, "GET", "/with?a=1&b=2", nil)
+	if rec.Code != 307 || rec.Header().Get("Location") != "/with/?a=1&b=2" {
+		t.Fatalf("add slash: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	if rec = do(h, "GET", "/with", nil); rec.Code != 307 || rec.Header().Get("Location") != "/with/" {
+		t.Fatalf("add slash no query: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	rec = do(h, "GET", "/without/", nil)
+	if rec.Code != 307 || rec.Header().Get("Location") != "/without" {
+		t.Fatalf("strip slash: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	if rec = do(h, "POST", "/with", nil); rec.Code != 404 {
+		t.Fatalf("other method must not redirect: %d", rec.Code)
+	}
+}
+
+func TestRedirectSlashesRefusesUnsafePaths(t *testing.T) {
+	r := NewRouter()
+	r.Handle("GET /x/", http.HandlerFunc(ok))
+	r.Handle("GET /evil.com/", http.HandlerFunc(ok))
+	r.Handle("GET /b", http.HandlerFunc(ok))
+	h := r.Handler()
+	for _, p := range []string{"//evil.com", "//evil.com/", `/\evil.com/`, `/\evil.com`, "/a/../b/", "/./b/", "/x//"} {
+		rec := do(h, "GET", p, nil)
+		loc := rec.Header().Get("Location")
+		if rec.Code == 307 || strings.HasPrefix(loc, "//") || strings.Contains(loc, `\`) {
+			t.Fatalf("%q: %d Location=%q", p, rec.Code, loc)
+		}
+	}
+	if rec := do(h, "GET", `/\evil.com/`, nil); rec.Code != 404 {
+		t.Fatalf("backslash: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/x", nil); rec.Code != 307 || rec.Header().Get("Location") != "/x/" {
+		t.Fatalf("normal: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+	if rec := do(h, "GET", "/b/", nil); rec.Code != 307 || rec.Header().Get("Location") != "/b" {
+		t.Fatalf("normal strip: %d %q", rec.Code, rec.Header().Get("Location"))
+	}
+}
+
+func TestRouterPatternsListsRegisteredRoutes(t *testing.T) {
+	r := NewRouter()
+	h := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})
+	r.Handle("PUT /b/{id}", h)
+	r.Handle("GET /a/", h)
+	got := strings.Join(r.Patterns(), ",")
+	if got != "GET /a/,PUT /b/{id}" {
+		t.Fatalf("patterns = %q", got)
+	}
+}
+
+func TestGzipDoesNotWrapProtocolUpgrades(t *testing.T) {
+	var seen http.ResponseWriter
+	h := Gzip(1)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { seen = w }))
+	req := httptest.NewRequest("GET", "/ws", nil)
+	req.Header.Set("Accept-Encoding", "gzip")
+	req.Header.Set("Upgrade", "websocket")
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	if _, wrapped := seen.(interface{ Unwrap() http.ResponseWriter }); wrapped {
+		t.Fatal("upgrade request got a gzip writer")
+	}
+}
+
+func TestOverrideWinsOverMuxAndIsRegistered(t *testing.T) {
+	r := NewRouter()
+	r.Handle("POST /x/{id}/sync", http.HandlerFunc(ok))
+	r.Handle("GET /x/{id}/health", http.HandlerFunc(ok))
+	hit := false
+	r.Override("POST /x/inbound/{id}", func(p string) bool {
+		rest, found := strings.CutPrefix(p, "/x/inbound/")
+		return found && rest != "" && rest != "sync" && !strings.Contains(rest, "/")
+	}, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { hit = true; ok(w, nil) }))
+	r.Use(func(next http.Handler) http.Handler { // a Use registered after the override still wraps it
+		return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) { w.Header().Set("X-Seen", "1"); next.ServeHTTP(w, req) })
+	})
+	h := r.Handler()
+	if rec := do(h, "POST", "/x/inbound/abc", nil); rec.Code != 200 || !hit || rec.Header().Get("X-Seen") != "1" {
+		t.Fatalf("override: %d hit=%v", rec.Code, hit)
+	}
+	if rec := do(h, "POST", "/x/inbound/sync", nil); rec.Code != 200 { // the literal belongs to the mux route
+		t.Fatalf("mux literal: %d", rec.Code)
+	}
+	if rec := do(h, "GET", "/x/inbound/health", nil); rec.Code != 200 { // sibling static route of destination "inbound"
+		t.Fatalf("GET health: %d", rec.Code)
+	}
+	for _, m := range []string{"GET", "PUT", "DELETE"} {
+		if rec := do(h, m, "/x/inbound/abc", nil); rec.Code != 405 || rec.Header().Get("Allow") != "POST" {
+			t.Fatalf("%s: %d Allow=%q", m, rec.Code, rec.Header().Get("Allow"))
+		}
+	}
+	if rec := do(h, "POST", "/x//inbound/abc", nil); rec.Code != 404 { // the canonical-path guard runs first
+		t.Fatalf("non-canonical: %d", rec.Code)
+	}
+	found := false
+	for _, p := range r.Patterns() {
+		found = found || p == "POST /x/inbound/{id}"
+	}
+	if !found {
+		t.Fatalf("patterns %v", r.Patterns())
+	}
+}

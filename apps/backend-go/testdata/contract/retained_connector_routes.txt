@@ -1,0 +1,7 @@
+# Connector and CRM routes that stay on FastAPI (plan 07, Task 19). One "METHOD /path/{param}" per line.
+# None: all 19 in-scope routes are ported (connectors 2, hubspot 4, /api/data 7, ambitionbox 6), so no route line follows.
+# Not routes, and not listed as routes, but they stay on Python after this plan:
+#   - crm_import source materialisation: runs inside the Python source_workbook job (plan 06 D6, flag CRM_IMPORT_ENABLED)
+#   - destinations/audiences consumers of the Airtable, Sheets, Instantly, Smartlead and Salesforce clients (destinations plan)
+#   - output-column execution (output.execute_output_column, destinations plan)
+#   - POST /api/v2/workbooks/{id}/ingest-token and /rows/ingest (plan 06 Task 30, not this plan)

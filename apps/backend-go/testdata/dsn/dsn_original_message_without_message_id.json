@@ -1,0 +1,13 @@
+{
+  "name": "dsn_original_message_without_message_id",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "dsn status=5.1.1 action=failed",
+      "kind": "hard",
+      "original_message_id": "",
+      "recipient": "a@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0036@mx.example.net>"
+}

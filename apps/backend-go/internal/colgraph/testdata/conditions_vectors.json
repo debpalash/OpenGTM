@@ -1,0 +1,3459 @@
+{
+ "columns": [
+  {
+   "id": "email",
+   "name": "Email"
+  },
+  {
+   "id": "website",
+   "name": "Website"
+  },
+  {
+   "id": "score",
+   "name": "Lead Score"
+  },
+  {
+   "id": "status",
+   "name": "Status"
+  },
+  {
+   "id": "n",
+   "name": "N"
+  },
+  {
+   "id": "dup",
+   "name": "email"
+  },
+  {
+   "id": "note",
+   "name": "Note"
+  },
+  {
+   "id": "co",
+   "name": "Société"
+  }
+ ],
+ "cells": {
+  "email": {
+   "value": ""
+  },
+  "website": {
+   "value": "https://acme.com"
+  },
+  "score": {
+   "value": 75
+  },
+  "status": {
+   "value": "active"
+  },
+  "n": {
+   "value": null
+  },
+  "dup": {
+   "value": "x@y.com"
+  },
+  "note": {
+   "value": "a AND b OR \"c\" {email}"
+  },
+  "co": {
+   "value": "ÉCOLE"
+  }
+ },
+ "evaluate": [
+  {
+   "condition": "",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "   ",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "true",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "TRUE",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "always",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "1",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "yes",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "never",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "no",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "Never",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{email} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{email} != \"\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{website} != ''",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} > 50",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} >= 75",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} <= 75",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} < 75.0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} == 75.00",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} != 75",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{status} == \"active\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{status} == \"Active\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{status} contains CTIV",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{status} CONTAINS act",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{note} contains \"a AND b\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{note} == \"a AND b OR \\\"c\\\" {email}\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{email} == \"\" AND {website} != \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{email} != \"\" AND {website} != \"\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{email} == \"\" OR {score} > 90",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{email} != \"\" OR {score} > 90",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{email} == \"\" OR {score} > 90 AND {status} == \"x\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{a} == \"\" AND {b} == \"\" OR {score} == 75",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "not_empty({website})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "not_empty({email})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "is_empty({email})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "NOT_EMPTY({website})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "not_empty(N/A)",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "is_empty(null)",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "is_empty(None)",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "not_empty({missing})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "is_empty({missing})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{Lead Score} > 10",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{lead_score} > 10",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{LEAD SCORE} > 100",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{n} != \"\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{missing} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{ email } == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{co} == \"ÉCOLE\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{co} == \"école\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{co} contains é",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "\"b\" > \"a\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "\"10\" > \"9\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "\"abc\" > \"abd\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "\"abc\" <= \"abc\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "1e3 == 1000",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "0x10 == 16",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "NaN == NaN",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "nan != nan",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "inf > 1",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "-inf < 1",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "1_000 == 1000",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": " 5 == 5.0 ",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "05 == 5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "0.1 + 0.2 == 0.3",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} garbage",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "no operator here",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} => 5",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} == 5 == 5",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} > ",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": " == 5",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{email} == \"\" and {website} != \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{email} == \"\" or {score} > 90",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "a AND b",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "\"x AND y\" == \"x AND y\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{note} contains {email}",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{status} == {status}",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{status} == \"active\" AND ",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "AND",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": " OR ",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{dup} == \"x@y.com\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{email} == \"x@y.com\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{Email} == \"x@y.com\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "{score} == \"75\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} > \"5\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} > \"abc\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "condition": "1.50 == 1.5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "1.5e0 == 1.5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": ".5 == 0.5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "5. == 5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "'single' == \"single\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "'it''s' == 'it''s'",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{website} contains ://",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{score} >= 75 AND {score} <= 75",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "-0 == 0",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "+5 == 5",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "٣ == 3",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "1E400 == 1E400",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "condition": "{status} != 'active' OR {status} != 'inactive'",
+   "result": {
+    "value": true
+   }
+  }
+ ],
+ "shapes": [
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == 0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == False",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "no_cells",
+   "cells": {},
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == 0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == False",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "plain_values",
+   "cells": {
+    "email": "",
+    "score": 3,
+    "status": null
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{n} == 0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{status} == False",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "no_columns_config",
+   "cells": {
+    "email": {
+     "value": ""
+    }
+   },
+   "columns": [],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == 0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == False",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "cell_missing_value_key",
+   "cells": {
+    "email": {}
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == 0",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == False",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "id_beats_name_collision",
+   "cells": {
+    "email": {
+     "value": "A"
+    },
+    "dup": {
+     "value": "B"
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == \"\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{n} == 0",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == False",
+   "result": {
+    "value": true
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{status} == false",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{email} == \"A\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "{Email} == \"B\"",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "is_empty({n})",
+   "result": {
+    "value": false
+   }
+  },
+  {
+   "name": "cell_bool_and_zero",
+   "cells": {
+    "n": {
+     "value": 0
+    },
+    "status": {
+     "value": false
+    }
+   },
+   "columns": [
+    {
+     "id": "email",
+     "name": "Email"
+    },
+    {
+     "id": "website",
+     "name": "Website"
+    },
+    {
+     "id": "score",
+     "name": "Lead Score"
+    },
+    {
+     "id": "status",
+     "name": "Status"
+    },
+    {
+     "id": "n",
+     "name": "N"
+    },
+    {
+     "id": "dup",
+     "name": "email"
+    },
+    {
+     "id": "note",
+     "name": "Note"
+    },
+    {
+     "id": "co",
+     "name": "Société"
+    }
+   ],
+   "condition": "not_empty({status})",
+   "result": {
+    "value": true
+   }
+  }
+ ],
+ "split_unquoted": [
+  {
+   "expr": "a AND b",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "expr": "a AND b AND c",
+   "pattern": " AND ",
+   "maxsplit": 1,
+   "parts": [
+    "a",
+    "b AND c"
+   ]
+  },
+  {
+   "expr": "\"a AND b\" AND c",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "\"a AND b\"",
+    "c"
+   ]
+  },
+  {
+   "expr": "'a AND b' AND c",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "'a AND b'",
+    "c"
+   ]
+  },
+  {
+   "expr": "{a AND b} AND c",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "{a AND b}",
+    "c"
+   ]
+  },
+  {
+   "expr": "{a AND b AND c",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "{a",
+    "b",
+    "c"
+   ]
+  },
+  {
+   "expr": "x == \"a\\\" AND b\" AND y",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "x == \"a\\\" AND b\"",
+    "y"
+   ]
+  },
+  {
+   "expr": "a OR b OR c",
+   "pattern": " OR ",
+   "maxsplit": 0,
+   "parts": [
+    "a",
+    "b",
+    "c"
+   ]
+  },
+  {
+   "expr": "x==1",
+   "pattern": "==",
+   "maxsplit": 1,
+   "parts": [
+    "x",
+    "1"
+   ]
+  },
+  {
+   "expr": "x!=1",
+   "pattern": "!=",
+   "maxsplit": 1,
+   "parts": [
+    "x",
+    "1"
+   ]
+  },
+  {
+   "expr": "\"x==1\"==2",
+   "pattern": "==",
+   "maxsplit": 1,
+   "parts": [
+    "\"x==1\"",
+    "2"
+   ]
+  },
+  {
+   "expr": "x>=1",
+   "pattern": ">=",
+   "maxsplit": 1,
+   "parts": [
+    "x",
+    "1"
+   ]
+  },
+  {
+   "expr": "a   AND   b",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "a  ",
+    "  b"
+   ]
+  },
+  {
+   "expr": "a and b",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "a and b"
+   ]
+  },
+  {
+   "expr": "(a AND b)",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "(a",
+    "b)"
+   ]
+  },
+  {
+   "expr": "x = \"a AND b",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "x = \"a AND b"
+   ]
+  },
+  {
+   "expr": "it's AND ok",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "it's",
+    "ok"
+   ]
+  },
+  {
+   "expr": "x=='a' AND y=='b'",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "x=='a'",
+    "y=='b'"
+   ]
+  },
+  {
+   "expr": "",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    ""
+   ]
+  },
+  {
+   "expr": " AND ",
+   "pattern": " AND ",
+   "maxsplit": 0,
+   "parts": [
+    "",
+    ""
+   ]
+  }
+ ],
+ "compare": [
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "5",
+   "right": "5.0",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": "<",
+   "result": true
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": ">=",
+   "result": false
+  },
+  {
+   "left": "abc",
+   "right": "abd",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": ">",
+   "result": true
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "10",
+   "right": "9",
+   "op": "<=",
+   "result": false
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "",
+   "right": "",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "1e2",
+   "right": "100",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": ">=",
+   "result": false
+  },
+  {
+   "left": "nan",
+   "right": "nan",
+   "op": "<=",
+   "result": false
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "inf",
+   "right": "inf",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": "<",
+   "result": true
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": ">=",
+   "result": false
+  },
+  {
+   "left": "-inf",
+   "right": "inf",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "0.1",
+   "right": "0.10",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "1_0",
+   "right": "10",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "١٢",
+   "right": "12",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": " 5",
+   "right": "5",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": "==",
+   "result": true
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": "!=",
+   "result": false
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "5 ",
+   "right": "5",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": ">",
+   "result": false
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": "<",
+   "result": true
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": ">=",
+   "result": false
+  },
+  {
+   "left": "0x1",
+   "right": "1",
+   "op": "<=",
+   "result": true
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": ">",
+   "result": true
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "1e999999",
+   "right": "1",
+   "op": "<=",
+   "result": false
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": ">",
+   "result": true
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "a",
+   "right": "A",
+   "op": "<=",
+   "result": false
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": "==",
+   "result": false
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": "!=",
+   "result": true
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": ">",
+   "result": true
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": "<",
+   "result": false
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": ">=",
+   "result": true
+  },
+  {
+   "left": "é",
+   "right": "e",
+   "op": "<=",
+   "result": false
+  },
+  {
+   "left": "a",
+   "right": "b",
+   "op": "~",
+   "result": false
+  }
+ ],
+ "clean_value": [
+  {
+   "input": "\"x\"",
+   "result": "x"
+  },
+  {
+   "input": "'x'",
+   "result": "x"
+  },
+  {
+   "input": "\"x",
+   "result": "\"x"
+  },
+  {
+   "input": "x\"",
+   "result": "x\""
+  },
+  {
+   "input": "\"\"",
+   "result": ""
+  },
+  {
+   "input": "''",
+   "result": ""
+  },
+  {
+   "input": "\"",
+   "result": "\""
+  },
+  {
+   "input": " 'x' ",
+   "result": "x"
+  },
+  {
+   "input": "\"x'",
+   "result": "\"x'"
+  },
+  {
+   "input": "",
+   "result": ""
+  }
+ ]
+}

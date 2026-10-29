@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "DELETE 4 ROWS",
+      "expected_count": 4,
+      "search": "Acme 2"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "actual_count": 0,
+        "expected_count": 4,
+        "message": "Matching row count changed; review and confirm again"
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

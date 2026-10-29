@@ -1,0 +1,28 @@
+{
+ "description": "blank query -> success false, query required",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:ddgs_query_required:0",
+  "input": {
+   "query": "  "
+  },
+  "provider": "ddgs_search",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": "query required",
+  "output": {
+   "billing_evidence": null,
+   "confidence": 0.0,
+   "error": "query required",
+   "fields": {},
+   "license": "unknown",
+   "provider": "ddgs_search",
+   "success": false
+  },
+  "status": "error"
+ },
+ "scenario": "ddgs_query_required"
+}

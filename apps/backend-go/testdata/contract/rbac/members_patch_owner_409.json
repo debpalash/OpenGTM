@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "role": "viewer"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/governance/members/1"
+  },
+  "response": {
+    "body": {
+      "detail": "Owner role cannot be changed"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

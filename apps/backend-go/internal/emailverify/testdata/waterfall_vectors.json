@@ -1,0 +1,1068 @@
+{
+ "find_email_waterfall": [
+  {
+   "name": "website_hit_stops",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "hit@acme.com",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "h@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "https://www.acme.com/x",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "hit@acme.com",
+    "provider": "website",
+    "found": true,
+    "attempts": 1,
+    "steps": [
+     {
+      "provider": "website",
+      "success": true,
+      "email": "hit@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "hit@acme.com",
+    "email_provider": "website",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 1,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "website",
+      "value": "hit@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": true,
+        "email": "hit@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "website_miss_hunter_hit_with_contact",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "ada@acme.com",
+      {
+       "contact_person": "Ada",
+       "contact_title": "CEO"
+      }
+     ],
+     "available": true
+    },
+    {
+     "name": "snovio",
+     "spec": [
+      "s@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "ada@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 2,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "ada@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "ada@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "Ada",
+    "contact_title": "CEO",
+    "enrichment_attempts": 2,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "ada@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "ada@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "unavailable_providers_skipped_not_counted",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "h@acme.com",
+      {}
+     ],
+     "available": false
+    },
+    {
+     "name": "snovio",
+     "spec": [
+      "s@acme.com",
+      {}
+     ],
+     "available": false
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "",
+    "provider": "",
+    "found": false,
+    "attempts": 1,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": false,
+      "skipped": true
+     },
+     {
+      "provider": "snovio",
+      "success": false,
+      "skipped": true
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "",
+    "email_provider": "",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 1,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "",
+      "value": null,
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": false,
+        "skipped": true
+       },
+       {
+        "provider": "snovio",
+        "success": false,
+        "skipped": true
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "exception_recorded_error_truncated",
+   "chain": [
+    {
+     "name": "website",
+     "spec": {
+      "raises": "RuntimeError",
+      "len": 300
+     },
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "h@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "h@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 2,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false,
+      "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+     },
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "h@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "h@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 2,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "h@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false,
+        "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+       },
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "h@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "junk_email_not_usable_continues",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "noreply@acme.com",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "a@example.com",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "snovio",
+     "spec": [
+      "real@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "real@acme.com",
+    "provider": "snovio",
+    "found": true,
+    "attempts": 3,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": false
+     },
+     {
+      "provider": "snovio",
+      "success": true,
+      "email": "real@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "real@acme.com",
+    "email_provider": "snovio",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 3,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "snovio",
+      "value": "real@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": false
+       },
+       {
+        "provider": "snovio",
+        "success": true,
+        "email": "real@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "image_extension_email_rejected",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "logo@2x.png",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "x@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "x@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 2,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "x@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "x@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 2,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "x@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "x@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "all_miss",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "snovio",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": "[{\"prior\": 1}]"
+   },
+   "outcome": {
+    "email": "",
+    "provider": "",
+    "found": false,
+    "attempts": 3,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": false
+     },
+     {
+      "provider": "snovio",
+      "success": false
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "",
+    "email_provider": "",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 3,
+    "enrichment_waterfall": [
+     {
+      "prior": 1
+     },
+     {
+      "field": "email_finder",
+      "winner": "",
+      "value": null,
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": false
+       },
+       {
+        "provider": "snovio",
+        "success": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "all_unavailable",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": false
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "",
+      {}
+     ],
+     "available": false
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "",
+    "provider": "",
+    "found": false,
+    "attempts": 0,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false,
+      "skipped": true
+     },
+     {
+      "provider": "hunter",
+      "success": false,
+      "skipped": true
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "",
+    "email_provider": "",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 0,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "",
+      "value": null,
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false,
+        "skipped": true
+       },
+       {
+        "provider": "hunter",
+        "success": false,
+        "skipped": true
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "lead_already_has_email_noop",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "x@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "have@acme.com",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "",
+    "provider": "",
+    "found": false,
+    "attempts": 0,
+    "steps": []
+   },
+   "lead_out": {
+    "email": "have@acme.com",
+    "email_provider": "",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 0,
+    "enrichment_waterfall": null
+   }
+  },
+  {
+   "name": "contact_fields_do_not_overwrite_existing",
+   "chain": [
+    {
+     "name": "hunter",
+     "spec": [
+      "ada@acme.com",
+      {
+       "contact_person": "Ada"
+      }
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "Existing",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "ada@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 1,
+    "steps": [
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "ada@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "ada@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "Existing",
+    "contact_title": "",
+    "enrichment_attempts": 1,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "ada@acme.com",
+      "attempts": [
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "ada@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "bad_shape_email_no_at",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "plainstring",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "ok@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "ok@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 2,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "ok@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "ok@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 2,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "ok@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "ok@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "uppercase_junk_domain",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "A@WIXPRESS.COM",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "ok@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "ok@acme.com",
+    "provider": "hunter",
+    "found": true,
+    "attempts": 2,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": true,
+      "email": "ok@acme.com"
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "ok@acme.com",
+    "email_provider": "hunter",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 2,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "hunter",
+      "value": "ok@acme.com",
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": true,
+        "email": "ok@acme.com"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "local_part_noreply_variants",
+   "chain": [
+    {
+     "name": "website",
+     "spec": [
+      "no-reply@acme.com",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "hunter",
+     "spec": [
+      "donotreply@acme.com",
+      {}
+     ],
+     "available": true
+    },
+    {
+     "name": "snovio",
+     "spec": [
+      "test@acme.com",
+      {}
+     ],
+     "available": true
+    }
+   ],
+   "lead_in": {
+    "website": "acme.com",
+    "email": "",
+    "contact_person": "",
+    "enrichment_waterfall": ""
+   },
+   "outcome": {
+    "email": "",
+    "provider": "",
+    "found": false,
+    "attempts": 3,
+    "steps": [
+     {
+      "provider": "website",
+      "success": false
+     },
+     {
+      "provider": "hunter",
+      "success": false
+     },
+     {
+      "provider": "snovio",
+      "success": false
+     }
+    ]
+   },
+   "lead_out": {
+    "email": "",
+    "email_provider": "",
+    "contact_person": "",
+    "contact_title": "",
+    "enrichment_attempts": 3,
+    "enrichment_waterfall": [
+     {
+      "field": "email_finder",
+      "winner": "",
+      "value": null,
+      "attempts": [
+       {
+        "provider": "website",
+        "success": false
+       },
+       {
+        "provider": "hunter",
+        "success": false
+       },
+       {
+        "provider": "snovio",
+        "success": false
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "is_usable_email": [
+  {
+   "email": "",
+   "usable": false
+  },
+  {
+   "email": "a@b.co",
+   "usable": true
+  },
+  {
+   "email": "A@B.CO",
+   "usable": true
+  },
+  {
+   "email": " a@b.co ",
+   "usable": true
+  },
+  {
+   "email": "a@b",
+   "usable": false
+  },
+  {
+   "email": "a b@c.co",
+   "usable": false
+  },
+  {
+   "email": "example@acme.com",
+   "usable": false
+  },
+  {
+   "email": "x@example.com",
+   "usable": false
+  },
+  {
+   "email": "x@sentry.io",
+   "usable": false
+  },
+  {
+   "email": "logo.png@x.co",
+   "usable": true
+  },
+  {
+   "email": "x@acme.png",
+   "usable": false
+  },
+  {
+   "email": "x@acme.co.svg",
+   "usable": false
+  },
+  {
+   "email": "x@gravatar.com",
+   "usable": false
+  },
+  {
+   "email": "x@hunter.io",
+   "usable": false
+  },
+  {
+   "email": "x@snov.io",
+   "usable": false
+  },
+  {
+   "email": "x@w3.org",
+   "usable": false
+  },
+  {
+   "email": "no-reply@x.co",
+   "usable": false
+  },
+  {
+   "email": "TEST@x.co",
+   "usable": false
+  },
+  {
+   "email": "a+b@x.co",
+   "usable": true
+  },
+  {
+   "email": "a@x.technology",
+   "usable": true
+  },
+  {
+   "email": "é@x.co",
+   "usable": true
+  },
+  {
+   "email": "a@x.c",
+   "usable": false
+  },
+  {
+   "email": null,
+   "usable": false
+  },
+  {
+   "email": "a@b@c.co",
+   "usable": false
+  }
+ ],
+ "domain_from_url": [
+  {
+   "url": "",
+   "domain": ""
+  },
+  {
+   "url": "acme.com",
+   "domain": "acme.com"
+  },
+  {
+   "url": "https://www.acme.com/x",
+   "domain": "acme.com"
+  },
+  {
+   "url": "http://acme.com",
+   "domain": "acme.com"
+  },
+  {
+   "url": "HTTP://WWW.ACME.COM",
+   "domain": "acme.com"
+  },
+  {
+   "url": "www.acme.com",
+   "domain": "acme.com"
+  },
+  {
+   "url": "ftp://x.com",
+   "domain": "ftp:"
+  },
+  {
+   "url": "https://sub.acme.com:8080/a",
+   "domain": "sub.acme.com:8080"
+  },
+  {
+   "url": "  acme.com  ",
+   "domain": "acme.com"
+  },
+  {
+   "url": "https://",
+   "domain": ""
+  },
+  {
+   "url": "https://www.",
+   "domain": ""
+  }
+ ]
+}

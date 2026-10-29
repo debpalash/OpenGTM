@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches/00000000-0000-4000-8000-000000000036"
+  },
+  "response": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "company": "",
+            "lead_id": 14,
+            "linkedin_url": "",
+            "name": ""
+          },
+          {
+            "company": "Engines",
+            "linkedin_url": "https://www.linkedin.com/in/ada-l",
+            "name": "Ada Lovelace"
+          }
+        ]
+      },
+      "consecutive_failures": 0,
+      "created_at": "2099-01-01T00:00:00.000001+00:00",
+      "cursor": {
+        "bootstrapped": false
+      },
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000000036",
+      "interval": "weekly",
+      "kind": "job_change",
+      "last_error": null,
+      "last_polled_at": null,
+      "lead_id": null,
+      "next_poll_at": "2099-01-01T00:00:00.000001+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "job_change"
+      ],
+      "target": "Roster A",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

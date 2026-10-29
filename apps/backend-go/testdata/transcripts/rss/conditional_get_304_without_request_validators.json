@@ -1,0 +1,48 @@
+{
+ "area": "rss",
+ "scenario": "conditional_get_304_without_request_validators",
+ "description": "304 with no validators in the request: the response's are used",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://93.184.216.34/news.xml",
+    "headers": {
+     "accept": "application/rss+xml, application/atom+xml, application/xml, text/xml",
+     "host": "feeds.example.com",
+     "user-agent": "Yupcha-Poller (+https://yupcha.com)"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 304,
+    "headers": {},
+    "body": ""
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 304,
+  "not_modified": true,
+  "etag": "\"srv\"",
+  "last_modified": null,
+  "error": null,
+  "entries": []
+ }
+}

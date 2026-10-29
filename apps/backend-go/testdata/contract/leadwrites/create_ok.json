@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "city": "Oslo",
+      "company": "Fresh Co",
+      "source": "manual",
+      "website": "https://fresh.example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "id": 19,
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

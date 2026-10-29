@@ -1,0 +1,15 @@
+{
+  "request": {
+    "path": "/api/workbooks/wb-enrich-1/ws",
+    "query": {
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [],
+    "token": "none"
+  },
+  "response": {
+    "closed_by_server": null,
+    "handshake_status": 403,
+    "steps": []
+  }
+}

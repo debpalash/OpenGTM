@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "note": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/14/status"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "note": "x"
+          },
+          "loc": [
+            "body",
+            "status"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

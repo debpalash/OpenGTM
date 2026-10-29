@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "effect": "allow"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/rbac/4/tables.write"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace member not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

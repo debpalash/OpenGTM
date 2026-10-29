@@ -1,0 +1,44 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "search_malformed_json",
+ "call": {
+  "function": "search_companies",
+  "args": {
+   "page": 1
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": {
+     "isFilterApplied": true,
+     "page": "1",
+     "sortBy": "popular",
+     "limit": 20
+    },
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 200,
+    "body": "{not json"
+   }
+  }
+ ],
+ "sleeps": [],
+ "raises": {
+  "type": "JSONDecodeError",
+  "message": "Expecting property name enclosed in double quotes: line 1 column 2 (char 1)"
+ }
+}

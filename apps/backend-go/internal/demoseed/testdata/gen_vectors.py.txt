@@ -1,0 +1,26 @@
+# Recorder for apps/backend-go/internal/demoseed/testdata/seed_demo_vectors.json: runs seed_demo.seed_demo_workbook and
+# trigger_first_run twice against a private clone and dumps the workbook, its rows and the run job. The admin and
+# workspace steps of seed_demo.py are deliberately not recorded (Go never creates admin/admin; first-run /setup does).
+#   cd legacy/python && TZ=UTC PG_RLS_REQUIRE_SAFE_ROLE=false DATABASE_URL=postgresql+psycopg://postgres:<pw>@127.0.0.1:55480/<private clone> \
+#     uv run python /path/to/gen_seed_vectors.py > apps/backend-go/internal/demoseed/testdata/seed_demo_vectors.json
+import json, sys
+from sqlalchemy import text
+from apps.api.database import SessionLocal
+from apps.api.scripts import seed_demo as S
+
+WS = "wsDemo"
+with SessionLocal() as db:
+    for t in ("workbook_rows", "workbooks", "jobs"):
+        db.execute(text(f"DELETE FROM {t}"))
+    db.execute(text("DELETE FROM workspaces WHERE id=:w"), {"w": WS})
+    db.execute(text("INSERT INTO workspaces (id,name,slug,description,icon,created_at,updated_at) VALUES (:w,'Demo','demo','','x',0,0)"), {"w": WS})
+    db.commit()
+    first = S.seed_demo_workbook(db, WS)
+    second = S.seed_demo_workbook(db, WS)
+    S.trigger_first_run(db, WS)
+    S.trigger_first_run(db, WS)
+    wb = db.execute(text("SELECT id,name,description,status,workspace_id,source_type,source_config,filter_criteria,columns_config,total_rows,completed_rows,sync_to_leads,budget_max_usd,budget_spent_usd,refresh_policy FROM workbooks")).mappings().all()
+    rows = db.execute(text("SELECT position,data,enrichments,lead_id,workspace_id,workbook_id FROM workbook_rows ORDER BY position")).mappings().all()
+    jobs = db.execute(text("SELECT type,executor,status,payload,priority,max_retries,workspace_id,fire_key FROM jobs")).mappings().all()
+    db.execute(text("DELETE FROM jobs")); db.execute(text("DELETE FROM workbook_rows")); db.execute(text("DELETE FROM workbooks")); db.execute(text("DELETE FROM workspaces WHERE id=:w"), {"w": WS}); db.commit()
+json.dump({"created_first": first, "created_second": second, "workbooks": [dict(r) for r in wb], "rows": [dict(r) for r in rows], "jobs": [dict(r) for r in jobs]}, sys.stdout, indent=1, sort_keys=True, default=str)

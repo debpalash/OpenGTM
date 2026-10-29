@@ -1,0 +1,19 @@
+{
+ "provider": "tech_stack",
+ "input_name": "no_website",
+ "scenario": "miss",
+ "input": {
+  "company": "Acme"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "tech_stack",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "No website URL available"
+ }
+}

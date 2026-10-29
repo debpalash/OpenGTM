@@ -1,0 +1,37 @@
+{
+  "request": {
+    "body": {
+      "retention_days": {
+        "audit": 100
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/governance/retention"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "retention_days": {
+              "audit": 100
+            }
+          },
+          "loc": [
+            "body",
+            "enabled"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

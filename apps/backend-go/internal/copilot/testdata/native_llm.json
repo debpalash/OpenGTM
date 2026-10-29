@@ -1,0 +1,1692 @@
+{
+ "cases": [
+  {
+   "name": "text_done",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"Hel\"}}]}",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"lo sk-primary-123456\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "Hel"
+    },
+    {
+     "t": "content",
+     "d": "lo [redacted]"
+    },
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "tool_calls",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"Looking\"}}]}",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"id\": \"call_a\", \"function\": {\"name\": \"search_leads\", \"arguments\": \"{\\\"query\\\":\"}}]}}]}",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"function\": {\"arguments\": \" \\\"acme\\\"}\"}}]}}]}",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 1, \"id\": \"call_b\", \"function\": {\"name\": \"get_lead_stats\", \"arguments\": \"\"}}]}}]}",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"tool_calls\"}]}"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "Looking"
+    },
+    {
+     "t": "tool_calls",
+     "d": [
+      {
+       "id": "call_a",
+       "type": "function",
+       "function": {
+        "name": "search_leads",
+        "arguments": "{\"query\": \"acme\"}"
+       }
+      },
+      {
+       "id": "call_b",
+       "type": "function",
+       "function": {
+        "name": "get_lead_stats",
+        "arguments": ""
+       }
+      }
+     ],
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "no_done_eof",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"partial\"}}]}"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "partial"
+    },
+    {
+     "t": "done",
+     "cursor": 0,
+     "provider_done": false
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "rate_limit_failover",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 429,
+      "text": "slow down"
+     }
+    ],
+    "/p2/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"ok\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "warning",
+     "d": "⚡ OpenRouter rate limited — switching to Groq..."
+    },
+    {
+     "t": "content",
+     "d": "ok"
+    },
+    {
+     "t": "done",
+     "cursor": 1
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "path": "/p2/chat/completions",
+     "authorization": "Bearer sk-fallback-654321",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "rate_limit_no_fallback",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 429,
+      "text": "quota sk-primary-123456 exceeded"
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "error",
+     "d": "Rate limited by OpenRouter and no fallback providers available. Add more API keys in Settings, or wait and retry. (quota [redacted] exceeded)"
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "server_error_failover_tools",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 502,
+      "text": "bad gateway"
+     }
+    ],
+    "/p2/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"id\": \"call_a\", \"function\": {\"name\": \"search_leads\", \"arguments\": \"{\\\"query\\\":\"}}]}}]}",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"function\": {\"arguments\": \" \\\"acme\\\"}\"}}]}}]}",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"tool_calls\"}]}"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "warning",
+     "d": "⚡ OpenRouter error — switching to Groq..."
+    },
+    {
+     "t": "tool_calls",
+     "d": [
+      {
+       "id": "call_a",
+       "type": "function",
+       "function": {
+        "name": "search_leads",
+        "arguments": "{\"query\": \"acme\"}"
+       }
+      }
+     ],
+     "cursor": 1
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "path": "/p2/chat/completions",
+     "authorization": "Bearer sk-fallback-654321",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "auth_rejected_failover",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 401,
+      "text": "bad key"
+     }
+    ],
+    "/p2/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "warning",
+     "d": "⚡ OpenRouter rejected its API key — switching to Groq..."
+    },
+    {
+     "t": "done",
+     "cursor": 1
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "path": "/p2/chat/completions",
+     "authorization": "Bearer sk-fallback-654321",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "bad_request",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 400,
+      "text": "bad body"
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "error",
+     "d": "Provider error 400: bad body"
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "connect_failover",
+   "chain": [
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-dead-key-000000",
+     "base_url": "$DEAD/p2",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"back\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "\n\n> ⚡ *Groq unreachable — switching to OpenRouter...*\n\n"
+    },
+    {
+     "t": "content",
+     "d": "back"
+    },
+    {
+     "t": "done",
+     "cursor": 1
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "connect_dead",
+   "chain": [
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-dead-key-000000",
+     "base_url": "$DEAD/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {},
+   "frames": [
+    {
+     "t": "error",
+     "d": "Cannot reach AI provider. Check your API key and network connection in Settings."
+    }
+   ],
+   "requests": []
+  },
+  {
+   "name": "no_key",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {},
+   "frames": [
+    {
+     "t": "error",
+     "d": "No AI provider configured. Go to Settings to add an API key."
+    }
+   ],
+   "requests": []
+  },
+  {
+   "name": "cursor_resumes",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ],
+    "provider_cursor": 1
+   },
+   "script": {
+    "/p2/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"from groq\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "from groq"
+    },
+    {
+     "t": "done",
+     "cursor": 1
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p2/chat/completions",
+     "authorization": "Bearer sk-fallback-654321",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "cursor_clamped",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ],
+    "provider_cursor": 5
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "tools_disabled",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ],
+    "tools_enabled": false
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "budget_hit",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ],
+    "round_budget_hit": true
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "gemini_sanitize",
+   "chain": [
+    {
+     "id": "google_ai",
+     "name": "Google AI",
+     "api_key": "sk-gemini-123456",
+     "base_url": "$BASE/g",
+     "model": "gemini-2.0-flash",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": null
+     },
+     {
+      "role": "assistant",
+      "content": "",
+      "tool_calls": [
+       {
+        "id": "c1",
+        "type": "function",
+        "function": {
+         "name": "get_lead_stats",
+         "arguments": "{}"
+        }
+       }
+      ]
+     },
+     {
+      "role": "tool",
+      "tool_call_id": "c1",
+      "name": "get_lead_stats",
+      "content": "{}"
+     },
+     {
+      "role": "function",
+      "name": "legacy",
+      "content": 5
+     },
+     {
+      "role": "tool",
+      "content": "orphan"
+     },
+     {
+      "role": "assistant",
+      "content": ""
+     },
+     {
+      "content": "no role"
+     },
+     "not a dict"
+    ]
+   },
+   "script": {
+    "/g/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/g/chat/completions",
+     "authorization": "Bearer sk-gemini-123456",
+     "body": {
+      "model": "gemini-2.0-flash",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": " "
+       },
+       {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+         {
+          "id": "c1",
+          "type": "function",
+          "function": {
+           "name": "get_lead_stats",
+           "arguments": "{}"
+          }
+         }
+        ]
+       },
+       {
+        "role": "tool",
+        "content": "{}",
+        "tool_call_id": "c1",
+        "name": "get_lead_stats"
+       },
+       {
+        "role": "tool",
+        "content": "5",
+        "name": "legacy",
+        "tool_call_id": "legacy"
+       },
+       {
+        "role": "assistant",
+        "content": " "
+       },
+       {
+        "role": "user",
+        "content": "no role"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "sanitize_non_gemini",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "user",
+      "content": ""
+     },
+     {
+      "role": "assistant",
+      "content": null,
+      "tool_calls": []
+     },
+     {
+      "role": "user",
+      "content": {
+       "a": 1
+      }
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "user",
+        "content": ""
+       },
+       {
+        "role": "assistant",
+        "content": ""
+       },
+       {
+        "role": "user",
+        "content": "{'a': 1}"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "garbage_lines",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       ": comment",
+       "event: x",
+       "data: {not json",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"\"}}]}",
+       "data: {\"choices\": [{\"delta\": {\"role\": \"assistant\"}}]}",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"ok\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "ok"
+    },
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "finish_stop_then_done",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"a\"}}]}",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"stop\"}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "a"
+    },
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "tool_finish_without_calls",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"tool_calls\"}]}",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"x\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "x"
+    },
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "failover_chain_exhausted",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "sk-primary-123456",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "sk-fallback-654321",
+     "base_url": "$BASE/p2",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "status": 503,
+      "text": "down"
+     }
+    ],
+    "/p2/chat/completions": [
+     {
+      "status": 500,
+      "text": "also down sk-fallback-654321"
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "warning",
+     "d": "⚡ OpenRouter error — switching to Groq..."
+    },
+    {
+     "t": "error",
+     "d": "Provider error 500: also down [redacted]"
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer sk-primary-123456",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "path": "/p2/chat/completions",
+     "authorization": "Bearer sk-fallback-654321",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  },
+  {
+   "name": "short_key_not_scrubbed",
+   "chain": [
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "abc",
+     "base_url": "$BASE/p1",
+     "model": "m",
+     "openai_compatible": true
+    }
+   ],
+   "body": {
+    "messages": [
+     {
+      "role": "system",
+      "content": "SYS"
+     },
+     {
+      "role": "user",
+      "content": "hi"
+     }
+    ]
+   },
+   "script": {
+    "/p1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"abc def\"}}]}",
+       "data: [DONE]"
+      ]
+     }
+    ]
+   },
+   "frames": [
+    {
+     "t": "content",
+     "d": "abc def"
+    },
+    {
+     "t": "done",
+     "cursor": 0
+    }
+   ],
+   "requests": [
+    {
+     "path": "/p1/chat/completions",
+     "authorization": "Bearer abc",
+     "body": {
+      "model": "m",
+      "messages": [
+       {
+        "role": "system",
+        "content": "SYS"
+       },
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": "$CATALOG",
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ]
+  }
+ ]
+}

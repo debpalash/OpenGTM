@@ -1,0 +1,44 @@
+{
+ "area": "sec_funding",
+ "scenario": "cursor_at_newest_no_new_filings",
+ "description": "nothing newer than the cursor: the Archives are never fetched",
+ "input": {
+  "target": "sec_cik:2000934",
+  "cursor": {
+   "bootstrapped": true,
+   "sec_last_accession": "0002000934-24-000009"
+  },
+  "resolved_cik": null,
+  "want_funding": true,
+  "want_exec": true,
+  "backfill": false
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://data.sec.gov/submissions/CIK0002000934.json",
+    "headers": {
+     "host": "data.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"filings\":{\"recent\":{\"form\":[\"8-K\",\"D\",\"D/A\",\"D\"],\"accessionNumber\":[\"0002000934-24-000012\",\"0002000934-24-000009\",\"0002000934-24-000007\",\"0002000934-24-000005\"],\"filingDate\":[\"2024-06-01\",\"2024-05-01\",\"2024-04-01\",\"2024-03-20\"]}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {
+   "sec_known_execs": []
+  }
+ }
+}

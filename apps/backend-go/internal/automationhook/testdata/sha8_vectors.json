@@ -1,0 +1,144 @@
+[
+ {
+  "value": null,
+  "sha8": "da39a3ee",
+  "str": ""
+ },
+ {
+  "value": "",
+  "sha8": "da39a3ee",
+  "str": ""
+ },
+ {
+  "value": "abc",
+  "sha8": "a9993e36",
+  "str": "abc"
+ },
+ {
+  "value": "héllo",
+  "sha8": "35b5ea45",
+  "str": "héllo"
+ },
+ {
+  "value": 0,
+  "sha8": "b6589fc6",
+  "str": "0"
+ },
+ {
+  "value": 1,
+  "sha8": "356a192b",
+  "str": "1"
+ },
+ {
+  "value": -3,
+  "sha8": "def03a29",
+  "str": "-3"
+ },
+ {
+  "value": 100000000000000000000,
+  "sha8": "9373a204",
+  "str": "100000000000000000000"
+ },
+ {
+  "value": 0.0,
+  "sha8": "38f6d787",
+  "str": "0.0"
+ },
+ {
+  "value": 1.5,
+  "sha8": "aa8f289e",
+  "str": "1.5"
+ },
+ {
+  "value": 1e+16,
+  "sha8": "d1881329",
+  "str": "1e+16"
+ },
+ {
+  "value": 1000000000000000.0,
+  "sha8": "eba51bfc",
+  "str": "1000000000000000.0"
+ },
+ {
+  "value": 1e-05,
+  "sha8": "9115e342",
+  "str": "1e-05"
+ },
+ {
+  "value": 0.0001,
+  "sha8": "8b9b9c3a",
+  "str": "0.0001"
+ },
+ {
+  "value": 123456789.123,
+  "sha8": "581a226c",
+  "str": "123456789.123"
+ },
+ {
+  "value": true,
+  "sha8": "88b33e4e",
+  "str": "True"
+ },
+ {
+  "value": false,
+  "sha8": "97cdbdc7",
+  "str": "False"
+ },
+ {
+  "value": [
+   1,
+   "a",
+   null,
+   true,
+   2.5
+  ],
+  "sha8": "15f0bfca",
+  "str": "[1, 'a', None, True, 2.5]"
+ },
+ {
+  "value": {
+   "a": 1
+  },
+  "sha8": "42248c8a",
+  "str": "{'a': 1}"
+ },
+ {
+  "value": {
+   "k": [
+    1,
+    {
+     "z": null
+    }
+   ],
+   "s": "it's"
+  },
+  "sha8": "d880091c",
+  "str": "{'k': [1, {'z': None}], 's': \"it's\"}"
+ },
+ {
+  "value": [
+   "a\"b",
+   "x'y"
+  ],
+  "sha8": "41294e7d",
+  "str": "['a\"b', \"x'y\"]"
+ },
+ {
+  "value": "line\nbreak",
+  "sha8": "2e1a2284",
+  "str": "line\nbreak"
+ },
+ {
+  "value": [
+   1e+16,
+   []
+  ],
+  "sha8": "03ee4a99",
+  "str": "[1e+16, []]"
+ },
+ {
+  "value": "__inf__",
+  "sha8": "aa3dfef4",
+  "str": "inf"
+ }
+]

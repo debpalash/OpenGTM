@@ -1,0 +1,65 @@
+{
+  "seq": 25,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 25,
+    "method": "tools/call",
+    "params": {
+      "name": "enroll_leads",
+      "arguments": {
+        "sequence_id": "seq-beta-1",
+        "lead_ids": [
+          1
+        ]
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 25,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"Sequence not found\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "enroll_leads",
+      "arguments_redacted": {
+        "sequence_id": "seq-beta-1",
+        "lead_ids": [
+          1
+        ]
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "Sequence not found",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 19,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000025",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

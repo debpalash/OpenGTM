@@ -1,0 +1,73 @@
+{
+  "seq": 67,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 67,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "x",
+        "trigger_type": "on_signal",
+        "actions": [
+          {
+            "type": "webhook",
+            "config": {}
+          }
+        ]
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 67,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"webhook action 0: url required\", \"status_code\": 422}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "x",
+        "trigger_type": "on_signal",
+        "actions": [
+          {
+            "type": "webhook",
+            "config": {}
+          }
+        ]
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "webhook action 0: url required",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 50,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_00000000000040008000000000000073",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

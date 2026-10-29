@@ -1,0 +1,982 @@
+{
+ "parse_feed": [
+  {
+   "name": "rss2_basic",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://x.example.com/2",
+     "title": "Two",
+     "link": "https://x.example.com/2",
+     "summary": "",
+     "published_epoch": 1787887800.0
+    },
+    {
+     "guid": "Three",
+     "title": "Three",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "g-5",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_2",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 2,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://x.example.com/2",
+     "title": "Two",
+     "link": "https://x.example.com/2",
+     "summary": "",
+     "published_epoch": 1787887800.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_1",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 1,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_0",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 0,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "atom_basic",
+   "xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>A</title>\n<entry><title>A1</title><id>urn:uuid:1</id><link href=\"https://a.example.com/1\"/><updated>2026-08-29T09:00:00Z</updated><summary>S1</summary></entry>\n<entry><title>A2</title><link href=\"https://a.example.com/2\" rel=\"alternate\"/><published>2026-08-28T09:00:00+05:30</published><content>C2</content></entry>\n<entry><title>A3</title><id>urn:uuid:3</id><updated>garbage</updated></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "urn:uuid:1",
+     "title": "A1",
+     "link": "https://a.example.com/1",
+     "summary": "S1",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://a.example.com/2",
+     "title": "A2",
+     "link": "https://a.example.com/2",
+     "summary": "C2",
+     "published_epoch": 1787887800.0
+    },
+    {
+     "guid": "urn:uuid:3",
+     "title": "A3",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "atom_max_entries_2",
+   "xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>A</title>\n<entry><title>A1</title><id>urn:uuid:1</id><link href=\"https://a.example.com/1\"/><updated>2026-08-29T09:00:00Z</updated><summary>S1</summary></entry>\n<entry><title>A2</title><link href=\"https://a.example.com/2\" rel=\"alternate\"/><published>2026-08-28T09:00:00+05:30</published><content>C2</content></entry>\n<entry><title>A3</title><id>urn:uuid:3</id><updated>garbage</updated></entry></feed>",
+   "max_entries": 2,
+   "entries": [
+    {
+     "guid": "urn:uuid:1",
+     "title": "A1",
+     "link": "https://a.example.com/1",
+     "summary": "S1",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://a.example.com/2",
+     "title": "A2",
+     "link": "https://a.example.com/2",
+     "summary": "C2",
+     "published_epoch": 1787887800.0
+    }
+   ]
+  },
+  {
+   "name": "malformed_xml",
+   "xml": "<rss><channel><item>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "empty",
+   "xml": "",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "not_xml",
+   "xml": "hello",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "html_page",
+   "xml": "<html><body><item>x</item></body></html>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "no_items",
+   "xml": "<rss><channel><title>x</title></channel></rss>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "entities_in_title",
+   "xml": "<rss><channel><item><title>A &lt;b&gt; &amp; c</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "A <b> & c",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "cdata_title",
+   "xml": "<rss><channel><item><title><![CDATA[Hello <b>world</b>]]></title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "Hello <b>world</b>",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "whitespace_text_stripped",
+   "xml": "<rss><channel><item><title>  spaced  </title><guid>\n  g \n</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "g",
+     "title": "spaced",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "summary_truncated_2000",
+   "xml": "<rss><channel><item><title>t</title><guid>1</guid><description>dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</description></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "first_description_wins",
+   "xml": "<rss><channel><item><guid>1</guid><description>one</description><summary>two</summary><content>three</content></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "one",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "first_pubdate_wins",
+   "xml": "<rss><channel><item><guid>1</guid><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate><published>2020-01-01T00:00:00Z</published></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "link_text_beats_href",
+   "xml": "<feed><entry><id>1</id><link href='https://h.example.com'>https://t.example.com</link></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "https://t.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "later_link_overrides_when_empty_text",
+   "xml": "<feed><entry><id>1</id><link href='https://a.example.com'/><link href='https://b.example.com'/></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "https://b.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "guid_falls_back_to_link_then_title",
+   "xml": "<rss><channel><item><link>https://l.example.com</link></item><item><title>only title</title></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "https://l.example.com",
+     "title": "",
+     "link": "https://l.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "only title",
+     "title": "only title",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "namespaced_elements",
+   "xml": "<rss xmlns:dc='http://purl.org/dc/elements/1.1/'><channel><item><title>t</title><guid>1</guid><dc:date>2026-08-29T09:00:00Z</dc:date></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "nested_items_all_found",
+   "xml": "<root><item><title>a</title><guid>1</guid></item><group><item><title>b</title><guid>2</guid></item></group></root>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "a",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "2",
+     "title": "b",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "rdf_style_items",
+   "xml": "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns='http://purl.org/rss/1.0/'><item><title>r</title><link>https://r.example.com</link></item></rdf:RDF>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "https://r.example.com",
+     "title": "r",
+     "link": "https://r.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "unicode_content",
+   "xml": "<rss><channel><item><title>Éco – 東京</title><guid>é-1</guid><description>😀</description></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "é-1",
+     "title": "Éco – 東京",
+     "link": "",
+     "summary": "😀",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "doctype_entity_expansion_attempt",
+   "xml": "<?xml version='1.0'?><!DOCTYPE r [<!ENTITY a 'AAAA'>]><rss><channel><item><title>&a;</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "AAAA",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "title_element_missing_text",
+   "xml": "<rss><channel><item><title/><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "guid_with_attributes",
+   "xml": "<rss><channel><item><guid isPermaLink='false'>abc</guid><title>t</title></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "abc",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "utf8_bom_str",
+   "xml": "﻿<rss><channel><item><title>t</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  }
+ ],
+ "parse_epoch": [
+  {
+   "value": "",
+   "epoch": 0.0
+  },
+  {
+   "value": "   ",
+   "epoch": 0.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 GMT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 +0530",
+   "epoch": 1787974200.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 -0800",
+   "epoch": 1788022800.0
+  },
+  {
+   "value": "29 Aug 2026 09:00:00 GMT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00 GMT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 UT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 EST",
+   "epoch": 1788012000.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 09:00:00 PDT",
+   "epoch": 1788019200.0
+  },
+  {
+   "value": "Wed, 29 Aug 2026 09:00:00 GMT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "2026-08-29T09:00:00Z",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "2026-08-29T09:00:00+00:00",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "2026-08-29T09:00:00.123456Z",
+   "epoch": 1787994000.123456
+  },
+  {
+   "value": "2026-08-29T09:00:00",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "2026-08-29T09:00:00+05:30",
+   "epoch": 1787974200.0
+  },
+  {
+   "value": "2026-08-29",
+   "epoch": 1787961600.0
+  },
+  {
+   "value": "2026-08-29 09:00:00",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "20260829T090000Z",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "2026-W35-6",
+   "epoch": 1787961600.0
+  },
+  {
+   "value": "2026-08-29T09:00:00z",
+   "epoch": 0.0
+  },
+  {
+   "value": "2026-08-29T24:00:00Z",
+   "epoch": 0.0
+  },
+  {
+   "value": "2026-02-30T00:00:00Z",
+   "epoch": 0.0
+  },
+  {
+   "value": "garbage",
+   "epoch": 0.0
+  },
+  {
+   "value": "1788000000",
+   "epoch": 0.0
+  },
+  {
+   "value": "1788000000.5",
+   "epoch": 0.0
+  },
+  {
+   "value": "0",
+   "epoch": 0.0
+  },
+  {
+   "value": "-1",
+   "epoch": 0.0
+  },
+  {
+   "value": "Mon, 01 Jan 1900 00:00:00 GMT",
+   "epoch": -2208988800.0
+  },
+  {
+   "value": "Fri, 31 Dec 9999 23:59:59 GMT",
+   "epoch": 253402300799.0
+  },
+  {
+   "value": "9999-12-31T23:59:59Z",
+   "epoch": 253402300799.0
+  },
+  {
+   "value": "0001-01-01T00:00:00Z",
+   "epoch": -62135596800.0
+  },
+  {
+   "value": "Sat, 29 Aug 2026 9:00:00 GMT",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": "sat, 29 aug 2026 09:00:00 gmt",
+   "epoch": 1787994000.0
+  },
+  {
+   "value": " Sat, 29 Aug 2026 09:00:00 GMT ",
+   "epoch": 1787994000.0
+  }
+ ],
+ "vectors": [
+  {
+   "name": "rss2_basic",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://x.example.com/2",
+     "title": "Two",
+     "link": "https://x.example.com/2",
+     "summary": "",
+     "published_epoch": 1787887800.0
+    },
+    {
+     "guid": "Three",
+     "title": "Three",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "g-5",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_2",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 2,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://x.example.com/2",
+     "title": "Two",
+     "link": "https://x.example.com/2",
+     "summary": "",
+     "published_epoch": 1787887800.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_1",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 1,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "rss2_max_entries_0",
+   "xml": "<?xml version=\"1.0\"?><rss version=\"2.0\"><channel><title>C</title>\n<item><title>One</title><link>https://x.example.com/1</link><guid>g-1</guid><description>First &amp; best</description><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate></item>\n<item><title>Two</title><link>https://x.example.com/2</link><pubDate>Fri, 28 Aug 2026 09:00:00 +0530</pubDate></item>\n<item><title>Three</title></item>\n<item><description>only desc</description></item>\n<item><guid>g-5</guid></item></channel></rss>",
+   "max_entries": 0,
+   "entries": [
+    {
+     "guid": "g-1",
+     "title": "One",
+     "link": "https://x.example.com/1",
+     "summary": "First & best",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "atom_basic",
+   "xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>A</title>\n<entry><title>A1</title><id>urn:uuid:1</id><link href=\"https://a.example.com/1\"/><updated>2026-08-29T09:00:00Z</updated><summary>S1</summary></entry>\n<entry><title>A2</title><link href=\"https://a.example.com/2\" rel=\"alternate\"/><published>2026-08-28T09:00:00+05:30</published><content>C2</content></entry>\n<entry><title>A3</title><id>urn:uuid:3</id><updated>garbage</updated></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "urn:uuid:1",
+     "title": "A1",
+     "link": "https://a.example.com/1",
+     "summary": "S1",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://a.example.com/2",
+     "title": "A2",
+     "link": "https://a.example.com/2",
+     "summary": "C2",
+     "published_epoch": 1787887800.0
+    },
+    {
+     "guid": "urn:uuid:3",
+     "title": "A3",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "atom_max_entries_2",
+   "xml": "<?xml version=\"1.0\" encoding=\"utf-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\"><title>A</title>\n<entry><title>A1</title><id>urn:uuid:1</id><link href=\"https://a.example.com/1\"/><updated>2026-08-29T09:00:00Z</updated><summary>S1</summary></entry>\n<entry><title>A2</title><link href=\"https://a.example.com/2\" rel=\"alternate\"/><published>2026-08-28T09:00:00+05:30</published><content>C2</content></entry>\n<entry><title>A3</title><id>urn:uuid:3</id><updated>garbage</updated></entry></feed>",
+   "max_entries": 2,
+   "entries": [
+    {
+     "guid": "urn:uuid:1",
+     "title": "A1",
+     "link": "https://a.example.com/1",
+     "summary": "S1",
+     "published_epoch": 1787994000.0
+    },
+    {
+     "guid": "https://a.example.com/2",
+     "title": "A2",
+     "link": "https://a.example.com/2",
+     "summary": "C2",
+     "published_epoch": 1787887800.0
+    }
+   ]
+  },
+  {
+   "name": "malformed_xml",
+   "xml": "<rss><channel><item>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "empty",
+   "xml": "",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "not_xml",
+   "xml": "hello",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "html_page",
+   "xml": "<html><body><item>x</item></body></html>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "no_items",
+   "xml": "<rss><channel><title>x</title></channel></rss>",
+   "max_entries": 100,
+   "entries": []
+  },
+  {
+   "name": "entities_in_title",
+   "xml": "<rss><channel><item><title>A &lt;b&gt; &amp; c</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "A <b> & c",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "cdata_title",
+   "xml": "<rss><channel><item><title><![CDATA[Hello <b>world</b>]]></title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "Hello <b>world</b>",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "whitespace_text_stripped",
+   "xml": "<rss><channel><item><title>  spaced  </title><guid>\n  g \n</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "g",
+     "title": "spaced",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "summary_truncated_2000",
+   "xml": "<rss><channel><item><title>t</title><guid>1</guid><description>dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</description></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "first_description_wins",
+   "xml": "<rss><channel><item><guid>1</guid><description>one</description><summary>two</summary><content>three</content></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "one",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "first_pubdate_wins",
+   "xml": "<rss><channel><item><guid>1</guid><pubDate>Sat, 29 Aug 2026 09:00:00 GMT</pubDate><published>2020-01-01T00:00:00Z</published></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "link_text_beats_href",
+   "xml": "<feed><entry><id>1</id><link href='https://h.example.com'>https://t.example.com</link></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "https://t.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "later_link_overrides_when_empty_text",
+   "xml": "<feed><entry><id>1</id><link href='https://a.example.com'/><link href='https://b.example.com'/></entry></feed>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "https://b.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "guid_falls_back_to_link_then_title",
+   "xml": "<rss><channel><item><link>https://l.example.com</link></item><item><title>only title</title></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "https://l.example.com",
+     "title": "",
+     "link": "https://l.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "only title",
+     "title": "only title",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "namespaced_elements",
+   "xml": "<rss xmlns:dc='http://purl.org/dc/elements/1.1/'><channel><item><title>t</title><guid>1</guid><dc:date>2026-08-29T09:00:00Z</dc:date></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 1787994000.0
+    }
+   ]
+  },
+  {
+   "name": "nested_items_all_found",
+   "xml": "<root><item><title>a</title><guid>1</guid></item><group><item><title>b</title><guid>2</guid></item></group></root>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "a",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    },
+    {
+     "guid": "2",
+     "title": "b",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "rdf_style_items",
+   "xml": "<rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns='http://purl.org/rss/1.0/'><item><title>r</title><link>https://r.example.com</link></item></rdf:RDF>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "https://r.example.com",
+     "title": "r",
+     "link": "https://r.example.com",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "unicode_content",
+   "xml": "<rss><channel><item><title>Éco – 東京</title><guid>é-1</guid><description>😀</description></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "é-1",
+     "title": "Éco – 東京",
+     "link": "",
+     "summary": "😀",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "doctype_entity_expansion_attempt",
+   "xml": "<?xml version='1.0'?><!DOCTYPE r [<!ENTITY a 'AAAA'>]><rss><channel><item><title>&a;</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "AAAA",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "title_element_missing_text",
+   "xml": "<rss><channel><item><title/><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "guid_with_attributes",
+   "xml": "<rss><channel><item><guid isPermaLink='false'>abc</guid><title>t</title></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "abc",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  },
+  {
+   "name": "utf8_bom_str",
+   "xml": "﻿<rss><channel><item><title>t</title><guid>1</guid></item></channel></rss>",
+   "max_entries": 100,
+   "entries": [
+    {
+     "guid": "1",
+     "title": "t",
+     "link": "",
+     "summary": "",
+     "published_epoch": 0.0
+    }
+   ]
+  }
+ ]
+}

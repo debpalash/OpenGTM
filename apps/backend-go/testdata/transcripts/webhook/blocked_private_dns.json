@@ -1,0 +1,48 @@
+{
+ "area": "webhook",
+ "scenario": "blocked_private_dns",
+ "description": "ANY private A record blocks the send before any connection",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/in"
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34",
+     "10.0.0.5"
+    ]
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": "failed",
+  "summary": "",
+  "error": "blocked url: host resolves to private ip 10.0.0.5",
+  "skip_reason": "blocked_url",
+  "charged_usd": 0.0
+ }
+}

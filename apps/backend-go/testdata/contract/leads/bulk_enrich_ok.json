@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": {
+      "action": "find_emails",
+      "lead_ids": [
+        14,
+        6,
+        14,
+        7
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/bulk-enrich"
+  },
+  "response": {
+    "body": {
+      "action": "find_emails",
+      "count": 3,
+      "job_id": "cf0312553a374be49b0f451a061a89ad",
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/conv-ed-2"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "2026-08-29 08:00:00",
+        "id": "conv-ed-2",
+        "title": "Saved contacts",
+        "updated_at": "2026-08-29 08:05:00"
+      },
+      "messages": [
+        {
+          "content": "Find work emails for them",
+          "conversation_id": "conv-ed-2",
+          "created_at": "2026-08-29 08:00:01",
+          "id": "msg-ed2-1",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "enrich_people_contacts result",
+          "conversation_id": "conv-ed-2",
+          "created_at": "2026-08-29 08:00:02",
+          "id": "msg-ed2-2",
+          "role": "tool",
+          "tool_data": "{\"name\":\"enrich_people_contacts\",\"result\":{\"ok\":true,\"action_id\":\"contacts-action-seed-1\",\"workspace_id\":\"ws-alpha\",\"company\":\"Stripe\",\"function\":\"partnership\",\"people\":[{\"person_id\":\"person_seed_jane\",\"name\":\"Jane Partner\",\"title\":\"Vice President, Strategic Partnerships\",\"function\":\"partnership\",\"evidence_url\":\"https://evidence.example/jane-partner\",\"linkedin_url\":\"https://www.linkedin.com/in/jane-partner\",\"retrieved_at\":\"2026-08-28T10:00:00Z\",\"confidence\":0.9,\"contactability\":{\"email\":\"jane.partner@stripe.example\",\"status\":\"verified\",\"is_role\":false,\"observed_at\":\"2026-08-28T10:02:00Z\",\"verification_confidence\":0.95,\"finder_provider\":\"prospeo\",\"verifier_provider\":\"reacher\",\"attempts\":[{\"stage\":\"discovery\",\"provider\":\"prospeo\",\"status\":\"found\"},{\"stage\":\"verification\",\"provider\":\"reacher\",\"status\":\"valid\"}]}},{\"person_id\":\"person_seed_raj\",\"name\":\"Raj Risky\",\"title\":\"Partnerships Manager\",\"function\":\"partnership\",\"evidence_url\":\"https://evidence.example/raj\",\"linkedin_url\":\"\",\"retrieved_at\":\"2026-08-28T10:01:00Z\",\"confidence\":0.74,\"contactability\":{\"email\":\"raj@stripe.example\",\"status\":\"risky\",\"is_role\":false,\"observed_at\":\"2026-08-28T10:03:00Z\",\"verification_confidence\":0.5,\"finder_provider\":\"prospeo\",\"verifier_provider\":\"reacher\",\"attempts\":[]}}],\"summary\":{\"verified\":1,\"catch_all\":0,\"risky\":1,\"invalid\":0,\"unavailable\":0}}}"
+        },
+        {
+          "content": "Checked work-email contactability for **2 saved people**.",
+          "conversation_id": "conv-ed-2",
+          "created_at": "2026-08-29 08:00:02",
+          "id": "msg-ed2-3",
+          "role": "assistant",
+          "tool_data": null
+        },
+        {
+          "content": "note: saved contacts are application data",
+          "conversation_id": "conv-ed-2",
+          "created_at": "2026-08-29 08:05:00",
+          "id": "msg-ed2-4",
+          "role": "system",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

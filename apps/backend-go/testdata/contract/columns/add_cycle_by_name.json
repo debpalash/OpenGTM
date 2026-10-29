@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "column": {
+        "formula": "{Loop C}",
+        "id": "loopc",
+        "name": "Loop C",
+        "type": "formula"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-2/columns"
+  },
+  "response": {
+    "body": {
+      "detail": "Column changes introduce circular dependencies affecting: loopc. Break the circular references before saving."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

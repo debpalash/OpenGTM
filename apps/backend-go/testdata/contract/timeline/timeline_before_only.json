@@ -1,0 +1,61 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/lead/14/timeline?limit=3&before=1788000000"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "description": "Seeded hiring event #5 for contract fixtures",
+          "id": "signal:sig-a-05",
+          "kind": "signal",
+          "metadata": {
+            "source": "crunchbase",
+            "source_url": "https://signals.example.com/a/5",
+            "weight": 10
+          },
+          "occurred_at": 1787996400.0,
+          "status": "hiring",
+          "title": "hiring signal 5"
+        },
+        {
+          "description": "Seeded growth event #4 for contract fixtures",
+          "id": "signal:sig-a-04",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/4",
+            "weight": 8
+          },
+          "occurred_at": 1787996400.0,
+          "status": "growth",
+          "title": "growth signal 4"
+        },
+        {
+          "description": "Seeded hiring event #10 for contract fixtures",
+          "id": "signal:sig-a-10",
+          "kind": "signal",
+          "metadata": {
+            "source": "newsapi",
+            "source_url": "https://signals.example.com/a/10",
+            "weight": 9
+          },
+          "occurred_at": 1787992800.0,
+          "status": "hiring",
+          "title": "hiring signal 10"
+        }
+      ],
+      "next_before": 1787992800.0,
+      "next_before_id": "signal:sig-a-10"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,107 @@
+{
+ "provider": "gleif",
+ "input_name": "default",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Corporation"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/fuzzycompletions?field=entity.legalName&q=Acme+Corporation",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":[{\"attributes\":{\"value\":\"ACME WIDGETS GMBH\"},\"relationships\":{\"lei-records\":{\"data\":{\"id\":\"OTHER00000000000000\"}}}},{\"attributes\":{\"value\":\"ACME CORPORATION\"},\"relationships\":{\"lei-records\":{\"data\":{\"id\":\"5493001KJTIIGC8Y1R12\"}}}}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R12",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":\"5493001KJTIIGC8Y1R12\",\"attributes\":{\"entity\":{\"legalName\":{\"name\":\"ACME CORPORATION\"},\"legalAddress\":{\"country\":\"US\",\"city\":\"Springfield\",\"region\":\"US-IL\"},\"status\":\"ACTIVE\",\"registeredAt\":{\"id\":\"RA000602\"},\"jurisdiction\":\"US-DE\"}},\"relationships\":{\"direct-parent\":{\"links\":{\"lei-record\":\"https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R99\"}},\"ultimate-parent\":{\"links\":{\"lei-record\":\"https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R77\"}}}}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R99",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":\"5493001KJTIIGC8Y1R99\",\"attributes\":{\"entity\":{\"legalName\":{\"name\":\"ACME PARENT LLC\"},\"legalAddress\":{\"country\":\"US\",\"city\":\"Springfield\",\"region\":\"US-IL\"},\"status\":\"ACTIVE\",\"registeredAt\":{\"id\":\"RA000602\"},\"jurisdiction\":\"US-DE\"}},\"relationships\":{}}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.gleif.org/api/v1/lei-records/5493001KJTIIGC8Y1R77",
+    "headers": {
+     "accept": "application/vnd.api+json",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":\"5493001KJTIIGC8Y1R77\",\"attributes\":{\"entity\":{\"legalName\":{\"name\":\"ACME GLOBAL HOLDINGS\"},\"legalAddress\":{\"country\":\"US\",\"city\":\"Springfield\",\"region\":\"US-IL\"},\"status\":\"ACTIVE\",\"registeredAt\":{\"id\":\"RA000602\"},\"jurisdiction\":\"US-DE\"}},\"relationships\":{}}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "gleif",
+  "success": true,
+  "fields": {
+   "lei": "5493001KJTIIGC8Y1R12",
+   "legal_name": "ACME CORPORATION",
+   "country": "US",
+   "city": "Springfield",
+   "region": "US-IL",
+   "entity_status": "ACTIVE",
+   "registration_authority": "RA000602",
+   "jurisdiction": "US-DE",
+   "parent_lei": "5493001KJTIIGC8Y1R99",
+   "ultimate_parent_lei": "5493001KJTIIGC8Y1R77",
+   "ultimate_parent_name": "ACME GLOBAL HOLDINGS",
+   "corporate_hierarchy": "{\"direct_parent\": {\"lei\": \"5493001KJTIIGC8Y1R99\", \"legal_name\": \"ACME PARENT LLC\"}, \"ultimate_parent\": {\"lei\": \"5493001KJTIIGC8Y1R77\", \"legal_name\": \"ACME GLOBAL HOLDINGS\"}, \"source\": \"gleif\", \"license\": \"CC0-1.0\"}",
+   "gleif_source": "gleif",
+   "gleif_license": "CC0-1.0"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

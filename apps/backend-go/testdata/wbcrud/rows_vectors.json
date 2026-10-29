@@ -1,0 +1,5739 @@
+{
+ "domains": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "acme.com",
+   "out": "acme.com"
+  },
+  {
+   "in": "https://www.acme.com/path?q=1#x",
+   "out": "acme.com"
+  },
+  {
+   "in": "HTTP://WWW.Acme.COM",
+   "out": "acme.com"
+  },
+  {
+   "in": "www.www.acme.com",
+   "out": "acme.com"
+  },
+  {
+   "in": "http://https://acme.com",
+   "out": "https"
+  },
+  {
+   "in": "shop.acme.co.uk",
+   "out": "acme.co.uk"
+  },
+  {
+   "in": "a.b.acme.co.uk",
+   "out": "acme.co.uk"
+  },
+  {
+   "in": "acme.co.uk",
+   "out": "acme.co.uk"
+  },
+  {
+   "in": "co.uk",
+   "out": "co.uk"
+  },
+  {
+   "in": "user@mail.acme.io",
+   "out": "acme.io"
+  },
+  {
+   "in": "acme.io:8080/x",
+   "out": "acme.io"
+  },
+  {
+   "in": "localhost",
+   "out": "localhost"
+  },
+  {
+   "in": "localhost:3000",
+   "out": "localhost"
+  },
+  {
+   "in": "a..b..c.com",
+   "out": "c.com"
+  },
+  {
+   "in": ".acme.com.",
+   "out": "acme.com"
+  },
+  {
+   "in": "ACME.CO.IN",
+   "out": "acme.co.in"
+  },
+  {
+   "in": "foo.bar.com.au/x",
+   "out": "bar.com.au"
+  },
+  {
+   "in": "caf\u00e9.fr",
+   "out": "cafe.fr"
+  },
+  {
+   "in": "m\u00fcnchen.de",
+   "out": "munchen.de"
+  },
+  {
+   "in": "xn--mnchen-3ya.de",
+   "out": "xn--mnchen-3ya.de"
+  },
+  {
+   "in": "   spaced.io  ",
+   "out": "spaced.io"
+  },
+  {
+   "in": "https://",
+   "out": ""
+  },
+  {
+   "in": "///",
+   "out": ""
+  },
+  {
+   "in": "x.y.z.w.example.org",
+   "out": "example.org"
+  },
+  {
+   "in": "foo.com.br",
+   "out": "foo.com.br"
+  },
+  {
+   "in": "a.com.sg?x",
+   "out": "a.com.sg"
+  },
+  {
+   "in": "\u4e2d\u6587.com",
+   "out": "\u4e2d\u6587.com"
+  },
+  {
+   "in": "https://WWW.ZedCo.io:443/a/b",
+   "out": "zedco.io"
+  },
+  {
+   "in": "ftp://ftp.acme.com",
+   "out": "ftp"
+  },
+  {
+   "in": "acme.com#frag",
+   "out": "acme.com"
+  },
+  {
+   "in": "acme.com?x=1",
+   "out": "acme.com"
+  },
+  {
+   "in": "mailto:bob@acme.org",
+   "out": "acme.org"
+  }
+ ],
+ "companies": [
+  {
+   "in": "",
+   "out": ""
+  },
+  {
+   "in": "Acme",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Inc",
+   "out": "acme"
+  },
+  {
+   "in": "Acme, Inc.",
+   "out": "acme"
+  },
+  {
+   "in": "ACME INCORPORATED",
+   "out": "acme"
+  },
+  {
+   "in": "Acme LLC",
+   "out": "acme"
+  },
+  {
+   "in": "Acme L.L.C.",
+   "out": "acme"
+  },
+  {
+   "in": "Acme L.L.C",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Ltd.",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Limited",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corp",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Corporation",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Co",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Company",
+   "out": "acme"
+  },
+  {
+   "in": "Acme GmbH",
+   "out": "acme"
+  },
+  {
+   "in": "Acme AG",
+   "out": "acme"
+  },
+  {
+   "in": "Acme S.A.",
+   "out": "acmesa"
+  },
+  {
+   "in": "Acme SA",
+   "out": "acme"
+  },
+  {
+   "in": "Acme SARL",
+   "out": "acme"
+  },
+  {
+   "in": "Acme BV",
+   "out": "acme"
+  },
+  {
+   "in": "Acme PLC",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pvt Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Pte. Ltd.",
+   "out": "acme"
+  },
+  {
+   "in": "Acme LLP",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Group",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Holdings",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Holding",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Holdingsx",
+   "out": "acmeholdingsx"
+  },
+  {
+   "in": "Acme Technologies",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Technology",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Solutions",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Services",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Systems",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Labs",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Lab",
+   "out": "acme"
+  },
+  {
+   "in": "Acme Lab.",
+   "out": "acme"
+  },
+  {
+   "in": "Incorporated Acme",
+   "out": "acme"
+  },
+  {
+   "in": "Corporation of Acme",
+   "out": "ofacme"
+  },
+  {
+   "in": "Company Co",
+   "out": ""
+  },
+  {
+   "in": "co",
+   "out": ""
+  },
+  {
+   "in": "inc",
+   "out": ""
+  },
+  {
+   "in": "Sa",
+   "out": ""
+  },
+  {
+   "in": "Cafe Munch",
+   "out": "cafemunch"
+  },
+  {
+   "in": "Caf\u00e9 M\u00fcnch GmbH",
+   "out": "cafemunch"
+  },
+  {
+   "in": "\u00c9co Solutions Pvt Ltd",
+   "out": "eco"
+  },
+  {
+   "in": "\u0130stanbul Ticaret Ltd",
+   "out": "istanbulticaret"
+  },
+  {
+   "in": "Nordlicht GmbH",
+   "out": "nordlicht"
+  },
+  {
+   "in": "\u6771\u4eac\u30c6\u30c3\u30af\u682a\u5f0f\u4f1a\u793e",
+   "out": ""
+  },
+  {
+   "in": "=SUM(1,2) Spreadsheet Inc",
+   "out": "sum12spreadsheet"
+  },
+  {
+   "in": "A&B  Trading  Co.",
+   "out": "abtrading"
+  },
+  {
+   "in": "O'Neil's Group",
+   "out": "oneils"
+  },
+  {
+   "in": "Zed Corp",
+   "out": "zed"
+  },
+  {
+   "in": "Zed, Inc.",
+   "out": "zed"
+  },
+  {
+   "in": "zed",
+   "out": "zed"
+  },
+  {
+   "in": "ZED-CORP",
+   "out": "zed"
+  },
+  {
+   "in": "Acme_Inc",
+   "out": "acmeinc"
+  },
+  {
+   "in": "Acme-Inc",
+   "out": "acme"
+  },
+  {
+   "in": "incinc",
+   "out": "incinc"
+  },
+  {
+   "in": "inc.inc.",
+   "out": ""
+  },
+  {
+   "in": "Acme.Inc.Ltd",
+   "out": "acme"
+  },
+  {
+   "in": "\u00e4inc",
+   "out": "ainc"
+  },
+  {
+   "in": "inc\u00e4",
+   "out": "inca"
+  },
+  {
+   "in": "Inc\u00e4cme",
+   "out": "incacme"
+  },
+  {
+   "in": "  padded  Inc  ",
+   "out": "padded"
+  },
+  {
+   "in": "\ufb01 Co",
+   "out": "fi"
+  },
+  {
+   "in": "\u2460 Group",
+   "out": "1"
+  },
+  {
+   "in": "Technologies",
+   "out": ""
+  },
+  {
+   "in": "Ltd.",
+   "out": ""
+  },
+  {
+   "in": "Ltd",
+   "out": ""
+  },
+  {
+   "in": "123 Corp",
+   "out": "123"
+  },
+  {
+   "in": "Corp 123",
+   "out": "123"
+  },
+  {
+   "in": "caf\u00e9",
+   "out": "cafe"
+  },
+  {
+   "in": "Cafe\u0301",
+   "out": "cafe"
+  },
+  {
+   "in": "ABC\u00a0Inc",
+   "out": "abc"
+  }
+ ],
+ "identities": [
+  {
+   "row": {},
+   "out": ""
+  },
+  {
+   "row": {
+    "website": "https://www.zedco.io/x",
+    "company": "Zed Corp"
+   },
+   "out": "d:zedco.io"
+  },
+  {
+   "row": {
+    "domain": "ZEDCO.io"
+   },
+   "out": "d:zedco.io"
+  },
+  {
+   "row": {
+    "website": "",
+    "domain": "zedco.io"
+   },
+   "out": "d:zedco.io"
+  },
+  {
+   "row": {
+    "website": null,
+    "domain": "a.com",
+    "company": "X"
+   },
+   "out": "d:a.com"
+  },
+  {
+   "row": {
+    "website": 0,
+    "domain": "b.com"
+   },
+   "out": "d:b.com"
+  },
+  {
+   "row": {
+    "website": false,
+    "domain": "c.com"
+   },
+   "out": "d:c.com"
+  },
+  {
+   "row": {
+    "website": [],
+    "domain": "d.com"
+   },
+   "out": "d:d.com"
+  },
+  {
+   "row": {
+    "website": {},
+    "company": "Only Co"
+   },
+   "out": "n:only"
+  },
+  {
+   "row": {
+    "company": "Zed, Inc."
+   },
+   "out": "n:zed"
+  },
+  {
+   "row": {
+    "company": null
+   },
+   "out": ""
+  },
+  {
+   "row": {
+    "company": ""
+   },
+   "out": ""
+  },
+  {
+   "row": {
+    "notes": "a"
+   },
+   "out": ""
+  },
+  {
+   "row": {
+    "website": "",
+    "domain": "",
+    "company": "Caf\u00e9 M\u00fcnch GmbH"
+   },
+   "out": "n:cafemunch"
+  },
+  {
+   "row": {
+    "website": "   ",
+    "company": "Spaces"
+   },
+   "out": "n:spaces"
+  },
+  {
+   "row": {
+    "website": "https://",
+    "company": "NoHost Inc"
+   },
+   "out": "n:nohost"
+  }
+ ],
+ "dumps": [
+  {
+   "value": null,
+   "plain": "null",
+   "sorted": "null"
+  },
+  {
+   "value": true,
+   "plain": "true",
+   "sorted": "true"
+  },
+  {
+   "value": false,
+   "plain": "false",
+   "sorted": "false"
+  },
+  {
+   "value": 0,
+   "plain": "0",
+   "sorted": "0"
+  },
+  {
+   "value": 1,
+   "plain": "1",
+   "sorted": "1"
+  },
+  {
+   "value": -1,
+   "plain": "-1",
+   "sorted": "-1"
+  },
+  {
+   "value": 1.0,
+   "plain": "1.0",
+   "sorted": "1.0"
+  },
+  {
+   "value": 1.5,
+   "plain": "1.5",
+   "sorted": "1.5"
+  },
+  {
+   "value": 100.0,
+   "plain": "100.0",
+   "sorted": "100.0"
+  },
+  {
+   "value": 1e-07,
+   "plain": "1e-07",
+   "sorted": "1e-07"
+  },
+  {
+   "value": 1e+16,
+   "plain": "1e+16",
+   "sorted": "1e+16"
+  },
+  {
+   "value": 1e+22,
+   "plain": "1e+22",
+   "sorted": "1e+22"
+  },
+  {
+   "value": 123456789012345678,
+   "plain": "123456789012345678",
+   "sorted": "123456789012345678"
+  },
+  {
+   "value": "",
+   "plain": "\"\"",
+   "sorted": "\"\""
+  },
+  {
+   "value": "a",
+   "plain": "\"a\"",
+   "sorted": "\"a\""
+  },
+  {
+   "value": "\u00e9",
+   "plain": "\"\\u00e9\"",
+   "sorted": "\"\\u00e9\""
+  },
+  {
+   "value": "\u2028",
+   "plain": "\"\\u2028\"",
+   "sorted": "\"\\u2028\""
+  },
+  {
+   "value": "\ud83d\ude00",
+   "plain": "\"\\ud83d\\ude00\"",
+   "sorted": "\"\\ud83d\\ude00\""
+  },
+  {
+   "value": "\u0000\u001f\u007f",
+   "plain": "\"\\u0000\\u001f\\u007f\"",
+   "sorted": "\"\\u0000\\u001f\\u007f\""
+  },
+  {
+   "value": "q\"b\\s/\n\r\t\b\f",
+   "plain": "\"q\\\"b\\\\s/\\n\\r\\t\\b\\f\"",
+   "sorted": "\"q\\\"b\\\\s/\\n\\r\\t\\b\\f\""
+  },
+  {
+   "value": [],
+   "plain": "[]",
+   "sorted": "[]"
+  },
+  {
+   "value": {},
+   "plain": "{}",
+   "sorted": "{}"
+  },
+  {
+   "value": [
+    1,
+    "a",
+    null,
+    [
+     2.5
+    ]
+   ],
+   "plain": "[1, \"a\", null, [2.5]]",
+   "sorted": "[1, \"a\", null, [2.5]]"
+  },
+  {
+   "value": {
+    "b": 1,
+    "a": {
+     "d": [
+      1,
+      2
+     ],
+     "c": null
+    }
+   },
+   "plain": "{\"b\": 1, \"a\": {\"d\": [1, 2], \"c\": null}}",
+   "sorted": "{\"a\": {\"c\": null, \"d\": [1, 2]}, \"b\": 1}"
+  },
+  {
+   "value": {
+    "\u00e9": 1,
+    "z": 2,
+    "A": 3,
+    "a": 4,
+    "10": 5,
+    "9": 6
+   },
+   "plain": "{\"\\u00e9\": 1, \"z\": 2, \"A\": 3, \"a\": 4, \"10\": 5, \"9\": 6}",
+   "sorted": "{\"10\": 5, \"9\": 6, \"A\": 3, \"a\": 4, \"z\": 2, \"\\u00e9\": 1}"
+  },
+  {
+   "value": {
+    "k": {
+     "k2": {
+      "k3": [
+       {
+        "x": 1.0
+       }
+      ]
+     }
+    }
+   },
+   "plain": "{\"k\": {\"k2\": {\"k3\": [{\"x\": 1.0}]}}}",
+   "sorted": "{\"k\": {\"k2\": {\"k3\": [{\"x\": 1.0}]}}}"
+  },
+  {
+   "value": [
+    []
+   ],
+   "plain": "[[]]",
+   "sorted": "[[]]"
+  },
+  {
+   "value": [
+    {}
+   ],
+   "plain": "[{}]",
+   "sorted": "[{}]"
+  },
+  {
+   "value": {
+    "": 1
+   },
+   "plain": "{\"\": 1}",
+   "sorted": "{\"\": 1}"
+  }
+ ],
+ "changed": [
+  {
+   "data": {},
+   "fields": {
+    "a": 1
+   },
+   "out": {
+    "a": 1
+   }
+  },
+  {
+   "data": {
+    "a": 1
+   },
+   "fields": {
+    "a": 1
+   },
+   "out": {}
+  },
+  {
+   "data": {
+    "a": 1
+   },
+   "fields": {
+    "a": 1.0
+   },
+   "out": {
+    "a": 1.0
+   }
+  },
+  {
+   "data": {
+    "a": false
+   },
+   "fields": {
+    "a": 0
+   },
+   "out": {
+    "a": 0
+   }
+  },
+  {
+   "data": {
+    "a": 0
+   },
+   "fields": {
+    "a": false
+   },
+   "out": {
+    "a": false
+   }
+  },
+  {
+   "data": {
+    "a": null
+   },
+   "fields": {
+    "a": null
+   },
+   "out": {}
+  },
+  {
+   "data": {},
+   "fields": {
+    "a": null
+   },
+   "out": {
+    "a": null
+   }
+  },
+  {
+   "data": {
+    "a": {
+     "x": 1,
+     "y": 2
+    }
+   },
+   "fields": {
+    "a": {
+     "y": 2,
+     "x": 1
+    }
+   },
+   "out": {}
+  },
+  {
+   "data": {
+    "a": [
+     1,
+     2
+    ]
+   },
+   "fields": {
+    "a": [
+     2,
+     1
+    ]
+   },
+   "out": {
+    "a": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "data": {
+    "a": "\u00e9"
+   },
+   "fields": {
+    "a": "\u00e9"
+   },
+   "out": {}
+  },
+  {
+   "data": {
+    "a": "1"
+   },
+   "fields": {
+    "a": 1
+   },
+   "out": {
+    "a": 1
+   }
+  },
+  {
+   "data": {
+    "a": 1,
+    "b": 2
+   },
+   "fields": {
+    "a": 1,
+    "b": 3,
+    "c": 4
+   },
+   "out": {
+    "b": 3,
+    "c": 4
+   }
+  },
+  {
+   "data": {
+    "a": {
+     "n": 1.5
+    }
+   },
+   "fields": {
+    "a": {
+     "n": 1.5
+    }
+   },
+   "out": {}
+  },
+  {
+   "data": {
+    "a": []
+   },
+   "fields": {
+    "a": {}
+   },
+   "out": {
+    "a": {}
+   }
+  },
+  {
+   "data": {
+    "a": ""
+   },
+   "fields": {
+    "a": null
+   },
+   "out": {
+    "a": null
+   }
+  }
+ ],
+ "downstream": [
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "company"
+   ],
+   "all": [
+    "summary"
+   ],
+   "eligible": [
+    "summary"
+   ]
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "Company"
+   ],
+   "all": [
+    "summary"
+   ],
+   "eligible": [
+    "summary"
+   ]
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [
+    "summary"
+   ],
+   "eligible": [
+    "summary"
+   ]
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "input one"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "company_name"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "in_1"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "src"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "company"
+   ],
+   "all": [
+    "a",
+    "b",
+    "c",
+    "out",
+    "manual",
+    "http1",
+    "fx",
+    "em"
+   ],
+   "eligible": [
+    "a",
+    "b",
+    "c",
+    "http1",
+    "fx",
+    "em"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "Company"
+   ],
+   "all": [
+    "a",
+    "b",
+    "c",
+    "out",
+    "manual",
+    "http1",
+    "fx",
+    "em"
+   ],
+   "eligible": [
+    "a",
+    "b",
+    "c",
+    "http1",
+    "fx",
+    "em"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [
+    "a",
+    "b",
+    "c",
+    "out",
+    "manual",
+    "http1",
+    "fx",
+    "em"
+   ],
+   "eligible": [
+    "a",
+    "b",
+    "c",
+    "http1",
+    "fx",
+    "em"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "input one"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "company_name"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "in_1"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "all": [
+    "b",
+    "c",
+    "out",
+    "fx"
+   ],
+   "eligible": [
+    "b",
+    "c",
+    "fx"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "all": [
+    "c",
+    "out"
+   ],
+   "eligible": [
+    "c"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "src"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "company"
+   ],
+   "all": [
+    "z"
+   ],
+   "eligible": [
+    "z"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "Company"
+   ],
+   "all": [
+    "z"
+   ],
+   "eligible": [
+    "z"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [
+    "z"
+   ],
+   "eligible": [
+    "z"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "input one"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "company_name"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "in_1"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "all": [
+    "y",
+    "z"
+   ],
+   "eligible": [
+    "y",
+    "z"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "src"
+   ],
+   "all": [
+    "z"
+   ],
+   "eligible": [
+    "z"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "Company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "input one"
+   ],
+   "all": [
+    "d1",
+    "d2",
+    "d4"
+   ],
+   "eligible": [
+    "d1",
+    "d2",
+    "d4"
+   ]
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "company_name"
+   ],
+   "all": [
+    "d1",
+    "d2",
+    "d3",
+    "d4"
+   ],
+   "eligible": [
+    "d1",
+    "d2",
+    "d3",
+    "d4"
+   ]
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "in_1"
+   ],
+   "all": [
+    "d1",
+    "d2",
+    "d4"
+   ],
+   "eligible": [
+    "d1",
+    "d2",
+    "d4"
+   ]
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "src"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [
+    "d1",
+    "d2",
+    "d4"
+   ],
+   "eligible": [
+    "d1",
+    "d2",
+    "d4"
+   ]
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "Company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "input one"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "company_name"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "in_1"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "a"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "b"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "x"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "src"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "phone"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "Company"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "COMPANY"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "input one"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "company_name"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "in_1"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "a"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "b"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "x"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "src"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "email"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "email",
+    "city"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "",
+    "  "
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "nope"
+   ],
+   "all": [],
+   "eligible": []
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "changed": [
+    "Input_One"
+   ],
+   "all": [],
+   "eligible": []
+  }
+ ],
+ "topo": [
+  {
+   "set": "seed",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "lead_field": "website"
+    },
+    {
+     "id": "email",
+     "name": "Email",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "city",
+     "name": "City",
+     "type": "lead_field",
+     "lead_field": "city"
+    },
+    {
+     "id": "phone",
+     "name": "Phone",
+     "type": "lead_field",
+     "lead_field": "phone"
+    },
+    {
+     "id": "email_wf",
+     "name": "Email Finder",
+     "type": "waterfall",
+     "waterfall": [
+      "hunter",
+      "apollo"
+     ],
+     "target_field": "email",
+     "verify": true
+    },
+    {
+     "id": "summary",
+     "name": "Summary",
+     "type": "ai_formula",
+     "prompt": "Summarize {Company} in one sentence",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "out": [
+    "company",
+    "website",
+    "email",
+    "city",
+    "phone",
+    "email_wf",
+    "summary"
+   ]
+  },
+  {
+   "set": "chain",
+   "columns": [
+    {
+     "id": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "use {b}",
+     "input_columns": [
+      "b"
+     ]
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "use {a}",
+     "input_columns": [
+      "a"
+     ]
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x {Company}",
+     "input_columns": [
+      "company"
+     ]
+    },
+    {
+     "id": "out",
+     "name": "Out",
+     "type": "output",
+     "prompt": "{c}",
+     "input_columns": [
+      "c"
+     ]
+    },
+    {
+     "id": "manual",
+     "name": "Manual",
+     "type": "ai_formula",
+     "prompt": "{Company}",
+     "reactive": false
+    },
+    {
+     "id": "http1",
+     "name": "Http",
+     "type": "http",
+     "http_url": "https://x.test/{company}",
+     "http_body": "{\"c\":\"{City}\"}",
+     "reactive": true
+    },
+    {
+     "id": "fx",
+     "name": "Fx",
+     "type": "formula",
+     "formula": "CONCAT({a}, company)"
+    },
+    {
+     "id": "lf",
+     "name": "LF",
+     "type": "lead_field",
+     "lead_field": "email"
+    },
+    {
+     "id": "em",
+     "name": "Em",
+     "type": "enrichment",
+     "provider": "hunter",
+     "input_columns": [
+      "Company"
+     ]
+    }
+   ],
+   "out": [
+    "company",
+    "a",
+    "b",
+    "c",
+    "out",
+    "manual",
+    "http1",
+    "fx",
+    "lf",
+    "em"
+   ]
+  },
+  {
+   "set": "cycle",
+   "columns": [
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    },
+    {
+     "id": "y",
+     "name": "Y",
+     "type": "ai_formula",
+     "prompt": "{x}"
+    },
+    {
+     "id": "src",
+     "name": "Src",
+     "type": "lead_field",
+     "lead_field": "company"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{Src} {x}"
+    }
+   ],
+   "out": [
+    "x",
+    "y",
+    "src",
+    "z"
+   ]
+  },
+  {
+   "set": "alias",
+   "columns": [
+    {
+     "id": "in_1",
+     "name": "Input One",
+     "type": "input",
+     "lead_field": "company_name"
+    },
+    {
+     "id": "d1",
+     "name": "D1",
+     "type": "ai_formula",
+     "prompt": "{input one}"
+    },
+    {
+     "id": "d2",
+     "name": "D2",
+     "type": "ai_formula",
+     "prompt": "{input_one}"
+    },
+    {
+     "id": "d3",
+     "name": "D3",
+     "type": "ai_formula",
+     "prompt": "{company_name}"
+    },
+    {
+     "id": "d4",
+     "name": "D4",
+     "type": "ai_formula",
+     "prompt": "{D1}"
+    }
+   ],
+   "out": [
+    "in_1",
+    "d1",
+    "d2",
+    "d3",
+    "d4"
+   ]
+  },
+  {
+   "set": "single",
+   "columns": [
+    {
+     "id": "only",
+     "name": "Only",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "out": [
+    "only"
+   ]
+  },
+  {
+   "set": "empty",
+   "columns": [],
+   "out": []
+  }
+ ]
+}

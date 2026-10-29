@@ -1,0 +1,30 @@
+{
+  "seq": 28,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 27,
+    "method": "tools/call",
+    "params": {
+      "name": "get_lead_detail",
+      "arguments": {}
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 27,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"'lead_id'\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [],
+  "effects": {},
+  "deviation": "D3: Python answers the exception text of the missing/mistyped argument; Go answers '<field> is required|must be <type>'"
+}

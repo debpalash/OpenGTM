@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "company": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "company"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

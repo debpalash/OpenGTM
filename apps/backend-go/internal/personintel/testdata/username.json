@@ -1,0 +1,165 @@
+{
+ "note": "parse_linkedin_username (strip, drop trailing '/', search 'linkedin.com/in/([a-zA-Z0-9_-]+)'); error is the ValueError text",
+ "cases": [
+  {
+   "url": "https://www.linkedin.com/in/anilkdas/",
+   "username": "anilkdas",
+   "error": null
+  },
+  {
+   "url": "https://linkedin.com/in/anilkdas",
+   "username": "anilkdas",
+   "error": null
+  },
+  {
+   "url": "linkedin.com/in/anilkdas?param=1",
+   "username": "anilkdas",
+   "error": null
+  },
+  {
+   "url": "  https://www.linkedin.com/in/jane-doe_9/  ",
+   "username": "jane-doe_9",
+   "error": null
+  },
+  {
+   "url": "HTTPS://WWW.LINKEDIN.COM/in/UpperCase",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: HTTPS://WWW.LINKEDIN.COM/in/UpperCase"
+  },
+  {
+   "url": "https://www.linkedin.com/in/jane-doe/details/experience",
+   "username": "jane-doe",
+   "error": null
+  },
+  {
+   "url": "https://uk.linkedin.com/in/jane",
+   "username": "jane",
+   "error": null
+  },
+  {
+   "url": "https://www.linkedin.com/in/",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: https://www.linkedin.com/in"
+  },
+  {
+   "url": "https://www.linkedin.com/in/é-mile",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: https://www.linkedin.com/in/é-mile"
+  },
+  {
+   "url": "https://www.linkedin.com/in/jane.doe",
+   "username": "jane",
+   "error": null
+  },
+  {
+   "url": "https://www.linkedin.com/in/jane%20doe",
+   "username": "jane",
+   "error": null
+  },
+  {
+   "url": "https://www.linkedin.com/company/acme",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: https://www.linkedin.com/company/acme"
+  },
+  {
+   "url": "https://example.com/in/jane",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: https://example.com/in/jane"
+  },
+  {
+   "url": "linkedin.com/in/a",
+   "username": "a",
+   "error": null
+  },
+  {
+   "url": "https://notlinkedin.com/in/jane",
+   "username": "jane",
+   "error": null
+  },
+  {
+   "url": "https://www.linkedin.com/in/jane#frag",
+   "username": "jane",
+   "error": null
+  },
+  {
+   "url": "http://linkedin.com/in/-dash-",
+   "username": "-dash-",
+   "error": null
+  },
+  {
+   "url": "",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: "
+  },
+  {
+   "url": "   ",
+   "username": null,
+   "error": "Could not parse LinkedIn username from: "
+  },
+  {
+   "url": "linkedin.com/in/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "username": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+   "error": null
+  }
+ ],
+ "search_queries": [
+  {
+   "username": "jane-doe",
+   "queries": {
+    "linkedin": "\"jane-doe\" site:linkedin.com/in",
+    "general": "\"jane-doe\" linkedin",
+    "email": "\"jane-doe\" email contact",
+    "twitter": "\"jane-doe\" site:twitter.com OR site:x.com",
+    "github": "\"jane-doe\" site:github.com",
+    "blog": "\"jane-doe\" site:medium.com OR site:substack.com OR blog",
+    "articles": "\"jane-doe\" article OR presentation OR conference OR speaker"
+   }
+  },
+  {
+   "username": "anilkdas",
+   "queries": {
+    "linkedin": "\"anilkdas\" site:linkedin.com/in",
+    "general": "\"anilkdas\" linkedin",
+    "email": "\"anilkdas\" email contact",
+    "twitter": "\"anilkdas\" site:twitter.com OR site:x.com",
+    "github": "\"anilkdas\" site:github.com",
+    "blog": "\"anilkdas\" site:medium.com OR site:substack.com OR blog",
+    "articles": "\"anilkdas\" article OR presentation OR conference OR speaker"
+   }
+  },
+  {
+   "username": "we\"ird",
+   "queries": {
+    "linkedin": "\"we\"ird\" site:linkedin.com/in",
+    "general": "\"we\"ird\" linkedin",
+    "email": "\"we\"ird\" email contact",
+    "twitter": "\"we\"ird\" site:twitter.com OR site:x.com",
+    "github": "\"we\"ird\" site:github.com",
+    "blog": "\"we\"ird\" site:medium.com OR site:substack.com OR blog",
+    "articles": "\"we\"ird\" article OR presentation OR conference OR speaker"
+   }
+  }
+ ],
+ "linkedin_url_gate": [
+  {
+   "url": "https://www.linkedin.com/in/x",
+   "accepted": true
+  },
+  {
+   "url": "https://example.com/not-linkedin",
+   "accepted": false
+  },
+  {
+   "url": "",
+   "accepted": false
+  },
+  {
+   "url": "https://x.com/?u=linkedin.com/in/",
+   "accepted": true
+  },
+  {
+   "url": "LINKEDIN.COM/IN/x",
+   "accepted": false
+  }
+ ]
+}

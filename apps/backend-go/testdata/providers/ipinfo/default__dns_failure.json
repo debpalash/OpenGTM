@@ -1,0 +1,29 @@
+{
+ "provider": "ipinfo",
+ "input_name": "default",
+ "scenario": "dns_failure",
+ "input": {
+  "company": "Acme",
+  "website": "https://acme.com/about"
+ },
+ "secrets": {
+  "IPINFO_TOKEN": "ctk_ipinfo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "acme.com",
+    "error": "gaierror"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Could not resolve https://acme.com/about"
+ }
+}

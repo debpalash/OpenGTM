@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "displayName": "nobody"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Users"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "displayName": "nobody"
+          },
+          "loc": [
+            "body",
+            "userName"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

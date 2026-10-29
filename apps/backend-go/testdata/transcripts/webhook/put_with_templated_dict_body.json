@@ -1,0 +1,88 @@
+{
+ "area": "webhook",
+ "scenario": "put_with_templated_dict_body",
+ "description": "dict body templates {placeholders} in every string",
+ "input": {
+  "workspace_id": "ws-1",
+  "cfg": {
+   "url": "https://hooks.example.com/in",
+   "method": "put",
+   "body": {
+    "company": "{company}",
+    "n": 1,
+    "nested": [
+     "{email}"
+    ]
+   }
+  },
+  "lead_data": {
+   "company": "Hot Pursuit Labs",
+   "email": "ceo@hotpursuit.example.com",
+   "id": 14,
+   "lead_id": 14
+  },
+  "columns": [
+   {
+    "id": "company",
+    "name": "Company"
+   },
+   {
+    "id": "email",
+    "name": "Email"
+   }
+  ],
+  "allowlist": []
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "dns": {
+    "host": "hooks.example.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://93.184.216.34/in",
+    "headers": {
+     "content-type": "application/json",
+     "host": "hooks.example.com"
+    },
+    "body": "{\"company\":\"Hot Pursuit Labs\",\"n\":1,\"nested\":[\"ceo@hotpursuit.example.com\"]}",
+    "json": {
+     "company": "Hot Pursuit Labs",
+     "n": 1,
+     "nested": [
+      "ceo@hotpursuit.example.com"
+     ]
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"received\":true}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": "success",
+  "summary": "PUT 200",
+  "error": null,
+  "skip_reason": null,
+  "charged_usd": 0.0
+ }
+}

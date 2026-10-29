@@ -1,0 +1,61 @@
+{
+ "area": "sec_funding",
+ "scenario": "unresolvable_name_no_events",
+ "description": "no CIK found: empty events, minimal cursor patch (no failure)",
+ "input": {
+  "target": "Nope Nothing Inc",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "resolved_cik": null,
+  "want_funding": true,
+  "want_exec": true,
+  "backfill": false
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/files/company_tickers.json",
+    "headers": {
+     "host": "www.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://efts.sec.gov/LATEST/search-index?q=%22Nope+Nothing+Inc%22&forms=D",
+    "headers": {
+     "host": "efts.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"hits\":{\"hits\":[]}}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [],
+  "patch": {
+   "sec_known_execs": []
+  }
+ }
+}

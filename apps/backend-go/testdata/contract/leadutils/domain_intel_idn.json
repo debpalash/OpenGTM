@@ -1,0 +1,54 @@
+{
+  "request": {
+    "body": {
+      "domain": "b\u00fccher.de"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/domain-intel"
+  },
+  "response": {
+    "body": {
+      "cert_transparency": {
+        "interesting": [],
+        "subdomain_count": 0,
+        "subdomains": []
+      },
+      "dns": {
+        "a_records": [],
+        "email_provider": "",
+        "has_dmarc": false,
+        "has_spf": false,
+        "hosting_provider": "",
+        "mx_records": [],
+        "ns_records": [],
+        "txt_records": []
+      },
+      "domain": "xn--bcher-kva.de",
+      "legitimacy_score": 0,
+      "rdap": {
+        "domain_age_days": 0,
+        "expiration_date": "",
+        "nameservers": [],
+        "registrar": "",
+        "registration_date": "",
+        "status": []
+      },
+      "summary": {
+        "age_days": 0,
+        "email_service": "",
+        "has_email_auth": false,
+        "hosting": "",
+        "interesting_subdomains": [],
+        "registrar": "",
+        "subdomains": 0
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

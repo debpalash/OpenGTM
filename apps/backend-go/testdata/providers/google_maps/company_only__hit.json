@@ -1,0 +1,52 @@
+{
+ "provider": "google_maps",
+ "input_name": "company_only",
+ "scenario": "hit",
+ "input": {
+  "company": "Acme Plumbing"
+ },
+ "secrets": {
+  "GOOGLE_MAPS_API_KEY": "ctk_gmaps_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://places.googleapis.com/v1/places:searchText",
+    "headers": {
+     "content-type": "application/json",
+     "x-goog-api-key": "{{secret:GOOGLE_MAPS_API_KEY}}",
+     "x-goog-fieldmask": "places.id,places.displayName,places.formattedAddress,places.internationalPhoneNumber,places.nationalPhoneNumber,places.websiteUri,places.googleMapsUri,places.rating,places.userRatingCount,places.types,places.primaryType,places.regularOpeningHours,places.editorialSummary,places.businessStatus"
+    },
+    "body": "{\"textQuery\":\"Acme Plumbing\",\"maxResultCount\":3}",
+    "json": {
+     "textQuery": "Acme Plumbing",
+     "maxResultCount": 3
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"places\":[{\"id\":\"p1\",\"displayName\":{\"text\":\"Acme Plumbing\"},\"internationalPhoneNumber\":\"+1 512-555-0100\",\"nationalPhoneNumber\":\"(512) 555-0100\",\"formattedAddress\":\"1 Main St, Austin, TX 78701, USA\",\"editorialSummary\":{\"text\":\"Family-owned plumbers since 1985.\"},\"primaryType\":\"plumber\",\"types\":[\"plumber\",\"point_of_interest\"],\"rating\":4.6,\"userRatingCount\":128,\"googleMapsUri\":\"https://maps.google.com/?cid=1\"}]}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "google_maps",
+  "success": true,
+  "fields": {
+   "phone": "+1 512-555-0100",
+   "address": "1 Main St, Austin, TX 78701, USA",
+   "description": "Family-owned plumbers since 1985.",
+   "industry_tags": "Plumber",
+   "google_rating": "4.6/5 (128 reviews)",
+   "google_maps_url": "https://maps.google.com/?cid=1"
+  },
+  "confidence": 0.9,
+  "error": ""
+ }
+}

@@ -1,0 +1,88 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/analytics/enrichment"
+  },
+  "response": {
+    "body": {
+      "by_city": [
+        {
+          "avg_score": null,
+          "city": "Mumbai",
+          "count": 4
+        },
+        {
+          "avg_score": null,
+          "city": "Berlin",
+          "count": 3
+        },
+        {
+          "avg_score": null,
+          "city": "Austin",
+          "count": 3
+        },
+        {
+          "avg_score": null,
+          "city": "Delhi",
+          "count": 1
+        },
+        {
+          "avg_score": null,
+          "city": "\u6771\u4eac",
+          "count": 1
+        },
+        {
+          "avg_score": null,
+          "city": "Pune",
+          "count": 1
+        },
+        {
+          "avg_score": null,
+          "city": "\u0130stanbul",
+          "count": 1
+        },
+        {
+          "avg_score": null,
+          "city": "",
+          "count": 1
+        }
+      ],
+      "score_distribution": [],
+      "source_quality": [
+        {
+          "avg_score": null,
+          "count": 5,
+          "source": "import",
+          "with_contact": null,
+          "with_email": null,
+          "with_phone": null
+        },
+        {
+          "avg_score": null,
+          "count": 7,
+          "source": "contract",
+          "with_contact": null,
+          "with_email": null,
+          "with_phone": null
+        },
+        {
+          "avg_score": null,
+          "count": 3,
+          "source": "scrape",
+          "with_contact": null,
+          "with_email": null,
+          "with_phone": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

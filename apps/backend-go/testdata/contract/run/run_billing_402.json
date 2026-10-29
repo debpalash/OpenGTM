@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "plat_big"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-big/run"
+  },
+  "response": {
+    "body": {
+      "detail": {
+        "balance_usd": 10.0,
+        "message": "Insufficient credits: balance $10.0000 < required $12.5000. Top up to run this enrichment.",
+        "required_usd": 12.5
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 402
+  }
+}

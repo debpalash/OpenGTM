@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "confirmation": "x",
+      "expected_count": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/nope/rows/delete-query"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

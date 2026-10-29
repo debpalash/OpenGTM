@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "note": "token"
+      },
+      "destination_type": "salesforce",
+      "name": "cred value ok"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "note": "token"
+      },
+      "created_at": "2026-10-26T17:05:48.586470",
+      "destination_type": "salesforce",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002108",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "cred value ok",
+      "updated_at": "2026-10-26T17:05:48.586470"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

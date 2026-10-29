@@ -1,0 +1,117 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches?limit=2"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 2,
+      "next_cursor": "WyIyMDI2LTA4LTI5VDA5OjExOjAwKzAwOjAwIiwid2F0Y2gtYS0xMSJd",
+      "offset": 0,
+      "watches": [
+        {
+          "config": {},
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:12:00+00:00",
+          "cursor": {
+            "bootstrapped": true
+          },
+          "enabled": true,
+          "id": "watch-a-12",
+          "interval": "daily",
+          "kind": "company",
+          "last_error": null,
+          "last_polled_at": "2100-01-01T00:00:00+00:00",
+          "lead_id": 4,
+          "next_poll_at": "2026-08-30T09:12:00+00:00",
+          "resolved_cik": null,
+          "signal_types": [
+            "hiring_surge"
+          ],
+          "target": "Rate Limited Co",
+          "workspace_id": "ws-alpha"
+        },
+        {
+          "account_count": 2,
+          "account_ids": [
+            "acc-2",
+            "acc-3"
+          ],
+          "attempt_count": 2,
+          "collector_health": {
+            "acc-2:funding": {
+              "attempt_count": 2,
+              "last_error_class": null,
+              "state": "healthy"
+            }
+          },
+          "config": {
+            "accounts": [
+              {
+                "account_id": "acc-2",
+                "company": "Zenith Robotics Pvt Ltd",
+                "lead_id": 6,
+                "website": "https://zenithrobotics.example.com"
+              },
+              {
+                "account_id": "acc-3",
+                "company": "Unlinked Co",
+                "website": "https://unlinked.example.com"
+              }
+            ],
+            "scope_key": "scope-healthy",
+            "workbook_id": "wb-auto-1",
+            "workbook_name": "Healthy Matrix"
+          },
+          "consecutive_failures": 0,
+          "created_at": "2026-08-29T09:11:00+00:00",
+          "cursor": {
+            "attempt_count": 2,
+            "bootstrapped": true,
+            "collector_health": {
+              "acc-2:funding": {
+                "attempt_count": 2,
+                "last_error_class": null,
+                "state": "healthy"
+              }
+            }
+          },
+          "enabled": true,
+          "id": "watch-a-11",
+          "interval": "daily",
+          "kind": "account_group",
+          "last_error": null,
+          "last_error_class": null,
+          "last_polled_at": "2026-08-29T09:11:30+00:00",
+          "lead_id": null,
+          "manual_retry_action": {
+            "label": "Retry collectors now",
+            "method": "POST",
+            "url": "/api/watches/watch-a-11/poll"
+          },
+          "next_poll_at": "2026-08-30T09:11:00+00:00",
+          "next_retry_at": null,
+          "resolved_cik": null,
+          "scope_key": "scope-healthy",
+          "signal_types": [
+            "pricing_page_change",
+            "funding"
+          ],
+          "state": "active",
+          "target": "Healthy Matrix",
+          "workbook_id": "wb-auto-1",
+          "workspace_id": "ws-alpha"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

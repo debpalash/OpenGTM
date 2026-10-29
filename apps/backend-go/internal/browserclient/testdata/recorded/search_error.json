@@ -1,0 +1,15 @@
+{
+ "method": "POST",
+ "path": "/v1/search",
+ "request": {
+  "max_results": 2,
+  "query": "fail"
+ },
+ "response": {
+  "error": "rate_limited",
+  "hits": [],
+  "method": "text",
+  "query": "fail"
+ },
+ "status": 200
+}

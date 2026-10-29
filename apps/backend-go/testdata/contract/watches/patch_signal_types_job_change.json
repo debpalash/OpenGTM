@@ -1,0 +1,63 @@
+{
+  "request": {
+    "body": {
+      "signal_types": [
+        "job_change"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/watch-a-05"
+  },
+  "response": {
+    "body": {
+      "config": {
+        "contacts": [
+          {
+            "company": "",
+            "lead_id": 11,
+            "linkedin_url": "",
+            "name": ""
+          },
+          {
+            "company": "",
+            "linkedin_url": "",
+            "name": "Grace Hopper"
+          }
+        ],
+        "max_contacts_per_poll": 1
+      },
+      "consecutive_failures": 0,
+      "created_at": "2026-08-29T09:05:00+00:00",
+      "cursor": {
+        "bootstrapped": true,
+        "job_change_contacts": {
+          "lead:14": {
+            "last_checked_at": 1788000000.0,
+            "last_known_company": "Hot Pursuit Labs"
+          }
+        }
+      },
+      "enabled": true,
+      "id": "watch-a-05",
+      "interval": "weekly",
+      "kind": "job_change",
+      "last_error": null,
+      "last_polled_at": "2026-08-29T09:05:30+00:00",
+      "lead_id": null,
+      "next_poll_at": "2026-09-05T09:05:00+00:00",
+      "resolved_cik": null,
+      "signal_types": [
+        "job_change"
+      ],
+      "target": "Sales roster",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

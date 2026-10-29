@@ -1,0 +1,124 @@
+{
+  "request": {
+    "body": {
+      "expected_column": {
+        "id": "n1",
+        "name": "N1",
+        "type": "lead_field",
+        "width": 200
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/workbooks/wb-alpha-2/columns/n1"
+  },
+  "response": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "company",
+          "lead_field": "company",
+          "name": "Company",
+          "type": "lead_field",
+          "width": 250
+        },
+        {
+          "icp": null,
+          "id": "website",
+          "lead_field": "website",
+          "name": "Website",
+          "type": "lead_field",
+          "waterfall": [
+            "b",
+            "a"
+          ],
+          "width": 80
+        },
+        {
+          "id": "email",
+          "lead_field": "email",
+          "name": "Email",
+          "type": "lead_field",
+          "width": 600
+        },
+        {
+          "id": "city",
+          "lead_field": "city",
+          "name": "City",
+          "type": "lead_field",
+          "width": 150
+        },
+        {
+          "id": "phone",
+          "lead_field": "phone",
+          "name": "Telephone",
+          "type": "lead_field",
+          "verify": true,
+          "width": 150
+        },
+        {
+          "id": "email_wf",
+          "name": "Email Finder",
+          "target_field": "email",
+          "type": "waterfall",
+          "verify": false,
+          "waterfall": [
+            "hunter",
+            "apollo"
+          ],
+          "width": 220
+        },
+        {
+          "cell_budget_usd": 5.0,
+          "id": "summary",
+          "input_columns": [
+            "email_wf"
+          ],
+          "max_tokens": 100,
+          "name": "Summary",
+          "policy": {
+            "max_cost_usd": 2.0,
+            "max_steps": 3
+          },
+          "prompt": "Describe {Email Finder} <b>&</b> \u00e9",
+          "type": "ai_formula",
+          "width": 300
+        },
+        {
+          "id": "n3",
+          "max_steps": 4,
+          "name": "N3",
+          "reactive": true,
+          "type": "lead_field",
+          "width": 150
+        },
+        {
+          "id": "n4",
+          "name": "N4",
+          "type": "lead_field",
+          "width": 200
+        }
+      ],
+      "completed_rows": 0,
+      "created_at": "2026-08-29T10:00:00",
+      "description": "25 seeded rows",
+      "filter_criteria": {},
+      "id": "wb-alpha-2",
+      "last_run_at": null,
+      "name": "Alpha Leads",
+      "source_config": {},
+      "source_type": "manual",
+      "status": "idle",
+      "sync_to_leads": false,
+      "total_rows": 25,
+      "updated_at": "2026-10-26T10:35:55.348192"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/pb-gov-b/runs"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 50,
+      "next_cursor": null,
+      "offset": 0,
+      "runs": [
+        {
+          "attempted": 1,
+          "audience_id": "aud-gov-b",
+          "created_at": "2026-08-24T09:00:00",
+          "error": null,
+          "failed": 0,
+          "finished_at": "2026-08-24T09:01:00",
+          "id": "run-gov-b1",
+          "max_members": 100,
+          "playbook_id": "pb-gov-b",
+          "prompt_version": 1,
+          "started_at": "2026-08-24T09:00:00",
+          "status": "completed",
+          "succeeded": 1
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

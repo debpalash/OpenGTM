@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "fields": {}
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "fields": {}
+          },
+          "loc": [
+            "body",
+            "external_event_id"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

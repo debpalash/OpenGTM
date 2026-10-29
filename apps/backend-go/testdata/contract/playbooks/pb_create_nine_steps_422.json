@@ -1,0 +1,130 @@
+{
+  "request": {
+    "body": {
+      "name": "NineSteps",
+      "prompt_template": "Describe {company} please.",
+      "steps": [
+        {
+          "key": "k0",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k1",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k2",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k3",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k4",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k5",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k6",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k7",
+          "name": "A",
+          "prompt_template": "Step text here."
+        },
+        {
+          "key": "k8",
+          "name": "A",
+          "prompt_template": "Step text here."
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "actual_length": 9,
+            "field_type": "List",
+            "max_length": 8
+          },
+          "input": [
+            {
+              "key": "k0",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k1",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k2",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k3",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k4",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k5",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k6",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k7",
+              "name": "A",
+              "prompt_template": "Step text here."
+            },
+            {
+              "key": "k8",
+              "name": "A",
+              "prompt_template": "Step text here."
+            }
+          ],
+          "loc": [
+            "body",
+            "steps"
+          ],
+          "msg": "List should have at most 8 items after validation, not 9",
+          "type": "too_long"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

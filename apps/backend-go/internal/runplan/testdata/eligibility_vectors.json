@@ -1,0 +1,764 @@
+{
+ "manifests": {
+  "m_email": {
+   "name": "m_email",
+   "capability": "email",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "env_var": "KEY_M_EMAIL"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "email": "$.email"
+    }
+   }
+  },
+  "m_desc": {
+   "name": "m_desc",
+   "capability": "description",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "env_var": "KEY_M_DESC"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "description": "$.d"
+    }
+   }
+  },
+  "m_two": {
+   "name": "m_two",
+   "capability": "email",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "env_var": "KEY_M_TWO"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "email": "$.e",
+     "phone": "$.p"
+    }
+   }
+  },
+  "m_extra_env": {
+   "name": "m_extra_env",
+   "capability": "email",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "env_var": "KEY_M_EXTRA_ENV",
+    "extra_env": ["OTHER_KEY"]
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {
+     "X-O": "${env:OTHER_KEY}"
+    }
+   },
+   "response": {
+    "mappings": {
+     "email": "$.e"
+    }
+   }
+  },
+  "m_tmpl_auth": {
+   "name": "m_tmpl_auth",
+   "capability": "email",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "env_var": "KEY_M_TMPL_AUTH"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://{{input.domain}}.x.io/y",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "email": "$.e"
+    }
+   }
+  },
+  "m_literal": {
+   "name": "m_literal",
+   "capability": "email",
+   "auth": {
+    "type": "header",
+    "param": "X-Key",
+    "value": "hunter2",
+    "env_var": "KEY_L"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "email": "$.e"
+    }
+   }
+  },
+  "m_noauth": {
+   "name": "m_noauth",
+   "capability": "company_size",
+   "auth": {
+    "type": "none"
+   },
+   "request": {
+    "method": "GET",
+    "url": "https://api.example.com/x",
+    "headers": {}
+   },
+   "response": {
+    "mappings": {
+     "company_size": "$.s"
+    }
+   }
+  }
+ },
+ "cases": [
+  {
+   "name": "ok_enrichment",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "ok_waterfall",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "waterfall": [
+      "m_desc"
+     ],
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "ok_email_noverify",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_email",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "email_verify_default",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_email",
+     "target_field": "email"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "email_verify"
+  },
+  {
+   "name": "email_verify_true",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_email",
+     "target_field": "email",
+     "verify": true
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "email_verify"
+  },
+  {
+   "name": "flag_off",
+   "flags": {
+    "enabled": false
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "flag_off"
+  },
+  {
+   "name": "not_in_cohort",
+   "flags": {
+    "cohort": false
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "not_in_cohort"
+  },
+  {
+   "name": "provenance_on",
+   "flags": {
+    "provenance": true
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "provenance_on"
+  },
+  {
+   "name": "automations_on",
+   "flags": {
+    "automations": true
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "automations_on"
+  },
+  {
+   "name": "no_columns",
+   "flags": {
+    "column_ids": [
+     "zzz"
+    ]
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "zzz"
+   ],
+   "ok": false,
+   "reason": "no_columns"
+  },
+  {
+   "name": "column_type_formula",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "formula",
+     "formula": "1"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "column_type"
+  },
+  {
+   "name": "column_type_ai",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "column_type"
+  },
+  {
+   "name": "condition",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description",
+     "condition": "{x} != ''"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "condition"
+  },
+  {
+   "name": "refs_prompt",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description",
+     "prompt": "hi {company}"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "column_refs"
+  },
+  {
+   "name": "refs_input_columns",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description",
+     "input_columns": [
+      "company"
+     ]
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "column_refs"
+  },
+  {
+   "name": "refs_blank_input_columns",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description",
+     "input_columns": [
+      "  "
+     ]
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "refs_formula_key",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description",
+     "formula": "{a}"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "column_refs"
+  },
+  {
+   "name": "structured_target",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "decision_makers"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "structured_target"
+  },
+  {
+   "name": "empty_chain",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "waterfall": [],
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "empty_chain"
+  },
+  {
+   "name": "default_chain_nondecl",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "non_declarative_provider"
+  },
+  {
+   "name": "nondecl_provider",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "hunter_io",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "non_declarative_provider"
+  },
+  {
+   "name": "mapping_not_target_only",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_two",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "mapping_not_target_only"
+  },
+  {
+   "name": "templated_authority",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_tmpl_auth",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "templated_authority"
+  },
+  {
+   "name": "literal_auth",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_literal",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "literal_auth_value"
+  },
+  {
+   "name": "extra_env",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_extra_env",
+     "target_field": "email",
+     "verify": false
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": false,
+   "reason": "manifest_extra_env"
+  },
+  {
+   "name": "noauth_ok",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_noauth",
+     "target_field": "company_size"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "target_from_lead_field",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "lead_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "target_from_id",
+   "flags": {},
+   "columns": [
+    {
+     "id": "description",
+     "type": "enrichment",
+     "provider": "m_desc"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "description"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "second_col_fails",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    },
+    {
+     "id": "b",
+     "type": "enrichment",
+     "provider": "hunter_io",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a",
+    "b"
+   ],
+   "ok": false,
+   "reason": "non_declarative_provider"
+  },
+  {
+   "name": "selected_subset",
+   "flags": {
+    "column_ids": [
+     "a"
+    ]
+   },
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "provider": "m_desc",
+     "target_field": "description"
+    },
+    {
+     "id": "b",
+     "type": "formula",
+     "formula": "1"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "provider_waterfall_precedence",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "waterfall",
+     "waterfall": [
+      "m_desc"
+     ],
+     "provider": "hunter_io",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  },
+  {
+   "name": "provider_zero_waterfall_null",
+   "flags": {},
+   "columns": [
+    {
+     "id": "a",
+     "type": "enrichment",
+     "waterfall": null,
+     "provider": "m_desc",
+     "target_field": "description"
+    }
+   ],
+   "workspace_id": "ws-1",
+   "column_ids": [
+    "a"
+   ],
+   "ok": true,
+   "reason": "ok"
+  }
+ ]
+}

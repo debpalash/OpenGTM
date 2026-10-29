@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "decision": "merge",
+      "pair_id": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "detail": "No candidate entity to merge"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

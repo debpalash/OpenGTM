@@ -25,10 +25,22 @@ interface AuthState {
   loading: boolean
   workspaces: AuthWorkspace[]
   activeWorkspaceId: string | null
+  /** First-run setup: null until GET /auth/setup/status answers. */
+  setupRequired: boolean | null
+  /** Whether the setup form must carry the SETUP_TOKEN printed in the API log. */
+  setupTokenRequired: boolean
   login: (username: string, password: string) => Promise<void>
+  completeSetup: (input: SetupInput) => Promise<void>
   logout: () => void
   switchWorkspace: (id: string) => Promise<void>
   refreshWorkspaces: () => Promise<void>
+}
+
+export interface SetupInput {
+  username: string
+  password: string
+  workspaceName?: string
+  setupToken?: string
 }
 
 const AuthContext = createContext<AuthState | null>(null)
@@ -44,6 +56,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   const [workspaces, setWorkspaces] = useState<AuthWorkspace[]>([])
   const [activeWorkspaceId, setActiveId] = useState<string | null>(getActiveWorkspace())
+  const [setupRequired, setSetupRequired] = useState<boolean | null>(null)
+  const [setupTokenRequired, setSetupTokenRequired] = useState(false)
 
   // Load the caller's workspaces and settle on an active one. The active id is
   // persisted to localStorage so the fetch interceptor can attach X-Workspace-Id
@@ -108,6 +122,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setWorkspaces([])
     })
     loadUser()
+    // Unreachable status endpoint: fall back to the normal login flow.
+    fetch("/auth/setup/status")
+      .then(res => (res.ok ? res.json() : null))
+      .then((data: { setup_required?: boolean; token_required?: boolean } | null) => {
+        setSetupRequired(data?.setup_required === true)
+        setSetupTokenRequired(data?.token_required === true)
+      })
+      .catch(() => setSetupRequired(false))
   }, [loadUser])
 
   const login = useCallback(async (username: string, password: string) => {
@@ -125,6 +147,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     const data = await res.json()
     setToken(data.access_token)
+    setLoading(true)
+    await loadUser()
+  }, [loadUser])
+
+  const completeSetup = useCallback(async (input: SetupInput) => {
+    const res = await fetch("/auth/setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        username: input.username,
+        password: input.password,
+        workspace_name: input.workspaceName || undefined,
+        setup_token: input.setupToken || undefined,
+      }),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      if (res.status === 409) setSetupRequired(false)
+      const detail = Array.isArray(err.detail) ? err.detail.map((d: { msg?: string }) => d.msg).filter(Boolean).join(" ") : err.detail
+      throw new Error(detail || "Setup failed")
+    }
+    const data = await res.json()
+    setToken(data.access_token)
+    setSetupRequired(false)
     setLoading(true)
     await loadUser()
   }, [loadUser])
@@ -160,8 +206,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user, loading, workspaces, activeWorkspaceId,
-        login, logout, switchWorkspace, refreshWorkspaces: loadWorkspaces,
+        user, loading: loading || setupRequired === null, workspaces, activeWorkspaceId,
+        setupRequired, setupTokenRequired, login, completeSetup, logout, switchWorkspace, refreshWorkspaces: loadWorkspaces,
       }}
     >
       {children}

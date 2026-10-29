@@ -1,0 +1,52 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "SALESFORCE_ACCESS_TOKEN": "   ",
+        "SALESFORCE_INSTANCE_URL": ""
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/integrations/salesforce"
+  },
+  "response": {
+    "body": {
+      "integration": {
+        "connected": true,
+        "description": "Push leads as Salesforce Lead records (upsert by email).",
+        "fields": [
+          {
+            "key": "SALESFORCE_INSTANCE_URL",
+            "label": "Instance URL",
+            "masked": "set",
+            "placeholder": "https://your.my.salesforce.com",
+            "secret": false,
+            "set": true,
+            "value": "https://contract.my.salesforce.com"
+          },
+          {
+            "key": "SALESFORCE_ACCESS_TOKEN",
+            "label": "Access Token",
+            "masked": "\u20269876",
+            "placeholder": "00D...",
+            "secret": true,
+            "set": true,
+            "value": ""
+          }
+        ],
+        "icon": "salesforce",
+        "id": "salesforce",
+        "name": "Salesforce"
+      },
+      "saved": [],
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": {
+      "role": "admin"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/governance/members/3"
+  },
+  "response": {
+    "body": {
+      "overrides": {
+        "agents.write": "deny"
+      },
+      "role": "admin",
+      "user_id": 3
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "seq": 8,
+  "profile": "writes",
+  "token": "write",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "method": "tools/call",
+    "params": {
+      "name": "create_lead",
+      "arguments": {
+        "company": "Newco",
+        "city": "Paris",
+        "idempotency_key": "k-create-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 8,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"duplicate\", \"idempotency_key\": \"k-create-1\", \"message\": \"already applied (idempotent replay)\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-write",
+      "user_id": 2,
+      "tool_name": "create_lead",
+      "arguments_redacted": {
+        "company": "Newco",
+        "city": "Paris",
+        "idempotency_key": "k-create-1"
+      },
+      "idempotency_key": null,
+      "result_status": "ok",
+      "error": "idempotent_replay",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {}
+}

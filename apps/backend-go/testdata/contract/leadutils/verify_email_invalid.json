@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "email": "invalid.box@example.com"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/verify-email"
+  },
+  "response": {
+    "body": {
+      "confidence": 0.9,
+      "deliverable": false,
+      "detail": "550 mailbox unavailable",
+      "email": "invalid.box@example.com",
+      "source": "smtp_probe",
+      "status": "invalid",
+      "valid": false
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "width": 300
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/nope/columns/company/width"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

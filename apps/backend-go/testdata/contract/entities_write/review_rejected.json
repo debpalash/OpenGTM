@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/entities/review-queue?status=rejected"
+  },
+  "response": {
+    "body": {
+      "pairs": [
+        {
+          "candidate": {
+            "canonical_name": "Zenith Corporation Ltd",
+            "id": "ent-w-2"
+          },
+          "entity_id": "ent-w-1",
+          "id": 3,
+          "reason": "grey_band",
+          "score": 0.8,
+          "status": "rejected"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

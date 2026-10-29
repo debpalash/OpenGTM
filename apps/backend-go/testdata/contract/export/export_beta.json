@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/export/csv"
+  },
+  "response": {
+    "body": "Company,Website,Email,Phone,City,State,Address,Specialization,Description,Industry Tags,Score,Tier,Status,Source,LinkedIn,Contact Person,Company Size,Employee Count,Founded Year,Technologies,Funding Stage,Revenue Range,Glassdoor Rating,Decision Makers,Secondary Emails,Secondary Phones,Notes\r\nInitech,https://initech.example.com,team@initech.example.com,,Pune,,,,,,,,new,contract,,,,,,,,,,,,,\r\nZenith Robotics Pvt Ltd,https://zenithrobotics.example.com,beta@zenithrobotics.example.com,,Mumbai,,,Robotics,,,70,warm,new,contract,,,,,,,,,,,,,\r\nInitech Two,https://initech2.example.com,,,Pune,,,,,,30,cold,new,contract,,,,,,,,,,,,,\r\n",
+    "headers": {
+      "content-type": "text/csv; charset=utf-8"
+    },
+    "status": 200
+  }
+}

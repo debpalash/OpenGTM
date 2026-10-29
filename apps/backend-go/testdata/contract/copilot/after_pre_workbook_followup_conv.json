@@ -1,0 +1,98 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/conv-ed-1"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "2026-08-29 09:00:00",
+        "id": "conv-ed-1",
+        "title": "Stripe partnership people",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "Find named people on Stripe's partnership team",
+          "conversation_id": "conv-ed-1",
+          "created_at": "2026-08-29 09:00:01",
+          "id": "msg-ed1-1",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "find_people_at_company result",
+          "conversation_id": "conv-ed-1",
+          "created_at": "2026-08-29 09:00:02",
+          "id": "msg-ed1-2",
+          "role": "tool",
+          "tool_data": "{\"name\":\"find_people_at_company\",\"result\":{\"ok\":true,\"company\":\"Stripe\",\"function\":\"partnership\",\"result_set_id\":\"people_seed_stripe_partnership\",\"people\":[{\"person_id\":\"person_seed_jane\",\"name\":\"Jane Partner\",\"title\":\"Vice President, Strategic Partnerships\",\"location\":\"San Francisco, CA\",\"retrieved_at\":\"2026-08-28T10:00:00Z\",\"confidence\":0.9,\"linkedin_url\":\"https://www.linkedin.com/in/jane-partner\",\"evidence_url\":\"https://evidence.example/jane-partner\"},{\"person_id\":\"person_seed_raj\",\"name\":\"Raj | Risky\",\"title\":\"Partnerships Manager\",\"location\":\"\",\"retrieved_at\":\"2026-08-28T10:01:00Z\",\"confidence\":0.74,\"linkedin_url\":\"\",\"evidence_url\":\"https://evidence.example/raj\"}],\"count\":2,\"candidates_rejected\":{\"company_relationship_missing\":3,\"function_evidence_missing\":1}}}"
+        },
+        {
+          "content": "I found **2 evidence-matched candidate(s)** for Stripe.",
+          "conversation_id": "conv-ed-1",
+          "created_at": "2026-08-29 09:00:02",
+          "id": "msg-ed1-3",
+          "role": "assistant",
+          "tool_data": null
+        },
+        {
+          "content": "thanks",
+          "conversation_id": "conv-ed-1",
+          "created_at": "2026-08-29 09:05:00",
+          "id": "msg-ed1-4",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "verify them",
+          "conversation_id": "conv-ed-1",
+          "created_at": "<volatile>",
+          "id": "00000460-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "verify_people_at_company result",
+          "conversation_id": "conv-ed-1",
+          "created_at": "<volatile>",
+          "id": "00000461-000",
+          "role": "tool",
+          "tool_data": "{\"name\": \"verify_people_at_company\", \"result\": {\"ok\": true, \"company\": \"Stripe\", \"function\": \"partnership\", \"people\": [{\"person_id\": \"person_seed_jane\", \"name\": \"Jane Partner\", \"title\": \"Vice President, Strategic Partnerships\", \"location\": \"San Francisco, CA\", \"retrieved_at\": \"2026-08-28T10:00:00Z\", \"confidence\": 0.9, \"linkedin_url\": \"https://www.linkedin.com/in/jane-partner\", \"evidence_url\": \"https://evidence.example/jane-partner\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.8, \"verification_sources\": [{\"url\": \"https://source.example/person_seed_jane\"}]}, {\"person_id\": \"person_seed_raj\", \"name\": \"Raj | Risky\", \"title\": \"Partnerships Manager\", \"location\": \"\", \"retrieved_at\": \"2026-08-28T10:01:00Z\", \"confidence\": 0.74, \"linkedin_url\": \"\", \"evidence_url\": \"https://evidence.example/raj\", \"verification_status\": \"independent_role_evidence\", \"verification_confidence\": 0.8, \"verification_sources\": [{\"url\": \"https://source.example/person_seed_raj\"}]}], \"count\": 2, \"summary\": {\"independent_role_evidence\": 2, \"profile_reconfirmed\": 0, \"not_corroborated\": 0}}}"
+        },
+        {
+          "content": "I re-checked **2 people** for **Stripe \u2014 partnership** using fresh public searches.\n\n| Person | Public title | Verification | Fresh evidence | Confidence |\n|---|---|---|---|---|\n| [Jane Partner](https://www.linkedin.com/in/jane-partner) | Vice President, Strategic Partnerships | Independent role evidence | [source 1](https://source.example/person_seed_jane) | 80% |\n| [Raj \\| Risky](https://evidence.example/raj) | Partnerships Manager | Independent role evidence | [source 1](https://source.example/person_seed_raj) | 80% |\n\n**Summary:** 2 with independent role evidence, 0 profile-reconfirmed, 0 not corroborated. \u201cNot corroborated\u201d is not a negative finding\u2014it means I did not find fresh supporting evidence. This verifies role evidence, not email or phone ownership.",
+          "conversation_id": "conv-ed-1",
+          "created_at": "<volatile>",
+          "id": "00000462-000",
+          "role": "assistant",
+          "tool_data": null
+        },
+        {
+          "content": "Save those people into a workbook",
+          "conversation_id": "conv-ed-1",
+          "created_at": "<volatile>",
+          "id": "00000463-000",
+          "role": "user",
+          "tool_data": null
+        },
+        {
+          "content": "I can create **Stripe \u2014 Partnership People** with the exact 2 people already stored in this conversation. This will not run a new lead search.",
+          "conversation_id": "conv-ed-1",
+          "created_at": "<volatile>",
+          "id": "00000466-000",
+          "role": "assistant",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

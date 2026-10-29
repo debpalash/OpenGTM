@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/watches?offset=500"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 100,
+      "next_cursor": null,
+      "offset": 500,
+      "watches": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,29 @@
+{
+ "area": "rss",
+ "scenario": "blocked_dns_error",
+ "description": "unresolvable host",
+ "input": {
+  "url": "https://feeds.example.com/news.xml",
+  "etag": null,
+  "last_modified": null,
+  "max_entries": null
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "feeds.example.com",
+    "error": "gaierror"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "status": 0,
+  "not_modified": false,
+  "etag": null,
+  "last_modified": null,
+  "error": "blocked_url: cannot resolve host: [Errno -2] Name or service not known",
+  "entries": []
+ }
+}

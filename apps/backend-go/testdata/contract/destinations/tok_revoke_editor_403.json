@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/audience-destinations/dst-act-salesforce/inbound-token"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: secrets.manage"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

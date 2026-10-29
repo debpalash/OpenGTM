@@ -1,0 +1,31 @@
+{
+ "description": "no max_jobs input -> provider default 5",
+ "http_status": 200,
+ "request": {
+  "call_id": "watch:w-1:fk-1:hiring_default_max_jobs:0",
+  "input": {
+   "company": "Acme"
+  },
+  "provider": "jobspy_signals",
+  "timeout_s": 10,
+  "workspace_id": "ws-1"
+ },
+ "response": {
+  "cost_usd": 0.0,
+  "error": null,
+  "output": {
+   "billing_evidence": null,
+   "confidence": 0.7,
+   "error": "",
+   "fields": {
+    "hiring_signals": "{\"total_jobs\": 10, \"growth_signal\": \"hypergrowth\", \"gtm_expansion\": true, \"tech_hiring\": true, \"roles\": [\"Senior Python Engineer\", \"Account Executive\", \"Sales Development Rep\", \"Data Engineer\", \"Partnerships Manager\"], \"score_boost\": 35, \"technologies\": [\"AWS\", \"HubSpot\", \"Kubernetes\", \"Outreach\", \"Python\", \"Salesforce\", \"Snowflake\", \"Terraform\", \"dbt\"], \"tech_adoption_signal\": [{\"tech\": \"AWS\", \"category\": \"Cloud & Infra\", \"intent\": \"expanding\"}, {\"tech\": \"HubSpot\", \"category\": \"CRM\", \"intent\": \"expanding\"}, {\"tech\": \"Kubernetes\", \"category\": \"Cloud & Infra\", \"intent\": \"expanding\"}, {\"tech\": \"Outreach\", \"category\": \"Competitor Tools\", \"intent\": \"expanding\"}, {\"tech\": \"Python\", \"category\": \"Languages\", \"intent\": \"expanding\"}, {\"tech\": \"Salesforce\", \"category\": \"CRM\", \"intent\": \"expanding\"}, {\"tech\": \"Snowflake\", \"category\": \"Data & Warehouse\", \"intent\": \"expanding\"}, {\"tech\": \"Terraform\", \"category\": \"Cloud & Infra\", \"intent\": \"expanding\"}, {\"tech\": \"dbt\", \"category\": \"Data & Warehouse\", \"intent\": \"expanding\"}], \"hiring_velocity\": {\"open_roles\": 10, \"recent_roles\": 0, \"recency_days\": null, \"level\": \"hypergrowth\"}}",
+    "technologies": "AWS, HubSpot, Kubernetes, Outreach, Python, Salesforce, Snowflake, Terraform, dbt"
+   },
+   "license": "unknown",
+   "provider": "jobspy_signals",
+   "success": true
+  },
+  "status": "ok"
+ },
+ "scenario": "hiring_default_max_jobs"
+}

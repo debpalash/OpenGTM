@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "DELETE",
+    "path": "/api/outreach/sequences/00000000-0000-4000-8000-000000001000"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace permission denied: outreach.write"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

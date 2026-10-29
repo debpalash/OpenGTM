@@ -1,0 +1,42 @@
+{
+  "seq": 64,
+  "profile": "read",
+  "token": "read",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 61,
+      "method": "initialize",
+      "params": {}
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 61,
+      "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+          "tools": {
+            "listChanged": false
+          }
+        },
+        "serverInfo": {
+          "name": "opengtm",
+          "version": "3.0.0"
+        }
+      }
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

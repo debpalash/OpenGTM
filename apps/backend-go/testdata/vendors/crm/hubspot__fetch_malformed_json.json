@@ -1,0 +1,38 @@
+{
+ "vendor": "hubspot",
+ "scenario": "fetch_malformed_json",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 5
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts?limit=5&properties=email%2Cfirstname%2Clastname%2Ccompany%2Cphone%2Cwebsite%2Cjobtitle",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "nope"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

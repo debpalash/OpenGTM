@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "merge_log_id": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/split"
+  },
+  "response": {
+    "body": {
+      "detail": "merge_log_not_found_or_reverted"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

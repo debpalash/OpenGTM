@@ -1,0 +1,1389 @@
+{
+ "now": "2026-06-15T12:00:00+00:00",
+ "rows": [
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "governance_audit_events",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "llm_usage_daily",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "signals",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "destination_deliveries",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "destination_inbound_receipts",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "audience_membership_events",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "playbook_results",
+   "ws": "wsB",
+   "age_days": 365.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 29.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 30.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 89.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 90.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 179.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 180.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 364.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsA",
+   "age_days": 365.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 29.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 30.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 89.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 90.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 179.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 180.1
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 364.9
+  },
+  {
+   "table": "outreach_sends",
+   "ws": "wsB",
+   "age_days": 365.1
+  }
+ ],
+ "cases": [
+  {
+   "name": "minimums",
+   "days": {
+    "audit": 90,
+    "llm_usage": 30,
+    "signals": 30,
+    "activation": 30,
+    "audience_history": 30,
+    "agent_results": 30,
+    "outreach_history": 30
+   },
+   "normalized": {
+    "audit": 90,
+    "llm_usage": 30,
+    "signals": 30,
+    "activation": 30,
+    "audience_history": 30,
+    "agent_results": 30,
+    "outreach_history": 30
+   },
+   "cutoffs": {
+    "governance_audit_events": "2026-03-17T12:00:00+00:00",
+    "llm_usage_daily": "2026-05-16",
+    "signals": 1778932800.0,
+    "destination_deliveries": "2026-05-16T12:00:00+00:00",
+    "destination_inbound_receipts": "2026-05-16T12:00:00+00:00",
+    "audience_membership_events": "2026-05-16T12:00:00+00:00",
+    "playbook_results": "2026-05-16T12:00:00+00:00",
+    "outreach_sends": "2026-05-16T12:00:00+00:00"
+   },
+   "expected": {
+    "UTC": {
+     "wsA": {
+      "audit": 5,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 14,
+      "audience_history": 7,
+      "agent_results": 7,
+      "outreach_history": 7
+     },
+     "wsB": {
+      "audit": 5,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 14,
+      "audience_history": 7,
+      "agent_results": 7,
+      "outreach_history": 7
+     }
+    },
+    "Asia/Kolkata": {
+     "wsA": {
+      "audit": 6,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 16,
+      "audience_history": 8,
+      "agent_results": 8,
+      "outreach_history": 7
+     },
+     "wsB": {
+      "audit": 6,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 16,
+      "audience_history": 8,
+      "agent_results": 8,
+      "outreach_history": 7
+     }
+    },
+    "America/New_York": {
+     "wsA": {
+      "audit": 4,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 12,
+      "audience_history": 6,
+      "agent_results": 6,
+      "outreach_history": 7
+     },
+     "wsB": {
+      "audit": 4,
+      "llm_usage": 6,
+      "signals": 7,
+      "activation": 12,
+      "audience_history": 6,
+      "agent_results": 6,
+      "outreach_history": 7
+     }
+    }
+   }
+  },
+  {
+   "name": "defaults",
+   "days": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   },
+   "normalized": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   },
+   "cutoffs": {
+    "governance_audit_events": "2025-06-15T12:00:00+00:00",
+    "llm_usage_daily": "2025-06-15",
+    "signals": 1749988800.0,
+    "destination_deliveries": "2025-12-17T12:00:00+00:00",
+    "destination_inbound_receipts": "2025-12-17T12:00:00+00:00",
+    "audience_membership_events": "2025-06-15T12:00:00+00:00",
+    "playbook_results": "2025-12-17T12:00:00+00:00",
+    "outreach_sends": "2025-06-15T12:00:00+00:00"
+   },
+   "expected": {
+    "UTC": {
+     "wsA": {
+      "audit": 1,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 6,
+      "audience_history": 1,
+      "agent_results": 3,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 1,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 6,
+      "audience_history": 1,
+      "agent_results": 3,
+      "outreach_history": 1
+     }
+    },
+    "Asia/Kolkata": {
+     "wsA": {
+      "audit": 2,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 8,
+      "audience_history": 2,
+      "agent_results": 4,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 2,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 8,
+      "audience_history": 2,
+      "agent_results": 4,
+      "outreach_history": 1
+     }
+    },
+    "America/New_York": {
+     "wsA": {
+      "audit": 0,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 4,
+      "audience_history": 0,
+      "agent_results": 2,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 0,
+      "llm_usage": 0,
+      "signals": 1,
+      "activation": 4,
+      "audience_history": 0,
+      "agent_results": 2,
+      "outreach_history": 1
+     }
+    }
+   }
+  },
+  {
+   "name": "mixed",
+   "days": {
+    "audit": 365,
+    "activation": 90,
+    "signals": 180
+   },
+   "normalized": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 180,
+    "activation": 90,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   },
+   "cutoffs": {
+    "governance_audit_events": "2025-06-15T12:00:00+00:00",
+    "llm_usage_daily": "2025-06-15",
+    "signals": 1765972800.0,
+    "destination_deliveries": "2026-03-17T12:00:00+00:00",
+    "destination_inbound_receipts": "2026-03-17T12:00:00+00:00",
+    "audience_membership_events": "2025-06-15T12:00:00+00:00",
+    "playbook_results": "2025-12-17T12:00:00+00:00",
+    "outreach_sends": "2025-06-15T12:00:00+00:00"
+   },
+   "expected": {
+    "UTC": {
+     "wsA": {
+      "audit": 1,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 10,
+      "audience_history": 1,
+      "agent_results": 3,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 1,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 10,
+      "audience_history": 1,
+      "agent_results": 3,
+      "outreach_history": 1
+     }
+    },
+    "Asia/Kolkata": {
+     "wsA": {
+      "audit": 2,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 12,
+      "audience_history": 2,
+      "agent_results": 4,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 2,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 12,
+      "audience_history": 2,
+      "agent_results": 4,
+      "outreach_history": 1
+     }
+    },
+    "America/New_York": {
+     "wsA": {
+      "audit": 0,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 8,
+      "audience_history": 0,
+      "agent_results": 2,
+      "outreach_history": 1
+     },
+     "wsB": {
+      "audit": 0,
+      "llm_usage": 0,
+      "signals": 3,
+      "activation": 8,
+      "audience_history": 0,
+      "agent_results": 2,
+      "outreach_history": 1
+     }
+    }
+   }
+  }
+ ],
+ "normalize": [
+  {
+   "in": {
+    "bogus": 1
+   },
+   "error": "unsupported retention categories: bogus"
+  },
+  {
+   "in": {
+    "zeta": 1,
+    "alpha": 2
+   },
+   "error": "unsupported retention categories: alpha, zeta"
+  },
+  {
+   "in": {
+    "audit": 89
+   },
+   "error": "audit retention must be 90..3650 days"
+  },
+  {
+   "in": {
+    "audit": 3651
+   },
+   "error": "audit retention must be 90..3650 days"
+  },
+  {
+   "in": {
+    "llm_usage": 29
+   },
+   "error": "llm_usage retention must be 30..3650 days"
+  },
+  {
+   "in": {
+    "outreach_history": 30
+   },
+   "out": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 30
+   }
+  },
+  {
+   "in": {
+    "audit": 90
+   },
+   "out": {
+    "audit": 90,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   }
+  },
+  {
+   "in": {
+    "signals": 3650
+   },
+   "out": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 3650,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   }
+  },
+  {
+   "in": {},
+   "out": {
+    "audit": 365,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   }
+  },
+  {
+   "in": {
+    "audit": 90.0
+   },
+   "out": {
+    "audit": 90,
+    "llm_usage": 365,
+    "signals": 365,
+    "activation": 180,
+    "audience_history": 365,
+    "agent_results": 180,
+    "outreach_history": 365
+   }
+  }
+ ],
+ "schedule": [
+  {
+   "tz": "UTC",
+   "scenario": "enabled",
+   "returned": "2026-06-16T12:00:00+00:00",
+   "policy_next_run_at": "2026-06-16T12:00:00",
+   "mirror": {
+    "enabled": true,
+    "next_run_at": "2026-06-16T12:00:00"
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2026-06-16",
+     "payload": {
+      "workspace_id": "wsSched",
+      "fire_key": "retention:wsSched:2026-06-16"
+     },
+     "executor": "python",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-06-16T12:00:00",
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  },
+  {
+   "tz": "UTC",
+   "scenario": "disabled",
+   "returned": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "enabled": false,
+    "next_run_at": null
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  },
+  {
+   "tz": "UTC",
+   "scenario": "hold",
+   "returned": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "enabled": false,
+    "next_run_at": null
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  },
+  {
+   "tz": "Asia/Kolkata",
+   "scenario": "enabled",
+   "returned": "2026-06-16T12:00:00+00:00",
+   "policy_next_run_at": "2026-06-16T17:30:00",
+   "mirror": {
+    "enabled": true,
+    "next_run_at": "2026-06-16T17:30:00"
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2026-06-16",
+     "payload": {
+      "workspace_id": "wsSched",
+      "fire_key": "retention:wsSched:2026-06-16"
+     },
+     "executor": "python",
+     "priority": 1,
+     "max_retries": 3,
+     "next_run_at": "2026-06-16T17:30:00",
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  },
+  {
+   "tz": "Asia/Kolkata",
+   "scenario": "disabled",
+   "returned": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "enabled": false,
+    "next_run_at": null
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  },
+  {
+   "tz": "Asia/Kolkata",
+   "scenario": "hold",
+   "returned": null,
+   "policy_next_run_at": null,
+   "mirror": {
+    "enabled": false,
+    "next_run_at": null
+   },
+   "jobs": [
+    {
+     "type": "retention_enforce",
+     "status": "cancelled",
+     "fire_key": "retention:wsSched:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "processing",
+     "fire_key": "retention:wsSched:2020-01-02",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "other",
+     "status": "pending",
+     "fire_key": "retention:wsSched:2020-01-03",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    },
+    {
+     "type": "retention_enforce",
+     "status": "pending",
+     "fire_key": "retention:wsSched2:2020-01-01",
+     "payload": {},
+     "executor": "python",
+     "priority": null,
+     "max_retries": null,
+     "next_run_at": null,
+     "workspace_id": null
+    }
+   ]
+  }
+ ]
+}

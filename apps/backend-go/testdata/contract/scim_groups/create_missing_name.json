@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "externalId": "x"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/scim/v2/alpha/Groups"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "externalId": "x"
+          },
+          "loc": [
+            "body",
+            "displayName"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

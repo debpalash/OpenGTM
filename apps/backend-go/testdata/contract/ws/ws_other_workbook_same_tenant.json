@@ -1,0 +1,27 @@
+{
+  "request": {
+    "as": "alice",
+    "path": "/api/workbooks/wb-alpha-2/ws",
+    "query": {
+      "token": "<redacted>",
+      "workspace_id": "ws-alpha"
+    },
+    "steps": [
+      {
+        "send": "{\"type\":\"ping\"}"
+      }
+    ],
+    "token": "login"
+  },
+  "response": {
+    "closed_by_server": null,
+    "handshake_status": 101,
+    "steps": [
+      {
+        "received": [
+          "{\"type\":\"pong\"}"
+        ]
+      }
+    ]
+  }
+}

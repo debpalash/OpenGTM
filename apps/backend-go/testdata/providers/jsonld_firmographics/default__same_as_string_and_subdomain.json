@@ -1,0 +1,49 @@
+{
+ "provider": "jsonld_firmographics",
+ "input_name": "default",
+ "scenario": "same_as_string_and_subdomain",
+ "input": {
+  "website": "https://www.acme.com/contact"
+ },
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [
+  {
+   "dns": {
+    "host": "www.acme.com",
+    "answers": [
+     "93.184.216.34"
+    ]
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.acme.com",
+    "headers": {
+     "accept": "text/html,application/xhtml+xml",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "text/html; charset=utf-8"
+    },
+    "body": "<script type=\"application/ld+json\">{\"@type\":\"Organization\",\"name\":\"A\",\"sameAs\":\"https://uk.linkedin.com/company/a\"}</script>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "jsonld_firmographics",
+  "success": true,
+  "fields": {
+   "company": "A",
+   "linkedin_url": "https://uk.linkedin.com/company/a"
+  },
+  "confidence": 0.85,
+  "error": ""
+ }
+}

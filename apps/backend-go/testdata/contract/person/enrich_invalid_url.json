@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "linkedin_url": "https://example.com/not-linkedin"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/person/enrich"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid LinkedIn URL. Expected format: https://www.linkedin.com/in/username"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

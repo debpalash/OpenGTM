@@ -1,0 +1,48 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/person/history"
+  },
+  "response": {
+    "body": [
+      {
+        "created_at": "2026-08-28T12:00:00",
+        "email_count": 2,
+        "headline": "Directrice des partenariats",
+        "id": 3,
+        "linkedin_url": "https://www.linkedin.com/in/\u00e9milie-d",
+        "name": "\u00c9milie D.",
+        "status": "completed",
+        "username": "\u00e9milie-d"
+      },
+      {
+        "created_at": "2026-08-28T12:00:00",
+        "email_count": 0,
+        "headline": "",
+        "id": 2,
+        "linkedin_url": "https://www.linkedin.com/in/raj-risky",
+        "name": "Raj Risky",
+        "status": "partial",
+        "username": "raj-risky"
+      },
+      {
+        "created_at": "2026-08-28T12:00:00",
+        "email_count": 1,
+        "headline": "VP Partnerships at Stripe",
+        "id": 1,
+        "linkedin_url": "https://www.linkedin.com/in/jane-partner",
+        "name": "Jane Partner",
+        "status": "completed",
+        "username": "jane-partner"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

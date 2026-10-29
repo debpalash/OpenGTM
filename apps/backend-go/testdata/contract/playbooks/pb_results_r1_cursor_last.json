@@ -1,0 +1,49 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/runs/run-gov-r1/results?limit=2&cursor=4"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 2,
+      "next_cursor": null,
+      "offset": null,
+      "results": [
+        {
+          "attempts": 2,
+          "created_at": "2030-02-01T10:04:00",
+          "error": null,
+          "id": 5,
+          "lead_id": 8,
+          "metadata": {
+            "completed_steps": 3,
+            "steps": [
+              {
+                "error": null,
+                "key": "research",
+                "metadata": {},
+                "name": "Research",
+                "success": true,
+                "value": "ok"
+              }
+            ],
+            "total_steps": 3
+          },
+          "run_id": "run-gov-r1",
+          "status": "success",
+          "updated_at": "2030-02-01T10:04:00",
+          "value": "Zenith sells robotics."
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

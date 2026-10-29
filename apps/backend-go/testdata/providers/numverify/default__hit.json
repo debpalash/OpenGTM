@@ -1,0 +1,41 @@
+{
+ "provider": "numverify",
+ "input_name": "default",
+ "scenario": "hit",
+ "input": {
+  "phone": "+1 (555) 010-0100"
+ },
+ "secrets": {
+  "NUMVERIFY_API_KEY": "ctk_numverify_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "http://apilayer.net/api/validate?access_key={{secret:NUMVERIFY_API_KEY}}&number=%2B15550100100&format=1",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"valid\":true,\"number\":\"15550100100\",\"local_format\":\"5550100100\",\"international_format\":\"+15550100100\",\"country_prefix\":\"+1\",\"country_code\":\"US\",\"country_name\":\"United States of America\",\"location\":\"Californ\",\"carrier\":\"ACME Wireless\",\"line_type\":\"mobile\"}"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "numverify",
+  "success": true,
+  "fields": {
+   "phone": "+15550100100",
+   "phone_carrier": "ACME Wireless",
+   "phone_line_type": "mobile"
+  },
+  "confidence": 0.9,
+  "error": ""
+ }
+}

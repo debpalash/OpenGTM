@@ -1,0 +1,71 @@
+{
+ "vendor": "sheets",
+ "scenario": "upsert_append_new",
+ "call": {
+  "function": "upsert_row",
+  "args": {
+   "spreadsheet_id": "sheet-contract-01",
+   "values": [
+    "Acme",
+    "x@y.com"
+   ],
+   "idempotency_key": "run-1:row-9"
+  }
+ },
+ "secrets": {
+  "GOOGLE_SHEETS_TOKEN": "ctk_sheets_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-contract-01/values/Sheet1%21A%3AZZ?majorDimension=ROWS",
+    "headers": {
+     "authorization": "Bearer {{secret:GOOGLE_SHEETS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"range\":\"Sheet1!A1:ZZ1000\",\"majorDimension\":\"ROWS\",\"values\":[[\"run-1:row-1\",\"Old\"],[\"run-1:row-2\"],[]]}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://sheets.googleapis.com/v4/spreadsheets/sheet-contract-01/values/Sheet1%21A%3AZZ:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS",
+    "headers": {
+     "authorization": "Bearer {{secret:GOOGLE_SHEETS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"values\":[[\"run-1:row-9\",\"Acme\",\"x@y.com\"]]}",
+    "json": {
+     "values": [
+      [
+       "run-1:row-9",
+       "Acme",
+       "x@y.com"
+      ]
+     ]
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"spreadsheetId\":\"sheet-contract-01\",\"updates\":{\"updatedRange\":\"Sheet1!A4:C4\"}}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "range": "Sheet1!A4:C4",
+  "operation": "appended"
+ }
+}

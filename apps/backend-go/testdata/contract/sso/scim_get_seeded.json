@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/scim-token"
+  },
+  "response": {
+    "body": {
+      "base_path": "/scim/v2/alpha",
+      "configured": true,
+      "created_at": 1788000000.0,
+      "created_by": 1,
+      "expired": false,
+      "expires_at": 4102444800.0,
+      "last_used_at": null,
+      "token_prefix": "og_scim_contract"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

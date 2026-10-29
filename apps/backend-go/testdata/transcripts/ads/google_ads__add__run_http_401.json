@@ -1,0 +1,145 @@
+{
+  "platform": "google_ads",
+  "operation": "add",
+  "scenario": "run_http_401",
+  "config": {
+    "customer_id": "1234567890",
+    "user_list_id": "9876543210",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "Ada@Example.com",
+      "phone": "+1 (512) 555-0014"
+    },
+    {
+      "email": " bob@example.com "
+    },
+    {
+      "phone": "+91 22 5550 1001"
+    },
+    {
+      "email": "no-identifiers-here",
+      "phone": "12"
+    }
+  ],
+  "http_exchanges": [
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs:create",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {
+          "job": {
+            "type": "CUSTOMER_MATCH_USER_LIST",
+            "customerMatchUserListMetadata": {
+              "userList": "customers/1234567890/userLists/9876543210",
+              "consent": {
+                "adUserData": "GRANTED",
+                "adPersonalization": "GRANTED"
+              }
+            }
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "resourceName": "customers/1234567890/offlineUserDataJobs/55"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs/55:addOperations",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {
+          "enablePartialFailure": true,
+          "operations": [
+            {
+              "create": {
+                "userIdentifiers": [
+                  {
+                    "hashedEmail": "b5fc85e55755f9e0d030a10ab4429b6b2944855f9a0d60077fe832becbc41d72"
+                  },
+                  {
+                    "hashedPhoneNumber": "a696cc8e59411a133ae216ed61f4993c097a6272e0eaab9c2d1017223c5d9514"
+                  }
+                ]
+              }
+            },
+            {
+              "create": {
+                "userIdentifiers": [
+                  {
+                    "hashedEmail": "5ff860bf1190596c7188ab851db691f0f3169c453936e9e1eba2f9a47f7a0018"
+                  }
+                ]
+              }
+            },
+            {
+              "create": {
+                "userIdentifiers": [
+                  {
+                    "hashedPhoneNumber": "c8c368aed27e08f0cdddd07e0a2565caf8eebe12327087d763d07926e823d4d5"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {}
+      }
+    },
+    {
+      "request": {
+        "method": "POST",
+        "url": "https://googleads.googleapis.com/v23/customers/1234567890/offlineUserDataJobs/55:run",
+        "headers": {
+          "authorization": "Bearer {{secret:GOOGLE_ADS_ACCESS_TOKEN}}",
+          "content-type": "application/json",
+          "developer-token": "{{secret:GOOGLE_ADS_DEVELOPER_TOKEN}}"
+        },
+        "json": {}
+      },
+      "response": {
+        "status": 401,
+        "headers": {
+          "content-type": "application/json"
+        },
+        "body": {
+          "error": {
+            "code": 401
+          }
+        }
+      }
+    }
+  ],
+  "unrouted_requests": [],
+  "raises": "RuntimeError: platform authorization or API approval required (401)"
+}

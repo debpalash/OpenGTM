@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "description": "d",
+      "name": "  Padded name  "
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:45.428136",
+      "description": "d",
+      "filters": {},
+      "id": "00000000-0000-4000-8000-000000002050",
+      "last_refresh_error": null,
+      "member_count": 15,
+      "name": "Padded name",
+      "next_refresh_at": "2026-10-26T18:05:45.466650",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:45.442502",
+      "updated_at": "2026-10-26T17:05:45.464403"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

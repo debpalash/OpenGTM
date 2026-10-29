@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "lead_id": 14
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/score"
+  },
+  "response": {
+    "body": {
+      "company": "Hot Pursuit Labs",
+      "lead_id": 14,
+      "score": 70,
+      "tier": "warm"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

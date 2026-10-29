@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/data?source_link_id=0&limit=2"
+  },
+  "response": {
+    "body": {
+      "items": [
+        {
+          "created_at": "2026-08-29T00:00:00.066660+00:00",
+          "email": "User60@Example.COM",
+          "id": 60,
+          "is_used": true,
+          "name": "Jos\u00e9 \u00c1lvarez",
+          "notes": "line one\nline two",
+          "source_link_id": 30,
+          "source_url": "https://source30.example.com/list",
+          "tags": null
+        },
+        {
+          "created_at": "2026-08-28T06:11:00+00:00",
+          "email": "User59@acme.io",
+          "id": 59,
+          "is_used": false,
+          "name": "Ana P\u00e9rez",
+          "notes": null,
+          "source_link_id": 29,
+          "source_url": "https://source29.example.com/list",
+          "tags": "prospect,vip"
+        }
+      ],
+      "total": 60
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

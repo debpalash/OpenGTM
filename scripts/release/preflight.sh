@@ -55,7 +55,7 @@ fi
 
 # 3. Required community files and lockfiles.
 echo "Required files"
-for f in LICENSE README.md SECURITY.md CONTRIBUTING.md CODE_OF_CONDUCT.md .env.example uv.lock bun.lock apps/docs/openapi/openapi.json; do
+for f in LICENSE README.md SECURITY.md CONTRIBUTING.md CODE_OF_CONDUCT.md .env.example apps/browser-service/uv.lock apps/web/bun.lock apps/docs/openapi/openapi.json; do
   if printf '%s\n' "$files" | grep -qx "$f"; then ok "$f"; else bad "missing $f"; fi
 done
 
@@ -63,7 +63,7 @@ done
 #    Paths that never ship (public-exclude.txt) are skipped so the sweep reflects
 #    what the public snapshot will contain.
 echo "Secret sweep"
-skip=(':!uv.lock' ':!bun.lock')
+skip=(':!*uv.lock' ':!*bun.lock')
 while IFS= read -r spec; do
   case "$spec" in ''|'#'*) continue ;; esac
   skip+=(":!$spec")

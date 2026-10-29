@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": {
+      "action": "scrape_website",
+      "lead_ids": [
+        14
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/bulk-enrich"
+  },
+  "response": {
+    "body": {
+      "action": "scrape_website",
+      "count": 1,
+      "job_id": "d38afed6864c4beb923b2b93cb94e887",
+      "ok": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

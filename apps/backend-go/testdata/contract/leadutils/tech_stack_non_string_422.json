@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": {
+      "domain": 5
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/tech-stack"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": 5,
+          "loc": [
+            "body",
+            "domain"
+          ],
+          "msg": "Input should be a valid string",
+          "type": "string_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

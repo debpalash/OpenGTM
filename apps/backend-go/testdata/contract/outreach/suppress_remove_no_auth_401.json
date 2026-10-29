@@ -1,0 +1,18 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "DELETE",
+    "path": "/api/outreach/suppressions/bounced-user%40example.com"
+  },
+  "response": {
+    "body": {
+      "detail": "Not authenticated"
+    },
+    "headers": {
+      "content-type": "application/json",
+      "www-authenticate": "Bearer"
+    },
+    "status": 401
+  }
+}

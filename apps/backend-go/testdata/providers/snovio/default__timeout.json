@@ -1,0 +1,43 @@
+{
+ "provider": "snovio",
+ "input_name": "default",
+ "scenario": "timeout",
+ "input": {
+  "company": "Acme Inc",
+  "website": "https://acme.com"
+ },
+ "secrets": {
+  "SNOVIO_CLIENT_ID": "ctk_snov_id_0001",
+  "SNOVIO_CLIENT_SECRET": "ctk_snov_secret_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.snov.io/v1/oauth/access_token",
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"grant_type\":\"client_credentials\",\"client_id\":\"{{secret:SNOVIO_CLIENT_ID}}\",\"client_secret\":\"{{secret:SNOVIO_CLIENT_SECRET}}\"}",
+    "json": {
+     "grant_type": "client_credentials",
+     "client_id": "{{secret:SNOVIO_CLIENT_ID}}",
+     "client_secret": "{{secret:SNOVIO_CLIENT_SECRET}}"
+    }
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "simulated read timeout"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "snovio",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "simulated read timeout"
+ }
+}

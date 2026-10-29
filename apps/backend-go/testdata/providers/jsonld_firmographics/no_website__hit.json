@@ -1,0 +1,17 @@
+{
+ "provider": "jsonld_firmographics",
+ "input_name": "no_website",
+ "scenario": "hit",
+ "input": {},
+ "secrets": {},
+ "config": {},
+ "http_exchanges": [],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "jsonld_firmographics",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "no_website"
+ }
+}

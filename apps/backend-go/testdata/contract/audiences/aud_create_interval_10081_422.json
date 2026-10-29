@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "name": "Bad",
+      "refresh_interval_minutes": 10081
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "le": 10080
+          },
+          "input": 10081,
+          "loc": [
+            "body",
+            "refresh_interval_minutes"
+          ],
+          "msg": "Input should be less than or equal to 10080",
+          "type": "less_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

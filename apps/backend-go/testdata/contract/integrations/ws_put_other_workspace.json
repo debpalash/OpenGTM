@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "values": {
+        "HUBSPOT_TOKEN": "nope-token-0000"
+      }
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/workspace-integrations/hubspot?workspace_id=ws-missing"
+  },
+  "response": {
+    "body": {
+      "detail": "Not a member of this workspace"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

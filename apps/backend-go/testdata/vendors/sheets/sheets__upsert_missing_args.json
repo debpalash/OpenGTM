@@ -1,0 +1,23 @@
+{
+ "vendor": "sheets",
+ "scenario": "upsert_missing_args",
+ "call": {
+  "function": "upsert_row",
+  "args": {
+   "spreadsheet_id": "",
+   "values": [
+    "a"
+   ],
+   "idempotency_key": "k"
+  }
+ },
+ "secrets": {
+  "GOOGLE_SHEETS_TOKEN": "ctk_sheets_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "spreadsheet_id and idempotency_key are required"
+ }
+}

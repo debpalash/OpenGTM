@@ -1,0 +1,13 @@
+{
+  "name": "gmail_dsn_mailbox_full_soft",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "smtp; 452-4.2.2 The email account that you tried to reach is over quota.",
+      "kind": "soft",
+      "original_message_id": "<orig-0003@contract.example.com>",
+      "recipient": "full@example.org"
+    }
+  ],
+  "source_message_id": "<dsn-0003@mx.example.net>"
+}

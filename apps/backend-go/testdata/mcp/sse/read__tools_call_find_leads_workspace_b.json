@@ -1,0 +1,44 @@
+{
+  "seq": 72,
+  "profile": "read",
+  "token": "workspace_b",
+  "request": {
+    "method": "POST",
+    "path": "/message",
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 69,
+      "method": "tools/call",
+      "params": {
+        "name": "find_leads",
+        "arguments": {
+          "query": ""
+        }
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "jsonrpc": "2.0",
+      "id": 69,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"leads\": [\n    {\n      \"id\": 8,\n      \"company\": \"Hooli\",\n      \"city\": \"Palo Alto\",\n      \"email\": \"press@hooli.example.com\",\n      \"phone\": \"\",\n      \"score\": 90,\n      \"tier\": \"hot\",\n      \"status\": \"new\",\n      \"website\": \"https://hooli.example.com\",\n      \"specialization\": \"Software\",\n      \"company_size\": \"1000+\",\n      \"contact_person\": \"\"\n    },\n    {\n      \"id\": 7,\n      \"company\": \"Initech\",\n      \"city\": \"Pune\",\n      \"email\": \"team@initech.example.com\",\n      \"phone\": \"\",\n      \"score\": 70,\n      \"tier\": \"warm\",\n      \"status\": \"new\",\n      \"website\": \"https://initech.example.com\",\n      \"specialization\": \"Software\",\n      \"company_size\": \"51-200\",\n      \"contact_person\": \"Bill Lumbergh\"\n    }\n  ],\n  \"count\": 2\n}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

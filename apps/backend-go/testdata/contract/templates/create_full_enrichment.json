@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/templates/full-enrichment/create"
+  },
+  "response": {
+    "body": {
+      "columns_count": 24,
+      "enrichment_columns_count": 5,
+      "id": "2df3beb4-ba18-4828-a1fc-f1f8bc90f386",
+      "name": "Full Enrichment Pipeline",
+      "template": "full-enrichment"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

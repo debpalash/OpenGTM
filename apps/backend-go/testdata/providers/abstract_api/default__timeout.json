@@ -1,0 +1,34 @@
+{
+ "provider": "abstract_api",
+ "input_name": "default",
+ "scenario": "timeout",
+ "input": {
+  "email": "ada@acme.com"
+ },
+ "secrets": {
+  "ABSTRACT_API_KEY": "ctk_abstract_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://emailvalidation.abstractapi.com/v1?api_key={{secret:ABSTRACT_API_KEY}}&email=ada%40acme.com",
+    "headers": {},
+    "body": ""
+   },
+   "response": {
+    "raises": "ReadTimeout",
+    "message": "simulated read timeout"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "abstract_api",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "simulated read timeout"
+ }
+}

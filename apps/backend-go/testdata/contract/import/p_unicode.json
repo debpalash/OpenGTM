@@ -1,0 +1,69 @@
+{
+  "request": {
+    "body": {
+      "rows": [
+        {
+          "stra\u00dfe": "d",
+          "\u00dcnicode Field": "f",
+          "\u00dcn\u00efcode F\u00efeld": "a",
+          "\u0130stanbul": "c",
+          "\u0391\u03a3": "e",
+          "\u65e5\u672c\u8a9e": "b"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-alpha-1/import/preview"
+  },
+  "response": {
+    "body": {
+      "collisions": [],
+      "columns_created": [
+        "\u00dcn\u00efcode F\u00efeld",
+        "\u65e5\u672c\u8a9e",
+        "\u0130stanbul",
+        "stra\u00dfe",
+        "\u0391\u03a3",
+        "\u00dcnicode Field"
+      ],
+      "custom_columns": [
+        "stra\u00dfe",
+        "\u00dcnicode Field",
+        "\u00dcn\u00efcode F\u00efeld",
+        "\u0130stanbul",
+        "\u0391\u03a3",
+        "\u65e5\u672c\u8a9e"
+      ],
+      "detection_reason": "none",
+      "headers": [
+        "\u00dcn\u00efcode F\u00efeld",
+        "\u65e5\u672c\u8a9e",
+        "\u0130stanbul",
+        "stra\u00dfe",
+        "\u0391\u03a3",
+        "\u00dcnicode Field"
+      ],
+      "importable_rows": 1,
+      "input_rows": 1,
+      "mapped_standard": [],
+      "mapping": {
+        "stra\u00dfe": "stra_e",
+        "\u00dcnicode Field": "nicode_field",
+        "\u00dcn\u00efcode F\u00efeld": "n_code_f_eld",
+        "\u0130stanbul": "i_stanbul",
+        "\u0391\u03a3": "imported_column_2",
+        "\u65e5\u672c\u8a9e": "imported_column"
+      },
+      "skipped_columns": [],
+      "source_system": "generic"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

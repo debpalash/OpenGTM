@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf",
+        "summary"
+      ],
+      "expected_column_ids": [
+        "company",
+        "website",
+        "email",
+        "city",
+        "phone",
+        "email_wf",
+        "summary"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/nope/columns/order"
+  },
+  "response": {
+    "body": {
+      "detail": "Workbook not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

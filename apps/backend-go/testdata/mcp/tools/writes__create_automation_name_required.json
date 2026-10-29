@@ -1,0 +1,61 @@
+{
+  "seq": 63,
+  "profile": "writes",
+  "token": "admin",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 63,
+    "method": "tools/call",
+    "params": {
+      "name": "create_automation",
+      "arguments": {
+        "name": "  ",
+        "trigger_type": "on_signal"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 63,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"error\": \"name is required\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-alpha",
+      "token_id": "mcpt-admin",
+      "user_id": 1,
+      "tool_name": "create_automation",
+      "arguments_redacted": {
+        "name": "  ",
+        "trigger_type": "on_signal"
+      },
+      "idempotency_key": null,
+      "result_status": "error",
+      "error": "name is required",
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 46,
+          "state": "released",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-alpha",
+          "idempotency_key": "mcpw_0000000000004000800000000000006b",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

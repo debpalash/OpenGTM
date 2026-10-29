@@ -1,0 +1,59 @@
+{
+  "seq": 58,
+  "profile": "writes",
+  "token": "workspace_b",
+  "request": {
+    "jsonrpc": "2.0",
+    "id": 58,
+    "method": "tools/call",
+    "params": {
+      "name": "delete_workbook",
+      "arguments": {
+        "workbook_id": "wb-alpha-1"
+      }
+    }
+  },
+  "response": {
+    "jsonrpc": "2.0",
+    "id": 58,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"status\": \"not_found\", \"workbook_id\": \"wb-alpha-1\"}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "audit": [
+    {
+      "workspace_id": "ws-beta",
+      "token_id": "mcpt-wsb",
+      "user_id": 4,
+      "tool_name": "delete_workbook",
+      "arguments_redacted": {
+        "workbook_id": "wb-alpha-1"
+      },
+      "idempotency_key": "mcpw_00000000000040008000000000000061",
+      "result_status": "ok",
+      "error": null,
+      "estimated_cost_usd": 0.0
+    }
+  ],
+  "effects": {
+    "trigger_cap_reservations": {
+      "added": [
+        {
+          "id": 42,
+          "state": "settled",
+          "trigger_id": "__mcp_write__",
+          "reserved_usd": 0,
+          "workspace_id": "ws-beta",
+          "idempotency_key": "mcpw_00000000000040008000000000000061",
+          "reserved_actions": 1
+        }
+      ]
+    }
+  }
+}

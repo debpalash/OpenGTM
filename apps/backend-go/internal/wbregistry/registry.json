@@ -1,0 +1,3667 @@
+{
+  "column_types": {
+    "lead_field": {
+      "description": "Mapped to a Lead field (editable, writes back to Lead)",
+      "icon": "Type",
+      "editable": true,
+      "has_config": false
+    },
+    "source": {
+      "description": "Materializes NEW rows from the source engine via an ICP query",
+      "icon": "Radar",
+      "editable": false,
+      "has_config": true,
+      "emits_rows": true
+    },
+    "enrichment": {
+      "description": "Single provider enrichment",
+      "icon": "Sparkles",
+      "editable": false,
+      "has_config": true
+    },
+    "waterfall": {
+      "description": "Chain of providers with fallback",
+      "icon": "Layers",
+      "editable": false,
+      "has_config": true
+    },
+    "ai_formula": {
+      "description": "LLM-powered transformation",
+      "icon": "Brain",
+      "editable": false,
+      "has_config": true
+    },
+    "agent": {
+      "description": "Goal-directed enrichment — agent picks tools dynamically, with a reasoning trace",
+      "icon": "Bot",
+      "editable": false,
+      "has_config": true
+    },
+    "conditional": {
+      "description": "Only runs if condition is met",
+      "icon": "GitBranch",
+      "editable": false,
+      "has_config": true
+    },
+    "output": {
+      "description": "Push to CRM, sequencer, webhook",
+      "icon": "Send",
+      "editable": false,
+      "has_config": true
+    },
+    "research": {
+      "description": "Web-research agent — browses to answer a question per row",
+      "icon": "Globe",
+      "editable": false,
+      "has_config": true
+    },
+    "http": {
+      "description": "Call any HTTP API per row and extract a value via JSONPath",
+      "icon": "Webhook",
+      "editable": false,
+      "has_config": true
+    },
+    "formula": {
+      "description": "Compute a value from other columns with a safe expression (e.g. {Email}.split(\"@\")[1])",
+      "icon": "Calculator",
+      "editable": false,
+      "has_config": true
+    }
+  },
+  "lead_fields": [
+    "company",
+    "website",
+    "email",
+    "phone",
+    "contact_person",
+    "contact_title",
+    "city",
+    "state",
+    "address",
+    "specialization",
+    "company_size",
+    "company_size_basis",
+    "description",
+    "linkedin_url",
+    "twitter_url",
+    "facebook_url",
+    "score",
+    "score_tier",
+    "status",
+    "source",
+    "notes",
+    "email_confidence",
+    "industry_tags",
+    "hiring_signals",
+    "decision_makers",
+    "founding_year",
+    "funding_stage",
+    "last_funding_amount",
+    "investors",
+    "recent_news",
+    "google_rating",
+    "technologies",
+    "technographics",
+    "email_verify",
+    "email_presence",
+    "secondary_emails",
+    "revenue_estimate"
+  ],
+  "ai_presets": {
+    "presets": [
+      {
+        "id": "icp_fit_score",
+        "name": "ICP Fit Score (0-100)",
+        "category": "qualification",
+        "column_type": "ai_formula",
+        "output_format": "number",
+        "description": "Score how well a company matches your ICP. Number only — easy to sort/filter.",
+        "prompt": "ROLE: You are a B2B sales qualification analyst.\nCONTEXT: Company: {company}. Website: {website}. City: {city}. Size: {company_size}. Description: {description}.\nTASK: Score 0-100 how well this company fits an ICP of mid-market B2B companies that would buy sales-intelligence software. Weight: firmographic fit 40, buying-signal/intent 25, technographic fit 20, trigger events 15.\nFORMAT: Output ONLY the integer score (0-100). No words, no symbols.\nFALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA."
+      },
+      {
+        "id": "company_pain",
+        "name": "Likely Pain Points",
+        "category": "research",
+        "column_type": "ai_formula",
+        "output_format": "text",
+        "description": "Infer the company's most likely operational pain points from its profile.",
+        "prompt": "ROLE: You are a B2B growth strategist.\nCONTEXT: Company: {company} ({website}). What they do: {description}. Size: {company_size}.\nTASK: Identify the 2 most likely operational pain points this specific company faces, grounded in their business model and size — not generic platitudes.\nFORMAT: Two short bullet points, max 12 words each.\nFALLBACK: If the profile is too thin to infer real pains, output INSUFFICIENT_DATA."
+      },
+      {
+        "id": "opening_line",
+        "name": "Personalized Opening Line",
+        "category": "personalization",
+        "column_type": "ai_formula",
+        "output_format": "text",
+        "description": "A one-sentence cold-email opener referencing something specific about the company.",
+        "prompt": "ROLE: You are an expert cold-email copywriter.\nCONTEXT: Company: {company}. About: {description}. City: {city}. Website: {website}.\nTASK: Write ONE personalized opening line for a cold email that references something specific and true about this company. No flattery, no 'I came across your company'.\nFORMAT: One sentence, max 20 words, plain text.\nFALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA."
+      },
+      {
+        "id": "seniority_tier",
+        "name": "Contact Seniority Tier",
+        "category": "qualification",
+        "column_type": "ai_formula",
+        "output_format": "text",
+        "description": "Classify a contact's seniority from their title — one word, easy to filter.",
+        "prompt": "ROLE: You classify B2B contact seniority.\nCONTEXT: Contact: {contact_person}. Title: {contact_title}. Company: {company}.\nTASK: Classify the seniority tier of this contact.\nFORMAT: Output exactly one of: C_SUITE, VP, DIRECTOR, MANAGER, IC, UNKNOWN. Nothing else.\nFALLBACK: If there is no title, output UNKNOWN."
+      },
+      {
+        "id": "company_one_liner",
+        "name": "Company One-Liner",
+        "category": "research",
+        "column_type": "ai_formula",
+        "output_format": "text",
+        "description": "A crisp one-sentence description of what the company does.",
+        "prompt": "ROLE: You write crisp company descriptions.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: In one sentence, state what this company does and who they serve.\nFORMAT: One sentence, max 25 words, no marketing fluff.\nFALLBACK: If you don't know what they do, output INSUFFICIENT_DATA."
+      },
+      {
+        "id": "tech_stack_research",
+        "name": "Tech-Stack Detection (web research)",
+        "category": "research",
+        "column_type": "research",
+        "output_format": "text",
+        "description": "Research the company's website/job posts to detect their tech stack.",
+        "prompt": "ROLE: You are a technographic researcher.\nCONTEXT: Company: {company}. Website: {website}.\nTASK: Search the company's site and job postings to determine the key technologies they use (languages, frameworks, cloud, major SaaS tools). Only report tech you find concrete evidence for — never guess.\nFORMAT: Comma-separated list of technologies.\nFALLBACK: If you find no concrete tech evidence, output INSUFFICIENT_DATA."
+      },
+      {
+        "id": "account_brief",
+        "name": "3-Bullet Account Brief",
+        "category": "research",
+        "column_type": "research",
+        "output_format": "text",
+        "description": "A short pre-call account brief: what they do, a recent signal, and an angle.",
+        "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2."
+      }
+    ],
+    "categories": [
+      "personalization",
+      "qualification",
+      "research"
+    ]
+  },
+  "providers": [
+    {
+      "name": "mailscout",
+      "capabilities": [
+        "email",
+        "email_confidence"
+      ],
+      "confidence": 0.95,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "crosslinked",
+      "capabilities": [
+        "decision_makers",
+        "contact_person",
+        "contact_title"
+      ],
+      "confidence": 0.6,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "facebook_pages",
+      "capabilities": [
+        "phone",
+        "email",
+        "address"
+      ],
+      "confidence": 0.5,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "ats_hiring",
+      "capabilities": [
+        "hiring_signals",
+        "open_roles"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "jobspy",
+      "capabilities": [
+        "hiring_signals",
+        "technologies"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "hunter_io",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "apollo_io",
+      "capabilities": [
+        "email",
+        "phone",
+        "contact_person",
+        "contact_title",
+        "linkedin_url",
+        "company_size"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "abstract_api",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "ddg_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.6,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "website_scraper",
+      "capabilities": [
+        "email",
+        "phone",
+        "description",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url"
+      ],
+      "confidence": 0.65,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "social_finder",
+      "capabilities": [
+        "linkedin_url",
+        "twitter_url"
+      ],
+      "confidence": 0.55,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "decision_maker",
+      "capabilities": [
+        "contact_person",
+        "contact_title",
+        "decision_makers",
+        "linkedin_url"
+      ],
+      "confidence": 0.5,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "ddg_company",
+      "capabilities": [
+        "website",
+        "phone",
+        "email",
+        "description"
+      ],
+      "confidence": 0.5,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "numverify",
+      "capabilities": [
+        "phone_verify",
+        "phone_carrier",
+        "phone_line_type"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "ipinfo",
+      "capabilities": [
+        "company_data",
+        "org",
+        "location",
+        "asn"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "lead_scorer",
+      "capabilities": [
+        "score",
+        "score_tier"
+      ],
+      "confidence": 0.95,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "tech_stack",
+      "capabilities": [
+        "technologies"
+      ],
+      "confidence": 0.75,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "snovio",
+      "capabilities": [
+        "email",
+        "contact_person",
+        "contact_title"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "people_data_labs",
+      "capabilities": [
+        "email",
+        "phone",
+        "contact_person",
+        "contact_title",
+        "linkedin_url",
+        "company_size",
+        "industry_tags",
+        "description"
+      ],
+      "confidence": 0.88,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "prospeo",
+      "capabilities": [
+        "email",
+        "email_verify"
+      ],
+      "confidence": 0.82,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "deep_scraper",
+      "capabilities": [
+        "email",
+        "phone",
+        "description",
+        "company_size",
+        "founding_year",
+        "industry_tags",
+        "address",
+        "contact_person",
+        "contact_title",
+        "decision_makers",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "google_maps",
+      "capabilities": [
+        "phone",
+        "address",
+        "description",
+        "industry_tags",
+        "company_size"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "debounce",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.92,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "holehe",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "email_harvester",
+      "capabilities": [
+        "email",
+        "contact_person"
+      ],
+      "confidence": 0.72,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "company_intel",
+      "capabilities": [
+        "company_size",
+        "industry_tags",
+        "description",
+        "founding_year"
+      ],
+      "confidence": 0.68,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "local_business",
+      "capabilities": [
+        "phone",
+        "address",
+        "industry_tags"
+      ],
+      "confidence": 0.65,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "jsonld_firmographics",
+      "capabilities": [
+        "company",
+        "address",
+        "phone",
+        "email",
+        "city",
+        "state",
+        "founded_year",
+        "founding_year",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url",
+        "description"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "staffspy",
+      "capabilities": [
+        "decision_makers",
+        "contact_person",
+        "contact_title"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "wikidata",
+      "capabilities": [
+        "description",
+        "website",
+        "industry_tags",
+        "founded_year",
+        "company_size",
+        "address",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url"
+      ],
+      "confidence": 0.6,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "mca_registry",
+      "capabilities": [
+        "address",
+        "founded_year",
+        "industry_tags",
+        "description"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "sec_edgar",
+      "capabilities": [
+        "funding_amount",
+        "funding_date",
+        "funding_stage_signal",
+        "decision_makers",
+        "industry",
+        "sec_cik"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companies_house",
+      "capabilities": [
+        "decision_makers",
+        "contact_person",
+        "contact_title",
+        "address",
+        "founded_year"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "gleif",
+      "capabilities": [
+        "lei",
+        "legal_name",
+        "country",
+        "city",
+        "region",
+        "entity_status",
+        "registration_authority",
+        "jurisdiction",
+        "parent_lei",
+        "ultimate_parent_lei",
+        "ultimate_parent_name",
+        "corporate_hierarchy"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "leadmagic_company",
+      "capabilities": [
+        "company_size",
+        "description"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "leadmagic_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "leadmagic_mobile",
+      "capabilities": [
+        "mobile_phone",
+        "phone"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "prospeo_mobile",
+      "capabilities": [
+        "mobile_phone"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    }
+  ],
+  "recipes": {
+    "categories": {
+      "list-building": {
+        "label": "List Building",
+        "icon": "radar",
+        "color": "text-blue-400"
+      },
+      "crm-hygiene": {
+        "label": "CRM Hygiene",
+        "icon": "sparkles",
+        "color": "text-emerald-400"
+      },
+      "outbound": {
+        "label": "Outbound",
+        "icon": "send",
+        "color": "text-violet-400"
+      },
+      "research": {
+        "label": "Research",
+        "icon": "search",
+        "color": "text-amber-400"
+      },
+      "signals": {
+        "label": "Signals",
+        "icon": "activity",
+        "color": "text-rose-400"
+      }
+    },
+    "items": [
+      {
+        "slug": "backfill-missing-fields",
+        "name": "Backfill missing CRM fields",
+        "description": "Fill the holes in an existing list — phone, LinkedIn, description and website are only enriched where they're empty, so good data is never overwritten.",
+        "category": "crm-hygiene",
+        "icon": "paintbrush",
+        "workbook": {
+          "description": "Every waterfall here carries a condition like '{phone} == \"\"' so it runs ONLY on rows missing that field. Import your CRM export and run all columns; existing values are left untouched.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "phone",
+              "name": "Phone (fill gaps)",
+              "type": "waterfall",
+              "target_field": "phone",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "local_business"
+              ],
+              "condition": "{phone} == \"\"",
+              "width": 160
+            },
+            {
+              "id": "linkedin",
+              "name": "LinkedIn (fill gaps)",
+              "type": "waterfall",
+              "target_field": "linkedin_url",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "website_scraper",
+                "social_finder",
+                "wikidata"
+              ],
+              "condition": "{linkedin_url} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "about",
+              "name": "Description (fill gaps)",
+              "type": "waterfall",
+              "target_field": "description",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "ddg_company",
+                "wikidata"
+              ],
+              "condition": "{description} == \"\"",
+              "width": 280
+            },
+            {
+              "id": "email",
+              "name": "Email (fill gaps)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            }
+          ]
+        }
+      },
+      {
+        "slug": "cold-email-personalization",
+        "name": "Cold email personalization at scale",
+        "description": "Turn a raw list into sequence-ready rows: a verified email, two likely pain points, and a personalized opening line for every company.",
+        "category": "outbound",
+        "icon": "pen-line",
+        "workbook": {
+          "description": "Run the email waterfall first, then the AI columns. Rows that come back INSUFFICIENT_DATA are easy to filter out before enrolling the rest into a sequence with the output column (configure your sequencer in Settings).",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email",
+                "hunter_io"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "pains",
+              "name": "Likely pain points",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You are a B2B growth strategist.\nCONTEXT: Company: {company} ({website}). What they do: {description}. Size: {company_size}.\nTASK: Identify the 2 most likely operational pain points this specific company faces, grounded in their business model and size — not generic platitudes.\nFORMAT: Two short bullet points, max 12 words each.\nFALLBACK: If the profile is too thin to infer real pains, output INSUFFICIENT_DATA.",
+              "width": 280
+            },
+            {
+              "id": "opener",
+              "name": "Opening line",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You are an expert cold-email copywriter.\nCONTEXT: Company: {company}. About: {description}. City: {city}. Website: {website}.\nTASK: Write ONE personalized opening line for a cold email that references something specific and true about this company. No flattery, no 'I came across your company'.\nFORMAT: One sentence, max 20 words, plain text.\nFALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA.",
+              "width": 300
+            },
+            {
+              "id": "enroll",
+              "name": "Enroll in sequence",
+              "type": "output",
+              "destination": "sequencer",
+              "width": 160
+            }
+          ]
+        }
+      },
+      {
+        "slug": "competitor-battlecards",
+        "name": "Competitor battlecards",
+        "description": "Turn a list of competitors into battlecards: positioning, detected tech stack, headcount, and a researched strengths/weaknesses summary per company.",
+        "category": "research",
+        "icon": "swords",
+        "workbook": {
+          "description": "Add competitor names + websites as rows. Waterfalls pull firmographics; the research column browses each competitor's site and reviews to build a strengths / weaknesses / pricing-notes card.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Competitor",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "about",
+              "name": "Positioning",
+              "type": "waterfall",
+              "target_field": "description",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "ddg_company",
+                "wikidata"
+              ],
+              "width": 280
+            },
+            {
+              "id": "headcount",
+              "name": "Headcount",
+              "type": "waterfall",
+              "target_field": "company_size",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "company_intel",
+                "wikidata"
+              ],
+              "width": 140
+            },
+            {
+              "id": "tech",
+              "name": "Tech stack",
+              "type": "waterfall",
+              "target_field": "technologies",
+              "waterfall": [
+                "tech_stack"
+              ],
+              "width": 220
+            },
+            {
+              "id": "battlecard",
+              "name": "Battlecard",
+              "type": "research",
+              "output_format": "text",
+              "max_steps": 5,
+              "prompt": "ROLE: You are a competitive-intelligence analyst.\nCONTEXT: Competitor: {company}. Website: {website}. Positioning: {description}.\nTASK: Research this competitor and produce a battlecard: (1) two strengths, (2) two weaknesses or gaps customers complain about, (3) any public pricing notes. Ground every point in something you actually found; cite the source for each.\nFORMAT: Three labeled sections — Strengths / Weaknesses / Pricing — with short bullets.\nFALLBACK: If a section has no concrete evidence, write 'no public evidence found' for that section.",
+              "width": 340
+            }
+          ]
+        }
+      },
+      {
+        "slug": "crm-record-enrichment",
+        "name": "CRM record refresh (firmographics)",
+        "description": "Refresh stale CRM records: headcount, industry tags, founding year and registered address from public registries and the company's own website.",
+        "category": "crm-hygiene",
+        "icon": "refresh-cw",
+        "workbook": {
+          "description": "Import your accounts and run — wikidata and the MCA registry answer from the company NAME even when the website is dead, so old records still enrich.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "headcount",
+              "name": "Headcount",
+              "type": "waterfall",
+              "target_field": "company_size",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "company_intel",
+                "wikidata"
+              ],
+              "width": 140
+            },
+            {
+              "id": "industry",
+              "name": "Industry tags",
+              "type": "waterfall",
+              "target_field": "industry_tags",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "local_business",
+                "company_intel",
+                "mca_registry",
+                "wikidata"
+              ],
+              "width": 200
+            },
+            {
+              "id": "founded",
+              "name": "Founded",
+              "type": "waterfall",
+              "target_field": "founding_year",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "company_intel",
+                "mca_registry",
+                "wikidata"
+              ],
+              "width": 120
+            },
+            {
+              "id": "address",
+              "name": "Registered address",
+              "type": "waterfall",
+              "target_field": "address",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "local_business",
+                "mca_registry",
+                "wikidata"
+              ],
+              "width": 260
+            }
+          ]
+        }
+      },
+      {
+        "slug": "d2c-brands-shopify",
+        "name": "D2C e-commerce brands with contact emails",
+        "description": "Discover direct-to-consumer e-commerce brands (Shopify stores, review sites), pull a company one-liner, and find a contactable email for each store.",
+        "category": "list-building",
+        "icon": "shopping-bag",
+        "workbook": {
+          "description": "The source column finds D2C stores from e-commerce and review channels; waterfalls fill in a description and a verified email so the list is outreach-ready.",
+          "columns": [
+            {
+              "id": "src_d2c",
+              "name": "Source: D2C brands",
+              "type": "source",
+              "icp": {
+                "description": "direct-to-consumer e-commerce brands and online stores",
+                "industry": "e-commerce",
+                "keywords_any": [
+                  "d2c",
+                  "online store",
+                  "shopify",
+                  "ecommerce brand"
+                ]
+              },
+              "channels": {
+                "categories": [
+                  "ecommerce",
+                  "review"
+                ],
+                "explicit_sources": [
+                  "shopify_stores",
+                  "trustpilot"
+                ]
+              },
+              "target_rows": 150
+            },
+            {
+              "id": "company",
+              "name": "Brand",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Store URL",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 220
+            },
+            {
+              "id": "about",
+              "name": "What they sell",
+              "type": "waterfall",
+              "target_field": "description",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "ddg_company"
+              ],
+              "width": 280
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "one_liner",
+              "name": "One-liner",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You write crisp company descriptions.\nCONTEXT: Brand: {company}. Store: {website}. Notes: {description}.\nTASK: In one sentence, state what this brand sells and who buys it.\nFORMAT: One sentence, max 20 words, no marketing fluff.\nFALLBACK: If you don't know what they sell, output INSUFFICIENT_DATA.",
+              "width": 260
+            }
+          ]
+        }
+      },
+      {
+        "slug": "domain-normalize-dedupe",
+        "name": "Normalize & dedupe prep (domains + clean names)",
+        "description": "Derive a canonical domain and a lowercased company key from each row with safe formulas — the join keys you need before deduping or merging lists.",
+        "category": "crm-hygiene",
+        "icon": "combine",
+        "workbook": {
+          "description": "Formula columns run instantly and cost nothing: email → domain, company → normalized key. The one-liner AI column gives a human-readable summary for manual review of near-duplicates.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email",
+              "type": "lead_field",
+              "lead_field": "email",
+              "width": 220
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "email_domain",
+              "name": "Email domain",
+              "type": "formula",
+              "formula": "{email}.split(\"@\")[1]",
+              "width": 180
+            },
+            {
+              "id": "company_key",
+              "name": "Company key",
+              "type": "formula",
+              "formula": "lower({company})",
+              "width": 180
+            },
+            {
+              "id": "one_liner",
+              "name": "One-liner (review aid)",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You write crisp company descriptions.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: In one sentence, state what this company does and who they serve.\nFORMAT: One sentence, max 25 words, no marketing fluff.\nFALLBACK: If you don't know what they do, output INSUFFICIENT_DATA.",
+              "width": 260
+            }
+          ]
+        }
+      },
+      {
+        "slug": "email-verify-cleanup",
+        "name": "Email list verification & cleanup",
+        "description": "Import your list (CSV or leads), verify every email with SMTP + account-presence checks, extract the domain, and re-find addresses for rows that fail.",
+        "category": "crm-hygiene",
+        "icon": "shield-check",
+        "workbook": {
+          "description": "Add rows from CSV or your leads, then run: the verify column grades each email (valid / invalid / catch-all), the domain formula normalizes rows for dedupe, and the re-find waterfall only spends effort on rows with no email.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email",
+              "type": "lead_field",
+              "lead_field": "email",
+              "width": 220
+            },
+            {
+              "id": "verify",
+              "name": "Verification",
+              "type": "waterfall",
+              "target_field": "email_verify",
+              "waterfall": [
+                "mailscout",
+                "holehe"
+              ],
+              "condition": "{email} != \"\"",
+              "width": 160
+            },
+            {
+              "id": "domain",
+              "name": "Domain",
+              "type": "formula",
+              "formula": "{email}.split(\"@\")[1]",
+              "width": 180
+            },
+            {
+              "id": "refind_email",
+              "name": "Re-find email",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            }
+          ]
+        }
+      },
+      {
+        "slug": "enrich-and-sync-hubspot",
+        "name": "Enrich & sync to HubSpot",
+        "description": "Complete each row (email, phone, LinkedIn, headcount) with zero-key waterfalls, then push finished contacts into HubSpot as CRM records.",
+        "category": "outbound",
+        "icon": "upload-cloud",
+        "workbook": {
+          "description": "Import rows from CSV or your leads. Waterfalls fill contact fields only where empty; the output column pushes each row to HubSpot (connect your token in Settings → Integrations first — output columns run once per row).",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email",
+                "hunter_io"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "phone",
+              "name": "Phone",
+              "type": "waterfall",
+              "target_field": "phone",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "local_business"
+              ],
+              "condition": "{phone} == \"\"",
+              "width": 160
+            },
+            {
+              "id": "linkedin",
+              "name": "LinkedIn",
+              "type": "waterfall",
+              "target_field": "linkedin_url",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "website_scraper",
+                "social_finder",
+                "wikidata"
+              ],
+              "condition": "{linkedin_url} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "headcount",
+              "name": "Headcount",
+              "type": "waterfall",
+              "target_field": "company_size",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "company_intel",
+                "wikidata"
+              ],
+              "width": 140
+            },
+            {
+              "id": "push_hubspot",
+              "name": "Push to HubSpot",
+              "type": "output",
+              "destination": "crm",
+              "width": 160
+            }
+          ]
+        }
+      },
+      {
+        "slug": "founder-outreach",
+        "name": "Founder & decision-maker outreach",
+        "description": "Find the founder or key decision maker at each company, get a verified email, and draft a personalized opener — ready to enroll in a sequence.",
+        "category": "outbound",
+        "icon": "crown",
+        "workbook": {
+          "description": "The contact waterfalls chain zero-key people-finders (site scrape, CrossLinked, StaffSpy roster). The output column enrolls finished rows in your sequencer once configured in Settings.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "contact",
+              "name": "Decision maker",
+              "type": "waterfall",
+              "target_field": "contact_person",
+              "waterfall": [
+                "deep_scraper",
+                "crosslinked",
+                "decision_maker",
+                "staffspy"
+              ],
+              "condition": "{contact_person} == \"\"",
+              "width": 200
+            },
+            {
+              "id": "title",
+              "name": "Title",
+              "type": "waterfall",
+              "target_field": "contact_title",
+              "waterfall": [
+                "deep_scraper",
+                "crosslinked",
+                "decision_maker",
+                "staffspy"
+              ],
+              "width": 160
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email",
+                "hunter_io"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "seniority",
+              "name": "Seniority tier",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You classify job titles for sales routing.\nCONTEXT: Contact: {contact_person}, title: {contact_title}, at {company}.\nTASK: Classify the contact's seniority as exactly one of: C-LEVEL, VP, DIRECTOR, MANAGER, IC.\nFORMAT: Output ONLY the tier word.\nFALLBACK: If the title is missing or ambiguous, output INSUFFICIENT_DATA.",
+              "width": 140
+            },
+            {
+              "id": "opener",
+              "name": "Opening line",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You are an expert cold-email copywriter.\nCONTEXT: Contact: {contact_person} ({contact_title}) at {company}. About the company: {description}.\nTASK: Write ONE personalized opening line addressed to this person's role and company. No flattery, no 'I came across your company'.\nFORMAT: One sentence, max 20 words, plain text.\nFALLBACK: If you cannot reference anything specific, output INSUFFICIENT_DATA.",
+              "width": 300
+            },
+            {
+              "id": "enroll",
+              "name": "Enroll in sequence",
+              "type": "output",
+              "destination": "sequencer",
+              "width": 160
+            }
+          ]
+        }
+      },
+      {
+        "slug": "funding-round-watch",
+        "name": "Funding-round watch",
+        "description": "Track funding stage, last round, investors and recent news across your accounts, and research one cited, recent signal per company.",
+        "category": "signals",
+        "icon": "banknote",
+        "workbook": {
+          "description": "company_intel fills the funding columns from public sources; the research column verifies the most recent event with a citation, so the trigger you act on is real.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "stage",
+              "name": "Funding stage",
+              "type": "waterfall",
+              "target_field": "funding_stage",
+              "waterfall": [
+                "company_intel"
+              ],
+              "width": 140
+            },
+            {
+              "id": "last_round",
+              "name": "Last round",
+              "type": "waterfall",
+              "target_field": "last_funding_amount",
+              "waterfall": [
+                "company_intel"
+              ],
+              "width": 140
+            },
+            {
+              "id": "investors",
+              "name": "Investors",
+              "type": "waterfall",
+              "target_field": "investors",
+              "waterfall": [
+                "company_intel"
+              ],
+              "width": 220
+            },
+            {
+              "id": "news",
+              "name": "Recent news",
+              "type": "waterfall",
+              "target_field": "recent_news",
+              "waterfall": [
+                "company_intel"
+              ],
+              "width": 260
+            },
+            {
+              "id": "latest_signal",
+              "name": "Latest signal (cited)",
+              "type": "research",
+              "output_format": "text",
+              "max_steps": 4,
+              "prompt": "ROLE: You are a funding-signals researcher.\nCONTEXT: Company: {company}. Website: {website}. Known: stage {funding_stage}, last round {last_funding_amount}.\nTASK: Find the company's most recent funding or expansion event. Report the event, its date, and the source URL. Only report events you actually found.\nFORMAT: One line — 'EVENT — DATE — SOURCE'.\nFALLBACK: If you find no dated event, output INSUFFICIENT_DATA.",
+              "width": 320
+            }
+          ]
+        }
+      },
+      {
+        "slug": "hiring-signals-radar",
+        "name": "Hiring-signals radar",
+        "description": "Detect open roles across your accounts from public ATS boards, then turn each hiring signal into a concrete outreach angle — pushed to your webhook.",
+        "category": "signals",
+        "icon": "radar",
+        "workbook": {
+          "description": "ats_hiring reads public ATS boards (zero-key); jobspy aggregates job portals as fallback. The AI column converts raw postings into an angle you can open with, and the webhook column notifies your own systems.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "hiring",
+              "name": "Open roles",
+              "type": "waterfall",
+              "target_field": "hiring_signals",
+              "waterfall": [
+                "ats_hiring",
+                "jobspy"
+              ],
+              "width": 240
+            },
+            {
+              "id": "angle",
+              "name": "Outreach angle",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You are a B2B sales strategist.\nCONTEXT: Company: {company}. Open roles / hiring signals: {hiring_signals}.\nTASK: From these hiring signals, infer ONE concrete business initiative the company is likely running, and phrase it as an outreach angle (why now).\nFORMAT: One sentence, max 25 words.\nFALLBACK: If there are no hiring signals, output INSUFFICIENT_DATA.",
+              "width": 300
+            },
+            {
+              "id": "notify",
+              "name": "Notify webhook",
+              "type": "output",
+              "destination": "webhook",
+              "width": 160
+            }
+          ]
+        }
+      },
+      {
+        "slug": "india-startup-market-map",
+        "name": "India startup market map",
+        "description": "Source funded Indian startups from Tracxn, Inc42 and YourStory, add founding year, headcount and a one-liner — a ready-made market map for any segment.",
+        "category": "research",
+        "icon": "map",
+        "workbook": {
+          "description": "Edit the source column's ICP description to your segment (fintech, healthtech, ...) before running. Firmographics come from zero-key providers; the one-liner makes the map scannable.",
+          "columns": [
+            {
+              "id": "src_startups",
+              "name": "Source: Indian startups",
+              "type": "source",
+              "icp": {
+                "description": "venture-funded technology startups in India",
+                "industry": "technology",
+                "geo": [
+                  "India"
+                ],
+                "keywords_any": [
+                  "startup",
+                  "funded",
+                  "series a",
+                  "seed"
+                ]
+              },
+              "channels": {
+                "regions": [
+                  "india"
+                ],
+                "categories": [
+                  "startup",
+                  "news"
+                ],
+                "explicit_sources": [
+                  "tracxn",
+                  "inc42",
+                  "yourstory",
+                  "economic_times"
+                ]
+              },
+              "target_rows": 150
+            },
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "city",
+              "name": "City",
+              "type": "lead_field",
+              "lead_field": "city",
+              "width": 140
+            },
+            {
+              "id": "founded",
+              "name": "Founded",
+              "type": "waterfall",
+              "target_field": "founding_year",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "company_intel",
+                "mca_registry",
+                "wikidata"
+              ],
+              "width": 120
+            },
+            {
+              "id": "headcount",
+              "name": "Headcount",
+              "type": "waterfall",
+              "target_field": "company_size",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "company_intel",
+                "wikidata"
+              ],
+              "width": 140
+            },
+            {
+              "id": "one_liner",
+              "name": "One-liner",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You write crisp company descriptions.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: In one sentence, state what this startup does and who they serve.\nFORMAT: One sentence, max 25 words, no marketing fluff.\nFALLBACK: If you don't know what they do, output INSUFFICIENT_DATA.",
+              "width": 260
+            }
+          ]
+        }
+      },
+      {
+        "slug": "it-services-india-directory",
+        "name": "IT services companies in India (directories)",
+        "description": "Build a directory of IT services and consulting firms in India from IndiaMART, Justdial and Clutch, with phone, registered address, email, and a lead score.",
+        "category": "list-building",
+        "icon": "building-2",
+        "workbook": {
+          "description": "Sources Indian IT services firms from B2B marketplaces and agency directories, then fills phone / address / email via zero-key waterfalls (MCA registry gives the authoritative registered office) and scores each lead.",
+          "columns": [
+            {
+              "id": "src_it_india",
+              "name": "Source: IT services (India)",
+              "type": "source",
+              "icp": {
+                "description": "IT services and software consulting companies in India",
+                "industry": "IT services",
+                "geo": [
+                  "India"
+                ],
+                "keywords_any": [
+                  "it services",
+                  "software development",
+                  "consulting"
+                ]
+              },
+              "channels": {
+                "regions": [
+                  "india"
+                ],
+                "categories": [
+                  "b2b_marketplace",
+                  "directory"
+                ],
+                "explicit_sources": [
+                  "indiamart",
+                  "justdial",
+                  "clutch",
+                  "goodfirms"
+                ]
+              },
+              "target_rows": 200
+            },
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "city",
+              "name": "City",
+              "type": "lead_field",
+              "lead_field": "city",
+              "width": 140
+            },
+            {
+              "id": "phone",
+              "name": "Phone",
+              "type": "waterfall",
+              "target_field": "phone",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "local_business"
+              ],
+              "condition": "{phone} == \"\"",
+              "width": 160
+            },
+            {
+              "id": "address",
+              "name": "Registered address",
+              "type": "waterfall",
+              "target_field": "address",
+              "waterfall": [
+                "jsonld_firmographics",
+                "deep_scraper",
+                "local_business",
+                "mca_registry"
+              ],
+              "width": 260
+            },
+            {
+              "id": "email",
+              "name": "Email",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "score",
+              "name": "Lead score",
+              "type": "enrichment",
+              "provider": "lead_scorer",
+              "target_field": "score",
+              "width": 120
+            }
+          ]
+        }
+      },
+      {
+        "slug": "job-board-intent-india",
+        "name": "Job-board intent (India)",
+        "description": "Source companies actively posting on Naukri, Indeed and Shine — a spend-signal — then find an HR/hiring contact and a verified email.",
+        "category": "signals",
+        "icon": "briefcase",
+        "workbook": {
+          "description": "Active job posting is one of the strongest intent signals: budget exists and someone is buying. The source column mines Indian job boards; contact + email waterfalls make each signal actionable.",
+          "columns": [
+            {
+              "id": "src_jobs_india",
+              "name": "Source: hiring companies (India)",
+              "type": "source",
+              "icp": {
+                "description": "companies actively hiring in India",
+                "industry": "any",
+                "geo": [
+                  "India"
+                ],
+                "keywords_any": [
+                  "hiring",
+                  "jobs",
+                  "careers"
+                ]
+              },
+              "channels": {
+                "regions": [
+                  "india"
+                ],
+                "categories": [
+                  "jobs"
+                ],
+                "explicit_sources": [
+                  "naukri",
+                  "indeed",
+                  "shine",
+                  "monsterindia"
+                ]
+              },
+              "target_rows": 150
+            },
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "hiring",
+              "name": "Open roles",
+              "type": "waterfall",
+              "target_field": "hiring_signals",
+              "waterfall": [
+                "ats_hiring",
+                "jobspy"
+              ],
+              "width": 240
+            },
+            {
+              "id": "contact",
+              "name": "Hiring contact",
+              "type": "waterfall",
+              "target_field": "contact_person",
+              "waterfall": [
+                "deep_scraper",
+                "crosslinked",
+                "decision_maker"
+              ],
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            }
+          ]
+        }
+      },
+      {
+        "slug": "pre-call-account-briefs",
+        "name": "Pre-call account briefs",
+        "description": "For every account on your call list: what they do, one recent concrete signal (news, hiring, funding), and a suggested outreach angle — cited.",
+        "category": "research",
+        "icon": "notebook-pen",
+        "workbook": {
+          "description": "Import this week's call list. Recent-news and hiring waterfalls gather raw signals cheaply; the research column turns them into a 3-bullet brief with a cited source per signal.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Account",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "news",
+              "name": "Recent news",
+              "type": "waterfall",
+              "target_field": "recent_news",
+              "waterfall": [
+                "company_intel"
+              ],
+              "width": 260
+            },
+            {
+              "id": "hiring",
+              "name": "Hiring signals",
+              "type": "waterfall",
+              "target_field": "hiring_signals",
+              "waterfall": [
+                "ats_hiring",
+                "jobspy"
+              ],
+              "width": 200
+            },
+            {
+              "id": "brief",
+              "name": "Account brief",
+              "type": "research",
+              "output_format": "text",
+              "max_steps": 4,
+              "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Recent news: {recent_news}. Hiring: {hiring_signals}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+              "width": 340
+            }
+          ]
+        }
+      },
+      {
+        "slug": "saas-buyers-review-sites",
+        "name": "SaaS companies from review sites (G2 / Capterra)",
+        "description": "Source SaaS vendors from G2, Capterra and Product Hunt, detect their tech stack and headcount, and score how well each fits your ICP.",
+        "category": "list-building",
+        "icon": "star",
+        "workbook": {
+          "description": "Review-site sourcing finds active SaaS vendors; waterfalls add headcount and technologies, and an AI column scores ICP fit so you can sort the list.",
+          "columns": [
+            {
+              "id": "src_reviews",
+              "name": "Source: SaaS review sites",
+              "type": "source",
+              "icp": {
+                "description": "B2B SaaS software vendors listed on software review sites",
+                "industry": "SaaS",
+                "keywords_any": [
+                  "saas",
+                  "b2b software",
+                  "software vendor"
+                ]
+              },
+              "channels": {
+                "categories": [
+                  "saas_directory",
+                  "review"
+                ],
+                "explicit_sources": [
+                  "g2",
+                  "capterra",
+                  "getapp",
+                  "producthunt",
+                  "stackshare"
+                ]
+              },
+              "target_rows": 150
+            },
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "headcount",
+              "name": "Headcount",
+              "type": "waterfall",
+              "target_field": "company_size",
+              "waterfall": [
+                "deep_scraper",
+                "website_scraper",
+                "company_intel",
+                "wikidata"
+              ],
+              "width": 140
+            },
+            {
+              "id": "tech",
+              "name": "Tech stack",
+              "type": "waterfall",
+              "target_field": "technologies",
+              "waterfall": [
+                "tech_stack"
+              ],
+              "width": 220
+            },
+            {
+              "id": "icp_fit",
+              "name": "ICP Fit (0-100)",
+              "type": "ai_formula",
+              "output_format": "number",
+              "prompt": "ROLE: You are a B2B sales qualification analyst.\nCONTEXT: Company: {company}. Website: {website}. Size: {company_size}. Tech: {technologies}. Description: {description}.\nTASK: Score 0-100 how well this company fits an ICP of mid-market B2B SaaS companies. Weight: firmographic fit 40, technographic fit 35, growth signals 25.\nFORMAT: Output ONLY the integer score (0-100). No words, no symbols.\nFALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA.",
+              "width": 140
+            }
+          ]
+        }
+      },
+      {
+        "slug": "saas-founders-india",
+        "name": "SaaS founders in India → verified emails → HubSpot",
+        "description": "Source 100 SaaS companies in India, find the founders, discover and verify their emails, score ICP fit, and push clean contacts to HubSpot.",
+        "category": "list-building",
+        "icon": "rocket",
+        "workbook": {
+          "description": "End-to-end list build: the source column materializes SaaS companies from startup directories, waterfalls find the founder + a verified email, and the output column pushes each finished row to your CRM. Connect HubSpot in Settings → Integrations before running the last column.",
+          "columns": [
+            {
+              "id": "src_saas_india",
+              "name": "Source: SaaS companies (India)",
+              "type": "source",
+              "icp": {
+                "description": "SaaS software product companies in India",
+                "industry": "SaaS",
+                "geo": [
+                  "India"
+                ],
+                "keywords_any": [
+                  "saas",
+                  "software product",
+                  "cloud platform"
+                ]
+              },
+              "channels": {
+                "regions": [
+                  "india"
+                ],
+                "categories": [
+                  "saas_directory",
+                  "startup"
+                ],
+                "explicit_sources": [
+                  "tracxn",
+                  "yourstory",
+                  "inc42",
+                  "startup_india"
+                ]
+              },
+              "target_rows": 100
+            },
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "city",
+              "name": "City",
+              "type": "lead_field",
+              "lead_field": "city",
+              "width": 140
+            },
+            {
+              "id": "founder",
+              "name": "Founder / CEO",
+              "type": "waterfall",
+              "target_field": "contact_person",
+              "waterfall": [
+                "deep_scraper",
+                "crosslinked",
+                "decision_maker",
+                "staffspy"
+              ],
+              "width": 200
+            },
+            {
+              "id": "founder_title",
+              "name": "Title",
+              "type": "waterfall",
+              "target_field": "contact_title",
+              "waterfall": [
+                "deep_scraper",
+                "crosslinked",
+                "decision_maker"
+              ],
+              "width": 160
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email",
+                "hunter_io"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "icp_fit",
+              "name": "ICP Fit (0-100)",
+              "type": "ai_formula",
+              "output_format": "number",
+              "prompt": "ROLE: You are a B2B sales qualification analyst.\nCONTEXT: Company: {company}. Website: {website}. City: {city}. Description: {description}.\nTASK: Score 0-100 how well this company fits an ICP of Indian SaaS product companies that would buy sales tooling. Weight: firmographic fit 50, product maturity 30, reachability 20.\nFORMAT: Output ONLY the integer score (0-100). No words, no symbols.\nFALLBACK: If there is not enough data to judge, output INSUFFICIENT_DATA.",
+              "width": 140
+            },
+            {
+              "id": "push_hubspot",
+              "name": "Push to HubSpot",
+              "type": "output",
+              "destination": "crm",
+              "width": 160
+            }
+          ]
+        }
+      },
+      {
+        "slug": "tech-stack-mapping",
+        "name": "Tech-stack mapping",
+        "description": "Detect each company's technologies twice — a website fingerprint waterfall plus an evidence-only research agent over job posts — and reconcile them.",
+        "category": "research",
+        "icon": "cpu",
+        "workbook": {
+          "description": "The tech_stack provider fingerprints the website; the research column reads job postings for corroboration. The AI column merges both into one clean, deduplicated list.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "tech_fingerprint",
+              "name": "Tech (website scan)",
+              "type": "waterfall",
+              "target_field": "technologies",
+              "waterfall": [
+                "tech_stack"
+              ],
+              "width": 220
+            },
+            {
+              "id": "tech_research",
+              "name": "Tech (job-post research)",
+              "type": "research",
+              "output_format": "text",
+              "max_steps": 4,
+              "prompt": "ROLE: You are a technographic researcher.\nCONTEXT: Company: {company}. Website: {website}.\nTASK: Search the company's site and job postings to determine the key technologies they use (languages, frameworks, cloud, major SaaS tools). Only report tech you find concrete evidence for — never guess.\nFORMAT: Comma-separated list of technologies.\nFALLBACK: If you find no concrete tech evidence, output INSUFFICIENT_DATA.",
+              "width": 260
+            },
+            {
+              "id": "tech_merged",
+              "name": "Merged stack",
+              "type": "ai_formula",
+              "output_format": "text",
+              "prompt": "ROLE: You reconcile technographic data.\nCONTEXT: Website scan found: {technologies}. Job-post research found: {tech_research}.\nTASK: Merge both lists into one deduplicated technology list, keeping only entries that appear plausible for this company. Drop INSUFFICIENT_DATA markers.\nFORMAT: Comma-separated list, alphabetical.\nFALLBACK: If both inputs are empty, output INSUFFICIENT_DATA.",
+              "width": 260
+            }
+          ]
+        }
+      },
+      {
+        "slug": "webhook-export-pipeline",
+        "name": "Enrich & push via webhook",
+        "description": "Enrich each row with a verified email and firmographics, then POST the finished row to any endpoint you own — Zapier, n8n, your own API.",
+        "category": "outbound",
+        "icon": "webhook",
+        "workbook": {
+          "description": "The webhook output column sends each completed row to a URL you configure (destination_config is left empty on purpose — set your endpoint after import). Great for wiring Yupcha into an existing stack.",
+          "columns": [
+            {
+              "id": "company",
+              "name": "Company",
+              "type": "lead_field",
+              "lead_field": "company",
+              "width": 200
+            },
+            {
+              "id": "website",
+              "name": "Website",
+              "type": "lead_field",
+              "lead_field": "website",
+              "width": 200
+            },
+            {
+              "id": "email",
+              "name": "Email (verified)",
+              "type": "waterfall",
+              "target_field": "email",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "email_harvester",
+                "ddg_email"
+              ],
+              "verify": true,
+              "condition": "{email} == \"\"",
+              "width": 220
+            },
+            {
+              "id": "about",
+              "name": "Description",
+              "type": "waterfall",
+              "target_field": "description",
+              "waterfall": [
+                "deep_scraper",
+                "jsonld_firmographics",
+                "website_scraper",
+                "ddg_company"
+              ],
+              "condition": "{description} == \"\"",
+              "width": 280
+            },
+            {
+              "id": "email_domain",
+              "name": "Domain",
+              "type": "formula",
+              "formula": "{email}.split(\"@\")[1]",
+              "width": 180
+            },
+            {
+              "id": "push_webhook",
+              "name": "Send to webhook",
+              "type": "output",
+              "destination": "webhook",
+              "width": 160
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "templates": {
+    "categories": {
+      "sales": {
+        "label": "Sales Prospecting",
+        "icon": "target",
+        "color": "text-blue-400"
+      },
+      "recruiting": {
+        "label": "Recruiting",
+        "icon": "users",
+        "color": "text-purple-400"
+      },
+      "research": {
+        "label": "Market Research",
+        "icon": "search",
+        "color": "text-amber-400"
+      },
+      "agency": {
+        "label": "Agency",
+        "icon": "building-2",
+        "color": "text-emerald-400"
+      },
+      "signals": {
+        "label": "Signals & Alerts",
+        "icon": "activity",
+        "color": "text-rose-400"
+      }
+    },
+    "items": [
+      {
+        "id": "saas-ctos",
+        "name": "SaaS CTOs & Tech Leaders",
+        "description": "Find CTOs and VP Engineering at SaaS companies. Includes email, LinkedIn, and hiring signals.",
+        "category": "sales",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "contact_title",
+            "name": "Title",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "enrichment_columns": [
+          {
+            "id": "enrich_email",
+            "name": "Email (waterfall)",
+            "type": "waterfall",
+            "target_field": "email",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "email_harvester",
+              "ddg_email"
+            ],
+            "condition": "{email} == \"\"",
+            "verify": true,
+            "width": 220
+          },
+          {
+            "id": "enrich_company_info",
+            "name": "Company Info",
+            "type": "waterfall",
+            "target_field": "description",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 280
+          },
+          {
+            "id": "enrich_company_size",
+            "name": "Headcount",
+            "type": "waterfall",
+            "target_field": "company_size",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 140
+          },
+          {
+            "id": "enrich_account_brief",
+            "name": "Account Brief",
+            "type": "research",
+            "output_format": "text",
+            "max_steps": 4,
+            "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+            "width": 320
+          }
+        ],
+        "filter": {
+          "specialization": "SaaS"
+        }
+      },
+      {
+        "id": "hot-leads-outreach",
+        "name": "Hot Leads — Ready for Outreach",
+        "description": "High-scoring leads with verified emails. Export-ready for email sequences.",
+        "category": "sales",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          },
+          {
+            "key": "score_tier",
+            "name": "Tier",
+            "type": "text"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          }
+        ],
+        "filter": {
+          "score_tier": "hot"
+        }
+      },
+      {
+        "id": "it-staffing-pune",
+        "name": "IT Staffing Companies — Pune",
+        "description": "IT staffing and consulting firms in Pune with decision maker contacts.",
+        "category": "sales",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "specialization",
+            "name": "Industry",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {
+          "city": "Pune",
+          "specialization": "IT"
+        }
+      },
+      {
+        "id": "ecommerce-shopify",
+        "name": "E-commerce Stores",
+        "description": "E-commerce businesses with website, email, and growth indicators.",
+        "category": "sales",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Store",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {
+          "specialization": "ecommerce"
+        }
+      },
+      {
+        "id": "funded-startups",
+        "name": "Funded Startups",
+        "description": "Recently funded startups actively hiring and growing.",
+        "category": "sales",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "contact_person",
+            "name": "Founder/CEO",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "founding_year",
+            "name": "Founded",
+            "type": "text"
+          },
+          {
+            "key": "funding_stage",
+            "name": "Stage",
+            "type": "text"
+          },
+          {
+            "key": "last_funding_amount",
+            "name": "Funding",
+            "type": "text"
+          },
+          {
+            "key": "investors",
+            "name": "Investors",
+            "type": "text"
+          },
+          {
+            "key": "hiring_signals",
+            "name": "Hiring",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "enrichment_columns": [
+          {
+            "id": "enrich_email",
+            "name": "Email (waterfall)",
+            "type": "waterfall",
+            "target_field": "email",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "email_harvester",
+              "ddg_email"
+            ],
+            "condition": "{email} == \"\"",
+            "verify": true,
+            "width": 220
+          },
+          {
+            "id": "enrich_company_info",
+            "name": "Company Info",
+            "type": "waterfall",
+            "target_field": "description",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 280
+          },
+          {
+            "id": "enrich_hiring",
+            "name": "Hiring Signals",
+            "type": "waterfall",
+            "target_field": "hiring_signals",
+            "waterfall": [
+              "ats_hiring",
+              "deep_scraper",
+              "ddg_company"
+            ],
+            "width": 200
+          },
+          {
+            "id": "enrich_account_brief",
+            "name": "Account Brief",
+            "type": "research",
+            "output_format": "text",
+            "max_steps": 4,
+            "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+            "width": 320
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "hiring-companies",
+        "name": "Companies Actively Hiring",
+        "description": "Companies with open positions — great for recruiting outreach.",
+        "category": "recruiting",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "contact_person",
+            "name": "HR Contact",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "hiring_signals",
+            "name": "Hiring Signals",
+            "type": "text"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          }
+        ],
+        "enrichment_columns": [
+          {
+            "id": "enrich_hiring",
+            "name": "Hiring Signals",
+            "type": "waterfall",
+            "target_field": "hiring_signals",
+            "waterfall": [
+              "ats_hiring",
+              "deep_scraper",
+              "ddg_company"
+            ],
+            "width": 200
+          },
+          {
+            "id": "enrich_email",
+            "name": "Email (waterfall)",
+            "type": "waterfall",
+            "target_field": "email",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "email_harvester",
+              "ddg_email"
+            ],
+            "condition": "{email} == \"\"",
+            "verify": true,
+            "width": 220
+          },
+          {
+            "id": "enrich_company_info",
+            "name": "Company Info",
+            "type": "waterfall",
+            "target_field": "description",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 280
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "staffing-agencies",
+        "name": "Staffing Agencies Directory",
+        "description": "Staffing and recruitment agencies with contact details.",
+        "category": "recruiting",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Agency",
+            "type": "text"
+          },
+          {
+            "key": "specialization",
+            "name": "Specialization",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          }
+        ],
+        "filter": {
+          "specialization": "staffing"
+        }
+      },
+      {
+        "id": "tech-talent-hubs",
+        "name": "Tech Companies — Talent Hubs",
+        "description": "Top tech companies in major cities for talent mapping.",
+        "category": "recruiting",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Headcount",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "specialization",
+            "name": "Tech Stack",
+            "type": "text"
+          },
+          {
+            "key": "hiring_signals",
+            "name": "Open Roles",
+            "type": "text"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "competitor-landscape",
+        "name": "Competitor Landscape",
+        "description": "Map competitors by size, location, and specialization.",
+        "category": "research",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "specialization",
+            "name": "Focus",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "city",
+            "name": "HQ",
+            "type": "text"
+          },
+          {
+            "key": "description",
+            "name": "About",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "industry-directory",
+        "name": "Industry Directory",
+        "description": "Comprehensive company directory for a specific industry vertical.",
+        "category": "research",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "specialization",
+            "name": "Specialization",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "state",
+            "name": "State",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "city-analysis",
+        "name": "City Market Analysis",
+        "description": "All companies in a specific city for market sizing.",
+        "category": "research",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "specialization",
+            "name": "Industry",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "glassdoor-rated",
+        "name": "Top-Rated Companies",
+        "description": "Companies with high Glassdoor ratings — employer branding research.",
+        "category": "research",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "specialization",
+            "name": "Industry",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "client-prospecting",
+        "name": "Client Prospecting Pipeline",
+        "description": "Track prospecting progress for agency client acquisition.",
+        "category": "agency",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Prospect",
+            "type": "text"
+          },
+          {
+            "key": "contact_person",
+            "name": "Decision Maker",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "status",
+            "name": "Status",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          },
+          {
+            "key": "notes",
+            "name": "Notes",
+            "type": "text"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "client-delivery",
+        "name": "Client Delivery — Lead List",
+        "description": "Clean lead list format for client deliverables.",
+        "category": "agency",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact Name",
+            "type": "text"
+          },
+          {
+            "key": "contact_title",
+            "name": "Title",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Company Size",
+            "type": "text"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "data-enrichment",
+        "name": "Data Enrichment Queue",
+        "description": "Leads missing key data — prioritized for enrichment.",
+        "category": "agency",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {}
+      },
+      {
+        "id": "buying-signals-tracker",
+        "name": "Buying Signals Tracker",
+        "description": "Track companies showing buying signals — hiring, growth, funding.",
+        "category": "signals",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "hiring_signals",
+            "name": "Hiring",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          }
+        ],
+        "filter": {
+          "score_tier": "hot"
+        }
+      },
+      {
+        "id": "warm-leads-nurture",
+        "name": "Warm Leads — Nurture",
+        "description": "Warm leads that need additional touch points before outreach.",
+        "category": "signals",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          },
+          {
+            "key": "status",
+            "name": "Status",
+            "type": "text"
+          },
+          {
+            "key": "notes",
+            "name": "Notes",
+            "type": "text"
+          }
+        ],
+        "filter": {
+          "score_tier": "warm"
+        }
+      },
+      {
+        "id": "dead-leads-reactivate",
+        "name": "Dead Leads — Reactivation",
+        "description": "Previously dead leads that may be worth re-engaging.",
+        "category": "signals",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "status",
+            "name": "Status",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          },
+          {
+            "key": "notes",
+            "name": "Notes",
+            "type": "text"
+          }
+        ],
+        "filter": {
+          "status": "dead"
+        }
+      },
+      {
+        "id": "full-enrichment",
+        "name": "Full Enrichment Pipeline",
+        "description": "All lead fields — maximum data density view with OSS enrichment.",
+        "category": "research",
+        "columns": [
+          {
+            "key": "company",
+            "name": "Company",
+            "type": "text"
+          },
+          {
+            "key": "website",
+            "name": "Website",
+            "type": "url"
+          },
+          {
+            "key": "email",
+            "name": "Email",
+            "type": "email"
+          },
+          {
+            "key": "phone",
+            "name": "Phone",
+            "type": "phone"
+          },
+          {
+            "key": "contact_person",
+            "name": "Contact",
+            "type": "text"
+          },
+          {
+            "key": "contact_title",
+            "name": "Title",
+            "type": "text"
+          },
+          {
+            "key": "linkedin_url",
+            "name": "LinkedIn",
+            "type": "url"
+          },
+          {
+            "key": "city",
+            "name": "City",
+            "type": "text"
+          },
+          {
+            "key": "company_size",
+            "name": "Size",
+            "type": "text"
+          },
+          {
+            "key": "specialization",
+            "name": "Industry",
+            "type": "text"
+          },
+          {
+            "key": "founding_year",
+            "name": "Founded",
+            "type": "text"
+          },
+          {
+            "key": "funding_stage",
+            "name": "Funding Stage",
+            "type": "text"
+          },
+          {
+            "key": "last_funding_amount",
+            "name": "Funding",
+            "type": "text"
+          },
+          {
+            "key": "investors",
+            "name": "Investors",
+            "type": "text"
+          },
+          {
+            "key": "technologies",
+            "name": "Tech Stack",
+            "type": "text"
+          },
+          {
+            "key": "recent_news",
+            "name": "News",
+            "type": "text"
+          },
+          {
+            "key": "hiring_signals",
+            "name": "Hiring",
+            "type": "text"
+          },
+          {
+            "key": "score",
+            "name": "Score",
+            "type": "number"
+          },
+          {
+            "key": "score_tier",
+            "name": "Tier",
+            "type": "text"
+          }
+        ],
+        "enrichment_columns": [
+          {
+            "id": "enrich_email",
+            "name": "Email (waterfall)",
+            "type": "waterfall",
+            "target_field": "email",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "email_harvester",
+              "ddg_email"
+            ],
+            "condition": "{email} == \"\"",
+            "verify": true,
+            "width": 220
+          },
+          {
+            "id": "enrich_company_info",
+            "name": "Company Info",
+            "type": "waterfall",
+            "target_field": "description",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 280
+          },
+          {
+            "id": "enrich_company_size",
+            "name": "Headcount",
+            "type": "waterfall",
+            "target_field": "company_size",
+            "waterfall": [
+              "deep_scraper",
+              "jsonld_firmographics",
+              "ddg_company"
+            ],
+            "width": 140
+          },
+          {
+            "id": "enrich_hiring",
+            "name": "Hiring Signals",
+            "type": "waterfall",
+            "target_field": "hiring_signals",
+            "waterfall": [
+              "ats_hiring",
+              "deep_scraper",
+              "ddg_company"
+            ],
+            "width": 200
+          },
+          {
+            "id": "enrich_account_brief",
+            "name": "Account Brief",
+            "type": "research",
+            "output_format": "text",
+            "max_steps": 4,
+            "prompt": "ROLE: You are an SDR prepping for an account.\nCONTEXT: Company: {company}. Website: {website}. Notes: {description}.\nTASK: Research this company and produce a 3-bullet brief: (1) what they do, (2) one recent, concrete signal (hiring, funding, launch, news), (3) a relevant outreach angle. Cite the source for the signal.\nFORMAT: Exactly 3 bullets.\nFALLBACK: If you can't find a concrete recent signal, still give bullets 1 and 3 and write 'no recent signal found' for bullet 2.",
+            "width": 320
+          }
+        ],
+        "filter": {}
+      }
+    ]
+  }
+}

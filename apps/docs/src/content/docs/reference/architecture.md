@@ -15,24 +15,26 @@ becomes a multi-node hosted service.
 browser / REST / MCP
         |
         v
-nginx :3000/:3010  ---- static React assets
+nginx :3000
         |
         v
-FastAPI (enqueue + query only; RUN_INLINE_WORKER=0)
+Go API (api-go: REST, SSE, embedded React UI; enqueue + query only)
         |                         |
         | PostgreSQL             | Redis tenant channels
         v                         v
-jobs + tenant data <---- workers ----> live SSE progress
+jobs + tenant data <---- Go workers ----> live SSE progress
         ^                  |
-        |                  +---- isolated provider processes / external APIs
+        |                  +---- external APIs
+        |                  +---- browser service (internal network, bearer token, no DB)
         |
-scheduler (reconciliation and recurring enqueue only)
+Go scheduler (recurring enqueue only; one active via advisory lock)
 
-migrate (one-shot owner) ---> Alembic ---> runtime role is non-super/NOBYPASSRLS
+migrate (one-shot owner, Go) ---> runtime role is non-super/NOBYPASSRLS
 ```
 
-Every first-party Python service and the frontend asset publisher use one
-immutable application image. PostgreSQL and Redis are private to the container
+The Go services are built from one multi-stage Dockerfile
+(`apps/backend-go/Dockerfile`); the browser service, the only Python left at
+runtime, has its own image and no database access. PostgreSQL and Redis are private to the container
 network and bound to loopback for host administration; nginx is the only LAN
 listener.
 
@@ -44,15 +46,13 @@ listener.
 | Automations, outreach, watches, ingest, MCP audit | PostgreSQL | tenant RLS; non-tenant schedule mirrors contain no recipient data |
 | Durable execution queue (`jobs`) | PostgreSQL | global control table; tenant identity is required in payloads and checked by handlers |
 | Users | PostgreSQL | global authentication table |
-| Workspace / member / active-workspace metadata | `data/workspaces.db` (SQLite) | authenticated control plane; shared-volume, single-node boundary |
-| Workspace secrets | encrypted values in `data/workspaces.db` | role-gated and encrypted at rest; single-node boundary |
-| Collection job / stage / LLM detail | per-workspace SQLite ledger | tenant file path; queue job remains durable in PostgreSQL |
+| Workspace / member metadata | PostgreSQL (`workspaces`, `workspace_members`) | authenticated control plane |
+| Workspace secrets | encrypted values in PostgreSQL (`workspace_settings`) | role-gated and encrypted at rest |
+| Collection job / stage detail | PostgreSQL (`collection_jobs`, stages) | tenant RLS; queue job durable in the same database |
 | Live progress and reconnect history | Redis | exact tenant channel plus bounded 500-event list |
 | Frontend bundle | immutable image → named volume → nginx | asset publisher refreshes it on every deploy |
 
-PostgreSQL is the production data plane. SQLite remains a control-plane
-compatibility layer, not the source of truth for production workbook or lead
-rows.
+PostgreSQL holds all durable state; the Go release has no SQLite stores.
 
 ## Request and tenant boundary
 
@@ -143,23 +143,18 @@ network-level guarantee for every third-party browser or TLS stack.
 ## Scaling rules
 
 - Scale workers horizontally; PostgreSQL row locking prevents double claims.
-- Scale API processes on one host; API containers share the control-plane
-  `data/` volume.
-- Run exactly one scheduler unless scheduler leadership is added.
-- Run migrations once with the owner role before starting the runtime image.
-- Do not place API or worker replicas on independent hosts until workspace
-  metadata, secrets, and collection-stage ledgers move from SQLite to
-  PostgreSQL or a strongly consistent control-plane service.
+- Scale API processes freely; they share no local volume.
+- Extra scheduler replicas idle (PostgreSQL advisory lock); one is enough.
+- Run migrations once with the owner role before starting the runtime services
+  (Compose `migrate`).
 
 ## Remaining path to a hosted, multi-node service
 
-1. Move workspace membership, secrets, active-workspace state, and collection
-   ledgers into PostgreSQL with explicit control-plane policies.
-2. Tenantise or remove the remaining global admin-only legacy utilities.
-3. Put outbound fetches behind an audited egress proxy, move encryption keys to
+1. Tenantise or remove the remaining global admin-only legacy utilities.
+2. Put outbound fetches behind an audited egress proxy, move encryption keys to
    a managed KMS, and complete an external security review and restore drill.
-4. Publish reproducible provider accuracy, coverage and cost evaluations and
+3. Publish reproducible provider accuracy, coverage and cost evaluations and
    make the declarative registry a documented contribution surface.
-5. Close visible product gaps: large-grid interaction, Clay-table import,
+4. Close visible product gaps: large-grid interaction, Clay-table import,
    dependency-aware reactive recompute, more templates, broader CRM and
    sequencer sync.

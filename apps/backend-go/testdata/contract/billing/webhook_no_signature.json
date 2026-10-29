@@ -1,0 +1,20 @@
+{
+  "request": {
+    "body": {
+      "id": "evt_test",
+      "type": "checkout.session.completed"
+    },
+    "headers": {},
+    "method": "POST",
+    "path": "/api/billing/webhook"
+  },
+  "response": {
+    "body": {
+      "detail": "Invalid webhook signature"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

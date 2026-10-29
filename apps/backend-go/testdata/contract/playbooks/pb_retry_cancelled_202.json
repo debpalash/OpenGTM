@@ -1,0 +1,31 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/runs/run-gov-r4/retry"
+  },
+  "response": {
+    "body": {
+      "attempted": 0,
+      "audience_id": "aud-gov-1",
+      "created_at": "2026-08-26T10:00:00",
+      "error": null,
+      "failed": 0,
+      "finished_at": null,
+      "id": "run-gov-r4",
+      "max_members": 100,
+      "playbook_id": "pb-gov-multi",
+      "prompt_version": 2,
+      "started_at": "2026-08-26T10:00:00",
+      "status": "pending",
+      "succeeded": 0
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 202
+  }
+}

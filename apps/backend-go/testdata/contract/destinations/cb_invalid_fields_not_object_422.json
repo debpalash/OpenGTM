@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "external_event_id": "e",
+      "fields": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations/inbound/dst-act-hubspot"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": [
+            1
+          ],
+          "loc": [
+            "body",
+            "fields"
+          ],
+          "msg": "Input should be a valid dictionary",
+          "type": "dict_type"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

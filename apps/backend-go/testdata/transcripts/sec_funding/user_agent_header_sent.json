@@ -1,0 +1,136 @@
+{
+ "area": "sec_funding",
+ "scenario": "user_agent_header_sent",
+ "description": "every request carries the descriptive SEC User-Agent",
+ "input": {
+  "target": "sec_cik:2000934",
+  "cursor": {
+   "bootstrapped": true
+  },
+  "resolved_cik": null,
+  "want_funding": true,
+  "want_exec": false,
+  "backfill": false
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://data.sec.gov/submissions/CIK0002000934.json",
+    "headers": {
+     "host": "data.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"filings\":{\"recent\":{\"form\":[\"8-K\",\"D\",\"D/A\",\"D\"],\"accessionNumber\":[\"0002000934-24-000012\",\"0002000934-24-000009\",\"0002000934-24-000007\",\"0002000934-24-000005\"],\"filingDate\":[\"2024-06-01\",\"2024-05-01\",\"2024-04-01\",\"2024-03-20\"]}}}"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/Archives/edgar/data/2000934/000200093424000009/primary_doc.xml",
+    "headers": {
+     "host": "www.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/formd\">\n  <offeringData>\n    <industryGroup><industryGroupType>Other Technology</industryGroupType></industryGroup>\n    <offeringSalesAmounts><totalOfferingAmount>5000000</totalOfferingAmount><totalAmountSold>3200000</totalAmountSold></offeringSalesAmounts>\n    <typeOfFiling><newOrAmendment><isAmendment>false</isAmendment></newOrAmendment><dateOfFirstSale><value>2024-03-15</value></dateOfFirstSale></typeOfFiling>\n  </offeringData>\n  <relatedPersonsList>\n    <relatedPersonInfo><relatedPersonName><firstName>Grace</firstName><lastName>Hopper</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Executive Officer</relationship><relationship>Director</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n    <relatedPersonInfo><relatedPersonName><firstName>N/A</firstName><lastName>Fund LP</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Promoter</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n  </relatedPersonsList>\n</edgarSubmission>"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/Archives/edgar/data/2000934/000200093424000007/primary_doc.xml",
+    "headers": {
+     "host": "www.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/formd\">\n  <offeringData>\n    <industryGroup><industryGroupType>Other Technology</industryGroupType></industryGroup>\n    <offeringSalesAmounts><totalOfferingAmount>5000000</totalOfferingAmount><totalAmountSold>3200000</totalAmountSold></offeringSalesAmounts>\n    <typeOfFiling><newOrAmendment><isAmendment>false</isAmendment></newOrAmendment><dateOfFirstSale><value>2024-03-15</value></dateOfFirstSale></typeOfFiling>\n  </offeringData>\n  <relatedPersonsList>\n    <relatedPersonInfo><relatedPersonName><firstName>Grace</firstName><lastName>Hopper</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Executive Officer</relationship><relationship>Director</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n    <relatedPersonInfo><relatedPersonName><firstName>N/A</firstName><lastName>Fund LP</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Promoter</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n  </relatedPersonsList>\n</edgarSubmission>"
+   }
+  },
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://www.sec.gov/Archives/edgar/data/2000934/000200093424000005/primary_doc.xml",
+    "headers": {
+     "host": "www.sec.gov",
+     "user-agent": "OpenGTM Enrichment admin@yupcha.com"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/xml"
+    },
+    "body": "<?xml version=\"1.0\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/formd\">\n  <offeringData>\n    <industryGroup><industryGroupType>Other Technology</industryGroupType></industryGroup>\n    <offeringSalesAmounts><totalOfferingAmount>5000000</totalOfferingAmount><totalAmountSold>3200000</totalAmountSold></offeringSalesAmounts>\n    <typeOfFiling><newOrAmendment><isAmendment>false</isAmendment></newOrAmendment><dateOfFirstSale><value>2024-03-15</value></dateOfFirstSale></typeOfFiling>\n  </offeringData>\n  <relatedPersonsList>\n    <relatedPersonInfo><relatedPersonName><firstName>Grace</firstName><lastName>Hopper</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Executive Officer</relationship><relationship>Director</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n    <relatedPersonInfo><relatedPersonName><firstName>N/A</firstName><lastName>Fund LP</lastName></relatedPersonName><relatedPersonRelationshipList><relationship>Promoter</relationship></relatedPersonRelationshipList></relatedPersonInfo>\n  </relatedPersonsList>\n</edgarSubmission>"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "events": [
+   {
+    "natural_event_id": "0002000934:000200093424000009",
+    "signal_type": "company_funded",
+    "title": "Raised $3,200,000 (Form D)",
+    "description": "private_placement_form_d",
+    "source": "sec_edgar",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+    "weight": 10,
+    "occurred_at": 1714521600.0,
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "0002000934:000200093424000007",
+    "signal_type": "company_funded",
+    "title": "Raised $3,200,000 (Form D)",
+    "description": "private_placement_form_d",
+    "source": "sec_edgar",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+    "weight": 10,
+    "occurred_at": 1711929600.0,
+    "lead_id": null,
+    "company": ""
+   },
+   {
+    "natural_event_id": "0002000934:000200093424000005",
+    "signal_type": "company_funded",
+    "title": "Raised $3,200,000 (Form D)",
+    "description": "private_placement_form_d",
+    "source": "sec_edgar",
+    "source_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0002000934&type=D",
+    "weight": 10,
+    "occurred_at": 1710892800.0,
+    "lead_id": null,
+    "company": ""
+   }
+  ],
+  "patch": {
+   "_resolved_cik": "0002000934",
+   "sec_last_accession": "000200093424000009",
+   "sec_known_execs": []
+  }
+ }
+}

@@ -1,0 +1,24 @@
+# Generator for govaudit testdata/export_fixture.{json,csv}: replicates governance.py export_audit_events row rendering.
+import csv,io,json,sys
+from datetime import datetime
+rows=[
+ dict(id="00000000-0000-0000-0000-000000000003",created_at="2026-03-01T12:00:00.123456",actor_user_id=7,actor_role="admin",method="POST",route="/api/x",resource_path="/api/x?a=1,2",response_status=200,outcome="success",request_id="r1",metadata_json_text='{"b":1,"a":{"z":"caf\\u00e9","y":[1,2.50,true,null]},"q":"say \\"hi\\"\\nnew"}'),
+ dict(id="00000000-0000-0000-0000-000000000002",created_at="2026-03-01T12:00:00",actor_user_id=None,actor_role="",method="DELETE",route="=cmd",resource_path="+1",response_status=403,outcome="denied",request_id="-x",metadata_json_text='{}'),
+ dict(id="00000000-0000-0000-0000-000000000001",created_at="2026-02-28T00:00:00.5",actor_user_id=1,actor_role="@r",method="PUT",route="\tt",resource_path="a\rb",response_status=500,outcome="error",request_id="",metadata_json_text='{"e":1e3,"u":"\\u2028<>&\\u0001","big":12345678901234567890,"dup":1,"dup":2}'),
+]
+def safe(v):
+    t="" if v is None else str(v)
+    return "'"+t if t.startswith(("=","+","-","@","\t","\r")) else t
+st=io.StringIO(newline="");w=csv.writer(st,lineterminator="\r\n")
+w.writerow(["id","created_at","actor_user_id","actor_role","method","route","resource_path","response_status","outcome","request_id","metadata_json"])
+out="﻿"+st.getvalue()
+for r in rows:
+    st.seek(0);st.truncate(0)
+    md=json.loads(r["metadata_json_text"])
+    w.writerow([safe(v) for v in (r["id"],datetime.fromisoformat(r["created_at"]).isoformat(),r["actor_user_id"],r["actor_role"],r["method"],r["route"],r["resource_path"],r["response_status"],r["outcome"],r["request_id"],json.dumps(md or {},ensure_ascii=False,separators=(",",":")))])
+    out+=st.getvalue()
+d=sys.argv[1]
+open(d+"/export_fixture.csv","w",encoding="utf-8",newline="").write(out)
+json.dump(rows,open(d+"/export_fixture.json","w"),indent=1)
+# list API rendering of metadata + created_at (FastAPI: compact, ensure_ascii=False)
+print(json.dumps([json.loads(r["metadata_json_text"]) for r in rows],ensure_ascii=False,separators=(",",":")))

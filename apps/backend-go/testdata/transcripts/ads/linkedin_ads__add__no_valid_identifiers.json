@@ -1,0 +1,29 @@
+{
+  "platform": "linkedin_ads",
+  "operation": "add",
+  "scenario": "no_valid_identifiers",
+  "config": {
+    "segment_id": "41234567",
+    "consent_attested": true,
+    "consent_source": "web form v3"
+  },
+  "secrets": {
+    "META_ACCESS_TOKEN": "ctk_meta_access_token_0001",
+    "LINKEDIN_ACCESS_TOKEN": "ctk_linkedin_access_token_0001",
+    "GOOGLE_ADS_ACCESS_TOKEN": "ctk_google_ads_access_token_0001",
+    "GOOGLE_ADS_DEVELOPER_TOKEN": "ctk_google_ads_developer_token_0001"
+  },
+  "input_snapshots": [
+    {
+      "email": "nope"
+    }
+  ],
+  "http_exchanges": [],
+  "unrouted_requests": [],
+  "result": {
+    "success": false,
+    "summary": "",
+    "error": "no valid email or phone identifiers",
+    "external_id": null
+  }
+}

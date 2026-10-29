@@ -1,0 +1,43 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/retention/runs?limit=1&cursor=WyIyMDI2LTA4LTI3VDA4OjAwOjAwIiwicnVuLXJldC0zIl0"
+  },
+  "response": {
+    "body": {
+      "has_more": true,
+      "limit": 1,
+      "next_cursor": "WyIyMDI2LTA4LTIwVDEwOjAwOjAwIiwicnVuLXJldC0yIl0",
+      "offset": null,
+      "runs": [
+        {
+          "created_at": "2026-08-20T10:00:00",
+          "deleted_counts": {},
+          "error": "Final failure: worker killed",
+          "finished_at": "2026-08-20T10:00:30",
+          "id": "run-ret-2",
+          "policy_snapshot": {
+            "activation": 30,
+            "agent_results": 30,
+            "audience_history": 30,
+            "audit": 90,
+            "llm_usage": 30,
+            "outreach_history": 30,
+            "signals": 30
+          },
+          "requested_by": "scheduler",
+          "started_at": "2026-08-20T10:00:00",
+          "status": "failed"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

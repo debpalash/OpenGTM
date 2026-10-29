@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "role": "viewer"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/governance/members/999"
+  },
+  "response": {
+    "body": {
+      "detail": "Workspace member not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

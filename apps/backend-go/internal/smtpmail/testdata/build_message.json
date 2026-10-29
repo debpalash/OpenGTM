@@ -1,0 +1,350 @@
+{
+  "cases": [
+    {
+      "body_html": "<p>Hello <b>Ann</b>,</p><p>Quick note.</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hello <b>Ann</b>,</p><p>Quick note.</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Contract Co, 1 Example Street</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hello Ann,Quick note.\n\n--\nContract Co, 1 Example Street\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Contract Co, 1 Example Street",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "html_paragraph",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "Plain text body\nsecond line",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "Plain text body\nsecond line<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Contract Co, 1 Example Street</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Plain text body\nsecond line\n\n--\nContract Co, 1 Example Street\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Contract Co, 1 Example Street",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "text_only_body",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Fish &amp; chips &lt;3 &quot;q&quot; &#39;s&#39;</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Fish &amp; chips &lt;3 &quot;q&quot; &#39;s&#39;</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Foo &amp;amp; Co &lt;HQ&gt;</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Fish & chips <3 \"q\" 's'\n\n--\nFoo &amp; Co <HQ>\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Foo &amp; Co <HQ>",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "entities",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<div>a   b\t\tc  \n  d</div>\n\n<p>e</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<div>a   b\t\tc  \n  d</div>\n\n<p>e</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "a b c\n d\ne\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "whitespace_runs",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Line1<br>Line2 <a href=\"https://x.example/?a=1&b=2\">link</a></p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoiIiwid3MiOiJ3cy12ZWMifQ._JBOFpJLFnqZkNg-8lQsV2xyM1kyxDQSWQ_mZbE2GU0>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Line1<br>Line2 <a href=\"https://x.example/?a=1&b=2\">link</a></p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoiIiwid3MiOiJ3cy12ZWMifQ._JBOFpJLFnqZkNg-8lQsV2xyM1kyxDQSWQ_mZbE2GU0\">Unsubscribe</a></p>",
+        "text": "Line1Line2 link\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoiIiwid3MiOiJ3cy12ZWMifQ._JBOFpJLFnqZkNg-8lQsV2xyM1kyxDQSWQ_mZbE2GU0\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "br_and_links",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImpcdTAwZjZyZ0BleFx1MDBlNG1wbGUuZGUiLCJleHAiOjE3OTU3NzYwMDAsInNlcSI6InNlcS0xIiwid3MiOiJ3cy12ZWMifQ.cGe3Cy6FfC2r2GYDGGy_tbruTEriiGE1pspMEWfxt9s>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImpcdTAwZjZyZ0BleFx1MDBlNG1wbGUuZGUiLCJleHAiOjE3OTU3NzYwMDAsInNlcSI6InNlcS0xIiwid3MiOiJ3cy12ZWMifQ.cGe3Cy6FfC2r2GYDGGy_tbruTEriiGE1pspMEWfxt9s\">Unsubscribe</a></p>",
+        "text": "Hi\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImpcdTAwZjZyZ0BleFx1MDBlNG1wbGUuZGUiLCJleHAiOjE3OTU3NzYwMDAsInNlcSI6InNlcS0xIiwid3MiOiJ3cy12ZWMifQ.cGe3Cy6FfC2r2GYDGGy_tbruTEriiGE1pspMEWfxt9s\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "nonascii_email",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "jörg@exämple.de",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hi\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "uppercase_email",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "  Ann@EXAMPLE.com ",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">A&amp;B &lt;Co&gt; &quot;Q&quot; &#x27;S&#x27;</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hi\n\n--\nA&B <Co> \"Q\" 'S'\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "A&B <Co> \"Q\" 'S'",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "footer_html_chars",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Line one\nLine two</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hi\n\n--\nLine one\nLine two\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Line one\nLine two",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "footer_multiline",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Padded Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hi\n\n--\nPadded Addr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Padded Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "footer_whitespace_trimmed",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "empty_body",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p><script>alert(1)</script>",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi</p><script>alert(1)</script><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hialert(1)\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "script_tag",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi <b>there",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "<p>Hi <b>there<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "Hi there\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "unclosed_tag",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "a < b and b > c",
+      "expected": {
+        "error": null,
+        "headers": {
+          "List-Unsubscribe": "<https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A>",
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+        },
+        "html": "a < b and b > c<hr style=\"border:none;border-top:1px solid #eee;margin:16px 0\"><p style=\"color:#999;font-size:12px\">Addr</p><p style=\"color:#999;font-size:12px\"><a href=\"https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\">Unsubscribe</a></p>",
+        "text": "a c\n\n--\nAddr\n\nUnsubscribe: https://app.example.com/api/outreach/unsubscribe?token=eyJlbWFpbCI6ImFubkBleGFtcGxlLmNvbSIsImV4cCI6MTc5NTc3NjAwMCwic2VxIjoic2VxLTEiLCJ3cyI6IndzLXZlYyJ9.Xy7cfdC_dr45vsfKD8xMlHzE927shyhQBFR7BwbN02A\n"
+      },
+      "footer": "Addr",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "angle_text",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": "no_footer",
+        "headers": null,
+        "html": null,
+        "text": null
+      },
+      "footer": "",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "no_footer_empty",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    },
+    {
+      "body_html": "<p>Hi</p>",
+      "expected": {
+        "error": "no_footer",
+        "headers": null,
+        "html": null,
+        "text": null
+      },
+      "footer": "",
+      "master": "QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8=",
+      "name": "no_footer_whitespace",
+      "now": 1788000000.0,
+      "public_base_url": "https://app.example.com",
+      "sequence_id": "seq-1",
+      "subject": "subject",
+      "to_email": "ann@example.com",
+      "ttl_days": 90,
+      "workspace_id": "ws-vec"
+    }
+  ]
+}

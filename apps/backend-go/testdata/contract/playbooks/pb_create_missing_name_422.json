@@ -1,0 +1,33 @@
+{
+  "request": {
+    "body": {
+      "prompt_template": "Describe {company} please."
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {
+            "prompt_template": "Describe {company} please."
+          },
+          "loc": [
+            "body",
+            "name"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

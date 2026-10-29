@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/rows/101/cells/http_local/run"
+  },
+  "response": {
+    "body": {
+      "error": "blocked_url: ip '127.0.0.1' is private/blocked",
+      "forced": false,
+      "provider": "http",
+      "research": null,
+      "skipped": false,
+      "status": "error",
+      "value": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

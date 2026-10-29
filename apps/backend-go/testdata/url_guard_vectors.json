@@ -1,0 +1,543 @@
+[
+ {
+  "url": "https://api.leadmagic.io/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "https://example.com/path?q=1",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://example.com/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://example.com/",
+  "allow_http": false,
+  "blocked": true
+ },
+ {
+  "url": "http://2130706433/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://0177.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://0x7f.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://0x7f000001/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://0x7f.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://017700000001/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::ffff:10.0.0.1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::ffff:8.8.8.8]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://169.254.169.254/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[fd00:ec2::254]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://localhost/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://LOCALHOST:8080/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://ip6-localhost/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://ip6-loopback/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://metadata.google.internal/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://metadata/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://127.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://127.255.255.255/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://10.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://172.16.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://172.31.255.255/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://172.32.0.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://192.168.1.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://8.8.8.8/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://1.1.1.1:443/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://0.0.0.0/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://0.1.2.3/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://100.64.0.1/",
+  "allow_http": true,
+  "blocked": false,
+  "go_only_blocked": true
+ },
+ {
+  "url": "http://192.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://192.0.0.8/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://192.0.0.9/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://192.0.0.10/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://192.0.0.170/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://192.0.0.171/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://192.0.2.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://198.18.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://198.19.255.255/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://198.20.0.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://198.51.100.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://203.0.113.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://224.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://239.255.255.255/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://240.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://255.255.255.255/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://223.255.255.255/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[fe80::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[fc00::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[fd12:3456::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[ff02::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[2001:db8::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[2001:4860:4860::8888]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2606:4700:4700::1111]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2002::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[64:ff9b::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[64:ff9b::808:808]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[64:ff9b:1::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[100::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[2001::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[2001:1::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:1::2]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:3::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:4:112::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:20::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:30::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[2001:200::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[::ffff:127.0.0.1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::ffff:7f00:1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::ffff:a9fe:a9fe]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[::2]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[1000::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[4000::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[8000::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[e000::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[fe00::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://[2a00::1]/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://[3fff::1]/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "ftp://example.com/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "file:///etc/passwd",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "javascript:alert(1)",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "gopher://example.com/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "   ",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "https://",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "https:///path",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "//example.com/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "example.com",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "  https://example.com/  ",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "HTTPS://EXAMPLE.COM/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://user:pass@127.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://example.com@127.0.0.1/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://127.0.0.1:80@example.com/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://127.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://1.2.3/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://256.256.256.256/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://0x100000000/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://4294967297/",
+  "allow_http": true,
+  "blocked": true
+ },
+ {
+  "url": "http://08.0.0.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://1.1.1.1.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://0xZZ.1.1.1/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "https://localhost.example.com/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "https://internal.corp/",
+  "allow_http": true,
+  "blocked": false
+ },
+ {
+  "url": "http://metadata.google.internal./",
+  "allow_http": true,
+  "blocked": false
+ }
+]

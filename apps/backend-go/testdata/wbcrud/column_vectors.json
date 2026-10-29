@@ -1,0 +1,2059 @@
+{
+ "deps": [
+  {
+   "name": "ref_by_id",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "use {a}"
+    }
+   ],
+   "refs": [
+    [],
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "ref_by_name_case",
+   "columns": [
+    {
+     "id": "c1",
+     "name": "Company Name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "x {company name}"
+    }
+   ],
+   "refs": [
+    [],
+    [
+     "company name"
+    ]
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "ref_underscore_alias",
+   "columns": [
+    {
+     "id": "c1",
+     "name": "Company Name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "x {company_name}"
+    }
+   ],
+   "refs": [
+    [],
+    [
+     "company_name"
+    ]
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "ref_prompt_goal_condition",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "lead_field"
+    },
+    {
+     "id": "d",
+     "name": "D",
+     "type": "agent",
+     "goal": "find {a}",
+     "condition": "{b} == \"\"",
+     "prompt": "p {c}"
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [],
+    [
+     "a",
+     "b",
+     "c"
+    ]
+   ],
+   "referencing": [
+    [
+     "d"
+    ],
+    [
+     "d"
+    ],
+    [
+     "d"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "formula_refs_skip_literals",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{a} + \"{b}\" + '{b}' # {b}\n"
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "f"
+    ],
+    [],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "formula_triple_quote",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "\"\"\"{b} \\\" {b}\"\"\" + {a}"
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "f"
+    ],
+    [],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "http_fields",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "lead_field"
+    },
+    {
+     "id": "d",
+     "name": "D",
+     "type": "lead_field"
+    },
+    {
+     "id": "h",
+     "name": "H",
+     "type": "http",
+     "http_url": "https://x/{a}",
+     "http_headers": {
+      "k": "{b}",
+      "n": {
+       "m": [
+        "{c}"
+       ]
+      }
+     },
+     "http_body": {
+      "q": "{d}"
+     }
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [],
+    [],
+    [
+     "a",
+     "b",
+     "c",
+     "d"
+    ]
+   ],
+   "referencing": [
+    [
+     "h"
+    ],
+    [
+     "h"
+    ],
+    [
+     "h"
+    ],
+    [
+     "h"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "input_columns",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "x",
+     "name": "X",
+     "type": "ai_formula",
+     "input_columns": [
+      "a",
+      " B ",
+      "",
+      3
+     ]
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "B",
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "x"
+    ],
+    [
+     "x"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "self_cycle",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "refs": [
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    []
+   ],
+   "blocked": [
+    "a"
+   ]
+  },
+  {
+   "name": "self_condition_ok",
+   "columns": [
+    {
+     "id": "e",
+     "name": "Email",
+     "type": "enrichment",
+     "condition": "{Email} == \"\""
+    }
+   ],
+   "refs": [
+    [
+     "Email"
+    ]
+   ],
+   "referencing": [
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "cycle2",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "refs": [
+    [
+     "b"
+    ],
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    [
+     "a"
+    ]
+   ],
+   "blocked": [
+    "a",
+    "b"
+   ]
+  },
+  {
+   "name": "cycle3_plus_downstream",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{c}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "d",
+     "name": "D",
+     "type": "ai_formula",
+     "prompt": "{c}"
+    },
+    {
+     "id": "e",
+     "name": "E",
+     "type": "ai_formula",
+     "prompt": "none"
+    }
+   ],
+   "refs": [
+    [
+     "c"
+    ],
+    [
+     "a"
+    ],
+    [
+     "b"
+    ],
+    [
+     "c"
+    ],
+    []
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    [
+     "c"
+    ],
+    [
+     "a",
+     "d"
+    ],
+    [],
+    []
+   ],
+   "blocked": [
+    "a",
+    "b",
+    "c",
+    "d"
+   ]
+  },
+  {
+   "name": "lead_field_not_executable",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field",
+     "prompt": "{a}"
+    }
+   ],
+   "refs": [
+    [
+     "b"
+    ],
+    [
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "b"
+    ],
+    [
+     "a"
+    ]
+   ],
+   "blocked": []
+  },
+  {
+   "name": "id_beats_name",
+   "columns": [
+    {
+     "id": "x",
+     "name": "y",
+     "type": "lead_field"
+    },
+    {
+     "id": "y",
+     "name": "Z",
+     "type": "lead_field"
+    },
+    {
+     "id": "q",
+     "name": "Q",
+     "type": "ai_formula",
+     "prompt": "{y}"
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "y"
+    ]
+   ],
+   "referencing": [
+    [],
+    [
+     "q"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "duplicate_names",
+   "columns": [
+    {
+     "id": "a",
+     "name": "Dup",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "Dup",
+     "type": "lead_field"
+    },
+    {
+     "id": "c",
+     "name": "C",
+     "type": "ai_formula",
+     "prompt": "{dup}"
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "dup"
+    ]
+   ],
+   "referencing": [
+    [
+     "c"
+    ],
+    [
+     "c"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "output_sheets",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "Sheets",
+     "destination_config": {
+      "columns": [
+       "a",
+       " B ",
+       5
+      ]
+     }
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "B",
+     "a"
+    ]
+   ],
+   "referencing": [
+    [
+     "o"
+    ],
+    [
+     "o"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "output_crm_field_map",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "field_map": {
+       "a": "x",
+       "B": "{b}"
+      }
+     }
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "B",
+     "a",
+     "b"
+    ]
+   ],
+   "referencing": [
+    [
+     "o"
+    ],
+    [
+     "o"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "output_instantly_placeholder",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "lead_field"
+    },
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "instantly",
+     "destination_config": {
+      "field_map": {
+       "{a} {b}": "x",
+       "b": "y"
+      }
+     }
+    }
+   ],
+   "refs": [
+    [],
+    [],
+    [
+     "a",
+     "b"
+    ]
+   ],
+   "referencing": [
+    [
+     "o"
+    ],
+    [
+     "o"
+    ],
+    []
+   ],
+   "blocked": []
+  },
+  {
+   "name": "output_cycle",
+   "columns": [
+    {
+     "id": "o",
+     "name": "O",
+     "type": "output",
+     "destination": "crm",
+     "destination_config": {
+      "field_map": {
+       "w": "x"
+      }
+     }
+    },
+    {
+     "id": "w",
+     "name": "W",
+     "type": "ai_formula",
+     "prompt": "{o}"
+    }
+   ],
+   "refs": [
+    [
+     "w"
+    ],
+    [
+     "o"
+    ]
+   ],
+   "referencing": [
+    [
+     "w"
+    ],
+    [
+     "o"
+    ]
+   ],
+   "blocked": [
+    "o",
+    "w"
+   ]
+  },
+  {
+   "name": "null_and_wrong_types",
+   "columns": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": null,
+     "input_columns": null,
+     "http_headers": null
+    },
+    {
+     "id": "b",
+     "name": null,
+     "type": "ai_formula",
+     "prompt": 5,
+     "formula": [
+      "x"
+     ],
+     "input_columns": []
+    }
+   ],
+   "refs": [
+    [],
+    []
+   ],
+   "referencing": [
+    [],
+    []
+   ],
+   "blocked": []
+  }
+ ],
+ "renames": [
+  {
+   "name": "rename_breaks_name_ref",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "New",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "broken": [
+    "b"
+   ],
+   "guard": {
+    "status": 409,
+    "detail": "Rename breaks column-name references in: B. Change those references to stable column IDs first."
+   }
+  },
+  {
+   "name": "rename_id_ref_ok",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{a}"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "New",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{a}"
+    }
+   ],
+   "broken": [],
+   "guard": null
+  },
+  {
+   "name": "rename_alias_case_only",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old Name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{old_name}"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "old name",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{old_name}"
+    }
+   ],
+   "broken": [],
+   "guard": null
+  },
+  {
+   "name": "rename_other_column_same_name",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "New",
+     "type": "lead_field"
+    },
+    {
+     "id": "z",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "broken": [
+    "b"
+   ],
+   "guard": {
+    "status": 409,
+    "detail": "Rename breaks column-name references in: B. Change those references to stable column IDs first."
+   }
+  },
+  {
+   "name": "rename_input_columns_and_formula",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "input_columns": [
+      "Old"
+     ]
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{Old}+1"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "New",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "input_columns": [
+      "Old"
+     ]
+    },
+    {
+     "id": "f",
+     "name": "F",
+     "type": "formula",
+     "formula": "{Old}+1"
+    }
+   ],
+   "broken": [
+    "b",
+    "f"
+   ],
+   "guard": {
+    "status": 409,
+    "detail": "Rename breaks column-name references in: B, F. Change those references to stable column IDs first."
+   }
+  },
+  {
+   "name": "rename_deleted_column_not_checked",
+   "before": [
+    {
+     "id": "a",
+     "name": "Old",
+     "type": "lead_field"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "after": [
+    {
+     "id": "b",
+     "name": "B",
+     "type": "enrichment",
+     "prompt": "{Old}"
+    }
+   ],
+   "broken": [],
+   "guard": null
+  }
+ ],
+ "cycles": [
+  {
+   "name": "new_self_cycle",
+   "before": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "guard": {
+    "status": 422,
+    "detail": "Column changes introduce circular dependencies affecting: a. Break the circular references before saving."
+   }
+  },
+  {
+   "name": "preexisting_cycle_ignored",
+   "before": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "guard": null
+  },
+  {
+   "name": "new_cycle_sorted_ids",
+   "before": [
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "x"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{z}"
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "x"
+    }
+   ],
+   "after": [
+    {
+     "id": "z",
+     "name": "Z",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{z}"
+    },
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula",
+     "prompt": "{b}"
+    }
+   ],
+   "guard": {
+    "status": 422,
+    "detail": "Column changes introduce circular dependencies affecting: a, b, z. Break the circular references before saving."
+   }
+  },
+  {
+   "name": "no_cycle",
+   "before": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula"
+    }
+   ],
+   "after": [
+    {
+     "id": "a",
+     "name": "A",
+     "type": "ai_formula"
+    },
+    {
+     "id": "b",
+     "name": "B",
+     "type": "ai_formula",
+     "prompt": "{a}"
+    }
+   ],
+   "guard": null
+  }
+ ],
+ "normalize": [
+  {
+   "name": "minimal",
+   "input": "{\"id\": \"a\", \"name\": \"A\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200}"
+  },
+  {
+   "name": "defaults_and_unknown_dropped",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"zzz\": 1, \"extra\": {\"k\": 1}}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200}"
+  },
+  {
+   "name": "key_order_follows_model",
+   "input": "{\"formula\": \"{a}\", \"http_url\": \"u\", \"goal\": \"g\", \"id\": \"a\", \"tools\": [\"t\"], \"name\": \"A\", \"width\": 120, \"type\": \"agent\", \"reactive\": false, \"max_steps\": 3, \"prompt\": \"p\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"agent\",\"width\":120,\"reactive\":false,\"prompt\":\"p\",\"max_steps\":3,\"goal\":\"g\",\"tools\":[\"t\"],\"http_url\":\"u\",\"formula\":\"{a}\"}"
+  },
+  {
+   "name": "none_values_dropped",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"prompt\": null, \"policy\": {\"max_steps\": null, \"prefer\": \"x\"}}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"policy\":{\"prefer\":\"x\"}}"
+  },
+  {
+   "name": "policy_nested_unknown_dropped",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"policy\": {\"max_steps\": 2, \"max_cost_usd\": 1, \"bogus\": 1}}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"policy\":{\"max_steps\":2,\"max_cost_usd\":1.0}}"
+  },
+  {
+   "name": "policy_negative_steps",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"policy\": {\"max_steps\": -1}}",
+   "errors": [
+    {
+     "type": "greater_than_equal",
+     "loc": [
+      "policy",
+      "max_steps"
+     ],
+     "msg": "Input should be greater than or equal to 0",
+     "input": -1
+    }
+   ]
+  },
+  {
+   "name": "policy_string_steps",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"policy\": {\"max_steps\": \"3\"}}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "policy",
+      "max_steps"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": "3"
+    }
+   ]
+  },
+  {
+   "name": "policy_not_object",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"policy\": \"x\"}",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [
+      "policy"
+     ],
+     "msg": "Input should be a valid dictionary or instance of AgentColumnPolicy",
+     "input": "x"
+    }
+   ]
+  },
+  {
+   "name": "strict_int_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_tokens\": \"3\"}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "max_tokens"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": "3"
+    }
+   ]
+  },
+  {
+   "name": "strict_int_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_tokens\": 3.0}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "max_tokens"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": 3.0
+    }
+   ]
+  },
+  {
+   "name": "strict_int_bool",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_tokens\": true}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "max_tokens"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": true
+    }
+   ]
+  },
+  {
+   "name": "max_tokens_zero",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_tokens\": 0}",
+   "errors": [
+    {
+     "type": "greater_than",
+     "loc": [
+      "max_tokens"
+     ],
+     "msg": "Input should be greater than 0",
+     "input": 0
+    }
+   ]
+  },
+  {
+   "name": "max_tokens_ok",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_tokens\": 5}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"max_tokens\":5}"
+  },
+  {
+   "name": "negative_budget",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": -1}",
+   "errors": [
+    {
+     "type": "greater_than_equal",
+     "loc": [
+      "cell_budget_usd"
+     ],
+     "msg": "Input should be greater than or equal to 0",
+     "input": -1
+    }
+   ]
+  },
+  {
+   "name": "negative_budget_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": -0.5}",
+   "errors": [
+    {
+     "type": "greater_than_equal",
+     "loc": [
+      "cell_budget_usd"
+     ],
+     "msg": "Input should be greater than or equal to 0",
+     "input": -0.5
+    }
+   ]
+  },
+  {
+   "name": "budget_int_becomes_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": 2}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"cell_budget_usd\":2.0}"
+  },
+  {
+   "name": "budget_zero",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": 0}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"cell_budget_usd\":0.0}"
+  },
+  {
+   "name": "budget_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": \"1.5\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"cell_budget_usd\":1.5}"
+  },
+  {
+   "name": "budget_bad_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": \"abc\"}",
+   "errors": [
+    {
+     "type": "float_parsing",
+     "loc": [
+      "cell_budget_usd"
+     ],
+     "msg": "Input should be a valid number, unable to parse string as a number",
+     "input": "abc"
+    }
+   ]
+  },
+  {
+   "name": "budget_list",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": [1]}",
+   "errors": [
+    {
+     "type": "float_type",
+     "loc": [
+      "cell_budget_usd"
+     ],
+     "msg": "Input should be a valid number",
+     "input": [
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "name": "budget_small_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": 1e-05}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"cell_budget_usd\":1e-05}"
+  },
+  {
+   "name": "budget_big_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"cell_budget_usd\": 1e+20}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"cell_budget_usd\":1e+20}"
+  },
+  {
+   "name": "max_steps_lax_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": \"4\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"max_steps\":4}"
+  },
+  {
+   "name": "max_steps_lax_float",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": 4.0}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"max_steps\":4}"
+  },
+  {
+   "name": "max_steps_fraction",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": 4.5}",
+   "errors": [
+    {
+     "type": "int_from_float",
+     "loc": [
+      "max_steps"
+     ],
+     "msg": "Input should be a valid integer, got a number with a fractional part",
+     "input": 4.5
+    }
+   ]
+  },
+  {
+   "name": "max_steps_bad_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": \"x\"}",
+   "errors": [
+    {
+     "type": "int_parsing",
+     "loc": [
+      "max_steps"
+     ],
+     "msg": "Input should be a valid integer, unable to parse string as an integer",
+     "input": "x"
+    }
+   ]
+  },
+  {
+   "name": "max_steps_bool",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": true}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"max_steps\":1}"
+  },
+  {
+   "name": "max_steps_list",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"max_steps\": []}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "max_steps"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": []
+    }
+   ]
+  },
+  {
+   "name": "width_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"width\": \"150\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":150}"
+  },
+  {
+   "name": "width_null",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"width\": null}",
+   "errors": [
+    {
+     "type": "int_type",
+     "loc": [
+      "width"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": null
+    }
+   ]
+  },
+  {
+   "name": "missing_id_name",
+   "input": "{}",
+   "errors": [
+    {
+     "type": "missing",
+     "loc": [
+      "id"
+     ],
+     "msg": "Field required",
+     "input": {}
+    },
+    {
+     "type": "missing",
+     "loc": [
+      "name"
+     ],
+     "msg": "Field required",
+     "input": {}
+    }
+   ]
+  },
+  {
+   "name": "missing_name",
+   "input": "{\"id\": \"a\"}",
+   "errors": [
+    {
+     "type": "missing",
+     "loc": [
+      "name"
+     ],
+     "msg": "Field required",
+     "input": {
+      "id": "a"
+     }
+    }
+   ]
+  },
+  {
+   "name": "id_not_string",
+   "input": "{\"id\": 1, \"name\": \"A\"}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "id"
+     ],
+     "msg": "Input should be a valid string",
+     "input": 1
+    }
+   ]
+  },
+  {
+   "name": "name_null",
+   "input": "{\"id\": \"a\", \"name\": null}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "name"
+     ],
+     "msg": "Input should be a valid string",
+     "input": null
+    }
+   ]
+  },
+  {
+   "name": "type_not_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"type\": 5}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "type"
+     ],
+     "msg": "Input should be a valid string",
+     "input": 5
+    }
+   ]
+  },
+  {
+   "name": "bool_lax_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"reactive\": \"yes\", \"verify\": \"false\", \"run_once\": 1}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"reactive\":true,\"verify\":false,\"run_once\":true}"
+  },
+  {
+   "name": "bool_bad",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"reactive\": \"maybe\"}",
+   "errors": [
+    {
+     "type": "bool_parsing",
+     "loc": [
+      "reactive"
+     ],
+     "msg": "Input should be a valid boolean, unable to interpret input",
+     "input": "maybe"
+    }
+   ]
+  },
+  {
+   "name": "bool_bad_int",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"reactive\": 2}",
+   "errors": [
+    {
+     "type": "bool_parsing",
+     "loc": [
+      "reactive"
+     ],
+     "msg": "Input should be a valid boolean, unable to interpret input",
+     "input": 2
+    }
+   ]
+  },
+  {
+   "name": "bool_list",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"reactive\": []}",
+   "errors": [
+    {
+     "type": "bool_type",
+     "loc": [
+      "reactive"
+     ],
+     "msg": "Input should be a valid boolean",
+     "input": []
+    }
+   ]
+  },
+  {
+   "name": "waterfall_ok",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"waterfall\": [\"x\", \"y\"]}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"waterfall\":[\"x\",\"y\"]}"
+  },
+  {
+   "name": "waterfall_bad_item",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"waterfall\": [\"x\", 2, null]}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "waterfall",
+      1
+     ],
+     "msg": "Input should be a valid string",
+     "input": 2
+    },
+    {
+     "type": "string_type",
+     "loc": [
+      "waterfall",
+      2
+     ],
+     "msg": "Input should be a valid string",
+     "input": null
+    }
+   ]
+  },
+  {
+   "name": "waterfall_not_list",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"waterfall\": \"x\"}",
+   "errors": [
+    {
+     "type": "list_type",
+     "loc": [
+      "waterfall"
+     ],
+     "msg": "Input should be a valid list",
+     "input": "x"
+    }
+   ]
+  },
+  {
+   "name": "tools_not_list",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"tools\": {\"a\": 1}}",
+   "errors": [
+    {
+     "type": "list_type",
+     "loc": [
+      "tools"
+     ],
+     "msg": "Input should be a valid list",
+     "input": {
+      "a": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "input_columns_ok",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"input_columns\": [\"a\", \"b\"]}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"input_columns\":[\"a\",\"b\"]}"
+  },
+  {
+   "name": "icp_not_dict",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"icp\": [1]}",
+   "errors": [
+    {
+     "type": "dict_type",
+     "loc": [
+      "icp"
+     ],
+     "msg": "Input should be a valid dictionary",
+     "input": [
+      1
+     ]
+    }
+   ]
+  },
+  {
+   "name": "dicts_kept_verbatim",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"icp\": {\"b\": 1, \"a\": [1.5, null, true]}, \"channels\": {}, \"destination_config\": {\"z\": {\"y\": 1}}, \"http_headers\": {\"H\": \"{a}\"}, \"http_body\": [1, \"x\", {\"k\": null}], \"http_method\": \"POST\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"icp\":{\"b\":1,\"a\":[1.5,null,true]},\"channels\":{},\"destination_config\":{\"z\":{\"y\":1}},\"http_method\":\"POST\",\"http_headers\":{\"H\":\"{a}\"},\"http_body\":[1,\"x\",{\"k\":null}]}"
+  },
+  {
+   "name": "http_body_string",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"http_body\": \"raw {a}\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"http_body\":\"raw {a}\"}"
+  },
+  {
+   "name": "http_body_null",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"http_body\": null}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200}"
+  },
+  {
+   "name": "target_rows_lax",
+   "input": "{\"id\": \"a\", \"name\": \"A\", \"target_rows\": \"7\"}",
+   "column": "{\"id\":\"a\",\"name\":\"A\",\"type\":\"lead_field\",\"width\":200,\"target_rows\":7}"
+  },
+  {
+   "name": "many_errors",
+   "input": "{\"id\": 1, \"width\": \"x\", \"max_tokens\": \"2\", \"cell_budget_usd\": -1, \"waterfall\": 3}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "id"
+     ],
+     "msg": "Input should be a valid string",
+     "input": 1
+    },
+    {
+     "type": "missing",
+     "loc": [
+      "name"
+     ],
+     "msg": "Field required",
+     "input": {
+      "id": 1,
+      "width": "x",
+      "max_tokens": "2",
+      "cell_budget_usd": -1,
+      "waterfall": 3
+     }
+    },
+    {
+     "type": "int_parsing",
+     "loc": [
+      "width"
+     ],
+     "msg": "Input should be a valid integer, unable to parse string as an integer",
+     "input": "x"
+    },
+    {
+     "type": "list_type",
+     "loc": [
+      "waterfall"
+     ],
+     "msg": "Input should be a valid list",
+     "input": 3
+    },
+    {
+     "type": "greater_than_equal",
+     "loc": [
+      "cell_budget_usd"
+     ],
+     "msg": "Input should be greater than or equal to 0",
+     "input": -1
+    },
+    {
+     "type": "int_type",
+     "loc": [
+      "max_tokens"
+     ],
+     "msg": "Input should be a valid integer",
+     "input": "2"
+    }
+   ]
+  },
+  {
+   "name": "unicode_strings",
+   "input": "{\"id\": \"a\", \"name\": \"Café ☃\", \"prompt\": \"hi <b>&</b>\"}",
+   "column": "{\"id\":\"a\",\"name\":\"Café ☃\",\"type\":\"lead_field\",\"width\":200,\"prompt\":\"hi <b>&</b>\"}"
+  },
+  {
+   "name": "not_object_string",
+   "input": "\"x\"",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [],
+     "msg": "Input should be a valid dictionary or instance of ColumnConfig",
+     "input": "x"
+    }
+   ]
+  },
+  {
+   "name": "not_object_list",
+   "input": "[]",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [],
+     "msg": "Input should be a valid dictionary or instance of ColumnConfig",
+     "input": []
+    }
+   ]
+  },
+  {
+   "name": "not_object_null",
+   "input": "null",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [],
+     "msg": "Input should be a valid dictionary or instance of ColumnConfig",
+     "input": null
+    }
+   ]
+  },
+  {
+   "name": "not_object_number",
+   "input": "3",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [],
+     "msg": "Input should be a valid dictionary or instance of ColumnConfig",
+     "input": 3
+    }
+   ]
+  }
+ ],
+ "views": [
+  {
+   "name": "defaults",
+   "input": "{}",
+   "config": "{\"filters\":[],\"sort\":[],\"hidden_columns\":[]}",
+   "guard": null,
+   "guard_unknown": null
+  },
+  {
+   "name": "filter_default_op",
+   "input": "{\"filters\": [{\"column\": \"a\"}]}",
+   "config": "{\"filters\":[{\"column\":\"a\",\"op\":\"contains\",\"value\":null}],\"sort\":[],\"hidden_columns\":[]}",
+   "guard": null,
+   "guard_unknown": {
+    "status": 422,
+    "detail": "View references missing columns: a. Refresh the workbook and update the view."
+   }
+  },
+  {
+   "name": "filter_full",
+   "input": "{\"filters\": [{\"column\": \"a\", \"op\": \"equals\", \"value\": 3}], \"sort\": [{\"column\": \"b\"}, {\"column\": \"a\", \"dir\": \"desc\"}], \"hidden_columns\": [\"c\"]}",
+   "config": "{\"filters\":[{\"column\":\"a\",\"op\":\"equals\",\"value\":3}],\"sort\":[{\"column\":\"b\",\"dir\":\"asc\"},{\"column\":\"a\",\"dir\":\"desc\"}],\"hidden_columns\":[\"c\"]}",
+   "guard": null,
+   "guard_unknown": {
+    "status": 422,
+    "detail": "View references missing columns: a, b, c. Refresh the workbook and update the view."
+   }
+  },
+  {
+   "name": "bad_op",
+   "input": "{\"filters\": [{\"column\": \"a\", \"op\": \"like\"}]}",
+   "errors": [
+    {
+     "type": "literal_error",
+     "loc": [
+      "filters",
+      0,
+      "op"
+     ],
+     "msg": "Input should be 'equals', 'not_equals', 'contains', 'not_contains', 'empty' or 'not_empty'",
+     "input": "like"
+    }
+   ]
+  },
+  {
+   "name": "empty_column",
+   "input": "{\"filters\": [{\"column\": \"\"}], \"sort\": [{\"column\": \"\"}]}",
+   "errors": [
+    {
+     "type": "string_too_short",
+     "loc": [
+      "filters",
+      0,
+      "column"
+     ],
+     "msg": "String should have at least 1 character",
+     "input": ""
+    },
+    {
+     "type": "string_too_short",
+     "loc": [
+      "sort",
+      0,
+      "column"
+     ],
+     "msg": "String should have at least 1 character",
+     "input": ""
+    }
+   ]
+  },
+  {
+   "name": "bad_dir",
+   "input": "{\"sort\": [{\"column\": \"a\", \"dir\": \"up\"}]}",
+   "errors": [
+    {
+     "type": "literal_error",
+     "loc": [
+      "sort",
+      0,
+      "dir"
+     ],
+     "msg": "Input should be 'asc' or 'desc'",
+     "input": "up"
+    }
+   ]
+  },
+  {
+   "name": "missing_column_key",
+   "input": "{\"filters\": [{}], \"sort\": [{}]}",
+   "errors": [
+    {
+     "type": "missing",
+     "loc": [
+      "filters",
+      0,
+      "column"
+     ],
+     "msg": "Field required",
+     "input": {}
+    },
+    {
+     "type": "missing",
+     "loc": [
+      "sort",
+      0,
+      "column"
+     ],
+     "msg": "Field required",
+     "input": {}
+    }
+   ]
+  },
+  {
+   "name": "filters_not_list",
+   "input": "{\"filters\": \"x\"}",
+   "errors": [
+    {
+     "type": "list_type",
+     "loc": [
+      "filters"
+     ],
+     "msg": "Input should be a valid list",
+     "input": "x"
+    }
+   ]
+  },
+  {
+   "name": "hidden_not_strings",
+   "input": "{\"hidden_columns\": [\"a\", 1]}",
+   "errors": [
+    {
+     "type": "string_type",
+     "loc": [
+      "hidden_columns",
+      1
+     ],
+     "msg": "Input should be a valid string",
+     "input": 1
+    }
+   ]
+  },
+  {
+   "name": "not_object",
+   "input": "[]",
+   "errors": [
+    {
+     "type": "model_type",
+     "loc": [],
+     "msg": "Input should be a valid dictionary or instance of ViewConfig",
+     "input": []
+    }
+   ]
+  },
+  {
+   "name": "unknown_keys_dropped",
+   "input": "{\"zzz\": 1, \"filters\": [{\"column\": \"a\", \"extra\": 1}]}",
+   "config": "{\"filters\":[{\"column\":\"a\",\"op\":\"contains\",\"value\":null}],\"sort\":[],\"hidden_columns\":[]}",
+   "guard": null,
+   "guard_unknown": {
+    "status": 422,
+    "detail": "View references missing columns: a. Refresh the workbook and update the view."
+   }
+  },
+  {
+   "name": "value_kinds",
+   "input": "{\"filters\": [{\"column\": \"a\", \"value\": null}, {\"column\": \"b\", \"value\": [1, \"x\"]}, {\"column\": \"c\", \"value\": {\"k\": 1}}]}",
+   "config": "{\"filters\":[{\"column\":\"a\",\"op\":\"contains\",\"value\":null},{\"column\":\"b\",\"op\":\"contains\",\"value\":[1,\"x\"]},{\"column\":\"c\",\"op\":\"contains\",\"value\":{\"k\":1}}],\"sort\":[],\"hidden_columns\":[]}",
+   "guard": null,
+   "guard_unknown": {
+    "status": 422,
+    "detail": "View references missing columns: a, b, c. Refresh the workbook and update the view."
+   }
+  }
+ ],
+ "views_known": [
+  "a",
+  "b",
+  "c"
+ ],
+ "stored": [
+  {
+   "name": "csv_import",
+   "stored": "[{\"id\": \"company\", \"name\": \"Company\", \"type\": \"lead_field\", \"lead_field\": \"company\", \"width\": 200}, {\"id\": \"email\", \"name\": \"Work Email\", \"type\": \"lead_field\", \"lead_field\": \"email\", \"width\": 200}, {\"id\": \"website\", \"name\": \"Website\", \"type\": \"lead_field\", \"lead_field\": \"website\", \"width\": 200}, {\"id\": \"notes\", \"name\": \"Notes\", \"type\": \"lead_field\", \"lead_field\": \"notes\", \"width\": 200}]",
+   "expected": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":200},{\"id\":\"email\",\"name\":\"Work Email\",\"type\":\"lead_field\",\"lead_field\":\"email\",\"width\":200},{\"id\":\"website\",\"name\":\"Website\",\"type\":\"lead_field\",\"lead_field\":\"website\",\"width\":200},{\"id\":\"notes\",\"name\":\"Notes\",\"type\":\"lead_field\",\"lead_field\":\"notes\",\"width\":200}]"
+  },
+  {
+   "name": "ambitionbox",
+   "stored": "[{\"id\": \"company\", \"name\": \"Company\", \"type\": \"lead_field\", \"lead_field\": \"company\", \"width\": 220}, {\"id\": \"industry\", \"name\": \"Industry\", \"type\": \"lead_field\", \"lead_field\": \"industry\", \"width\": 180}, {\"id\": \"ambitionbox_rating\", \"name\": \"Rating\", \"type\": \"lead_field\", \"lead_field\": \"ambitionbox_rating\", \"width\": 90}, {\"id\": \"review_count\", \"name\": \"Reviews\", \"type\": \"lead_field\", \"lead_field\": \"review_count\", \"width\": 100}, {\"id\": \"company_size\", \"name\": \"Employees\", \"type\": \"lead_field\", \"lead_field\": \"company_size\", \"width\": 130}, {\"id\": \"city\", \"name\": \"Top location\", \"type\": \"lead_field\", \"lead_field\": \"city\", \"width\": 150}, {\"id\": \"jobs_count\", \"name\": \"Jobs\", \"type\": \"lead_field\", \"lead_field\": \"jobs_count\", \"width\": 80}, {\"id\": \"company_type\", \"name\": \"Company type\", \"type\": \"lead_field\", \"lead_field\": \"company_type\", \"width\": 150}, {\"id\": \"is_verified\", \"name\": \"Verified\", \"type\": \"lead_field\", \"lead_field\": \"is_verified\", \"width\": 90}, {\"id\": \"ambitionbox_url\", \"name\": \"AmbitionBox\", \"type\": \"lead_field\", \"lead_field\": \"ambitionbox_url\", \"width\": 260}]",
+   "expected": "[{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220},{\"id\":\"industry\",\"name\":\"Industry\",\"type\":\"lead_field\",\"lead_field\":\"industry\",\"width\":180},{\"id\":\"ambitionbox_rating\",\"name\":\"Rating\",\"type\":\"lead_field\",\"lead_field\":\"ambitionbox_rating\",\"width\":90},{\"id\":\"review_count\",\"name\":\"Reviews\",\"type\":\"lead_field\",\"lead_field\":\"review_count\",\"width\":100},{\"id\":\"company_size\",\"name\":\"Employees\",\"type\":\"lead_field\",\"lead_field\":\"company_size\",\"width\":130},{\"id\":\"city\",\"name\":\"Top location\",\"type\":\"lead_field\",\"lead_field\":\"city\",\"width\":150},{\"id\":\"jobs_count\",\"name\":\"Jobs\",\"type\":\"lead_field\",\"lead_field\":\"jobs_count\",\"width\":80},{\"id\":\"company_type\",\"name\":\"Company type\",\"type\":\"lead_field\",\"lead_field\":\"company_type\",\"width\":150},{\"id\":\"is_verified\",\"name\":\"Verified\",\"type\":\"lead_field\",\"lead_field\":\"is_verified\",\"width\":90},{\"id\":\"ambitionbox_url\",\"name\":\"AmbitionBox\",\"type\":\"lead_field\",\"lead_field\":\"ambitionbox_url\",\"width\":260}]"
+  },
+  {
+   "name": "apply_function_chain",
+   "stored": "[{\"id\": \"a\", \"name\": \"A\", \"type\": \"ai_formula\", \"prompt\": \"p\", \"extra_flag\": true}, {\"key\": \"company\", \"name\": \"Company\", \"type\": \"text\", \"zz\": {\"b\": 1, \"a\": 2}}, {\"name\": \"N\", \"id\": \"n\", \"key\": \"k\", \"type\": \"enrichment\", \"provider\": \"x\", \"width\": 150}]",
+   "expected": "[{\"id\":\"a\",\"name\":\"A\",\"type\":\"ai_formula\",\"prompt\":\"p\",\"extra_flag\":true},{\"key\":\"company\",\"name\":\"Company\",\"type\":\"text\",\"zz\":{\"b\":1,\"a\":2}},{\"name\":\"N\",\"id\":\"n\",\"key\":\"k\",\"type\":\"enrichment\",\"provider\":\"x\",\"width\":150}]"
+  },
+  {
+   "name": "interleaved_unknown_keys",
+   "stored": "[{\"id\": \"a\", \"zz\": 1, \"name\": \"A\", \"type\": \"x\", \"k\": {\"z\": 1, \"a\": [1.5, 100.0]}, \"width\": 3}]",
+   "expected": "[{\"id\":\"a\",\"zz\":1,\"name\":\"A\",\"type\":\"x\",\"k\":{\"z\":1,\"a\":[1.5,100.0]},\"width\":3}]"
+  },
+  {
+   "name": "unicode_and_html",
+   "stored": "[{\"name\": \"Caf\\u00e9 <b>&\", \"id\": \"u\"}]",
+   "expected": "[{\"name\":\"Café <b>&\",\"id\":\"u\"}]"
+  }
+ ],
+ "patch": [
+  {
+   "name": "patch_appends_in_request_order",
+   "before": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220}",
+   "changes": "{\"prompt\": \"x {a}\", \"reactive\": false}",
+   "merged": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220,\"prompt\":\"x {a}\",\"reactive\":false}"
+  },
+  {
+   "name": "patch_existing_keeps_position",
+   "before": "{\"id\":\"company\",\"name\":\"Company\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":220}",
+   "changes": "{\"width\": 99, \"name\": \"Renamed\", \"zzz\": [1]}",
+   "merged": "{\"id\":\"company\",\"name\":\"Renamed\",\"type\":\"lead_field\",\"lead_field\":\"company\",\"width\":99,\"zzz\":[1]}"
+  }
+ ],
+ "locs": [
+  {
+   "name": "create_columns_config",
+   "input": "{\"id\": \"a\"}",
+   "prefix": [
+    "body",
+    "columns_config",
+    2
+   ],
+   "locs": [
+    [
+     "body",
+     "columns_config",
+     2,
+     "name"
+    ]
+   ],
+   "view": false
+  },
+  {
+   "name": "add_column",
+   "input": "{\"id\": \"a\", \"width\": \"x\"}",
+   "prefix": [
+    "body",
+    "column"
+   ],
+   "locs": [
+    [
+     "body",
+     "column",
+     "name"
+    ],
+    [
+     "body",
+     "column",
+     "width"
+    ]
+   ],
+   "view": false
+  },
+  {
+   "name": "view_config",
+   "input": "{\"filters\": [{\"column\": \"\"}]}",
+   "prefix": [
+    "body",
+    "config"
+   ],
+   "locs": [
+    [
+     "body",
+     "config",
+     "filters",
+     0,
+     "column"
+    ]
+   ],
+   "view": true
+  }
+ ]
+}

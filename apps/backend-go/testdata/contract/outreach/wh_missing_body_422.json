@@ -1,0 +1,29 @@
+{
+  "request": {
+    "body": {},
+    "headers": {
+      "X-Webhook-Secret": "{{token:token_webhook_secret}}"
+    },
+    "method": "POST",
+    "path": "/api/outreach/webhooks/bounce"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "input": {},
+          "loc": [
+            "body",
+            "message_id"
+          ],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

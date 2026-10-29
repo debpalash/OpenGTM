@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workspaces/ws-alpha"
+  },
+  "response": {
+    "body": {
+      "created_at": 1788000000.0,
+      "description": "",
+      "icon": "\ud83c\udfe2",
+      "id": "ws-alpha",
+      "leads_count": 0,
+      "name": "Alpha",
+      "owner_id": 1,
+      "slug": "alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

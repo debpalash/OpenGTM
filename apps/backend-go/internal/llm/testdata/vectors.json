@@ -1,0 +1,7479 @@
+{
+ "complete": [
+  {
+   "name": "openai_compat_cerebras",
+   "settings": {
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "cerebras"
+   },
+   "script": {
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/cerebras/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-cerebras",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_completion_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "cerebras",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "cerebras",
+     "model": "llama-3.3-70b",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_groq",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_sambanova",
+   "settings": {
+    "SAMBANOVA_API_KEY": "key-sambanova",
+    "SAMBANOVA_BASE_URL": "{{BASE}}/sambanova/v1",
+    "LLM_DEFAULT_PROVIDER": "sambanova"
+   },
+   "script": {
+    "/sambanova/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/sambanova/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-sambanova",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "Meta-Llama-3.3-70B-Instruct",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "sambanova",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "sambanova",
+     "model": "Meta-Llama-3.3-70B-Instruct",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_nvidia",
+   "settings": {
+    "NVIDIA_API_KEY": "key-nvidia",
+    "NVIDIA_BASE_URL": "{{BASE}}/nvidia/v1",
+    "LLM_DEFAULT_PROVIDER": "nvidia"
+   },
+   "script": {
+    "/nvidia/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/nvidia/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-nvidia",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "meta/llama-3.3-70b-instruct",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "nvidia",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "nvidia",
+     "model": "meta/llama-3.3-70b-instruct",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_mistral",
+   "settings": {
+    "MISTRAL_API_KEY": "key-mistral",
+    "MISTRAL_BASE_URL": "{{BASE}}/mistral/v1",
+    "LLM_DEFAULT_PROVIDER": "mistral"
+   },
+   "script": {
+    "/mistral/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/mistral/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-mistral",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "mistral-small-latest",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "mistral",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "mistral",
+     "model": "mistral-small-latest",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_openrouter",
+   "settings": {
+    "OPENROUTER_API_KEY": "key-openrouter",
+    "OPENROUTER_BASE_URL": "{{BASE}}/openrouter/v1",
+    "LLM_DEFAULT_PROVIDER": "openrouter"
+   },
+   "script": {
+    "/openrouter/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/openrouter/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-openrouter",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "meta-llama/llama-3.3-70b-instruct:free",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "openrouter",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "openrouter",
+     "model": "meta-llama/llama-3.3-70b-instruct:free",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_github_models",
+   "settings": {
+    "GITHUB_MODELS_API_KEY": "key-github_models",
+    "GITHUB_MODELS_BASE_URL": "{{BASE}}/github_models/v1",
+    "LLM_DEFAULT_PROVIDER": "github_models"
+   },
+   "script": {
+    "/github_models/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/github_models/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-github_models",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "gpt-4o",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "github_models",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "github_models",
+     "model": "gpt-4o",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "openai_compat_siliconflow",
+   "settings": {
+    "SILICONFLOW_API_KEY": "key-siliconflow",
+    "SILICONFLOW_BASE_URL": "{{BASE}}/siliconflow/v1",
+    "LLM_DEFAULT_PROVIDER": "siliconflow"
+   },
+   "script": {
+    "/siliconflow/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "  pong \n"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 9,
+        "completion_tokens": 3
+       }
+      },
+      "headers": {
+       "X-RateLimit-Limit": "1000",
+       "X-RateLimit-Remaining": "999",
+       "X-RateLimit-Reset": "60s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "be terse"
+    }
+   ],
+   "results": [
+    "pong"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/siliconflow/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-siliconflow",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "Qwen/Qwen3-8B",
+      "messages": [
+       {
+        "role": "system",
+        "content": "be terse"
+       },
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 9,
+    "completion_tokens": 3,
+    "total_tokens": 12,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "siliconflow",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "siliconflow",
+     "model": "Qwen/Qwen3-8B",
+     "prompt_tokens": 9,
+     "completion_tokens": 3,
+     "rate_limit": 1000,
+     "rate_remaining": 999,
+     "rate_reset": "60s"
+    }
+   ]
+  },
+  {
+   "name": "model_override",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq",
+    "GROQ_MODEL": "custom-model"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "x"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p",
+     "max_tokens": 77,
+     "temperature": 0.9
+    }
+   ],
+   "results": [
+    "x"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "custom-model",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 77,
+      "temperature": 0.9
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "custom-model",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "no_system_lower_headers",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "x"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      },
+      "headers": {
+       "x-ratelimit-limit-requests": "50",
+       "x-ratelimit-remaining-requests": "49",
+       "x-ratelimit-reset-requests": "2s"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "x"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 50,
+     "rate_remaining": 49,
+     "rate_reset": "2s"
+    }
+   ]
+  },
+  {
+   "name": "reasoning_fallback",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": null,
+          "reasoning": " thought "
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 1,
+        "completion_tokens": 2
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "thought"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 1,
+    "completion_tokens": 2,
+    "total_tokens": 3,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 1,
+     "completion_tokens": 2,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "empty_choices_next_provider",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [],
+       "usage": {
+        "prompt_tokens": 4,
+        "completion_tokens": 0
+       }
+      }
+     }
+    ],
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "from cerebras"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "from cerebras"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/cerebras/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-cerebras",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_completion_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 15,
+    "completion_tokens": 7,
+    "total_tokens": 22,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 2,
+    "provider": "cerebras",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 4,
+     "completion_tokens": 0,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "cerebras",
+     "model": "llama-3.3-70b",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "no_providers",
+   "settings": {},
+   "script": {},
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "No LLM providers configured"
+    ]
+   },
+   "usage_errors_all": [
+    "No LLM providers configured"
+   ],
+   "usage_rows": []
+  },
+  {
+   "name": "failover_500",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "boom upstream"
+       }
+      }
+     }
+    ],
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "ok2"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "ok2"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/cerebras/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-cerebras",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_completion_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "cerebras",
+    "errors": [
+     "groq: HTTP 500: boom upstream"
+    ]
+   },
+   "usage_errors_all": [
+    "groq: HTTP 500: boom upstream"
+   ],
+   "usage_rows": [
+    {
+     "provider": "cerebras",
+     "model": "llama-3.3-70b",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "retry_429_then_ok",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 429,
+      "json": {
+       "error": {
+        "message": "Rate limit reached"
+       }
+      }
+     },
+     {
+      "status": 429,
+      "json": {
+       "error": {
+        "message": "Rate limit reached"
+       }
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "third time"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ],
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "never"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "third time"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [
+    0.5,
+    1.37
+   ],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": [
+     "groq: HTTP 429: Rate limit reached",
+     "groq: HTTP 429: Rate limit reached"
+    ]
+   },
+   "usage_errors_all": [
+    "groq: HTTP 429: Rate limit reached",
+    "groq: HTTP 429: Rate limit reached"
+   ],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "retry_429_exhausted_failover",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 429,
+      "json": {
+       "error": {
+        "message": "slow down"
+       }
+      }
+     }
+    ],
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "fallback"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "fallback"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/cerebras/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-cerebras",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_completion_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [
+    0.5,
+    1.37,
+    2.74
+   ],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "cerebras",
+    "errors": [
+     "groq: HTTP 429: slow down",
+     "groq: HTTP 429: slow down",
+     "groq: HTTP 429: slow down",
+     "groq: HTTP 429: slow down"
+    ]
+   },
+   "usage_errors_all": [
+    "groq: HTTP 429: slow down",
+    "groq: HTTP 429: slow down",
+    "groq: HTTP 429: slow down",
+    "groq: HTTP 429: slow down"
+   ],
+   "usage_rows": [
+    {
+     "provider": "cerebras",
+     "model": "llama-3.3-70b",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "provider_cap_3",
+   "settings": {
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "SAMBANOVA_API_KEY": "key-sambanova",
+    "SAMBANOVA_BASE_URL": "{{BASE}}/sambanova/v1",
+    "NVIDIA_API_KEY": "key-nvidia",
+    "NVIDIA_BASE_URL": "{{BASE}}/nvidia/v1",
+    "MISTRAL_API_KEY": "key-mistral",
+    "MISTRAL_BASE_URL": "{{BASE}}/mistral/v1",
+    "LLM_DEFAULT_PROVIDER": "cerebras"
+   },
+   "script": {
+    "/cerebras/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "down cerebras"
+       }
+      }
+     }
+    ],
+    "/groq/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "down groq"
+       }
+      }
+     }
+    ],
+    "/sambanova/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "down sambanova"
+       }
+      }
+     }
+    ],
+    "/nvidia/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "down nvidia"
+       }
+      }
+     }
+    ],
+    "/mistral/v1/chat/completions": [
+     {
+      "status": 500,
+      "json": {
+       "error": {
+        "message": "down mistral"
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/cerebras/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-cerebras",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_completion_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/sambanova/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-sambanova",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "Meta-Llama-3.3-70B-Instruct",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "cerebras: HTTP 500: down cerebras",
+     "groq: HTTP 500: down groq",
+     "sambanova: HTTP 500: down sambanova"
+    ]
+   },
+   "usage_errors_all": [
+    "cerebras: HTTP 500: down cerebras",
+    "groq: HTTP 500: down groq",
+    "sambanova: HTTP 500: down sambanova"
+   ],
+   "usage_rows": []
+  },
+  {
+   "name": "error_string_and_truncation",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 400,
+      "json": {
+       "error": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "groq: HTTP 400: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    ]
+   },
+   "usage_errors_all": [
+    "groq: HTTP 400: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   ],
+   "usage_rows": []
+  },
+  {
+   "name": "quota_message_retries",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 403,
+      "json": {
+       "error": {
+        "message": "You exceeded your current quota"
+       }
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "after quota"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "after quota"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [
+    0.5
+   ],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": [
+     "groq: HTTP 403: You exceeded your current quota"
+    ]
+   },
+   "usage_errors_all": [
+    "groq: HTTP 403: You exceeded your current quota"
+   ],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "default_order_nvidia_first",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "NVIDIA_API_KEY": "key-nvidia",
+    "NVIDIA_BASE_URL": "{{BASE}}/nvidia/v1",
+    "CEREBRAS_API_KEY": "key-cerebras",
+    "CEREBRAS_BASE_URL": "{{BASE}}/cerebras/v1",
+    "LLM_DEFAULT_PROVIDER": "nvidia"
+   },
+   "script": {
+    "/nvidia/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "nv"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "nv"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/nvidia/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-nvidia",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "meta/llama-3.3-70b-instruct",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "nvidia",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "nvidia",
+     "model": "meta/llama-3.3-70b-instruct",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "timeout_message",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "delay": 2.0,
+      "json": {}
+     }
+    ]
+   },
+   "env": {
+    "LLM_HTTP_TIMEOUT": "1"
+   },
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "groq: "
+    ]
+   },
+   "usage_errors_all": [
+    "groq: "
+   ],
+   "usage_rows": []
+  }
+ ],
+ "parse_json": [
+  {
+   "input": "{\"a\": 1}",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "```json\n{\"a\": 1}\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "```\n{\"a\": 1}\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "  {\"a\":1}  ",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "Sure! Here you go: {\"a\": 1} hope that helps",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "text {\"a\": {\"b\": 2}} trailing",
+   "ok": true,
+   "output": {
+    "a": {
+     "b": 2
+    }
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "text {\"a\": {\"b\": {\"c\": 3}}} trailing",
+   "ok": true,
+   "output": {
+    "b": {
+     "c": 3
+    }
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "```json\n{\"a\": 1}",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "{\"a\": 1}\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "[1,2,3]",
+   "ok": true,
+   "output": [
+    1,
+    2,
+    3
+   ],
+   "nonfinite": false
+  },
+  {
+   "input": "\"just a string\"",
+   "ok": true,
+   "output": "just a string",
+   "nonfinite": false
+  },
+  {
+   "input": "42",
+   "ok": true,
+   "output": 42,
+   "nonfinite": false
+  },
+  {
+   "input": "null",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "no json here",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "{\"a\": 1",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "{broken}",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "{'a': 1}",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "```json {\"a\": 1} ```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "pre ```json\n{\"a\":1}\n``` post",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "{\"a\": 1} {\"b\": 2}",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "x {\"a\": [1, {\"b\": 2}]} y",
+   "ok": true,
+   "output": {
+    "a": [
+     1,
+     {
+      "b": 2
+     }
+    ]
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "{\"s\": \"brace } inside\"}",
+   "ok": true,
+   "output": {
+    "s": "brace } inside"
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "lead {\"s\": \"brace } inside\"} tail",
+   "ok": false,
+   "output": null,
+   "nonfinite": false
+  },
+  {
+   "input": "```JSON\n{\"a\": 1}\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "```json\n\n{\"a\": 1}\n\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "{\"a\": 1}\n\nNote: done",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "Answer:\n```json\n{\"a\": 1}\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "{\"nested\": {\"x\": 1}, \"y\": 2}",
+   "ok": true,
+   "output": {
+    "nested": {
+     "x": 1
+    },
+    "y": 2
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "abc {\"k\": \"v\"} def {\"k2\": \"v2\"}",
+   "ok": true,
+   "output": {
+    "k": "v"
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "true",
+   "ok": true,
+   "output": true,
+   "nonfinite": false
+  },
+  {
+   "input": "{\"a\": NaN}",
+   "ok": true,
+   "output": null,
+   "nonfinite": true
+  },
+  {
+   "input": "{\"a\": \"é ü 😀\"}",
+   "ok": true,
+   "output": {
+    "a": "é ü 😀"
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "﻿{\"a\": 1}",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  },
+  {
+   "input": "```json\r\n{\"a\": 1}\r\n```",
+   "ok": true,
+   "output": {
+    "a": 1
+   },
+   "nonfinite": false
+  }
+ ],
+ "extract_json": [
+  {
+   "name": "extract_json_first_try",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "```json\n{\"company\": \"Acme\"}\n```"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "kind": "extract_json",
+     "prompt": "get it",
+     "system": "sys",
+     "max_tokens": 500
+    }
+   ],
+   "results": [
+    {
+     "company": "Acme"
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "sys\n\nIMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 500,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "extract_json_retry_then_ok",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "not json at all"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "{\"a\": 2}"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "kind": "extract_json",
+     "prompt": "get it"
+    }
+   ],
+   "results": [
+    {
+     "a": 2
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it\n\nYour previous response was not valid JSON. Return ONLY a JSON object, nothing else."
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 22,
+    "completion_tokens": 14,
+    "total_tokens": 36,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 2,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "extract_json_both_invalid",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "nope"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "still nope"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "kind": "extract_json",
+     "prompt": "get it"
+    }
+   ],
+   "results": [
+    {}
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it\n\nYour previous response was not valid JSON. Return ONLY a JSON object, nothing else."
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 22,
+    "completion_tokens": 14,
+    "total_tokens": 36,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 2,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "extract_json_empty_responses",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": ""
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "kind": "extract_json",
+     "prompt": "get it"
+    }
+   ],
+   "results": [
+    {}
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 22,
+    "completion_tokens": 14,
+    "total_tokens": 36,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 2,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "extract_json_list_is_returned_as_is",
+   "settings": {
+    "GROQ_API_KEY": "key-groq",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1",
+    "LLM_DEFAULT_PROVIDER": "groq"
+   },
+   "script": {
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "[1, 2]"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "kind": "extract_json",
+     "prompt": "get it"
+    }
+   ],
+   "results": [
+    [
+     1,
+     2
+    ]
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer key-groq",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "system",
+        "content": "IMPORTANT: Respond with valid JSON only. No markdown, no code fences, no explanation."
+       },
+       {
+        "role": "user",
+        "content": "get it"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  }
+ ],
+ "default_provider": [
+  {
+   "name": "explicit",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "mistral",
+    "MISTRAL_API_KEY": "k"
+   },
+   "default": "mistral",
+   "providers": [
+    {
+     "id": "mistral",
+     "base_url": "https://api.mistral.ai/v1",
+     "model": "mistral-small-latest",
+     "token_param": "max_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "explicit_wins_over_cloud",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "groq",
+    "GROQ_API_KEY": "k",
+    "YUPCHA_CLOUD": "1",
+    "ANTHROPIC_API_KEY": "a"
+   },
+   "default": "groq",
+   "providers": [
+    {
+     "id": "groq",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "cloud_with_anthropic_key",
+   "settings": {
+    "YUPCHA_CLOUD": "true",
+    "ANTHROPIC_API_KEY": "a",
+    "CEREBRAS_API_KEY": "c"
+   },
+   "default": "anthropic",
+   "providers": [
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    },
+    {
+     "id": "cerebras",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "token_param": "max_completion_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": "anthropic"
+  },
+  {
+   "name": "cloud_flag_values_YES",
+   "settings": {
+    "YUPCHA_CLOUD": " YES ",
+    "ANTHROPIC_API_KEY": "a"
+   },
+   "default": "anthropic",
+   "providers": [
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    }
+   ],
+   "anthropic_provider": "anthropic"
+  },
+  {
+   "name": "cloud_flag_off",
+   "settings": {
+    "YUPCHA_CLOUD": "0",
+    "ANTHROPIC_API_KEY": "a",
+    "CEREBRAS_API_KEY": "c"
+   },
+   "default": "cerebras",
+   "providers": [
+    {
+     "id": "cerebras",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "token_param": "max_completion_tokens",
+     "native": ""
+    },
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "cloud_without_key",
+   "settings": {
+    "YUPCHA_CLOUD": "1",
+    "CEREBRAS_API_KEY": "c"
+   },
+   "default": "cerebras",
+   "providers": [
+    {
+     "id": "cerebras",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "token_param": "max_completion_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "fallback_cerebras_unset",
+   "settings": {
+    "GROQ_API_KEY": "g"
+   },
+   "default": "cerebras",
+   "providers": [
+    {
+     "id": "groq",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "token_param": "max_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "explicit_unconfigured_default_then_order",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "nvidia",
+    "GROQ_API_KEY": "g",
+    "ANTHROPIC_API_KEY": "a",
+    "SILICONFLOW_API_KEY": "s",
+    "CEREBRAS_API_KEY": "c"
+   },
+   "default": "nvidia",
+   "providers": [
+    {
+     "id": "cerebras",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "token_param": "max_completion_tokens",
+     "native": ""
+    },
+    {
+     "id": "groq",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "siliconflow",
+     "base_url": "https://api.siliconflow.cn/v1",
+     "model": "Qwen/Qwen3-8B",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "unknown_default",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "bogus",
+    "SAMBANOVA_API_KEY": "s"
+   },
+   "default": "bogus",
+   "providers": [
+    {
+     "id": "sambanova",
+     "base_url": "https://api.sambanova.ai/v1",
+     "model": "Meta-Llama-3.3-70B-Instruct",
+     "token_param": "max_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": null
+  },
+  {
+   "name": "all_configured_default_anthropic",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "anthropic",
+    "ANTHROPIC_API_KEY": "k",
+    "CEREBRAS_API_KEY": "k",
+    "GROQ_API_KEY": "k",
+    "SAMBANOVA_API_KEY": "k",
+    "NVIDIA_API_KEY": "k",
+    "MISTRAL_API_KEY": "k",
+    "OPENROUTER_API_KEY": "k",
+    "GITHUB_MODELS_API_KEY": "k",
+    "SILICONFLOW_API_KEY": "k"
+   },
+   "default": "anthropic",
+   "providers": [
+    {
+     "id": "anthropic",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "token_param": "max_tokens",
+     "native": "anthropic"
+    },
+    {
+     "id": "cerebras",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "token_param": "max_completion_tokens",
+     "native": ""
+    },
+    {
+     "id": "groq",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "sambanova",
+     "base_url": "https://api.sambanova.ai/v1",
+     "model": "Meta-Llama-3.3-70B-Instruct",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "nvidia",
+     "base_url": "https://integrate.api.nvidia.com/v1",
+     "model": "meta/llama-3.3-70b-instruct",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "mistral",
+     "base_url": "https://api.mistral.ai/v1",
+     "model": "mistral-small-latest",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "openrouter",
+     "base_url": "https://openrouter.ai/api/v1",
+     "model": "meta-llama/llama-3.3-70b-instruct:free",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "github_models",
+     "base_url": "https://models.inference.ai.azure.com",
+     "model": "gpt-4o",
+     "token_param": "max_tokens",
+     "native": ""
+    },
+    {
+     "id": "siliconflow",
+     "base_url": "https://api.siliconflow.cn/v1",
+     "model": "Qwen/Qwen3-8B",
+     "token_param": "max_tokens",
+     "native": ""
+    }
+   ],
+   "anthropic_provider": "anthropic"
+  },
+  {
+   "name": "none",
+   "settings": {},
+   "default": "cerebras",
+   "providers": [],
+   "anthropic_provider": null
+  }
+ ],
+ "stream": [
+  {
+   "name": "content_then_done",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"Hel\"}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"lo\"}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"stop\"}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "Hel"
+    },
+    {
+     "kind": "content",
+     "data": "lo"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "tool_calls_accumulate",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"id\": \"call_1\", \"function\": {\"name\": \"search_\", \"arguments\": \"\"}}]}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"function\": {\"name\": \"leads\", \"arguments\": \"{\\\"q\\\":\"}}]}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 1, \"id\": \"call_2\", \"function\": {\"name\": \"stats\", \"arguments\": \"{}\"}}]}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"tool_calls\": [{\"index\": 0, \"function\": {\"arguments\": \"\\\"x\\\"}\"}}]}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"tool_calls\"}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "tool_calls",
+     "data": [
+      {
+       "id": "call_1",
+       "type": "function",
+       "function": {
+        "name": "search_leads",
+        "arguments": "{\"q\":\"x\"}"
+       }
+      },
+      {
+       "id": "call_2",
+       "type": "function",
+       "function": {
+        "name": "stats",
+        "arguments": "{}"
+       }
+      }
+     ]
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": [
+      "p2"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "tool_calls_finish_without_calls_then_eof",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"a\"}, \"finish_reason\": null}]}",
+       "",
+       "data: {\"choices\": [{\"delta\": {}, \"finish_reason\": \"tool_calls\"}]}",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "a"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "bad_json_chunk_skipped_and_non_data_lines",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       ": comment",
+       "event: x",
+       "data: {not json",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"ok\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "ok"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "empty_choices_chunk",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": []}",
+       "",
+       "data: {\"choices\": [{\"delta\": {\"content\": \"z\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "AI provider error: list index out of range"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "no_api_key",
+   "script": {},
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "No AI provider configured. Go to Settings to add an API key."
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": [
+      "p2"
+     ]
+    }
+   ],
+   "requests": [],
+   "timeout": null
+  },
+  {
+   "name": "rate_limit_failover",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 429,
+      "json": {
+       "error": "slow"
+      }
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"second\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    },
+    {
+     "id": "p3",
+     "name": "P3",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p3/v1",
+     "model": "m-p3",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "warning",
+     "data": "⚡ P1 rate limited — switching to P2..."
+    },
+    {
+     "kind": "content",
+     "data": "second"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p2",
+     "fallbacks": [
+      "p3"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "rate_limit_no_fallback",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 429,
+      "text": "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+      "ct": "text/plain"
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "Rate limited by P1 and no fallback providers available. Add more API keys in Settings, or wait and retry. (yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy)"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "server_error_failover",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 503,
+      "text": "unavailable"
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"two\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "warning",
+     "data": "⚡ P1 error — switching to P2..."
+    },
+    {
+     "kind": "content",
+     "data": "two"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p2",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "server_error_no_fallback",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 502,
+      "text": "bad gw"
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "Provider error 502: bad gw"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "auth_rejected_failover",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 401,
+      "text": "nope"
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"two\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "warning",
+     "data": "⚡ P1 rejected its API key — switching to P2..."
+    },
+    {
+     "kind": "content",
+     "data": "two"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p2",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "forbidden_no_fallback",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 403,
+      "text": "forbidden"
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "Provider error 403: forbidden"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "client_error_400_with_fallbacks_no_failover",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 400,
+      "text": "bad request body"
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"two\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "Provider error 400: bad request body"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": [
+      "p2"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "chain_p1_429_p2_500_p3_ok",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "status": 429,
+      "text": "r"
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "status": 500,
+      "text": "e"
+     }
+    ],
+    "/p3/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"third\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    },
+    {
+     "id": "p3",
+     "name": "P3",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p3/v1",
+     "model": "m-p3",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "warning",
+     "data": "⚡ P1 rate limited — switching to P2..."
+    },
+    {
+     "kind": "warning",
+     "data": "⚡ P2 error — switching to P3..."
+    },
+    {
+     "kind": "content",
+     "data": "third"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p3",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p3/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p3",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "connect_error_failover",
+   "script": {
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"saved\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "http://127.0.0.1:1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "\n\n> ⚡ *P1 unreachable — switching to P2...*\n\n"
+    },
+    {
+     "kind": "content",
+     "data": "saved"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p2",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "connect_error_no_fallback",
+   "script": {},
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "http://127.0.0.1:1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "Cannot reach AI provider. Check your API key and network connection in Settings."
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [],
+   "timeout": null
+  },
+  {
+   "name": "timeout_failover",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "delay": 1.5,
+      "sse": [
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ],
+    "/p2/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"saved\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "\n\n> ⚡ *P1 timed out — switching to P2...*\n\n"
+    },
+    {
+     "kind": "content",
+     "data": "saved"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p2",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/p2/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p2",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": 0.4
+  },
+  {
+   "name": "timeout_no_fallback",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "delay": 1.5,
+      "sse": [
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "error",
+     "data": "AI provider timed out. The service may be overloaded — try again in a moment."
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": 0.4
+  },
+  {
+   "name": "base_url_trailing_slash",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"ok\"}, \"finish_reason\": null}]}",
+       "",
+       "data: [DONE]",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1/",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "ok"
+    },
+    {
+     "kind": "done",
+     "data": null
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": []
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  },
+  {
+   "name": "eof_without_done",
+   "script": {
+    "/p1/v1/chat/completions": [
+     {
+      "sse": [
+       "data: {\"choices\": [{\"delta\": {\"content\": \"partial\"}, \"finish_reason\": null}]}",
+       ""
+      ]
+     }
+    ]
+   },
+   "provider": {
+    "id": "p1",
+    "name": "P1",
+    "api_key": "k-x",
+    "base_url": "{{BASE}}/p1/v1",
+    "model": "m-p1",
+    "openai_compatible": true
+   },
+   "fallbacks": [
+    {
+     "id": "p2",
+     "name": "P2",
+     "api_key": "k-x",
+     "base_url": "{{BASE}}/p2/v1",
+     "model": "m-p2",
+     "openai_compatible": true
+    }
+   ],
+   "messages": [
+    {
+     "role": "user",
+     "content": "hi"
+    }
+   ],
+   "tools": [
+    {
+     "type": "function",
+     "function": {
+      "name": "t",
+      "parameters": {
+       "type": "object"
+      }
+     }
+    }
+   ],
+   "frames": [
+    {
+     "kind": "content",
+     "data": "partial"
+    },
+    {
+     "kind": "cursor",
+     "provider": "p1",
+     "fallbacks": [
+      "p2"
+     ]
+    }
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/p1/v1/chat/completions",
+     "headers": {
+      "accept": "*/*",
+      "authorization": "Bearer k-x",
+      "content-type": "application/json"
+     },
+     "body": {
+      "model": "m-p1",
+      "messages": [
+       {
+        "role": "user",
+        "content": "hi"
+       }
+      ],
+      "tools": [
+       {
+        "type": "function",
+        "function": {
+         "name": "t",
+         "parameters": {
+          "type": "object"
+         }
+        }
+       }
+      ],
+      "stream": true,
+      "temperature": 0.7,
+      "max_tokens": 4096
+     }
+    }
+   ],
+   "timeout": null
+  }
+ ],
+ "chat_chain": [
+  {
+   "name": "default_openrouter_unset_all_none",
+   "settings": {},
+   "chain": [],
+   "active": {
+    "id": "openrouter",
+    "name": "OpenRouter",
+    "api_key": "",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "meta-llama/llama-3.3-70b-instruct:free",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "default_groq_plus_fallbacks",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "groq",
+    "GROQ_API_KEY": "g",
+    "OPENROUTER_API_KEY": "o",
+    "CEREBRAS_API_KEY": "c",
+    "MISTRAL_API_KEY": "m"
+   },
+   "chain": [
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "g",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "openai_compatible": true
+    },
+    {
+     "id": "openrouter",
+     "name": "OpenRouter",
+     "api_key": "o",
+     "base_url": "https://openrouter.ai/api/v1",
+     "model": "meta-llama/llama-3.3-70b-instruct:free",
+     "openai_compatible": true
+    },
+    {
+     "id": "cerebras",
+     "name": "Cerebras",
+     "api_key": "c",
+     "base_url": "https://api.cerebras.ai/v1",
+     "model": "llama-3.3-70b",
+     "openai_compatible": true
+    },
+    {
+     "id": "mistral",
+     "name": "Mistral AI",
+     "api_key": "m",
+     "base_url": "https://api.mistral.ai/v1",
+     "model": "mistral-small-latest",
+     "openai_compatible": true
+    }
+   ],
+   "active": {
+    "id": "groq",
+    "name": "Groq",
+    "api_key": "g",
+    "base_url": "https://api.groq.com/openai/v1",
+    "model": "llama-3.3-70b-versatile",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "anthropic_default_included_first",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "anthropic",
+    "ANTHROPIC_API_KEY": "a",
+    "GROQ_API_KEY": "g"
+   },
+   "chain": [
+    {
+     "id": "anthropic",
+     "name": "Anthropic (Claude)",
+     "api_key": "a",
+     "base_url": "https://api.anthropic.com",
+     "model": "claude-opus-4-8",
+     "openai_compatible": false
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "g",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "openai_compatible": true
+    }
+   ],
+   "active": {
+    "id": "anthropic",
+    "name": "Anthropic (Claude)",
+    "api_key": "a",
+    "base_url": "https://api.anthropic.com",
+    "model": "claude-opus-4-8",
+    "openai_compatible": false
+   }
+  },
+  {
+   "name": "anthropic_not_default_skipped",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "groq",
+    "ANTHROPIC_API_KEY": "a",
+    "GROQ_API_KEY": "g",
+    "COHERE_API_KEY": "c",
+    "HUGGINGFACE_API_KEY": "h"
+   },
+   "chain": [
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "g",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "openai_compatible": true
+    }
+   ],
+   "active": {
+    "id": "groq",
+    "name": "Groq",
+    "api_key": "g",
+    "base_url": "https://api.groq.com/openai/v1",
+    "model": "llama-3.3-70b-versatile",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "url_override_and_model_override",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "groq",
+    "GROQ_API_KEY": "g",
+    "GROQ_BASE_URL": "http://x/v1",
+    "GROQ_MODEL": "mm"
+   },
+   "chain": [
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "g",
+     "base_url": "http://x/v1",
+     "model": "mm",
+     "openai_compatible": true
+    }
+   ],
+   "active": {
+    "id": "groq",
+    "name": "Groq",
+    "api_key": "g",
+    "base_url": "http://x/v1",
+    "model": "mm",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "unknown_default_falls_to_openrouter_empty",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "bogus"
+   },
+   "chain": [],
+   "active": {
+    "id": "bogus",
+    "name": "OpenRouter",
+    "api_key": "",
+    "base_url": "https://openrouter.ai/api/v1",
+    "model": "meta-llama/llama-3.3-70b-instruct:free",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "unconfigured_default_keeps_others",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "mistral",
+    "NVIDIA_API_KEY": "n",
+    "GROQ_API_KEY": "g"
+   },
+   "chain": [
+    {
+     "id": "nvidia",
+     "name": "NVIDIA NIM",
+     "api_key": "n",
+     "base_url": "https://integrate.api.nvidia.com/v1",
+     "model": "meta/llama-3.3-70b-instruct",
+     "openai_compatible": true
+    },
+    {
+     "id": "groq",
+     "name": "Groq",
+     "api_key": "g",
+     "base_url": "https://api.groq.com/openai/v1",
+     "model": "llama-3.3-70b-versatile",
+     "openai_compatible": true
+    }
+   ],
+   "active": {
+    "id": "nvidia",
+    "name": "NVIDIA NIM",
+    "api_key": "n",
+    "base_url": "https://integrate.api.nvidia.com/v1",
+    "model": "meta/llama-3.3-70b-instruct",
+    "openai_compatible": true
+   }
+  },
+  {
+   "name": "only_unknown_provider_key_unset_default_cohere",
+   "settings": {
+    "LLM_DEFAULT_PROVIDER": "cohere"
+   },
+   "chain": [],
+   "active": {
+    "id": "cohere",
+    "name": "Cohere",
+    "api_key": "",
+    "base_url": "https://api.cohere.ai/v2",
+    "model": "command-a-03-2025",
+    "openai_compatible": false
+   }
+  }
+ ],
+ "cost": [
+  {
+   "model": "claude-opus-4-8",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0175,
+   "price": [
+    5.0,
+    25.0
+   ]
+  },
+  {
+   "model": "claude-opus-4-8",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.85328,
+   "price": [
+    5.0,
+    25.0
+   ]
+  },
+  {
+   "model": "claude-sonnet-4-6",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0105,
+   "price": [
+    3.0,
+    15.0
+   ]
+  },
+  {
+   "model": "claude-sonnet-4-6",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.511968,
+   "price": [
+    3.0,
+    15.0
+   ]
+  },
+  {
+   "model": "claude-sonnet-4-6-20260101",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0105,
+   "price": [
+    3.0,
+    15.0
+   ]
+  },
+  {
+   "model": "claude-sonnet-4-6-20260101",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.511968,
+   "price": [
+    3.0,
+    15.0
+   ]
+  },
+  {
+   "model": "claude-haiku-4-5",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0035,
+   "price": [
+    1.0,
+    5.0
+   ]
+  },
+  {
+   "model": "claude-haiku-4-5",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.170656,
+   "price": [
+    1.0,
+    5.0
+   ]
+  },
+  {
+   "model": "claude-fable-5",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.035,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "claude-fable-5",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 1.70656,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "unknown-model",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.035,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "unknown-model",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 1.70656,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0175,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.85328,
+   "price": [
+    10.0,
+    50.0
+   ]
+  },
+  {
+   "model": "claude-opus-4-8-x",
+   "usage": [
+    1000,
+    500,
+    0,
+    0
+   ],
+   "usd": 0.0175,
+   "price": [
+    5.0,
+    25.0
+   ]
+  },
+  {
+   "model": "claude-opus-4-8-x",
+   "usage": [
+    123456,
+    7890,
+    3000,
+    40000
+   ],
+   "usd": 0.85328,
+   "price": [
+    5.0,
+    25.0
+   ]
+  },
+  {
+   "model": "",
+   "usage": null,
+   "usd": 0.0,
+   "price": null
+  }
+ ],
+ "anthropic_call": [
+  {
+   "name": "anthropic_basic",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic",
+    "ANTHROPIC_MODEL": "claude-sonnet-4-6"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": " hello "
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 20,
+        "output_tokens": 6,
+        "cache_creation_input_tokens": 100,
+        "cache_read_input_tokens": 50
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "sys A",
+     "max_tokens": 321
+    }
+   ],
+   "results": [
+    "hello"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 321,
+      "messages": [
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "model": "claude-sonnet-4-6",
+      "system": [
+       {
+        "type": "text",
+        "text": "sys A",
+        "cache_control": {
+         "type": "ephemeral"
+        }
+       }
+      ],
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 20,
+    "completion_tokens": 6,
+    "total_tokens": 26,
+    "cache_write_tokens": 100,
+    "cache_read_tokens": 50,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-sonnet-4-6",
+     "prompt_tokens": 20,
+     "completion_tokens": 6,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_default_model_no_system",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "ping"
+    }
+   ],
+   "results": [
+    "x"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_cache_off",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "x"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "env": {
+    "LLM_PROMPT_CACHE": "0"
+   },
+   "calls": [
+    {
+     "prompt": "ping",
+     "system": "S"
+    }
+   ],
+   "results": [
+    "x"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "ping"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "system": [
+       {
+        "type": "text",
+        "text": "S"
+       }
+      ],
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_thinking_blocks",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "thinking",
+         "thinking": "hmm",
+         "signature": "sig"
+        },
+        {
+         "type": "text",
+         "text": "A"
+        },
+        {
+         "type": "text",
+         "text": "B"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "AB"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_base_v1_suffix_is_override",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}/prefix",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/prefix/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "pfx"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "pfx"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/prefix/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_429_sdk_retries_then_ok",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 429,
+      "headers": {
+       "retry-after-ms": "1"
+      },
+      "json": {
+       "type": "error",
+       "error": {
+        "type": "rate_limit_error",
+        "message": "slow"
+       }
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "after retry"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "after retry"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0.001,
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   },
+   "usage_errors_all": [],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_401_no_retry_failover",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic",
+    "GROQ_API_KEY": "k",
+    "GROQ_BASE_URL": "{{BASE}}/groq/v1"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 401,
+      "json": {
+       "type": "error",
+       "error": {
+        "type": "authentication_error",
+        "message": "invalid x-api-key"
+       }
+      }
+     }
+    ],
+    "/groq/v1/chat/completions": [
+     {
+      "status": 200,
+      "json": {
+       "choices": [
+        {
+         "message": {
+          "content": "groq saved"
+         }
+        }
+       ],
+       "usage": {
+        "prompt_tokens": 11,
+        "completion_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    "groq saved"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/groq/v1/chat/completions",
+     "headers": {
+      "authorization": "Bearer k",
+      "content-type": "application/json",
+      "accept": "*/*"
+     },
+     "body": {
+      "model": "llama-3.3-70b-versatile",
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "max_tokens": 1024,
+      "temperature": 0.2
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 7,
+    "total_tokens": 18,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "groq",
+    "errors": [
+     "anthropic: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-"
+    ]
+   },
+   "usage_errors_all": [
+    "anthropic: Error code: 401 - {'type': 'error', 'error': {'type': 'authentication_error', 'message': 'invalid x-"
+   ],
+   "usage_rows": [
+    {
+     "provider": "groq",
+     "model": "llama-3.3-70b-versatile",
+     "prompt_tokens": 11,
+     "completion_tokens": 7,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ]
+  },
+  {
+   "name": "anthropic_400",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 400,
+      "json": {
+       "type": "error",
+       "error": {
+        "type": "invalid_request_error",
+        "message": "bad"
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "anthropic: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'bad'}}"
+    ]
+   },
+   "usage_errors_all": [
+    "anthropic: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': 'bad'}}"
+   ],
+   "usage_rows": []
+  },
+  {
+   "name": "anthropic_500_exhausted",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 529,
+      "headers": {
+       "retry-after-ms": "1"
+      },
+      "json": {
+       "type": "error",
+       "error": {
+        "type": "overloaded_error",
+        "message": "Overloaded"
+       }
+      }
+     }
+    ]
+   },
+   "env": {},
+   "calls": [
+    {
+     "prompt": "p"
+    }
+   ],
+   "results": [
+    ""
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    },
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": "p"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "sleeps": [
+    0,
+    0,
+    0.001,
+    0,
+    0,
+    0.001,
+    0,
+    0,
+    0
+   ],
+   "usage": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 0,
+    "provider": "",
+    "errors": [
+     "anthropic: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}}"
+    ]
+   },
+   "usage_errors_all": [
+    "anthropic: Error code: 529 - {'type': 'error', 'error': {'type': 'overloaded_error', 'message': 'Overloaded'}}"
+   ],
+   "usage_rows": []
+  }
+ ],
+ "batch": [
+  {
+   "name": "batch_basic",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages/batches": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msgbatch_1",
+       "type": "message_batch",
+       "processing_status": "in_progress",
+       "request_counts": {
+        "processing": 0,
+        "succeeded": 3,
+        "errored": 1,
+        "canceled": 0,
+        "expired": 0
+       },
+       "created_at": "2026-01-01T00:00:00Z",
+       "expires_at": "2026-01-02T00:00:00Z",
+       "ended_at": null,
+       "cancel_initiated_at": null,
+       "archived_at": null,
+       "results_url": null
+      }
+     }
+    ],
+    "/v1/messages/batches/msgbatch_1": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msgbatch_1",
+       "type": "message_batch",
+       "processing_status": "in_progress",
+       "request_counts": {
+        "processing": 0,
+        "succeeded": 3,
+        "errored": 1,
+        "canceled": 0,
+        "expired": 0
+       },
+       "created_at": "2026-01-01T00:00:00Z",
+       "expires_at": "2026-01-02T00:00:00Z",
+       "ended_at": null,
+       "cancel_initiated_at": null,
+       "archived_at": null,
+       "results_url": null
+      }
+     },
+     {
+      "status": 200,
+      "json": {
+       "id": "msgbatch_1",
+       "type": "message_batch",
+       "processing_status": "ended",
+       "request_counts": {
+        "processing": 0,
+        "succeeded": 3,
+        "errored": 1,
+        "canceled": 0,
+        "expired": 0
+       },
+       "created_at": "2026-01-01T00:00:00Z",
+       "expires_at": "2026-01-02T00:00:00Z",
+       "ended_at": "2026-01-01T00:10:00Z",
+       "cancel_initiated_at": null,
+       "archived_at": null,
+       "results_url": "{{BASE}}/v1/messages/batches/msgbatch_1/results"
+      }
+     }
+    ],
+    "/v1/messages/batches/msgbatch_1/results": [
+     {
+      "status": 200,
+      "text": "{\"custom_id\": \"b\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"B text\"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 10, \"output_tokens\": 4, \"cache_creation_input_tokens\": 2, \"cache_read_input_tokens\": 1}}}}\n{\"custom_id\": \"a\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"  A text  \"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 8, \"output_tokens\": 3, \"cache_creation_input_tokens\": 0, \"cache_read_input_tokens\": 0}}}}\n{\"custom_id\": \"c\", \"result\": {\"type\": \"errored\", \"error\": {\"type\": \"error\", \"error\": {\"type\": \"api_error\", \"message\": \"x\"}}}}\n{\"custom_id\": \"d\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"\"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 1, \"output_tokens\": 1, \"cache_creation_input_tokens\": 0, \"cache_read_input_tokens\": 0}}}}\n",
+      "ct": "application/x-jsonl"
+     }
+    ]
+   },
+   "requests_in": [
+    {
+     "custom_id": "a",
+     "prompt": "PA",
+     "system": "SYS",
+     "max_tokens": 200
+    },
+    {
+     "custom_id": "b",
+     "prompt": "PB"
+    },
+    {
+     "custom_id": "c",
+     "prompt": "PC",
+     "system": "SYS"
+    },
+    {
+     "custom_id": "d",
+     "prompt": "PD"
+    }
+   ],
+   "kw": {},
+   "result": {
+    "b": "B text",
+    "a": "A text"
+   },
+   "submitted": [
+    "msgbatch_1"
+   ],
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages/batches",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "requests": [
+       {
+        "custom_id": "a",
+        "params": {
+         "model": "claude-opus-4-8",
+         "max_tokens": 200,
+         "messages": [
+          {
+           "role": "user",
+           "content": "PA"
+          }
+         ],
+         "thinking": {
+          "type": "adaptive"
+         },
+         "system": [
+          {
+           "type": "text",
+           "text": "SYS",
+           "cache_control": {
+            "type": "ephemeral"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "custom_id": "b",
+        "params": {
+         "model": "claude-opus-4-8",
+         "max_tokens": 1024,
+         "messages": [
+          {
+           "role": "user",
+           "content": "PB"
+          }
+         ],
+         "thinking": {
+          "type": "adaptive"
+         }
+        }
+       },
+       {
+        "custom_id": "c",
+        "params": {
+         "model": "claude-opus-4-8",
+         "max_tokens": 1024,
+         "messages": [
+          {
+           "role": "user",
+           "content": "PC"
+          }
+         ],
+         "thinking": {
+          "type": "adaptive"
+         },
+         "system": [
+          {
+           "type": "text",
+           "text": "SYS",
+           "cache_control": {
+            "type": "ephemeral"
+           }
+          }
+         ]
+        }
+       },
+       {
+        "custom_id": "d",
+        "params": {
+         "model": "claude-opus-4-8",
+         "max_tokens": 1024,
+         "messages": [
+          {
+           "role": "user",
+           "content": "PD"
+          }
+         ],
+         "thinking": {
+          "type": "adaptive"
+         }
+        }
+       }
+      ]
+     }
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1",
+     "headers": {
+      "accept": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1",
+     "headers": {
+      "accept": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1",
+     "headers": {
+      "accept": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1/results",
+     "headers": {
+      "accept": "application/binary",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    }
+   ],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 10,
+     "completion_tokens": 4,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 8,
+     "completion_tokens": 3,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 1,
+     "completion_tokens": 1,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ],
+   "usage": {
+    "prompt_tokens": 19,
+    "completion_tokens": 8,
+    "total_tokens": 27,
+    "cache_write_tokens": 2,
+    "cache_read_tokens": 1,
+    "calls": 3,
+    "provider": "anthropic",
+    "errors": []
+   }
+  },
+  {
+   "name": "batch_resume_existing_with_known_ids",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages/batches/msgbatch_1": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msgbatch_1",
+       "type": "message_batch",
+       "processing_status": "ended",
+       "request_counts": {
+        "processing": 0,
+        "succeeded": 3,
+        "errored": 1,
+        "canceled": 0,
+        "expired": 0
+       },
+       "created_at": "2026-01-01T00:00:00Z",
+       "expires_at": "2026-01-02T00:00:00Z",
+       "ended_at": "2026-01-01T00:10:00Z",
+       "cancel_initiated_at": null,
+       "archived_at": null,
+       "results_url": "{{BASE}}/v1/messages/batches/msgbatch_1/results"
+      }
+     }
+    ],
+    "/v1/messages/batches/msgbatch_1/results": [
+     {
+      "status": 200,
+      "text": "{\"custom_id\": \"b\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"B text\"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 10, \"output_tokens\": 4, \"cache_creation_input_tokens\": 2, \"cache_read_input_tokens\": 1}}}}\n{\"custom_id\": \"a\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"  A text  \"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 8, \"output_tokens\": 3, \"cache_creation_input_tokens\": 0, \"cache_read_input_tokens\": 0}}}}\n{\"custom_id\": \"c\", \"result\": {\"type\": \"errored\", \"error\": {\"type\": \"error\", \"error\": {\"type\": \"api_error\", \"message\": \"x\"}}}}\n{\"custom_id\": \"d\", \"result\": {\"type\": \"succeeded\", \"message\": {\"id\": \"msg_1\", \"type\": \"message\", \"role\": \"assistant\", \"model\": \"claude-opus-4-8\", \"content\": [{\"type\": \"text\", \"text\": \"\"}], \"stop_reason\": \"end_turn\", \"stop_sequence\": null, \"usage\": {\"input_tokens\": 1, \"output_tokens\": 1, \"cache_creation_input_tokens\": 0, \"cache_read_input_tokens\": 0}}}}\n",
+      "ct": "application/x-jsonl"
+     }
+    ]
+   },
+   "requests_in": [
+    {
+     "custom_id": "a",
+     "prompt": "PA"
+    }
+   ],
+   "kw": {
+    "batch_id": "msgbatch_1",
+    "known_result_ids": [
+     "a"
+    ]
+   },
+   "result": {
+    "b": "B text",
+    "a": "A text"
+   },
+   "submitted": [],
+   "requests": [
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1",
+     "headers": {
+      "accept": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1",
+     "headers": {
+      "accept": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    },
+    {
+     "method": "GET",
+     "path": "/v1/messages/batches/msgbatch_1/results",
+     "headers": {
+      "accept": "application/binary",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": null
+    }
+   ],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 10,
+     "completion_tokens": 4,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    },
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 1,
+     "completion_tokens": 1,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ],
+   "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 5,
+    "total_tokens": 16,
+    "cache_write_tokens": 2,
+    "cache_read_tokens": 1,
+    "calls": 2,
+    "provider": "anthropic",
+    "errors": []
+   }
+  }
+ ],
+ "tool_call": [
+  {
+   "name": "full",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic",
+    "ANTHROPIC_MODEL": "claude-opus-4-8"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "tool turn"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 30,
+        "output_tokens": 9,
+        "cache_creation_input_tokens": 5,
+        "cache_read_input_tokens": 7
+       }
+      }
+     }
+    ]
+   },
+   "args": {
+    "messages": [
+     {
+      "role": "user",
+      "content": "weather?"
+     }
+    ],
+    "system": "static plan prefix",
+    "tools": [
+     {
+      "name": "get_weather",
+      "description": "d",
+      "input_schema": {
+       "type": "object",
+       "properties": {
+        "city": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    ],
+    "tool_choice": {
+     "type": "auto"
+    },
+    "output_format": {
+     "type": "json_schema",
+     "schema": {
+      "type": "object"
+     }
+    },
+    "max_tokens": 700
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 700,
+      "messages": [
+       {
+        "role": "user",
+        "content": "weather?"
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "output_config": {
+       "format": {
+        "type": "json_schema",
+        "schema": {
+         "type": "object"
+        }
+       }
+      },
+      "system": [
+       {
+        "type": "text",
+        "text": "static plan prefix",
+        "cache_control": {
+         "type": "ephemeral"
+        }
+       }
+      ],
+      "thinking": {
+       "type": "adaptive"
+      },
+      "tool_choice": {
+       "type": "auto"
+      },
+      "tools": [
+       {
+        "name": "get_weather",
+        "description": "d",
+        "input_schema": {
+         "type": "object",
+         "properties": {
+          "city": {
+           "type": "string"
+          }
+         }
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 30,
+     "completion_tokens": 9,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ],
+   "usage": {
+    "prompt_tokens": 30,
+    "completion_tokens": 9,
+    "total_tokens": 39,
+    "cache_write_tokens": 5,
+    "cache_read_tokens": 7,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   }
+  },
+  {
+   "name": "system_blocks_passthrough",
+   "settings": {
+    "ANTHROPIC_API_KEY": "sk-ant-test",
+    "ANTHROPIC_BASE_URL": "{{BASE}}",
+    "LLM_DEFAULT_PROVIDER": "anthropic"
+   },
+   "script": {
+    "/v1/messages": [
+     {
+      "status": 200,
+      "json": {
+       "id": "msg_1",
+       "type": "message",
+       "role": "assistant",
+       "model": "claude-opus-4-8",
+       "content": [
+        {
+         "type": "text",
+         "text": "t2"
+        }
+       ],
+       "stop_reason": "end_turn",
+       "stop_sequence": null,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 5,
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0
+       }
+      }
+     }
+    ]
+   },
+   "args": {
+    "messages": [
+     {
+      "role": "user",
+      "content": [
+       {
+        "type": "text",
+        "text": "hi"
+       }
+      ]
+     }
+    ],
+    "system": [
+     {
+      "type": "text",
+      "text": "custom block"
+     }
+    ],
+    "max_tokens": 1024
+   },
+   "requests": [
+    {
+     "method": "POST",
+     "path": "/v1/messages",
+     "headers": {
+      "accept": "application/json",
+      "content-type": "application/json",
+      "x-api-key": "sk-ant-test",
+      "anthropic-version": "2023-06-01"
+     },
+     "body": {
+      "max_tokens": 1024,
+      "messages": [
+       {
+        "role": "user",
+        "content": [
+         {
+          "type": "text",
+          "text": "hi"
+         }
+        ]
+       }
+      ],
+      "model": "claude-opus-4-8",
+      "system": [
+       {
+        "type": "text",
+        "text": "custom block"
+       }
+      ],
+      "thinking": {
+       "type": "adaptive"
+      }
+     }
+    }
+   ],
+   "usage_rows": [
+    {
+     "provider": "anthropic",
+     "model": "claude-opus-4-8",
+     "prompt_tokens": 12,
+     "completion_tokens": 5,
+     "rate_limit": 0,
+     "rate_remaining": 0,
+     "rate_reset": ""
+    }
+   ],
+   "usage": {
+    "prompt_tokens": 12,
+    "completion_tokens": 5,
+    "total_tokens": 17,
+    "cache_write_tokens": 0,
+    "cache_read_tokens": 0,
+    "calls": 1,
+    "provider": "anthropic",
+    "errors": []
+   }
+  }
+ ]
+}

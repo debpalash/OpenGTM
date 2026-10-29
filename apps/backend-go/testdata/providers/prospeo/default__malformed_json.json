@@ -1,0 +1,46 @@
+{
+ "provider": "prospeo",
+ "input_name": "default",
+ "scenario": "malformed_json",
+ "input": {
+  "company": "Acme Inc",
+  "website": "acme.com",
+  "contact_person": "Ada Lovelace",
+  "linkedin_url": "https://www.linkedin.com/in/ada"
+ },
+ "secrets": {
+  "PROSPEO_API_KEY": "ctk_prospeo_0001"
+ },
+ "config": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.prospeo.io/linkedin-email-finder",
+    "headers": {
+     "authorization": "Bearer {{secret:PROSPEO_API_KEY}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"url\":\"https://www.linkedin.com/in/ada\"}",
+    "json": {
+     "url": "https://www.linkedin.com/in/ada"
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "<html><body>not json {"
+   }
+  }
+ ],
+ "unrouted_requests": [],
+ "result": {
+  "provider": "prospeo",
+  "success": false,
+  "fields": {},
+  "confidence": 0.0,
+  "error": "Expecting value: line 1 column 1 (char 0)"
+ }
+}

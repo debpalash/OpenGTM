@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/research-playbooks/runs/run-gov-r1/cancel"
+  },
+  "response": {
+    "body": {
+      "detail": "Only pending or running playbook runs can be cancelled"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

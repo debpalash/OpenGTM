@@ -1,0 +1,39 @@
+{
+  "request": {
+    "body": {
+      "filters": {
+        "min_score": "5"
+      },
+      "name": "Bad"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audiences"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "error": {}
+          },
+          "input": {
+            "min_score": "5"
+          },
+          "loc": [
+            "body",
+            "filters"
+          ],
+          "msg": "Value error, min_score must be an integer",
+          "type": "value_error"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

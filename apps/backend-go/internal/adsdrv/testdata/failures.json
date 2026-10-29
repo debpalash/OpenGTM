@@ -1,0 +1,751 @@
+{
+  "note": "_google_partial_failure(body) and _linkedin_batch_failure(body, expected_count): the message never carries provider text/PII; null = no failure.",
+  "google": [
+    {
+      "body": null,
+      "result": null
+    },
+    {
+      "body": [],
+      "result": null
+    },
+    {
+      "body": "x",
+      "result": null
+    },
+    {
+      "body": 5,
+      "result": null
+    },
+    {
+      "body": {},
+      "result": null
+    },
+    {
+      "body": {
+        "partialFailureError": null
+      },
+      "result": null
+    },
+    {
+      "body": {
+        "partialFailureError": {}
+      },
+      "result": null
+    },
+    {
+      "body": {
+        "partialFailureError": "boom"
+      },
+      "result": null
+    },
+    {
+      "body": {
+        "partialFailureError": []
+      },
+      "result": null
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "status": "INVALID_ARGUMENT"
+        }
+      },
+      "result": "Google Ads rejected operations (status=INVALID_ARGUMENT, code=3, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "message": "Request contains an invalid argument. user@example.com",
+          "details": []
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=3, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "status": "INVALID_ARGUMENT",
+          "details": [
+            {
+              "errors": [
+                {
+                  "errorCode": 1
+                },
+                {
+                  "errorCode": 2
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=INVALID_ARGUMENT, code=3, count=2)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "status": "INVALID_ARGUMENT",
+          "details": [
+            {
+              "errors": [
+                {
+                  "a": 1
+                }
+              ],
+              "nested": {
+                "errors": [
+                  {
+                    "b": 1
+                  },
+                  {
+                    "c": 2
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=INVALID_ARGUMENT, code=3, count=3)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "status": "invalid argument!",
+          "details": [
+            {
+              "errors": []
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=INVALIDARGUMENT, code=3, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": "3",
+          "status": "X"
+        }
+      },
+      "result": "Google Ads rejected operations (status=X, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": true,
+          "status": "X"
+        }
+      },
+      "result": "Google Ads rejected operations (status=X, code=True, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": null
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3.0,
+          "status": "X"
+        }
+      },
+      "result": "Google Ads rejected operations (status=X, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": -1,
+          "status": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      },
+      "result": "Google Ads rejected operations (status=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, code=-1, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": 5
+        }
+      },
+      "result": "Google Ads rejected operations (status=5, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": ""
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": null,
+          "code": 9
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=9, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": "errors"
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": {
+            "errors": "notalist"
+          }
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": [
+            {
+              "errors": null
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": [
+            [
+              {
+                "errors": [
+                  1,
+                  2,
+                  3
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=3)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": {
+            "errors": [
+              1
+            ],
+            "x": [
+              {
+                "errors": [
+                  2,
+                  3
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=3)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": [
+            {
+              "@type": "t",
+              "errors": [
+                {
+                  "errorCode": {
+                    "x": 1
+                  },
+                  "message": "PII a@b.co"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=1)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": "résumé_ERR-1 ok",
+          "code": 7
+        }
+      },
+      "result": "Google Ads rejected operations (status=RSUM_ERR1OK, code=7, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": "lower_case",
+          "code": 7
+        }
+      },
+      "result": "Google Ads rejected operations (status=LOWER_CASE, code=7, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "status": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABCD",
+          "code": 7
+        }
+      },
+      "result": "Google Ads rejected operations (status=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA, code=7, count=unknown)"
+    },
+    {
+      "body": {
+        "results": [],
+        "partialFailureError": {
+          "code": 14,
+          "status": "UNAVAILABLE"
+        }
+      },
+      "result": "Google Ads rejected operations (status=UNAVAILABLE, code=14, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "code": 3,
+          "status": "S",
+          "errors": [
+            1,
+            2
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=S, code=3, count=unknown)"
+    },
+    {
+      "body": {
+        "partialFailureError": {
+          "details": [
+            {
+              "errors": [
+                1
+              ]
+            },
+            {
+              "errors": [
+                2,
+                3
+              ]
+            },
+            {
+              "x": {
+                "y": {
+                  "errors": [
+                    4
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      },
+      "result": "Google Ads rejected operations (status=PARTIAL_FAILURE, code=unknown, count=4)"
+    }
+  ],
+  "linkedin": [
+    {
+      "body": null,
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": [],
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": "x",
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": {},
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": {
+        "elements": null
+      },
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": {
+        "elements": "x"
+      },
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": {
+        "elements": {}
+      },
+      "expected": 1,
+      "result": "LinkedIn returned an invalid batch response"
+    },
+    {
+      "body": {
+        "elements": []
+      },
+      "expected": 0,
+      "result": null
+    },
+    {
+      "body": {
+        "elements": []
+      },
+      "expected": 1,
+      "result": "LinkedIn returned an incomplete batch response (expected=1, received=0)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          }
+        ]
+      },
+      "expected": 1,
+      "result": null
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn returned an incomplete batch response (expected=1, received=2)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          }
+        ]
+      },
+      "expected": 2,
+      "result": "LinkedIn returned an incomplete batch response (expected=2, received=1)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          }
+        ]
+      },
+      "expected": 3,
+      "result": null
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          },
+          {
+            "status": 400
+          }
+        ]
+      },
+      "expected": 2,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=400)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 400
+          },
+          {
+            "status": 400
+          }
+        ]
+      },
+      "expected": 2,
+      "result": "LinkedIn rejected batch elements (count=2, statuses=400)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 403
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 400
+          },
+          {
+            "status": 403
+          }
+        ]
+      },
+      "expected": 4,
+      "result": "LinkedIn rejected batch elements (count=3, statuses=400,403)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 200
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=200)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": "201"
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": null
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          {}
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": true
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=True)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201.0
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          null
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          "x"
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          [
+            201
+          ]
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 500,
+            "message": "PII a@b.co"
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=500)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 429
+          },
+          "x",
+          {
+            "status": 429
+          }
+        ]
+      },
+      "expected": 3,
+      "result": "LinkedIn rejected batch elements (count=3, statuses=429)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": -1
+          },
+          {
+            "status": 0
+          }
+        ]
+      },
+      "expected": 2,
+      "result": "LinkedIn rejected batch elements (count=2, statuses=-1,0)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 201
+          },
+          {
+            "status": 409
+          }
+        ]
+      },
+      "expected": 6,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=409)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201,
+            "extra": 1
+          }
+        ]
+      },
+      "expected": 1,
+      "result": null
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          }
+        ],
+        "paging": {}
+      },
+      "expected": 1,
+      "result": null
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 400
+          },
+          {
+            "status": 400
+          },
+          {
+            "status": 401
+          }
+        ]
+      },
+      "expected": 3,
+      "result": "LinkedIn rejected batch elements (count=3, statuses=400,401)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 201
+          },
+          {
+            "status": "bad"
+          }
+        ]
+      },
+      "expected": 2,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=unknown)"
+    },
+    {
+      "body": {
+        "elements": [
+          {
+            "status": 1000000000000
+          }
+        ]
+      },
+      "expected": 1,
+      "result": "LinkedIn rejected batch elements (count=1, statuses=1000000000000)"
+    }
+  ]
+}

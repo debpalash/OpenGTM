@@ -1,0 +1,38 @@
+{
+  "request": {
+    "body": {
+      "signal_types": []
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/watches/00000000-0000-4000-8000-000000000032"
+  },
+  "response": {
+    "body": {
+      "config": {},
+      "consecutive_failures": 0,
+      "created_at": "2099-01-01T00:00:00.000001+00:00",
+      "cursor": {
+        "bootstrapped": false
+      },
+      "enabled": true,
+      "id": "00000000-0000-4000-8000-000000000032",
+      "interval": "weekly",
+      "kind": "funding",
+      "last_error": null,
+      "last_polled_at": null,
+      "lead_id": 14,
+      "next_poll_at": "2099-01-01T00:00:00.000001+00:00",
+      "resolved_cik": null,
+      "signal_types": [],
+      "target": "sec_cik:12345",
+      "workspace_id": "ws-alpha"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

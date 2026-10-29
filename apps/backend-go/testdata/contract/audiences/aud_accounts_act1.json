@@ -1,0 +1,76 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/audiences/aud-act-1/accounts"
+  },
+  "response": {
+    "body": {
+      "accounts": [
+        {
+          "avg_score": 95.0,
+          "company": "Hot Pursuit Labs",
+          "contacts": 1,
+          "decision_makers": 1,
+          "email_coverage_pct": 100,
+          "key": "hotpursuit.example.com",
+          "phone_coverage_pct": 100,
+          "profiles": [
+            {
+              "email": "ceo@hotpursuit.example.com",
+              "lead_id": 14,
+              "name": "Sam Lee",
+              "title": "Chief Executive Officer"
+            }
+          ],
+          "signal_count": 10,
+          "signal_weight": 82,
+          "website": "https://hotpursuit.example.com",
+          "with_email": 1,
+          "with_phone": 1
+        },
+        {
+          "avg_score": 10.0,
+          "company": "Dead Letter Co",
+          "contacts": 1,
+          "decision_makers": 0,
+          "email_coverage_pct": 0,
+          "key": "company:dead letter co",
+          "phone_coverage_pct": 0,
+          "profiles": [
+            {
+              "email": "",
+              "lead_id": 13,
+              "name": "Lead 13",
+              "title": "Intern"
+            }
+          ],
+          "signal_count": 0,
+          "signal_weight": 0,
+          "website": "",
+          "with_email": 0,
+          "with_phone": 0
+        }
+      ],
+      "pagination": {
+        "limit": 50,
+        "next_offset": null,
+        "offset": 0,
+        "total": 2
+      },
+      "summary": {
+        "account_count": 2,
+        "accounts_with_decision_makers": 1,
+        "accounts_with_signals": 1,
+        "contact_count": 2
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

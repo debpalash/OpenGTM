@@ -1,0 +1,107 @@
+{
+ "vendor": "hubspot",
+ "scenario": "fetch_list_memberships",
+ "call": {
+  "function": "fetch_contacts",
+  "args": {
+   "limit": 3,
+   "list_id": "77"
+  }
+ },
+ "secrets": {
+  "HUBSPOT_TOKEN": "ctk_hubspot_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "GET",
+    "url": "https://api.hubapi.com/crm/v3/lists/77/memberships?limit=3",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": ""
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"results\":[{\"recordId\":\"1\"},{\"recordId\":\"2\"},{\"recordId\":\"3\"},{\"recordId\":\"4\"}]}"
+   }
+  },
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://api.hubapi.com/crm/v3/objects/contacts/batch/read",
+    "headers": {
+     "authorization": "Bearer {{secret:HUBSPOT_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"properties\":[\"email\",\"firstname\",\"lastname\",\"company\",\"phone\",\"website\",\"jobtitle\"],\"inputs\":[{\"id\":\"1\"},{\"id\":\"2\"},{\"id\":\"3\"}]}",
+    "json": {
+     "properties": [
+      "email",
+      "firstname",
+      "lastname",
+      "company",
+      "phone",
+      "website",
+      "jobtitle"
+     ],
+     "inputs": [
+      {
+       "id": "1"
+      },
+      {
+       "id": "2"
+      },
+      {
+       "id": "3"
+      }
+     ]
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"results\":[{\"id\":\"1\",\"properties\":{\"email\":\"c1@example.com\",\"firstname\":\"C\",\"lastname\":\"1\",\"company\":\"Co 1\",\"phone\":\"\",\"website\":null,\"jobtitle\":\"Dev\"}},{\"id\":\"2\",\"properties\":{\"email\":\"c2@example.com\",\"firstname\":\"C\",\"lastname\":\"2\",\"company\":\"Co 2\",\"phone\":\"\",\"website\":null,\"jobtitle\":\"Dev\"}},{\"id\":\"3\",\"properties\":{\"email\":\"c3@example.com\",\"firstname\":\"C\",\"lastname\":\"3\",\"company\":\"Co 3\",\"phone\":\"\",\"website\":null,\"jobtitle\":\"Dev\"}}]}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "contacts": [
+   {
+    "email": "c1@example.com",
+    "company": "Co 1",
+    "contact_title": "Dev",
+    "contact_person": "C 1",
+    "crm_external_id": "1",
+    "crm_type": "hubspot",
+    "crm_object": "contact"
+   },
+   {
+    "email": "c2@example.com",
+    "company": "Co 2",
+    "contact_title": "Dev",
+    "contact_person": "C 2",
+    "crm_external_id": "2",
+    "crm_type": "hubspot",
+    "crm_object": "contact"
+   },
+   {
+    "email": "c3@example.com",
+    "company": "Co 3",
+    "contact_title": "Dev",
+    "contact_person": "C 3",
+    "crm_external_id": "3",
+    "crm_type": "hubspot",
+    "crm_object": "contact"
+   }
+  ]
+ }
+}

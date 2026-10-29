@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "hard": false,
+      "message_id": "<hook-soft-3-b@contract.example.com>"
+    },
+    "headers": {
+      "X-Webhook-Secret": "{{token:token_webhook_secret}}"
+    },
+    "method": "POST",
+    "path": "/api/outreach/webhooks/bounce"
+  },
+  "response": {
+    "body": {
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

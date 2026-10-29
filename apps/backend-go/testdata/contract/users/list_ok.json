@@ -1,0 +1,48 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/admin/users"
+  },
+  "response": {
+    "body": [
+      {
+        "created_at": "2026-08-29T10:40:00",
+        "id": 3,
+        "is_active": false,
+        "is_admin": false,
+        "last_login": null,
+        "profile_image": null,
+        "role": "user",
+        "username": "carol"
+      },
+      {
+        "created_at": "2026-08-29T10:40:00",
+        "id": 1,
+        "is_active": true,
+        "is_admin": true,
+        "last_login": "2026-10-26T06:53:46.735883",
+        "profile_image": null,
+        "role": "admin",
+        "username": "alice"
+      },
+      {
+        "created_at": "2026-08-29T10:40:00",
+        "id": 2,
+        "is_active": true,
+        "is_admin": false,
+        "last_login": "2026-10-26T06:53:46.921110",
+        "profile_image": null,
+        "role": "user",
+        "username": "bob"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

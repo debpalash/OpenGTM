@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "status": "new"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/lead/17/status"
+  },
+  "response": {
+    "body": {
+      "detail": "Lead not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

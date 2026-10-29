@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/research-playbooks/runs/run-gov-r4/results"
+  },
+  "response": {
+    "body": {
+      "has_more": false,
+      "limit": 100,
+      "next_cursor": null,
+      "offset": 0,
+      "results": []
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

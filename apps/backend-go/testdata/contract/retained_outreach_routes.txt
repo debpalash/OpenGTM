@@ -1,0 +1,4 @@
+# Outreach routes that stay on FastAPI (plan 09, decision D1). One "METHOD /path/{param}" per line.
+# None left: POST /api/campaigns/generate (LLM) moved to internal/api/campaigngen.go in plan 15 WP-LLMROUTES, behind
+# GO_LLM_ROUTES_ENABLED (default off). nginx keeps it on api_backend until WP-RETIRE-INFRA. All 22 routes of
+# routers/outreach.py are ported; parity is pinned by internal/api/outreach_coverage_test.go.

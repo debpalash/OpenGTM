@@ -1,0 +1,26 @@
+{
+  "request": {
+    "body": {
+      "messages": [
+        {
+          "content": "[sim:text_plain] hi",
+          "role": "user"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/copilotkit"
+  },
+  "response": {
+    "body": {
+      "detail": "No accessible workspace. Ask an admin to add you to one."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

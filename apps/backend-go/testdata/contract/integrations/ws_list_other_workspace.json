@@ -1,0 +1,19 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/settings/workspace-integrations?workspace_id=ws-missing"
+  },
+  "response": {
+    "body": {
+      "detail": "Not a member of this workspace"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 403
+  }
+}

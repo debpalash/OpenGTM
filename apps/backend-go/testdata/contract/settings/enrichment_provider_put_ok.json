@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "api_key": "hunter-contract-key-1234567890"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/settings/enrichment-providers/hunter_io"
+  },
+  "response": {
+    "body": {
+      "provider": "hunter_io",
+      "status": "ok"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

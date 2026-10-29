@@ -1,0 +1,258 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?before=2029-01-01&outcome=denied&limit=200"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:44.535465",
+          "id": "00000000-0000-4000-8000-000000003156",
+          "metadata": {},
+          "method": "DELETE",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009282",
+          "resource_path": "/api/research-playbooks/pb-gov-sched",
+          "response_status": 403,
+          "route": "/api/research-playbooks/{playbook_id}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:44.336887",
+          "id": "00000000-0000-4000-8000-000000003148",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009273",
+          "resource_path": "/api/research-playbooks/runs/run-gov-r5/cancel",
+          "response_status": 403,
+          "route": "/api/research-playbooks/runs/{run_id}/cancel"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:44.149900",
+          "id": "00000000-0000-4000-8000-000000003139",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009263",
+          "resource_path": "/api/research-playbooks/runs/run-gov-r3/retry",
+          "response_status": 403,
+          "route": "/api/research-playbooks/runs/{run_id}/retry"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:43.868615",
+          "id": "00000000-0000-4000-8000-000000003126",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009250",
+          "resource_path": "/api/research-playbooks/pb-gov-multi/runs",
+          "response_status": 403,
+          "route": "/api/research-playbooks/{playbook_id}/runs"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:43.354142",
+          "id": "00000000-0000-4000-8000-000000003103",
+          "metadata": {},
+          "method": "PATCH",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009224",
+          "resource_path": "/api/research-playbooks/pb-gov-multi",
+          "response_status": 403,
+          "route": "/api/research-playbooks/{playbook_id}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:43.039507",
+          "id": "00000000-0000-4000-8000-000000003084",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009207",
+          "resource_path": "/api/research-playbooks",
+          "response_status": 403,
+          "route": "/api/research-playbooks"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:42.344521",
+          "id": "00000000-0000-4000-8000-000000003079",
+          "metadata": {},
+          "method": "DELETE",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009162",
+          "resource_path": "/api/governance/scim-token",
+          "response_status": 403,
+          "route": "/api/governance/scim-token"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:42.327069",
+          "id": "00000000-0000-4000-8000-000000003078",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009161",
+          "resource_path": "/api/governance/scim-token",
+          "response_status": 403,
+          "route": "/api/governance/scim-token"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:41.961329",
+          "id": "00000000-0000-4000-8000-000000003064",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009140",
+          "resource_path": "/api/governance/sso",
+          "response_status": 403,
+          "route": "/api/governance/sso"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:41.782930",
+          "id": "00000000-0000-4000-8000-000000003059",
+          "metadata": {},
+          "method": "DELETE",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009131",
+          "resource_path": "/api/governance/members/3",
+          "response_status": 403,
+          "route": "/api/governance/members/{user_id}"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:41.764718",
+          "id": "00000000-0000-4000-8000-000000003058",
+          "metadata": {},
+          "method": "PATCH",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009130",
+          "resource_path": "/api/governance/members/3",
+          "response_status": 403,
+          "route": "/api/governance/members/{user_id}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:41.514421",
+          "id": "00000000-0000-4000-8000-000000003043",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009115",
+          "resource_path": "/api/governance/members",
+          "response_status": 403,
+          "route": "/api/governance/members"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:41.208359",
+          "id": "00000000-0000-4000-8000-000000003029",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009100",
+          "resource_path": "/api/governance/rbac/2/tables.write",
+          "response_status": 403,
+          "route": "/api/governance/rbac/{user_id}/{permission}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:41.189972",
+          "id": "00000000-0000-4000-8000-000000003028",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009099",
+          "resource_path": "/api/governance/rbac/2/tables.write",
+          "response_status": 403,
+          "route": "/api/governance/rbac/{user_id}/{permission}"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:40.593011",
+          "id": "00000000-0000-4000-8000-000000003005",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009068",
+          "resource_path": "/api/governance/retention/enforce",
+          "response_status": 403,
+          "route": "/api/governance/retention/enforce"
+        },
+        {
+          "actor_role": "editor",
+          "actor_user_id": 4,
+          "created_at": "2026-10-26T17:18:40.574991",
+          "id": "00000000-0000-4000-8000-000000003004",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009067",
+          "resource_path": "/api/governance/retention",
+          "response_status": 403,
+          "route": "/api/governance/retention"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:40.558041",
+          "id": "00000000-0000-4000-8000-000000003003",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009066",
+          "resource_path": "/api/governance/retention",
+          "response_status": 403,
+          "route": "/api/governance/retention"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2026-10-26T17:18:40.529001",
+          "id": "00000000-0000-4000-8000-000000003002",
+          "metadata": {},
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "00000000-0000-4000-8000-000000009064",
+          "resource_path": "/api/governance/retention/preview",
+          "response_status": 403,
+          "route": "/api/governance/retention/preview"
+        }
+      ],
+      "has_more": false,
+      "limit": 200,
+      "next_before": null,
+      "next_cursor": null
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

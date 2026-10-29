@@ -14,11 +14,11 @@ the same things with buttons.
 ```bash
 export OPENGTM=http://localhost:8000
 TOKEN=$(curl -s -X POST $OPENGTM/auth/token \
-  -d 'username=admin&password=admin' | jq -r .access_token)
+  -d 'username=<admin>&password=<password>' | jq -r .access_token)
 AUTH="Authorization: Bearer $TOKEN"
 ```
 
-The seed admin is `admin` / `admin` unless you changed `SEED_ADMIN_PASSWORD`.
+Use the admin account you created at `/setup` on first run (only the optional `demo` profile seeds `admin` / `admin`; never use it on a reachable host).
 Requests are scoped to your active workspace; add `X-Workspace-Id: <id>` to
 target another one you belong to.
 

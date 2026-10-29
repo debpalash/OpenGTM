@@ -1,0 +1,118 @@
+{
+ "vendor": "ambitionbox",
+ "scenario": "search_no_stats_short_page",
+ "call": {
+  "function": "search_companies",
+  "args": {
+   "page": 1
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "POST",
+    "url": "https://www.ambitionbox.com/servicegateway-ambitionbox/company-services/v0/listing/dream/companies/search",
+    "headers": {
+     "accept": "application/json",
+     "appid": "125",
+     "content-type": "application/json",
+     "origin": "https://www.ambitionbox.com",
+     "referer": "https://www.ambitionbox.com/list-of-companies",
+     "systemid": "local",
+     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36"
+    },
+    "json": {
+     "isFilterApplied": true,
+     "page": "1",
+     "sortBy": "popular",
+     "limit": 20
+    },
+    "timeout_total": 15
+   },
+   "response": {
+    "status": 200,
+    "body": {
+     "cards": [
+      {
+       "companyId": 1,
+       "name": "Solo",
+       "shortName": "Solo",
+       "urlName": "solo",
+       "logoUrl": "https://static.ambitionbox.com/logos/1.png",
+       "primaryIndustry": "IT",
+       "companyRating": 4.0,
+       "reviewCount": 10,
+       "jobsCount": 1,
+       "salariesCount": 1,
+       "interviewsCount": 1,
+       "totalEmployeesIndia": "",
+       "totalEmployees": "10k-50k Employees",
+       "topLocationDetail": {
+        "name": "Pune",
+        "totalLocationsCount": 4
+       },
+       "isVerifiedEmployer": false,
+       "tag": {
+        "name": "Private"
+       },
+       "highlyRatedFor": [
+        {
+         "name": "Job Security",
+         "ratings": 4.2
+        }
+       ],
+       "criticallyRatedFor": [
+        {
+         "name": "Work Satisfaction",
+         "ratings": 2.9
+        }
+       ]
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "companies": [
+   {
+    "company_id": 1,
+    "name": "Solo",
+    "short_name": "Solo",
+    "url_name": "solo",
+    "logo_url": "https://static.ambitionbox.com/logos/1.png",
+    "industry": "IT",
+    "rating": 4.0,
+    "review_count": 10,
+    "jobs_count": 1,
+    "salaries_count": 1,
+    "interviews_count": 1,
+    "employee_count": "10k-50k Employees",
+    "top_location": "Pune",
+    "total_locations": 4,
+    "is_verified": false,
+    "company_type": "Private",
+    "highly_rated_for": [
+     {
+      "name": "Job Security",
+      "rating": 4.2
+     }
+    ],
+    "critically_rated_for": [
+     {
+      "name": "Work Satisfaction",
+      "rating": 2.9
+     }
+    ],
+    "profile_url": "https://www.ambitionbox.com/overview/solo-overview"
+   }
+  ],
+  "total": 1,
+  "page": 1,
+  "source_total": null,
+  "total_pages": null,
+  "has_more": false
+ }
+}

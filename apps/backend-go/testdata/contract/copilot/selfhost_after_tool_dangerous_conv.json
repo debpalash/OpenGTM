@@ -1,0 +1,32 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/api/copilotkit/conversations/000003eb-000"
+  },
+  "response": {
+    "body": {
+      "conversation": {
+        "created_at": "<volatile>",
+        "id": "000003eb-000",
+        "title": "[sim:tool_dangerous] mark lead 4 contacted",
+        "updated_at": "<volatile>"
+      },
+      "messages": [
+        {
+          "content": "[sim:tool_dangerous] mark lead 4 contacted",
+          "conversation_id": "000003eb-000",
+          "created_at": "<volatile>",
+          "id": "000003ec-000",
+          "role": "user",
+          "tool_data": null
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

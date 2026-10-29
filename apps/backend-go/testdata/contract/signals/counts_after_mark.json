@@ -1,0 +1,25 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/signals/counts"
+  },
+  "response": {
+    "body": {
+      "funding": 6,
+      "growth": 6,
+      "hiring": 6,
+      "news": 6,
+      "tech_change": 6,
+      "total": 30,
+      "unread": 18
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

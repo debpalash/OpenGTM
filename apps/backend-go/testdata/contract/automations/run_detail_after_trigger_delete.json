@@ -1,0 +1,138 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/automations/runs/run-a-01-02"
+  },
+  "response": {
+    "body": {
+      "action_results": [
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:02:01+00:00",
+          "error": null,
+          "id": 1,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3001:0:rowadd:wb-auto-1:3002",
+          "lead_id": 14,
+          "result_summary": "POST 200",
+          "row_id": "3001",
+          "run_id": "run-a-01-02",
+          "skip_reason": null,
+          "status": "success",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:02:02+00:00",
+          "error": "HTTP 500: upstream error",
+          "id": 2,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3002:0:rowadd:wb-auto-1:3002",
+          "lead_id": 11,
+          "result_summary": "POST 500",
+          "row_id": "3002",
+          "run_id": "run-a-01-02",
+          "skip_reason": null,
+          "status": "failed",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:02:03+00:00",
+          "error": "blocked url: host resolves to private ip 10.0.0.5",
+          "id": 3,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3003:0:rowadd:wb-auto-1:3002",
+          "lead_id": 7,
+          "result_summary": null,
+          "row_id": "3003",
+          "run_id": "run-a-01-02",
+          "skip_reason": "blocked_url",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:02:04+00:00",
+          "error": null,
+          "id": 4,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3004:0:rowadd:wb-auto-1:3002",
+          "lead_id": 6,
+          "result_summary": null,
+          "row_id": "3004",
+          "run_id": "run-a-01-02",
+          "skip_reason": "replay",
+          "status": "skipped",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.0,
+          "created_at": "2026-08-29T12:02:05+00:00",
+          "error": null,
+          "id": 5,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3005:0:rowadd:wb-auto-1:3002",
+          "lead_id": 12,
+          "result_summary": null,
+          "row_id": "3005",
+          "run_id": "run-a-01-02",
+          "skip_reason": null,
+          "status": "in_flight",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        },
+        {
+          "action_index": 0,
+          "action_type": "webhook",
+          "charged_usd": 0.1,
+          "created_at": "2026-08-29T12:02:06+00:00",
+          "error": null,
+          "id": 6,
+          "idempotency_key": "trig:ws-alpha:trg-a-01:wb-auto-1:3006:0:rowadd:wb-auto-1:3002",
+          "lead_id": 1,
+          "result_summary": "charged, effect unknown",
+          "row_id": "3006",
+          "run_id": "run-a-01-02",
+          "skip_reason": null,
+          "status": "charged_only",
+          "trigger_id": "trg-a-01",
+          "workbook_id": "wb-auto-1"
+        }
+      ],
+      "actions_attempted": 2,
+      "actions_failed": 1,
+      "actions_skipped": 1,
+      "actions_succeeded": 1,
+      "error": null,
+      "finished_at": "2026-08-29T12:02:30+00:00",
+      "fire_key": "rowadd:wb-auto-1:3002",
+      "fire_source": "row_added",
+      "id": "run-a-01-02",
+      "job_id": 902,
+      "matched_rows": 2,
+      "started_at": "2026-08-29T12:02:00+00:00",
+      "status": "partial",
+      "total_charged_usd": 0.0247,
+      "trigger_id": "trg-a-01",
+      "trigger_name_snapshot": "New row webhook"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

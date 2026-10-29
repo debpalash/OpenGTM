@@ -1,0 +1,56 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        1,
+        7,
+        16,
+        19,
+        20,
+        3,
+        999
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences/seq-out-a-02/enroll"
+  },
+  "response": {
+    "body": {
+      "enrolled": 1,
+      "skipped": [
+        {
+          "lead_id": 1,
+          "reason": "already_enrolled"
+        },
+        {
+          "lead_id": 7,
+          "reason": "no_email"
+        },
+        {
+          "lead_id": 16,
+          "reason": "suppressed"
+        },
+        {
+          "lead_id": 19,
+          "reason": "suppressed"
+        },
+        {
+          "lead_id": 3,
+          "reason": "no_email"
+        },
+        {
+          "lead_id": 999,
+          "reason": "no_email"
+        }
+      ],
+      "total_lead_ids": 7
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

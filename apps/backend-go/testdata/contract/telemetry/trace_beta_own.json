@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/workbooks/wb-beta-1/rows/1/cells/summary/trace"
+  },
+  "response": {
+    "body": {
+      "column_id": "summary",
+      "goal": "beta trace",
+      "lead_id": 1,
+      "outcome": "found",
+      "steps": [],
+      "total_cost_usd": {
+        "spent": 1
+      },
+      "workbook_id": "wb-beta-1"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

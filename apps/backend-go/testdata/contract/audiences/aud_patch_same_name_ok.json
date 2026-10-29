@@ -1,0 +1,36 @@
+{
+  "request": {
+    "body": {
+      "name": "City renamed"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/audiences/00000000-0000-4000-8000-000000002004"
+  },
+  "response": {
+    "body": {
+      "consecutive_refresh_failures": 0,
+      "created_at": "2026-10-26T17:05:44.112952",
+      "description": "",
+      "filters": {
+        "city": "Mumbai"
+      },
+      "id": "00000000-0000-4000-8000-000000002004",
+      "last_refresh_error": null,
+      "member_count": 4,
+      "name": "City renamed",
+      "next_refresh_at": "2026-10-26T18:05:44.146309",
+      "refresh_enabled": true,
+      "refresh_health": "healthy",
+      "refresh_interval_minutes": 60,
+      "refreshed_at": "2026-10-26T17:05:46.621882",
+      "updated_at": "2026-10-26T17:05:46.619413"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

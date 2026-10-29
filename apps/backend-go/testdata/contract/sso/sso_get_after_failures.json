@@ -1,0 +1,27 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/sso"
+  },
+  "response": {
+    "body": {
+      "allowed_domains": [],
+      "auto_provision": false,
+      "client_id": "",
+      "client_secret_configured": false,
+      "default_role": "viewer",
+      "enabled": false,
+      "enforce_sso": false,
+      "issuer": "",
+      "owner_password_fallback": true
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

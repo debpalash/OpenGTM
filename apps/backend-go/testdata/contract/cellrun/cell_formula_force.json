@@ -1,0 +1,28 @@
+{
+  "request": {
+    "body": {
+      "force": true
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/workbooks/wb-enrich-1/rows/101/cells/calc_dom/run"
+  },
+  "response": {
+    "body": {
+      "error": null,
+      "forced": true,
+      "provider": "formula",
+      "research": null,
+      "skipped": false,
+      "status": "complete",
+      "value": "globex.example.com"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "seq": 62,
+  "profile": "read",
+  "token": null,
+  "request": {
+    "method": "POST",
+    "path": "/other",
+    "headers": {},
+    "body": {}
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "detail": "Not Found"
+    }
+  },
+  "audit": [],
+  "effects": {}
+}

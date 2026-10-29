@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "decision": "merge",
+      "pair_id": 2
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/review-queue/decide"
+  },
+  "response": {
+    "body": {
+      "detail": "Review pair not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

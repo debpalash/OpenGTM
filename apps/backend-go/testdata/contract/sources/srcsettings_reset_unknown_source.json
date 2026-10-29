@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/settings/sources/not_a_source/health/reset"
+  },
+  "response": {
+    "body": {
+      "detail": "no health row",
+      "name": "not_a_source",
+      "reset": false
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

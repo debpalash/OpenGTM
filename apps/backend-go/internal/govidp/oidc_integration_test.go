@@ -1,0 +1,345 @@
+//go:build integration
+
+package govidp_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log/slog"
+	"os"
+	"strings"
+	"testing"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/govidp"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
+)
+
+type env struct {
+	pool    *pgxpool.Pool
+	res     *secrets.Resolver
+	ws, ws2 string
+	owner   int32
+}
+
+var ctr int
+
+func setup(t *testing.T) *env {
+	t.Helper()
+	p := testpg.NewAppPool(t, 4)
+	ctx := context.Background()
+	ctr++
+	tag := fmt.Sprintf("gi%d-%d", ctr, os.Getpid()%10000)
+	e := &env{pool: p, ws: "ws-" + tag, ws2: "ws-" + tag + "-b"}
+	if err := p.QueryRow(ctx, `INSERT INTO users (username, hashed_password, is_active, is_admin, role) VALUES ($1,'x',true,false,'user') RETURNING id`, tag+"-owner").Scan(&e.owner); err != nil {
+		t.Fatal(err)
+	}
+	for _, w := range []string{e.ws, e.ws2} {
+		if _, err := p.Exec(ctx, `INSERT INTO workspaces (id,name,slug,description,icon,owner_id,created_at,updated_at) VALUES ($1::text,$1::text,$1::text,'','',$2,1,1)`, w, e.owner); err != nil {
+			t.Fatal(err)
+		}
+	}
+	envl, err := secrets.NewEnvelope(secrets.Config{MasterKey: "govidp-it-master", AppEnv: "dev"}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	e.res = secrets.NewResolver(envl, secrets.NewPgStore(p), func(string) string { return "" })
+	t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", "login.example.com,idp.corp.io")
+	t.Setenv("SSO_ALLOWED_ISSUERS", "https://login.example.com,https://idp.corp.io")
+	t.Cleanup(func() {
+		for _, w := range []string{e.ws, e.ws2} {
+			_ = tenancy.InWorkspace(ctx, p, w, func(tx pgx.Tx) error {
+				_, _ = tx.Exec(ctx, `DELETE FROM workspace_settings WHERE workspace_id=$1`, w)
+				return nil
+			})
+			_, _ = p.Exec(ctx, `DELETE FROM workspace_scim_tokens WHERE workspace_id=$1`, w)
+			_, _ = p.Exec(ctx, `DELETE FROM workspaces WHERE id=$1`, w)
+		}
+		_, _ = p.Exec(ctx, `DELETE FROM users WHERE id=$1`, e.owner)
+	})
+	return e
+}
+
+func (e *env) in(t *testing.T, ws string, fn func(tx pgx.Tx) error) {
+	t.Helper()
+	if err := tenancy.InWorkspace(context.Background(), e.pool, ws, fn); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// try runs fn in a tx and returns its error (no t.Fatal), rolling back on error.
+func (e *env) try(ws string, fn func(tx pgx.Tx) error) error {
+	return tenancy.InWorkspace(context.Background(), e.pool, ws, fn)
+}
+
+func (e *env) storedConfig(t *testing.T, ws string) (string, bool) {
+	t.Helper()
+	var raw string
+	var found bool
+	e.in(t, ws, func(tx pgx.Tx) error {
+		err := tx.QueryRow(context.Background(), `SELECT value FROM workspace_settings WHERE workspace_id=$1 AND key='OIDC_CONFIG'`, ws).Scan(&raw)
+		found = err == nil
+		if err == pgx.ErrNoRows {
+			return nil
+		}
+		return err
+	})
+	return raw, found
+}
+
+func inputFrom(m map[string]any) govidp.OIDCInput {
+	b, _ := json.Marshal(m)
+	var in govidp.OIDCInput
+	_ = json.Unmarshal(b, &in)
+	return in
+}
+
+func TestSaveConfigVectorsMatchPython(t *testing.T) {
+	v := loadVectors(t)
+	ctx := context.Background()
+	for _, c := range v.Saves {
+		t.Run(c.Name, func(t *testing.T) {
+			e := setup(t)
+			t.Setenv("SSO_ALLOWED_ISSUER_HOSTS", v.AllowedHosts)
+			t.Setenv("SSO_ALLOWED_ISSUERS", vectorIssuers(v))
+			if c.ExistingSecret {
+				if err := e.res.Set(ctx, e.ws, "OIDC_CLIENT_SECRET", "pre-existing-placeholder"); err != nil {
+					t.Fatal(err)
+				}
+			}
+			var got govidp.OIDCConfig
+			err := e.try(e.ws, func(tx pgx.Tx) error {
+				var err error
+				got, err = govidp.SaveConfig(ctx, tx, e.res, e.ws, inputFrom(c.Input))
+				return err
+			})
+			raw, found := e.storedConfig(t, e.ws)
+			if c.Error != "" {
+				if err == nil || err.Error() != c.Error {
+					t.Fatalf("want error %q got %v", c.Error, err)
+				}
+				if found {
+					t.Fatalf("rejected save must not store config")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if *c.Stored != raw {
+				t.Fatalf("stored bytes differ:\n py %s\n go %s", *c.Stored, raw)
+			}
+			want, _ := json.Marshal(c.Config)
+			have, _ := json.Marshal(got)
+			if !bytes.Equal(want, have) {
+				t.Fatalf("returned config differs:\n py %s\n go %s", want, have)
+			}
+		})
+	}
+}
+
+func TestSaveConfigErrorStrings(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	cases := []struct {
+		name string
+		in   govidp.OIDCInput
+		want string
+	}{
+		{"scheme", govidp.OIDCInput{Issuer: "http://login.example.com"}, "OIDC issuer must be a clean HTTPS origin or path"},
+		{"host", govidp.OIDCInput{Issuer: "https://evil.com"}, "OIDC issuer host is not approved by SSO_ALLOWED_ISSUER_HOSTS"},
+		{"role", govidp.OIDCInput{DefaultRole: "admin"}, "OIDC default role must be viewer, member, or editor"},
+		{"enforce", govidp.OIDCInput{EnforceSSO: true, DefaultRole: "viewer"}, "SSO enforcement requires OIDC to be enabled"},
+		{"enabled", govidp.OIDCInput{Enabled: true, DefaultRole: "viewer"}, "Enabled OIDC requires issuer, client_id, and client_secret"},
+	}
+	for _, c := range cases {
+		err := e.try(e.ws, func(tx pgx.Tx) error { _, err := govidp.SaveConfig(ctx, tx, e.res, e.ws, c.in); return err })
+		var ve *govidp.ValueError
+		if err == nil || err.Error() != c.want || !errors.As(err, &ve) {
+			t.Errorf("%s: want govidp.ValueError %q, got %T %v", c.name, c.want, err, err)
+		}
+	}
+}
+
+func TestSaveConfigDoesNotWriteSecretWhenBlank(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	in := govidp.OIDCInput{Issuer: "https://login.example.com", ClientID: "c", ClientSecret: "  \t ", DefaultRole: "viewer"}
+	e.in(t, e.ws, func(tx pgx.Tx) error { _, err := govidp.SaveConfig(ctx, tx, e.res, e.ws, in); return err })
+	if govidp.SecretConfigured(ctx, e.res, e.ws) {
+		t.Fatal("blank secret must not be stored")
+	}
+	if err := e.res.Set(ctx, e.ws, "OIDC_CLIENT_SECRET", "kept-placeholder"); err != nil {
+		t.Fatal(err)
+	}
+	in.ClientSecret = ""
+	in.Enabled = true
+	e.in(t, e.ws, func(tx pgx.Tx) error { _, err := govidp.SaveConfig(ctx, tx, e.res, e.ws, in); return err })
+	got, _, _ := e.res.Get(ctx, e.ws, "OIDC_CLIENT_SECRET")
+	if got != "kept-placeholder" {
+		t.Fatal("blank client_secret clobbered the saved secret")
+	}
+	if !govidp.SecretConfigured(ctx, e.res, e.ws) {
+		t.Fatal("secret should report configured")
+	}
+}
+
+func TestSaveConfigNeverEchoesSecret(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	const sec = "very-secret-placeholder-xyz"
+	var cfg govidp.OIDCConfig
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		var err error
+		cfg, err = govidp.SaveConfig(ctx, tx, e.res, e.ws, govidp.OIDCInput{Enabled: true, Issuer: "https://login.example.com", ClientID: "c", ClientSecret: sec, DefaultRole: "viewer"})
+		return err
+	})
+	out, _ := json.Marshal(cfg)
+	raw, _ := e.storedConfig(t, e.ws)
+	if strings.Contains(string(out), sec) || strings.Contains(raw, sec) {
+		t.Fatal("client secret leaked into config")
+	}
+	var stored string
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		return tx.QueryRow(ctx, `SELECT value FROM workspace_settings WHERE key='OIDC_CLIENT_SECRET' AND workspace_id=$1`, e.ws).Scan(&stored)
+	})
+	if stored == sec || !strings.HasPrefix(stored, secrets.EncPrefix) {
+		t.Fatal("client secret must be stored encrypted")
+	}
+}
+
+// Python's /auth/sso/* reads OIDC_CONFIG with json.loads over DEFAULT_CONFIG: the
+// stored text must be compact, Python key order, ASCII-only JSON.
+func TestSaveConfigStoredBytesReadableByPythonShape(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := govidp.SaveConfig(ctx, tx, e.res, e.ws, govidp.OIDCInput{AllowedDomains: []string{"Zed.com", "ünï.com"}, DefaultRole: "member"})
+		return err
+	})
+	raw, _ := e.storedConfig(t, e.ws)
+	want := `{"enabled":false,"enforce_sso":false,"issuer":"","client_id":"","allowed_domains":["zed.com","\u00fcn\u00ef.com"],"auto_provision":false,"default_role":"member"}`
+	if raw != want {
+		t.Fatalf("got %s", raw)
+	}
+	var cfg govidp.OIDCConfig
+	e.in(t, e.ws, func(tx pgx.Tx) error { var err error; cfg, err = govidp.GetConfig(ctx, tx, e.ws); return err })
+	if cfg.DefaultRole != "member" || len(cfg.AllowedDomains) != 2 || cfg.AllowedDomains[1] != "ünï.com" {
+		t.Fatalf("round trip: %+v", cfg)
+	}
+}
+
+func TestGetConfigDefaultsAndPartialStored(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	var cfg govidp.OIDCConfig
+	e.in(t, e.ws, func(tx pgx.Tx) error { var err error; cfg, err = govidp.GetConfig(ctx, tx, e.ws); return err })
+	b, _ := json.Marshal(cfg)
+	if string(b) != `{"enabled":false,"enforce_sso":false,"issuer":"","client_id":"","allowed_domains":[],"auto_provision":false,"default_role":"viewer"}` {
+		t.Fatalf("defaults: %s", b)
+	}
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO workspace_settings (workspace_id,key,value) VALUES ($1,'OIDC_CONFIG',$2)`, e.ws, `{"enabled":true,"issuer":"https://idp.corp.io"}`)
+		return err
+	})
+	e.in(t, e.ws, func(tx pgx.Tx) error { var err error; cfg, err = govidp.GetConfig(ctx, tx, e.ws); return err })
+	if !cfg.Enabled || cfg.Issuer != "https://idp.corp.io" || cfg.DefaultRole != "viewer" || cfg.AllowedDomains == nil {
+		t.Fatalf("partial: %+v", cfg)
+	}
+}
+
+func TestTenantIsolationOIDC(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := govidp.SaveConfig(ctx, tx, e.res, e.ws, govidp.OIDCInput{Enabled: true, Issuer: "https://login.example.com", ClientID: "a", ClientSecret: "s-a", DefaultRole: "viewer"})
+		return err
+	})
+	var cfg govidp.OIDCConfig
+	e.in(t, e.ws2, func(tx pgx.Tx) error { var err error; cfg, err = govidp.GetConfig(ctx, tx, e.ws2); return err })
+	if cfg.Enabled || cfg.ClientID != "" {
+		t.Fatalf("leak across tenants: %+v", cfg)
+	}
+	if govidp.SecretConfigured(ctx, e.res, e.ws2) || !govidp.SecretConfigured(ctx, e.res, e.ws) {
+		t.Fatal("secret flag must be per workspace")
+	}
+}
+
+// capture swaps slog default and the std logger for a buffer.
+func capture(t *testing.T) *bytes.Buffer {
+	t.Helper()
+	var buf bytes.Buffer
+	old := slog.Default()
+	slog.SetDefault(slog.New(slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug})))
+	t.Cleanup(func() { slog.SetDefault(old) })
+	return &buf
+}
+
+// Python reads json.loads exactly: keys are case-sensitive and a wrongly typed
+// value never raises (it is passed through), so Go keeps the default instead of failing.
+func TestGetConfigExactKeysAndTolerantTypes(t *testing.T) {
+	e := setup(t)
+	ctx := context.Background()
+	e.in(t, e.ws, func(tx pgx.Tx) error {
+		_, err := tx.Exec(ctx, `INSERT INTO workspace_settings (workspace_id,key,value) VALUES ($1,'OIDC_CONFIG',$2)`, e.ws,
+			`{"Enabled":true,"ISSUER":"https://x","enforce_sso":"yes","client_id":"cid","allowed_domains":"a.com","default_role":"member"}`)
+		return err
+	})
+	var cfg govidp.OIDCConfig
+	e.in(t, e.ws, func(tx pgx.Tx) error { var err error; cfg, err = govidp.GetConfig(ctx, tx, e.ws); return err })
+	if cfg.Enabled || cfg.Issuer != "" {
+		t.Fatalf("case-insensitive key match: %+v", cfg)
+	}
+	if cfg.ClientID != "cid" || cfg.DefaultRole != "member" || cfg.EnforceSSO || cfg.AllowedDomains == nil || len(cfg.AllowedDomains) != 0 {
+		t.Fatalf("exact keys / wrong-typed values: %+v", cfg)
+	}
+}
+
+// The vector types are local: this file is an external test package (internal/api imports govidp,
+// so an internal integration test importing api would be an import cycle).
+type saveVec struct {
+	Name           string             `json:"name"`
+	Input          map[string]any     `json:"input"`
+	ExistingSecret bool               `json:"existing_secret"`
+	Config         *govidp.OIDCConfig `json:"config"`
+	Stored         *string            `json:"stored"`
+	Error          string             `json:"error"`
+	SecretWritten  bool               `json:"secret_written"`
+}
+
+type vectors struct {
+	AllowedHosts string    `json:"allowed_hosts"`
+	Saves        []saveVec `json:"saves"`
+}
+
+func loadVectors(t testing.TB) vectors {
+	t.Helper()
+	b, err := os.ReadFile("testdata/oidc_vectors.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var v vectors
+	if err := json.Unmarshal(b, &v); err != nil {
+		t.Fatal(err)
+	}
+	return v
+}
+
+// vectorIssuers lists every issuer the save vectors approve, as SSO_ALLOWED_ISSUERS (S-M5: the
+// exact list is required on top of the hosts).
+func vectorIssuers(v vectors) string {
+	var out []string
+	for _, c := range v.Saves {
+		if c.Config != nil && c.Config.Issuer != "" {
+			out = append(out, c.Config.Issuer)
+		}
+	}
+	return strings.Join(out, ",")
+}

@@ -1,0 +1,121 @@
+{
+ "note": "_tokens: lowercase, [a-z0-9]+ runs of length > 2, minus the stopword list; tokens are listed sorted",
+ "cases": [
+  {
+   "text": "",
+   "tokens": []
+  },
+  {
+   "text": "   ",
+   "tokens": []
+  },
+  {
+   "text": "The Cat and the Hat",
+   "tokens": [
+    "cat",
+    "hat"
+   ]
+  },
+  {
+   "text": "show me the FIND get",
+   "tokens": []
+  },
+  {
+   "text": "Stripe",
+   "tokens": [
+    "stripe"
+   ]
+  },
+  {
+   "text": "STRIPE stripe StRiPe",
+   "tokens": [
+    "stripe"
+   ]
+  },
+  {
+   "text": "go to it",
+   "tokens": []
+  },
+  {
+   "text": "ab abc abcd",
+   "tokens": [
+    "abc",
+    "abcd"
+   ]
+  },
+  {
+   "text": "a1b2 12 123 1234",
+   "tokens": [
+    "123",
+    "1234",
+    "a1b2"
+   ]
+  },
+  {
+   "text": "hello_world foo-bar baz.qux",
+   "tokens": [
+    "bar",
+    "baz",
+    "foo",
+    "hello",
+    "qux",
+    "world"
+   ]
+  },
+  {
+   "text": "Café partnership ÉCOLE",
+   "tokens": [
+    "caf",
+    "cole",
+    "partnership"
+   ]
+  },
+  {
+   "text": "naïve façade",
+   "tokens": [
+    "ade"
+   ]
+  },
+  {
+   "text": "日本語 テキスト",
+   "tokens": []
+  },
+  {
+   "text": "emoji 😀 test",
+   "tokens": [
+    "emoji",
+    "test"
+   ]
+  },
+  {
+   "text": "can you show what's in my pipeline",
+   "tokens": [
+    "pipeline"
+   ]
+  },
+  {
+   "text": "does this do that",
+   "tokens": []
+  },
+  {
+   "text": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+   "tokens": [
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   ]
+  },
+  {
+   "text": "re-engage Pune/Mumbai leads (hot)",
+   "tokens": [
+    "engage",
+    "hot",
+    "leads",
+    "mumbai",
+    "pune"
+   ]
+  },
+  {
+   "text": "Is It? WAS were BE with",
+   "tokens": []
+  }
+ ]
+}

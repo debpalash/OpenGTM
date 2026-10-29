@@ -1,0 +1,406 @@
+{
+ "created_first": true,
+ "created_second": false,
+ "jobs": [
+  {
+   "executor": "python",
+   "fire_key": null,
+   "max_retries": 3,
+   "payload": {
+    "column_ids": [
+     "find_email",
+     "verify_email",
+     "find_phone",
+     "company_desc",
+     "company_size",
+     "linkedin",
+     "hiring",
+     "research_hq"
+    ],
+    "concurrency": 5,
+    "fill_missing": false,
+    "lead_ids": null,
+    "max_providers": 0,
+    "provider_timeout": 15,
+    "provider_workers": 4,
+    "retry_passes": 1,
+    "row_ids": null,
+    "workbook_id": "demo-zero-key-firstrun",
+    "workspace_id": "wsDemo"
+   },
+   "priority": 1,
+   "status": "pending",
+   "type": "run_workbook",
+   "workspace_id": "wsDemo"
+  }
+ ],
+ "rows": [
+  {
+   "data": {
+    "company": "Stripe",
+    "website": "stripe.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 0,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Notion",
+    "website": "notion.so"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 1,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Figma",
+    "website": "figma.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 2,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Vercel",
+    "website": "vercel.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 3,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Linear",
+    "website": "linear.app"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 4,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Supabase",
+    "website": "supabase.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 5,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "HashiCorp",
+    "website": "hashicorp.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 6,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "GitLab",
+    "website": "gitlab.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 7,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Cloudflare",
+    "website": "cloudflare.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 8,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "MongoDB",
+    "website": "mongodb.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 9,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Datadog",
+    "website": "datadoghq.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 10,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Snowflake",
+    "website": "snowflake.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 11,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Twilio",
+    "website": "twilio.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 12,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Atlassian",
+    "website": "atlassian.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 13,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Shopify",
+    "website": "shopify.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 14,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "DigitalOcean",
+    "website": "digitalocean.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 15,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Elastic",
+    "website": "elastic.co"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 16,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Confluent",
+    "website": "confluent.io"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 17,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "PagerDuty",
+    "website": "pagerduty.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 18,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Auth0",
+    "website": "auth0.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 19,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Segment",
+    "website": "segment.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 20,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Algolia",
+    "website": "algolia.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 21,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Sentry",
+    "website": "sentry.io"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 22,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Postman",
+    "website": "postman.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 23,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  },
+  {
+   "data": {
+    "company": "Asana",
+    "website": "asana.com"
+   },
+   "enrichments": {},
+   "lead_id": null,
+   "position": 24,
+   "workbook_id": "demo-zero-key-firstrun",
+   "workspace_id": "wsDemo"
+  }
+ ],
+ "workbooks": [
+  {
+   "budget_max_usd": 0.0,
+   "budget_spent_usd": 0.0,
+   "columns_config": [
+    {
+     "id": "company",
+     "lead_field": "company",
+     "name": "Company",
+     "type": "lead_field",
+     "width": 160
+    },
+    {
+     "id": "website",
+     "lead_field": "website",
+     "name": "Website",
+     "type": "lead_field",
+     "width": 180
+    },
+    {
+     "id": "find_email",
+     "name": "Email",
+     "target_field": "email",
+     "type": "waterfall",
+     "width": 220
+    },
+    {
+     "id": "verify_email",
+     "name": "Email Verify",
+     "target_field": "email_verify",
+     "type": "waterfall",
+     "width": 140
+    },
+    {
+     "id": "find_phone",
+     "name": "Phone",
+     "target_field": "phone",
+     "type": "waterfall",
+     "width": 150
+    },
+    {
+     "id": "company_desc",
+     "name": "Description",
+     "target_field": "description",
+     "type": "waterfall",
+     "width": 280
+    },
+    {
+     "id": "company_size",
+     "name": "Size",
+     "target_field": "company_size",
+     "type": "waterfall",
+     "width": 120
+    },
+    {
+     "id": "linkedin",
+     "name": "LinkedIn",
+     "target_field": "linkedin_url",
+     "type": "waterfall",
+     "width": 200
+    },
+    {
+     "id": "hiring",
+     "name": "Hiring Signals",
+     "target_field": "hiring_signals",
+     "type": "waterfall",
+     "width": 180
+    },
+    {
+     "id": "research_hq",
+     "max_steps": 3,
+     "name": "HQ Location (research)",
+     "output_format": "text",
+     "prompt": "What city and country is {company} ({website}) headquartered in? Answer with just the city and country.",
+     "type": "research",
+     "width": 220
+    }
+   ],
+   "completed_rows": 0,
+   "description": "Auto-seeded first-run demo. Every column uses FREE, zero-key providers \u2014 no API keys required. Click any cell to see the provider waterfall.",
+   "filter_criteria": {},
+   "id": "demo-zero-key-firstrun",
+   "name": "Demo \u2014 Zero-Key Enrichment",
+   "refresh_policy": {},
+   "source_config": {},
+   "source_type": "empty",
+   "status": "running",
+   "sync_to_leads": false,
+   "total_rows": 25,
+   "workspace_id": "wsDemo"
+  }
+ ]
+}

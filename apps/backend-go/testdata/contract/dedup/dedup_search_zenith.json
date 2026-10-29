@@ -1,0 +1,86 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/leads/dedup?search=zenith&limit=3"
+  },
+  "response": {
+    "body": {
+      "clusters": {
+        "0": [
+          7,
+          6,
+          9
+        ]
+      },
+      "merge_suggestions": [
+        {
+          "confidence": 0.9,
+          "duplicate_companies": [
+            "Zenith Robotics Solutions",
+            "Zenith Robotics Private Limited"
+          ],
+          "duplicate_ids": [
+            9,
+            7
+          ],
+          "master_company": "Zenith Robotics Pvt Ltd",
+          "master_id": 6
+        }
+      ],
+      "pairs": [
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 7,
+          "lead_b_id": 6,
+          "score": 0.9
+        },
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 7,
+          "lead_b_id": 9,
+          "score": 0.9
+        },
+        {
+          "field_scores": {
+            "city": 1.0,
+            "company": 1.0,
+            "domain": 1.0,
+            "email": 0.0,
+            "phone": 0.0
+          },
+          "lead_a_id": 6,
+          "lead_b_id": 9,
+          "score": 0.9
+        }
+      ],
+      "scanned": 3,
+      "stats": {
+        "clusters": 1,
+        "duplicates_found": 2,
+        "pairs_compared": 3,
+        "total_leads": 3,
+        "unique_leads": 1
+      }
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

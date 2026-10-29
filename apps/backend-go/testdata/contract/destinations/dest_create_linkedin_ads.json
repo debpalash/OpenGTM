@@ -1,0 +1,46 @@
+{
+  "request": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "202607",
+        "consent_attested": true,
+        "consent_source": "import wizard",
+        "segment_id": "55512345"
+      },
+      "destination_type": "linkedin_ads",
+      "field_map": {},
+      "name": "Created linkedin_ads"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/audience-destinations"
+  },
+  "response": {
+    "body": {
+      "audience_id": "aud-act-1",
+      "config": {
+        "api_version": "202607",
+        "consent_attested": true,
+        "consent_source": "import wizard",
+        "segment_id": "55512345"
+      },
+      "created_at": "2026-10-26T17:05:47.698210",
+      "destination_type": "linkedin_ads",
+      "enabled": true,
+      "field_map": {},
+      "health_status": "unverified",
+      "id": "00000000-0000-4000-8000-000000002086",
+      "last_error": null,
+      "last_success_at": null,
+      "name": "Created linkedin_ads",
+      "updated_at": "2026-10-26T17:05:47.698210"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 201
+  }
+}

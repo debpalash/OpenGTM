@@ -1,0 +1,981 @@
+{
+ "clock": "2026-10-26T12:34:56.789012+00:00",
+ "cursor_encode": [
+  {
+   "iso": "2026-03-01T12:00:00.123456",
+   "id": "abc",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjEyMzQ1NiIsImFiYyJd"
+  },
+  {
+   "iso": "2026-03-01T12:00:00",
+   "id": "id-é",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiaWQtXHUwMGU5Il0"
+  },
+  {
+   "iso": "2026-03-01T12:00:00+00:00",
+   "id": "x",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzAwOjAwIiwieCJd"
+  },
+  {
+   "iso": "2026-03-01T12:00:00+05:30",
+   "id": "x",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzA1OjMwIiwieCJd"
+  },
+  {
+   "iso": "2030-01-02T06:30:00.123456",
+   "id": "11111111-0000-4000-8000-000000000053",
+   "cursor": "WyIyMDMwLTAxLTAyVDA2OjMwOjAwLjEyMzQ1NiIsIjExMTExMTExLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDA1MyJd"
+  },
+  {
+   "iso": "2020-01-01T09:00:00",
+   "id": "",
+   "cursor": "WyIyMDIwLTAxLTAxVDA5OjAwOjAwIiwiIl0"
+  },
+  {
+   "iso": "2026-03-01T12:00:00",
+   "id": "a/b+c==",
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYS9iK2M9PSJd"
+  }
+ ],
+ "cursor_decode": [
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjUwMDAwMCIsImEiXQ",
+   "ok": true,
+   "time": "2026-03-01T12:00:00.500000+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzA1OjMwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+05:30",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwKzAwOjAwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T00:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwWiIsImEiXQ",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2MDMwMVQxMjAwMDAiLCJhIl0",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxIDEyOjAwOjAwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwLjEyMzQ1NjciLCJhIl0",
+   "ok": true,
+   "time": "2026-03-01T12:00:00.123456+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "!!!",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "AAAA",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "forged",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "eyJhIjoxfQ",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwxXQ",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIl0",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "eyJhIjoxfQ",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "Ingi",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyJub3BlIiwiYSJd",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WzEsImEiXQ",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYSIsImIiXQ",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "bnVsbA",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "Nw",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "W10",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "__4=",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYSJd=",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYSJd==",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiaWQtXHUwMGU5Il0\n",
+   "ok": false,
+   "status": 422,
+   "detail": "invalid audit event cursor"
+  },
+  {
+   "cursor": "WyIyMDI2LTAzLTAxVDEyOjAwOjAwIiwiYSJd",
+   "ok": true,
+   "time": "2026-03-01T12:00:00+00:00",
+   "aware": true,
+   "id": "a"
+  }
+ ],
+ "datetime_param": [
+  {
+   "in": "2026-03-01",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T00:00:00",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00Z",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00z",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "2026-03-01 12:00:00",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01t12:00:00",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00.5",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00.500000",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00.123456789",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00.123456",
+    "aware": false
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00+05:30",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00+05:30",
+    "aware": true
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00+0530",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00+05:30",
+    "aware": true
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00-05",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input",
+      "input": "2026-03-01T12:00:00-05",
+      "ctx": {
+       "error": "unexpected extra characters at the end of the input"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "2026-03-01T24:00:00",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input",
+      "input": "2026-03-01T24:00:00",
+      "ctx": {
+       "error": "unexpected extra characters at the end of the input"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "2026-02-30",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, day value is outside expected range",
+      "input": "2026-02-30",
+      "ctx": {
+       "error": "day value is outside expected range"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:60",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input",
+      "input": "2026-03-01T12:00:60",
+      "ctx": {
+       "error": "unexpected extra characters at the end of the input"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "1700000000",
+   "status": 200,
+   "body": {
+    "since": "2023-11-14T22:13:20+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "1700000000.5",
+   "status": 200,
+   "body": {
+    "since": "2023-11-14T22:13:20.500000+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "1700000000000",
+   "status": 200,
+   "body": {
+    "since": "2023-11-14T22:13:20+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "  2026-03-01  ",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, invalid character in year",
+      "input": "  2026-03-01  ",
+      "ctx": {
+       "error": "invalid character in year"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, input is too short",
+      "input": "",
+      "ctx": {
+       "error": "input is too short"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "garbage",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, input is too short",
+      "input": "garbage",
+      "ctx": {
+       "error": "input is too short"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "2026-3-1",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, input is too short",
+      "input": "2026-3-1",
+      "ctx": {
+       "error": "input is too short"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "20260301",
+   "status": 200,
+   "body": {
+    "since": "1970-08-23T11:51:41+00:00",
+    "aware": true
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00+24:00",
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "datetime_from_date_parsing",
+      "loc": [
+       "query",
+       "since"
+      ],
+      "msg": "Input should be a valid datetime or date, unexpected extra characters at the end of the input",
+      "input": "2026-03-01T12:00:00+24:00",
+      "ctx": {
+       "error": "unexpected extra characters at the end of the input"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "in": "2026-03-01T12:00:00+23:59",
+   "status": 200,
+   "body": {
+    "since": "2026-03-01T12:00:00+23:59",
+    "aware": true
+   }
+  }
+ ],
+ "query_bounds": [
+  {
+   "query": {
+    "limit": "0"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": "0",
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "limit": "1"
+   },
+   "status": 200,
+   "body": {
+    "limit": 1,
+    "actor_user_id": null
+   }
+  },
+  {
+   "query": {
+    "limit": "500"
+   },
+   "status": 200,
+   "body": {
+    "limit": 500,
+    "actor_user_id": null
+   }
+  },
+  {
+   "query": {
+    "limit": "501"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "less_than_equal",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be less than or equal to 500",
+      "input": "501",
+      "ctx": {
+       "le": 500
+      }
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "limit": "-3"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "greater_than_equal",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be greater than or equal to 1",
+      "input": "-3",
+      "ctx": {
+       "ge": 1
+      }
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "limit": "abc"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "abc"
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "limit": "1.5"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "1.5"
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "limit": ""
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "query",
+       "limit"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": ""
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "actor_user_id": "x"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "query",
+       "actor_user_id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": "x"
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "actor_user_id": "7"
+   },
+   "status": 200,
+   "body": {
+    "limit": 100,
+    "actor_user_id": 7
+   }
+  },
+  {
+   "query": {
+    "actor_user_id": "1.0"
+   },
+   "status": 200,
+   "body": {
+    "limit": 100,
+    "actor_user_id": 1
+   }
+  },
+  {
+   "query": {
+    "actor_user_id": ""
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "int_parsing",
+      "loc": [
+       "query",
+       "actor_user_id"
+      ],
+      "msg": "Input should be a valid integer, unable to parse string as an integer",
+      "input": ""
+     }
+    ]
+   }
+  },
+  {
+   "query": {
+    "actor_user_id": "-1"
+   },
+   "status": 200,
+   "body": {
+    "limit": 100,
+    "actor_user_id": -1
+   }
+  },
+  {
+   "query": {
+    "cursor": "<a x 1024>"
+   },
+   "status": 200,
+   "body": {
+    "limit": 100,
+    "actor_user_id": null
+   }
+  },
+  {
+   "query": {
+    "cursor": "<a x 1025>"
+   },
+   "status": 422,
+   "body": {
+    "detail": [
+     {
+      "type": "string_too_long",
+      "loc": [
+       "query",
+       "cursor"
+      ],
+      "msg": "String should have at most 1024 characters",
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "ctx": {
+       "max_length": 1024
+      }
+     }
+    ]
+   }
+  }
+ ],
+ "csv": {
+  "media_type": "text/csv; charset=utf-8",
+  "content_disposition": "attachment; filename=opengtm-audit-events.csv",
+  "bom": true,
+  "header": [
+   "id",
+   "created_at",
+   "actor_user_id",
+   "actor_role",
+   "method",
+   "route",
+   "resource_path",
+   "response_status",
+   "outcome",
+   "request_id",
+   "metadata_json"
+  ],
+  "safe_table": [
+   {
+    "in": "=",
+    "out": "'="
+   },
+   {
+    "in": "+",
+    "out": "'+"
+   },
+   {
+    "in": "-",
+    "out": "'-"
+   },
+   {
+    "in": "@",
+    "out": "'@"
+   },
+   {
+    "in": "\t",
+    "out": "'\t"
+   },
+   {
+    "in": "\r",
+    "out": "'\r"
+   },
+   {
+    "in": "'",
+    "out": "'"
+   },
+   {
+    "in": " ",
+    "out": " "
+   },
+   {
+    "in": "",
+    "out": ""
+   },
+   {
+    "in": "a",
+    "out": "a"
+   },
+   {
+    "in": "0",
+    "out": "0"
+   },
+   {
+    "in": "\n",
+    "out": "\n"
+   },
+   {
+    "in": "=cmd|' /C calc'!A0",
+    "out": "'=cmd|' /C calc'!A0"
+   },
+   {
+    "in": "+1",
+    "out": "'+1"
+   },
+   {
+    "in": "-1",
+    "out": "'-1"
+   },
+   {
+    "in": "@SUM(A1)",
+    "out": "'@SUM(A1)"
+   },
+   {
+    "in": " =x",
+    "out": " =x"
+   },
+   {
+    "in": "＝",
+    "out": "＝"
+   },
+   {
+    "in": "x=",
+    "out": "x="
+   },
+   {
+    "in": "a,b",
+    "out": "a,b"
+   },
+   {
+    "in": "say \"hi\"",
+    "out": "say \"hi\""
+   },
+   {
+    "in": "line1\nline2",
+    "out": "line1\nline2"
+   },
+   {
+    "in": "café",
+    "out": "café"
+   },
+   {
+    "in": " ",
+    "out": " "
+   },
+   {
+    "in": "\u0001",
+    "out": "\u0001"
+   },
+   {
+    "in": "=\t",
+    "out": "'=\t"
+   },
+   {
+    "in": "\t=",
+    "out": "'\t="
+   },
+   {
+    "in": "\r\n",
+    "out": "'\r\n"
+   }
+  ],
+  "document": {
+   "rows": [
+    {
+     "id": "00000000-0000-0000-0000-000000000003",
+     "created_at": "2026-03-01T12:00:00.123456",
+     "actor_user_id": 7,
+     "actor_role": "admin",
+     "method": "POST",
+     "route": "/api/x",
+     "resource_path": "/api/x?a=1,2",
+     "response_status": 200,
+     "outcome": "success",
+     "request_id": "r1",
+     "metadata_json": {
+      "b": 1,
+      "a": {
+       "z": "café",
+       "y": [
+        1,
+        2.5,
+        true,
+        null
+       ]
+      },
+      "q": "say \"hi\"\nnew"
+     }
+    },
+    {
+     "id": "00000000-0000-0000-0000-000000000002",
+     "created_at": "2026-03-01T12:00:00",
+     "actor_user_id": null,
+     "actor_role": "",
+     "method": "DELETE",
+     "route": "=cmd",
+     "resource_path": "+1",
+     "response_status": 403,
+     "outcome": "denied",
+     "request_id": "-x",
+     "metadata_json": null
+    },
+    {
+     "id": "00000000-0000-0000-0000-000000000001",
+     "created_at": "2026-02-28T00:00:00.500000",
+     "actor_user_id": 1,
+     "actor_role": "@r",
+     "method": "POST",
+     "route": "\tt",
+     "resource_path": "a\rb",
+     "response_status": 500,
+     "outcome": "error",
+     "request_id": "",
+     "metadata_json": {
+      "e": 1000.0,
+      "u": " <>&\u0001",
+      "big": 12345678901234567890
+     }
+    },
+    {
+     "id": "00000000-0000-0000-0000-000000000000",
+     "created_at": "2026-02-27T00:00:00+00:00",
+     "actor_user_id": 0,
+     "actor_role": "admin",
+     "method": "POST",
+     "route": "/api/x",
+     "resource_path": "/api/x",
+     "response_status": 200,
+     "outcome": "success",
+     "request_id": "r1",
+     "metadata_json": {}
+    }
+   ],
+   "csv": "﻿id,created_at,actor_user_id,actor_role,method,route,resource_path,response_status,outcome,request_id,metadata_json\r\n00000000-0000-0000-0000-000000000003,2026-03-01T12:00:00.123456,7,admin,POST,/api/x,\"/api/x?a=1,2\",200,success,r1,\"{\"\"b\"\":1,\"\"a\"\":{\"\"z\"\":\"\"café\"\",\"\"y\"\":[1,2.5,true,null]},\"\"q\"\":\"\"say \\\"\"hi\\\"\"\\nnew\"\"}\"\r\n00000000-0000-0000-0000-000000000002,2026-03-01T12:00:00,,,DELETE,'=cmd,'+1,403,denied,'-x,{}\r\n00000000-0000-0000-0000-000000000001,2026-02-28T00:00:00.500000,1,'@r,POST,'\tt,\"a\rb\",500,error,,\"{\"\"e\"\":1000.0,\"\"u\"\":\"\" <>&\\u0001\"\",\"\"big\"\":12345678901234567890}\"\r\n00000000-0000-0000-0000-000000000000,2026-02-27T00:00:00+00:00,0,admin,POST,/api/x,/api/x,200,success,r1,{}\r\n"
+  }
+ }
+}

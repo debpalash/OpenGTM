@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "message_id": "<nope@contract.example.com>"
+    },
+    "headers": {
+      "X-Webhook-Secret": "{{token:token_webhook_secret}}"
+    },
+    "method": "POST",
+    "path": "/api/outreach/webhooks/bounce"
+  },
+  "response": {
+    "body": {
+      "detail": "message not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

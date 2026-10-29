@@ -1,0 +1,21 @@
+{
+  "request": {
+    "body": {
+      "role": "admin"
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/admin/users/9999/role"
+  },
+  "response": {
+    "body": {
+      "detail": "User not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

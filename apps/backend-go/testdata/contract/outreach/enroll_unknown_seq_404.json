@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "lead_ids": [
+        1
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/outreach/sequences/does-not-exist/enroll"
+  },
+  "response": {
+    "body": {
+      "detail": "Sequence not found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 404
+  }
+}

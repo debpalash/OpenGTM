@@ -1,0 +1,22 @@
+{
+  "request": {
+    "body": {
+      "merge_log_id": 1
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/split"
+  },
+  "response": {
+    "body": {
+      "rebound_rows": 0,
+      "restored_id": "ent-w-2"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

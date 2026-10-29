@@ -1,0 +1,13 @@
+{
+  "name": "dsn_2_0_0_delivered_falls_to_heuristic",
+  "python_error": null,
+  "records": [
+    {
+      "diagnostic": "heuristic plain-text bounce",
+      "kind": "unknown",
+      "original_message_id": "",
+      "recipient": ""
+    }
+  ],
+  "source_message_id": "<dsn-0026@mx.example.net>"
+}

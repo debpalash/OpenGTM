@@ -1,0 +1,63 @@
+{
+  "request": {
+    "body": {
+      "columns_config": [
+        {
+          "id": "company",
+          "lead_field": "company",
+          "name": "Company"
+        },
+        {
+          "id": "website",
+          "lead_field": "website",
+          "name": "Website"
+        },
+        {
+          "id": "email",
+          "lead_field": "email",
+          "name": "Email"
+        },
+        {
+          "id": "phone",
+          "lead_field": "phone",
+          "name": "Phone"
+        },
+        {
+          "id": "email_wf",
+          "name": "Email Finder",
+          "target_field": "email",
+          "type": "waterfall",
+          "verify": true,
+          "waterfall": [
+            "hunter",
+            "apollo"
+          ]
+        },
+        {
+          "id": "summary",
+          "input_columns": [
+            "company"
+          ],
+          "name": "Summary",
+          "prompt": "Summarize {Company} in one sentence",
+          "type": "ai_formula"
+        }
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PUT",
+    "path": "/api/workbooks/wb-alpha-2"
+  },
+  "response": {
+    "body": {
+      "detail": "Replacement removes a column referenced by saved view: Berlin only. Update the view first."
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 409
+  }
+}

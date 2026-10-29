@@ -1,0 +1,689 @@
+{
+  "request": {
+    "body": null,
+    "headers": {},
+    "method": "GET",
+    "path": "/__contract/queue"
+  },
+  "response": {
+    "body": [
+      {
+        "error": "Cancelled by user",
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000001",
+        "has_completed_at": true,
+        "id": 3,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000001",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": "Cancelled by user",
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000002",
+        "has_completed_at": true,
+        "id": 4,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000002",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000003",
+        "has_completed_at": false,
+        "id": 5,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000003",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "completed",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000005",
+        "has_completed_at": false,
+        "id": 6,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000005",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "failed",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000006",
+        "has_completed_at": false,
+        "id": 7,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000006",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "cancelled",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:a1000000000000000000000000000007",
+        "has_completed_at": false,
+        "id": 8,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "a1000000000000000000000000000007",
+          "query": "seeded",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "processing",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:b1000000000000000000000000000002",
+        "has_completed_at": false,
+        "id": 9,
+        "max_retries": 3,
+        "payload": {
+          "job_id": "b1000000000000000000000000000002",
+          "query": "seeded",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "processing",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005000",
+        "has_completed_at": false,
+        "id": 10,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005000",
+          "query": "IT staffing companies in Pune",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005001",
+        "has_completed_at": false,
+        "id": 11,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005001",
+          "query": "payroll   outsourcing\tDelhi",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005002",
+        "has_completed_at": false,
+        "id": 12,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005002",
+          "query": "analytics software firms in Austin",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005003",
+        "has_completed_at": false,
+        "id": 13,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005003",
+          "query": "\u6771\u4eac\u306eIT\u4f01\u696d caf\u00e9 Z\u00fcrich",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005004",
+        "has_completed_at": false,
+        "id": 14,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005004",
+          "query": "recruiters in Chennai",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005005",
+        "has_completed_at": false,
+        "id": 15,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005005",
+          "query": "staffing firms in Noida",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-alpha:00000000000040008000000000005006",
+        "has_completed_at": false,
+        "id": 16,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005006",
+          "query": "staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing staffing",
+          "slug": "alpha",
+          "workspace_id": "ws-alpha"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-alpha"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005007",
+        "has_completed_at": false,
+        "id": 17,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005007",
+          "query": "rate limit warmup 01",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005008",
+        "has_completed_at": false,
+        "id": 18,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005008",
+          "query": "rate limit warmup 02",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005009",
+        "has_completed_at": false,
+        "id": 19,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005009",
+          "query": "rate limit warmup 03",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005010",
+        "has_completed_at": false,
+        "id": 20,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005010",
+          "query": "rate limit warmup 04",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005011",
+        "has_completed_at": false,
+        "id": 21,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005011",
+          "query": "rate limit warmup 05",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005012",
+        "has_completed_at": false,
+        "id": 22,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005012",
+          "query": "rate limit warmup 06",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005013",
+        "has_completed_at": false,
+        "id": 23,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005013",
+          "query": "rate limit warmup 07",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005014",
+        "has_completed_at": false,
+        "id": 24,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005014",
+          "query": "rate limit warmup 08",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005015",
+        "has_completed_at": false,
+        "id": 25,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005015",
+          "query": "rate limit warmup 09",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005016",
+        "has_completed_at": false,
+        "id": 26,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005016",
+          "query": "rate limit warmup 10",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005017",
+        "has_completed_at": false,
+        "id": 27,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005017",
+          "query": "rate limit warmup 11",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005018",
+        "has_completed_at": false,
+        "id": 28,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005018",
+          "query": "rate limit warmup 12",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005019",
+        "has_completed_at": false,
+        "id": 29,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005019",
+          "query": "rate limit warmup 13",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005020",
+        "has_completed_at": false,
+        "id": 30,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005020",
+          "query": "rate limit warmup 14",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005021",
+        "has_completed_at": false,
+        "id": 31,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005021",
+          "query": "rate limit warmup 15",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005022",
+        "has_completed_at": false,
+        "id": 32,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005022",
+          "query": "rate limit warmup 16",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005023",
+        "has_completed_at": false,
+        "id": 33,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005023",
+          "query": "rate limit warmup 17",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005024",
+        "has_completed_at": false,
+        "id": 34,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005024",
+          "query": "rate limit warmup 18",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005025",
+        "has_completed_at": false,
+        "id": 35,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005025",
+          "query": "rate limit warmup 19",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      },
+      {
+        "error": null,
+        "executor": "python",
+        "fire_key": "collect:ws-beta:00000000000040008000000000005026",
+        "has_completed_at": false,
+        "id": 36,
+        "max_retries": 3,
+        "payload": {
+          "intent": "market_search",
+          "job_id": "00000000000040008000000000005026",
+          "query": "rate limit warmup 20",
+          "slug": "beta",
+          "workspace_id": "ws-beta"
+        },
+        "retry_count": 0,
+        "status": "pending",
+        "type": "collect",
+        "worker_id": null,
+        "workspace_id": "ws-beta"
+      }
+    ],
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

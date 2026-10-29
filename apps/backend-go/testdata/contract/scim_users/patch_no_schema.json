@@ -1,0 +1,24 @@
+{
+  "request": {
+    "body": {
+      "Operations": [],
+      "schemas": [
+        "x"
+      ]
+    },
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/scim/v2/alpha/Users/4"
+  },
+  "response": {
+    "body": {
+      "detail": "PatchOp schema is required"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

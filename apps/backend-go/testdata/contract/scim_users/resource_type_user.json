@@ -1,0 +1,30 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/scim/v2/alpha/ResourceTypes/User"
+  },
+  "response": {
+    "body": {
+      "endpoint": "/Users",
+      "id": "User",
+      "meta": {
+        "location": "/scim/v2/alpha/ResourceTypes/User",
+        "resourceType": "ResourceType"
+      },
+      "name": "User",
+      "schema": "urn:ietf:params:scim:schemas:core:2.0:User",
+      "schemaExtensions": [],
+      "schemas": [
+        "urn:ietf:params:scim:schemas:core:2.0:ResourceType"
+      ]
+    },
+    "headers": {
+      "content-type": "application/scim+json"
+    },
+    "status": 200
+  }
+}

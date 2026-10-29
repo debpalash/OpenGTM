@@ -1,0 +1,99 @@
+{
+  "request": {
+    "body": null,
+    "headers": {
+      "Authorization": "<redacted>"
+    },
+    "method": "GET",
+    "path": "/api/governance/audit-events?actor_user_id=2&limit=5"
+  },
+  "response": {
+    "body": {
+      "events": [
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-03T02:00:00",
+          "id": "11111111-0000-4000-8000-000000000051",
+          "metadata": {},
+          "method": "DELETE",
+          "outcome": "success",
+          "request_id": "req-gov-a-051",
+          "resource_path": "/api/audiences/aud-gov-1",
+          "response_status": 204,
+          "route": "/api/audiences/{audience_id}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-02T23:00:00",
+          "id": "11111111-0000-4000-8000-000000000048",
+          "metadata": {
+            "reason": "duplicate"
+          },
+          "method": "POST",
+          "outcome": "error",
+          "request_id": "req-gov-a-048",
+          "resource_path": "/api/research-playbooks",
+          "response_status": 409,
+          "route": "/api/research-playbooks"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-02T20:00:00",
+          "id": "11111111-0000-4000-8000-000000000045",
+          "metadata": {
+            "note": "caf\u00e9 \"quoted\" =formula"
+          },
+          "method": "POST",
+          "outcome": "denied",
+          "request_id": "req-gov-a-045",
+          "resource_path": "/api/governance/members",
+          "response_status": 403,
+          "route": "/api/governance/members"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-02T17:00:00",
+          "id": "11111111-0000-4000-8000-000000000042",
+          "metadata": {
+            "action": "playbook.patch",
+            "fields": [
+              "name",
+              "enabled"
+            ]
+          },
+          "method": "PATCH",
+          "outcome": "success",
+          "request_id": "req-gov-a-042",
+          "resource_path": "/api/research-playbooks/pb-gov-multi",
+          "response_status": 200,
+          "route": "/api/research-playbooks/{playbook_id}"
+        },
+        {
+          "actor_role": "member",
+          "actor_user_id": 2,
+          "created_at": "2030-01-02T14:00:00",
+          "id": "11111111-0000-4000-8000-000000000039",
+          "metadata": {},
+          "method": "PUT",
+          "outcome": "error",
+          "request_id": "req-gov-a-039",
+          "resource_path": "/api/governance/rbac/2/tables.write",
+          "response_status": 404,
+          "route": "/api/governance/rbac/{user_id}/{permission}"
+        }
+      ],
+      "has_more": true,
+      "limit": 5,
+      "next_before": "2030-01-02T14:00:00",
+      "next_cursor": "WyIyMDMwLTAxLTAyVDE0OjAwOjAwIiwiMTExMTExMTEtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDM5Il0"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 200
+  }
+}

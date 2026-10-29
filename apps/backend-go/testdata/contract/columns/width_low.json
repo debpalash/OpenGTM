@@ -1,0 +1,35 @@
+{
+  "request": {
+    "body": {
+      "width": 79
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "PATCH",
+    "path": "/api/workbooks/wb-alpha-2/columns/company/width"
+  },
+  "response": {
+    "body": {
+      "detail": [
+        {
+          "ctx": {
+            "ge": 80
+          },
+          "input": 79,
+          "loc": [
+            "body",
+            "width"
+          ],
+          "msg": "Input should be greater than or equal to 80",
+          "type": "greater_than_equal"
+        }
+      ]
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 422
+  }
+}

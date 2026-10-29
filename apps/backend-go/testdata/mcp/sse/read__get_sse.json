@@ -1,0 +1,20 @@
+{
+  "seq": 63,
+  "profile": "read",
+  "token": null,
+  "request": {
+    "method": "GET",
+    "path": "/sse",
+    "headers": {},
+    "body": null
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "text/event-stream; charset=utf-8"
+    },
+    "body": "data: {\"type\": \"endpoint\", \"url\": \"/message\"}\n\n"
+  },
+  "audit": [],
+  "effects": {}
+}

@@ -1,0 +1,23 @@
+{
+  "request": {
+    "body": {
+      "kept_id": "ent-w-3",
+      "merged_id": "ent-w-4"
+    },
+    "headers": {
+      "Authorization": "<redacted>",
+      "X-Workspace-Id": "<redacted>"
+    },
+    "method": "POST",
+    "path": "/api/entities/merge"
+  },
+  "response": {
+    "body": {
+      "detail": "entity_not_found"
+    },
+    "headers": {
+      "content-type": "application/json"
+    },
+    "status": 400
+  }
+}

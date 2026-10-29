@@ -1,0 +1,729 @@
+{
+ "get_all_sources": {
+  "india": [
+   "indiamart",
+   "justdial",
+   "tradeindia",
+   "sulekha",
+   "exportersindia",
+   "yellowpages_in",
+   "grotal",
+   "urbanpro",
+   "dial4trade",
+   "fundoodata",
+   "ambitionbox",
+   "glassdoor_in",
+   "naukri",
+   "shine",
+   "monsterindia",
+   "zaubacorp",
+   "tofler",
+   "nasscom",
+   "clutch",
+   "goodfirms",
+   "softwaresuggest",
+   "techbehemoths",
+   "tracxn",
+   "yourstory",
+   "inc42",
+   "startup_india",
+   "facebook_pages",
+   "instagram_business",
+   "quora_companies",
+   "indeed",
+   "mouthshut",
+   "economic_times",
+   "business_standard",
+   "livemint",
+   "amazon_sellers",
+   "flipkart_sellers",
+   "generic_association",
+   "generic_expo",
+   "generic_incubator",
+   "generic_govt_tender",
+   "generic_iso_certified"
+  ],
+  "us": [
+   "clutch",
+   "goodfirms",
+   "yellowpages",
+   "yelp",
+   "bbb",
+   "thomasnet",
+   "manta",
+   "indeed",
+   "glassdoor",
+   "trustpilot",
+   "bark"
+  ],
+  "eu": [
+   "clutch",
+   "techbehemoths",
+   "cylex",
+   "dealroom",
+   "europages",
+   "kompass",
+   "opencorporates",
+   "trustpilot"
+  ],
+  "global": [
+   "clutch",
+   "goodfirms",
+   "g2",
+   "softwaresuggest",
+   "techbehemoths",
+   "yellowpages",
+   "yelp",
+   "hotfrog",
+   "brownbook",
+   "cylex",
+   "crunchbase",
+   "tracxn",
+   "angellist",
+   "dealroom",
+   "cbinsights",
+   "linkedin_companies",
+   "facebook_pages",
+   "twitter_companies",
+   "instagram_business",
+   "reddit_companies",
+   "quora_companies",
+   "indeed",
+   "glassdoor",
+   "kompass",
+   "opencorporates",
+   "capterra",
+   "getapp",
+   "producthunt",
+   "sourceforge",
+   "alternativeto",
+   "saashub",
+   "stackshare",
+   "appsumo",
+   "trustpilot",
+   "google_reviews",
+   "upwork",
+   "bark",
+   "github_orgs",
+   "stackoverflow_jobs",
+   "hackernews",
+   "google_news",
+   "techcrunch",
+   "forbes",
+   "amazon_sellers",
+   "shopify_stores",
+   "generic_companies_list",
+   "generic_association",
+   "generic_awards",
+   "generic_expo",
+   "generic_incubator",
+   "generic_iso_certified",
+   "generic_hiring_surge"
+  ],
+  "None": [
+   "indiamart",
+   "justdial",
+   "tradeindia",
+   "sulekha",
+   "exportersindia",
+   "yellowpages_in",
+   "grotal",
+   "urbanpro",
+   "dial4trade",
+   "fundoodata",
+   "ambitionbox",
+   "glassdoor_in",
+   "naukri",
+   "shine",
+   "monsterindia",
+   "zaubacorp",
+   "tofler",
+   "nasscom",
+   "clutch",
+   "goodfirms",
+   "g2",
+   "softwaresuggest",
+   "techbehemoths",
+   "yellowpages",
+   "yelp",
+   "bbb",
+   "thomasnet",
+   "manta",
+   "hotfrog",
+   "brownbook",
+   "cylex",
+   "crunchbase",
+   "tracxn",
+   "angellist",
+   "yourstory",
+   "inc42",
+   "startup_india",
+   "dealroom",
+   "cbinsights",
+   "linkedin_companies",
+   "facebook_pages",
+   "twitter_companies",
+   "instagram_business",
+   "reddit_companies",
+   "quora_companies",
+   "indeed",
+   "glassdoor",
+   "europages",
+   "kompass",
+   "opencorporates",
+   "capterra",
+   "getapp",
+   "producthunt",
+   "sourceforge",
+   "alternativeto",
+   "saashub",
+   "stackshare",
+   "appsumo",
+   "trustpilot",
+   "google_reviews",
+   "mouthshut",
+   "upwork",
+   "bark",
+   "github_orgs",
+   "stackoverflow_jobs",
+   "hackernews",
+   "google_news",
+   "economic_times",
+   "business_standard",
+   "livemint",
+   "techcrunch",
+   "forbes",
+   "amazon_sellers",
+   "flipkart_sellers",
+   "shopify_stores",
+   "generic_companies_list",
+   "generic_association",
+   "generic_awards",
+   "generic_expo",
+   "generic_incubator",
+   "generic_govt_tender",
+   "generic_iso_certified",
+   "generic_hiring_surge"
+  ],
+  "mars": [],
+  "all_disabled_too": [
+   "indiamart",
+   "justdial",
+   "tradeindia",
+   "sulekha",
+   "exportersindia",
+   "yellowpages_in",
+   "grotal",
+   "urbanpro",
+   "dial4trade",
+   "fundoodata",
+   "ambitionbox",
+   "glassdoor_in",
+   "naukri",
+   "shine",
+   "monsterindia",
+   "zaubacorp",
+   "tofler",
+   "nasscom",
+   "clutch",
+   "goodfirms",
+   "g2",
+   "softwaresuggest",
+   "techbehemoths",
+   "yellowpages",
+   "yelp",
+   "bbb",
+   "thomasnet",
+   "manta",
+   "dnb",
+   "foursquare",
+   "hotfrog",
+   "brownbook",
+   "cylex",
+   "crunchbase",
+   "tracxn",
+   "angellist",
+   "yourstory",
+   "inc42",
+   "startup_india",
+   "dealroom",
+   "cbinsights",
+   "linkedin_companies",
+   "facebook_pages",
+   "twitter_companies",
+   "instagram_business",
+   "reddit_companies",
+   "quora_companies",
+   "indeed",
+   "glassdoor",
+   "europages",
+   "kompass",
+   "opencorporates",
+   "companieshouse",
+   "capterra",
+   "getapp",
+   "producthunt",
+   "sourceforge",
+   "alternativeto",
+   "saashub",
+   "stackshare",
+   "appsumo",
+   "trustpilot",
+   "tripadvisor",
+   "google_reviews",
+   "mouthshut",
+   "upwork",
+   "fiverr",
+   "toptal",
+   "freelancer",
+   "bark",
+   "github_orgs",
+   "stackoverflow_jobs",
+   "hackernews",
+   "devto",
+   "google_news",
+   "economic_times",
+   "business_standard",
+   "livemint",
+   "techcrunch",
+   "forbes",
+   "amazon_sellers",
+   "flipkart_sellers",
+   "shopify_stores",
+   "generic_companies_list",
+   "generic_association",
+   "generic_awards",
+   "generic_expo",
+   "generic_incubator",
+   "generic_govt_tender",
+   "generic_iso_certified",
+   "generic_hiring_surge"
+  ]
+ },
+ "build_queries": [
+  {
+   "source": "indiamart",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:indiamart.com IT staffing companies in Bangalore",
+    "site:indiamart.com it staffing companies Bangalore manufacturers suppliers",
+    "site:indiamart.com it staffing companies companies Bangalore"
+   ]
+  },
+  {
+   "source": "indiamart",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:indiamart.com software companies",
+    "site:indiamart.com software companies  manufacturers suppliers",
+    "site:indiamart.com software companies companies"
+   ]
+  },
+  {
+   "source": "indiamart",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:indiamart.com marketing agency",
+    "site:indiamart.com marketing agency New York manufacturers suppliers",
+    "site:indiamart.com marketing agency companies New York"
+   ]
+  },
+  {
+   "source": "indiamart",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:indiamart.com HR In Mumbai",
+    "site:indiamart.com hr Mumbai manufacturers suppliers",
+    "site:indiamart.com hr companies Mumbai"
+   ]
+  },
+  {
+   "source": "naukri",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:naukri.com it staffing companies companies Bangalore jobs"
+   ]
+  },
+  {
+   "source": "naukri",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:naukri.com software companies companies  jobs"
+   ]
+  },
+  {
+   "source": "naukri",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:naukri.com marketing agency companies New York jobs"
+   ]
+  },
+  {
+   "source": "naukri",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:naukri.com hr companies Mumbai jobs"
+   ]
+  },
+  {
+   "source": "techbehemoths",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:techbehemoths.com it staffing companies Bangalore"
+   ]
+  },
+  {
+   "source": "techbehemoths",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:techbehemoths.com software companies"
+   ]
+  },
+  {
+   "source": "techbehemoths",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:techbehemoths.com marketing agency New York"
+   ]
+  },
+  {
+   "source": "techbehemoths",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:techbehemoths.com hr Mumbai"
+   ]
+  },
+  {
+   "source": "angellist",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:wellfound.com it staffing companies Bangalore startups"
+   ]
+  },
+  {
+   "source": "angellist",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:wellfound.com software companies  startups"
+   ]
+  },
+  {
+   "source": "angellist",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:wellfound.com marketing agency New York startups"
+   ]
+  },
+  {
+   "source": "angellist",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:wellfound.com hr Mumbai startups"
+   ]
+  },
+  {
+   "source": "europages",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:europages.co.uk it staffing companies"
+   ]
+  },
+  {
+   "source": "europages",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:europages.co.uk software companies"
+   ]
+  },
+  {
+   "source": "europages",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:europages.co.uk marketing agency"
+   ]
+  },
+  {
+   "source": "europages",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:europages.co.uk hr"
+   ]
+  },
+  {
+   "source": "producthunt",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:producthunt.com/products it staffing companies"
+   ]
+  },
+  {
+   "source": "producthunt",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:producthunt.com/products software companies"
+   ]
+  },
+  {
+   "source": "producthunt",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:producthunt.com/products marketing agency"
+   ]
+  },
+  {
+   "source": "producthunt",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:producthunt.com/products hr"
+   ]
+  },
+  {
+   "source": "tripadvisor",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:tripadvisor.com it staffing companies Bangalore"
+   ]
+  },
+  {
+   "source": "tripadvisor",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:tripadvisor.com software companies"
+   ]
+  },
+  {
+   "source": "tripadvisor",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:tripadvisor.com marketing agency New York"
+   ]
+  },
+  {
+   "source": "tripadvisor",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:tripadvisor.com hr Mumbai"
+   ]
+  },
+  {
+   "source": "bark",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:bark.com it staffing companies Bangalore"
+   ]
+  },
+  {
+   "source": "bark",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:bark.com software companies"
+   ]
+  },
+  {
+   "source": "bark",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:bark.com marketing agency New York"
+   ]
+  },
+  {
+   "source": "bark",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:bark.com hr Mumbai"
+   ]
+  },
+  {
+   "source": "business_standard",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:business-standard.com it staffing companies Bangalore company"
+   ]
+  },
+  {
+   "source": "business_standard",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:business-standard.com software companies  company"
+   ]
+  },
+  {
+   "source": "business_standard",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:business-standard.com marketing agency New York company"
+   ]
+  },
+  {
+   "source": "business_standard",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:business-standard.com hr Mumbai company"
+   ]
+  },
+  {
+   "source": "dial4trade",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:dial4trade.com it staffing companies Bangalore"
+   ]
+  },
+  {
+   "source": "dial4trade",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:dial4trade.com software companies"
+   ]
+  },
+  {
+   "source": "dial4trade",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:dial4trade.com marketing agency New York"
+   ]
+  },
+  {
+   "source": "dial4trade",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:dial4trade.com hr Mumbai"
+   ]
+  },
+  {
+   "source": "dnb",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:dnb.com it staffing companies company profile"
+   ]
+  },
+  {
+   "source": "dnb",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:dnb.com software companies company profile"
+   ]
+  },
+  {
+   "source": "dnb",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:dnb.com marketing agency company profile"
+   ]
+  },
+  {
+   "source": "dnb",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:dnb.com hr company profile"
+   ]
+  },
+  {
+   "source": "brownbook",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:brownbook.net it staffing companies Bangalore"
+   ]
+  },
+  {
+   "source": "brownbook",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:brownbook.net software companies"
+   ]
+  },
+  {
+   "source": "brownbook",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:brownbook.net marketing agency New York"
+   ]
+  },
+  {
+   "source": "brownbook",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:brownbook.net hr Mumbai"
+   ]
+  },
+  {
+   "source": "flipkart_sellers",
+   "q": "IT staffing companies in Bangalore",
+   "city": "Bangalore",
+   "out": [
+    "site:flipkart.com it staffing companies seller Bangalore"
+   ]
+  },
+  {
+   "source": "flipkart_sellers",
+   "q": "software companies",
+   "city": "",
+   "out": [
+    "site:flipkart.com software companies seller"
+   ]
+  },
+  {
+   "source": "flipkart_sellers",
+   "q": "marketing agency",
+   "city": "New York",
+   "out": [
+    "site:flipkart.com marketing agency seller New York"
+   ]
+  },
+  {
+   "source": "flipkart_sellers",
+   "q": "HR In Mumbai",
+   "city": "Mumbai",
+   "out": [
+    "site:flipkart.com hr seller Mumbai"
+   ]
+  }
+ ]
+}
