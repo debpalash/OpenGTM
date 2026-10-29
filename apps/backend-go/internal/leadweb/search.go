@@ -43,6 +43,12 @@ type SearchOptions struct {
 	NoProxy    bool
 }
 
+// KeyedConfigured reports whether an opt-in API fallback can search without
+// the browser sidecar. It does not expose keys or configuration details.
+func (s *Searcher) KeyedConfigured() bool {
+	return s != nil && s.keyed != nil && len(s.keyed.Configured()) > 0
+}
+
 // Text is a web search; news is News. Failures degrade to an empty result.
 func (s *Searcher) Text(ctx context.Context, query string, o SearchOptions) []Hit {
 	return s.run(ctx, "text", query, o)

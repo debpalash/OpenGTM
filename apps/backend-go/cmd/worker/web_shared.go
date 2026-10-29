@@ -37,8 +37,16 @@ func workerLeadweb(cfg config.Config, get func(string) string) (sharedWeb, error
 	if err != nil {
 		return sharedWeb{}, err
 	}
-	key := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%s\x00%s\x00%s\x00%#v", sc.BrowserURL, sc.BrowserToken.Reveal(),
-		cfg.AppEnv, strings.Join(cfg.EgressAllowHosts, ","), lw)))
+	// Secret formatting is deliberately redacted. Fingerprint the actual
+	// credentials separately so different provider accounts never share a cache.
+	credentials := sha256.New()
+	for _, secret := range []config.Secret{lw.SerpAPIKey, lw.BingKey, lw.GoogleCSEID, lw.GoogleCSEKey,
+		lw.BraveKey, lw.SerpingAPIKey, lw.SerplyKey, lw.FirecrawlKey, lw.ProxyManagerURL, lw.ProxyList} {
+		_, _ = fmt.Fprintf(credentials, "%d:", len(secret.Reveal()))
+		_, _ = credentials.Write([]byte(secret.Reveal()))
+	}
+	key := sha256.Sum256([]byte(fmt.Sprintf("%s\x00%s\x00%s\x00%s\x00%#v\x00%x", sc.BrowserURL, sc.BrowserToken.Reveal(),
+		cfg.AppEnv, strings.Join(cfg.EgressAllowHosts, ","), lw, credentials.Sum(nil))))
 	sharedWebMu.Lock()
 	defer sharedWebMu.Unlock()
 	if w, ok := sharedWebs[key]; ok {

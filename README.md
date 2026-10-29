@@ -23,6 +23,8 @@ with cited agents, watches for buying intent, and sends qualified records to
 the tools your team already uses. Your data stays on your infrastructure;
 third-party calls use keys you choose. A zero-key demo is included.
 
+[Configure optional Firecrawl search](docs/providers/firecrawl.md).
+
 ## See the workbench
 
 The dashboard redesign is in development alongside the Go backend port. These
