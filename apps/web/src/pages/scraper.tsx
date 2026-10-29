@@ -57,7 +57,7 @@ export default function ScraperPage() {
           <Globe size={16} className="text-primary" />
           Web Scraper
         </h2>
-        <p className="text-[11px] text-muted-foreground">Extract text, emails, and links from any URL. Uses httpx fast path with Playwright fallback.</p>
+        <p className="text-xs text-muted-foreground">Extract text, emails, and links from any URL. Uses httpx fast path with Playwright fallback.</p>
         <div className="flex gap-2">
           <Input
             value={url}
@@ -98,18 +98,18 @@ export default function ScraperPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs font-semibold">{result.title || result.url}</h3>
-                    <a href={result.url} target="_blank" rel="noreferrer" className="text-[10px] text-primary hover:underline flex items-center gap-1 mt-0.5">
+                    <a href={result.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-0.5">
                       <ExternalLink size={9} /> {result.url}
                     </a>
                   </div>
-                  <Badge variant={result.status === "error" ? "destructive" : "secondary"} className="text-[9px]">
+                  <Badge variant={result.status === "error" ? "destructive" : "secondary"} className="text-xs">
                     {result.status}
                   </Badge>
                 </div>
                 {result.error && <p className="text-xs text-destructive mt-2">{result.error}</p>}
 
                 {/* Stats row */}
-                <div className="flex gap-4 mt-3 text-[10px] text-muted-foreground">
+                <div className="flex gap-4 mt-3 text-xs text-muted-foreground">
                   {result.text && <span><FileText size={10} className="inline mr-1" />{result.text.length.toLocaleString()} chars</span>}
                   {result.emails && <span><Mail size={10} className="inline mr-1" />{result.emails.length} emails</span>}
                   {result.links && <span><Globe size={10} className="inline mr-1" />{result.links.length} links</span>}
@@ -178,13 +178,13 @@ export default function ScraperPage() {
                 <div className="space-y-1 max-h-[500px] overflow-auto">
                   {result.links.slice(0, 100).map((link, i) => (
                     <Card key={i} className="px-3 py-2">
-                      <a href={link} target="_blank" rel="noreferrer" className="text-[11px] text-primary hover:underline truncate block font-mono">
+                      <a href={link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline truncate block font-mono">
                         {link}
                       </a>
                     </Card>
                   ))}
                   {result.links.length === 0 && <p className="text-xs text-muted-foreground text-center py-8">No links found</p>}
-                  {result.links.length > 100 && <p className="text-[10px] text-muted-foreground text-center py-2">+ {result.links.length - 100} more</p>}
+                  {result.links.length > 100 && <p className="text-xs text-muted-foreground text-center py-2">+ {result.links.length - 100} more</p>}
                 </div>
               )}
             </div>

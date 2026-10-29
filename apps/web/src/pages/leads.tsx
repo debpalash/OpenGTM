@@ -173,7 +173,7 @@ export default function LeadsPage() {
                 className="font-medium text-xs"
               />
               {row.original.specialization && (
-                <span className="text-[10px] text-muted-foreground/60 ml-1 truncate">{row.original.specialization}</span>
+                <span className="text-xs text-muted-foreground/60 ml-1 truncate">{row.original.specialization}</span>
               )}
             </div>
           </div>
@@ -232,7 +232,7 @@ export default function LeadsPage() {
       cell: ({ row }) => {
         const s = row.original.status || "new"
         return (
-          <span className="inline-flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
             <span className={`size-1.5 rounded-full ${STATUS_DOT[s] || STATUS_DOT.new}`} />
             {s}
           </span>
@@ -307,7 +307,7 @@ export default function LeadsPage() {
           catch { count = String(raw).trim() ? 1 : 0 }
         }
         return count > 0
-          ? <Badge variant="secondary" className="text-[10px] gap-0.5"><Flame className="size-2.5 text-red-400" />{count}</Badge>
+          ? <Badge variant="secondary" className="text-xs gap-0.5"><Flame className="size-2.5 text-red-400" />{count}</Badge>
           : <span className="text-xs text-muted-foreground">—</span>
       },
       size: 80,
@@ -491,7 +491,7 @@ export default function LeadsPage() {
               <SlidersHorizontal className="size-3" />
               Filters
               {activeFilterCount > 0 && (
-                <span className="ml-0.5 rounded-full bg-primary/15 text-primary px-1.5 text-[10px] font-medium">{activeFilterCount}</span>
+                <span className="ml-0.5 rounded-full bg-primary/15 text-primary px-1.5 text-xs font-medium">{activeFilterCount}</span>
               )}
             </PopoverTrigger>
             <PopoverContent align="end" className="w-64 space-y-2.5 text-xs">
@@ -691,7 +691,7 @@ export default function LeadsPage() {
           <DialogHeader>
             <DialogTitle className="text-sm">Find &amp; merge duplicates</DialogTitle>
           </DialogHeader>
-          <p className="text-[11px] text-muted-foreground -mt-1">
+          <p className="text-xs text-muted-foreground -mt-1">
             Scans a bounded subset (current city/source/tier filters, up to 2,000 rows). Filter first to target a region.
           </p>
           {dedupRunning ? (
@@ -714,9 +714,9 @@ export default function LeadsPage() {
                     <div className="min-w-0 flex-1">
                       <div className="text-xs font-medium truncate">
                         {s.master_company}
-                        <span className="ml-1.5 text-[10px] text-emerald-400">{Math.round(s.confidence * 100)}% match</span>
+                        <span className="ml-1.5 text-xs text-emerald-400">{Math.round(s.confidence * 100)}% match</span>
                       </div>
-                      <div className="text-[10px] text-muted-foreground truncate">
+                      <div className="text-xs text-muted-foreground truncate">
                         merges {s.duplicate_ids.length}: {s.duplicate_companies.join(", ")}
                       </div>
                     </div>
@@ -759,7 +759,7 @@ export default function LeadsPage() {
                   <ScoreBadge score={l.score} tier={l.score_tier} />
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-medium truncate">{l.company}</div>
-                    <div className="text-[10px] text-muted-foreground truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                       {[l.city, l.specialization].filter(Boolean).join(" · ") || "—"}
                     </div>
                   </div>

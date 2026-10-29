@@ -190,7 +190,7 @@ export function QuickLookProvider({ children }: { children: ReactNode }) {
         >
           {payload && <>
             <div ref={titleBar} tabIndex={-1} className="flex h-11 items-center gap-2 border-b border-border px-3 outline-none">
-              <span className="rounded-sm bg-[var(--t-background-transparent-medium)] px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">{payload.kind}</span>
+              <span className="rounded-sm bg-[var(--t-background-transparent-medium)] px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{payload.kind}</span>
               <DialogTitle className="min-w-0 flex-1 truncate text-sm font-semibold">{payload.title}</DialogTitle>
               <DialogDescription className="sr-only">Quick Look preview. Use the arrow keys to browse and Space to close.</DialogDescription>
               {payload.actions?.filter(action => action.href.startsWith("/") || safeUrl(action.href)).map(action => (

@@ -1,3 +1,4 @@
+import { validateAnalytics } from "./analytics-contract"
 import { getToken, getActiveWorkspace } from "./auth"
 
 const API_BASE = ""
@@ -799,20 +800,35 @@ export interface AnalyticsLLM {
   total_calls: number
 }
 
-export const fetchAnalyticsOverview = (): Promise<AnalyticsOverview> =>
-  fetch(`${API_BASE}/api/analytics/overview`).then(r => r.json())
+export async function fetchAnalyticsOverview(signal?: AbortSignal): Promise<AnalyticsOverview> {
+ const value=await jsonOrThrow<AnalyticsOverview>(await fetch(`${API_BASE}/api/analytics/overview`,{signal}))
+ validateAnalytics("overview",value)
+ return value
+}
 
-export const fetchAnalyticsPipeline = (): Promise<AnalyticsPipeline> =>
-  fetch(`${API_BASE}/api/analytics/pipeline`).then(r => r.json())
+export async function fetchAnalyticsPipeline(signal?: AbortSignal): Promise<AnalyticsPipeline> {
+ const value=await jsonOrThrow<AnalyticsPipeline>(await fetch(`${API_BASE}/api/analytics/pipeline`,{signal}))
+ validateAnalytics("pipeline",value)
+ return value
+}
 
-export const fetchAnalyticsCollection = (): Promise<AnalyticsCollection> =>
-  fetch(`${API_BASE}/api/analytics/collection`).then(r => r.json())
+export async function fetchAnalyticsCollection(signal?: AbortSignal): Promise<AnalyticsCollection> {
+ const value=await jsonOrThrow<AnalyticsCollection>(await fetch(`${API_BASE}/api/analytics/collection`,{signal}))
+ validateAnalytics("collection",value)
+ return value
+}
 
-export const fetchAnalyticsEnrichment = (): Promise<AnalyticsEnrichment> =>
-  fetch(`${API_BASE}/api/analytics/enrichment`).then(r => r.json())
+export async function fetchAnalyticsEnrichment(signal?: AbortSignal): Promise<AnalyticsEnrichment> {
+ const value=await jsonOrThrow<AnalyticsEnrichment>(await fetch(`${API_BASE}/api/analytics/enrichment`,{signal}))
+ validateAnalytics("enrichment",value)
+ return value
+}
 
-export const fetchAnalyticsLLM = (): Promise<AnalyticsLLM> =>
-  fetch(`${API_BASE}/api/analytics/llm`).then(r => r.json())
+export async function fetchAnalyticsLLM(signal?: AbortSignal): Promise<AnalyticsLLM> {
+ const value=await jsonOrThrow<AnalyticsLLM>(await fetch(`${API_BASE}/api/analytics/llm`,{signal}))
+ validateAnalytics("llm",value)
+ return value
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // GTM Automation UI — Outreach · Automations · Watches + meta (role/flags)

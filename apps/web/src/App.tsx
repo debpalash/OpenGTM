@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from "react-router-dom"
-import { Fragment, lazy, Suspense, useState } from "react"
+import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
@@ -19,6 +19,7 @@ import LoginPage from "@/pages/login"
 import SetupPage from "@/pages/setup"
 
 // Pages
+const OverviewPage = lazy(() => import("@/pages/overview"))
 const ChatPage = lazy(() => import("@/pages/chat"))
 const RecordsPage = lazy(() => import("@/pages/records"))
 const LeadsPage = lazy(() => import("@/pages/leads"))
@@ -63,11 +64,11 @@ function NotificationBell() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <PopoverTitle className="text-sm font-semibold">Attention center</PopoverTitle>
-            <p className="text-[11px] text-muted-foreground">Recent signals and work needing your attention</p>
+            <p className="text-xs text-muted-foreground">Recent signals and work needing your attention</p>
           </div>
           <BellRing className="size-4 text-muted-foreground" aria-hidden="true" />
         </div>
-        {!query.isPending && !query.isError && <div className="mt-3 flex gap-2 text-[11px] font-medium">
+        {!query.isPending && !query.isError && <div className="mt-3 flex gap-2 text-xs font-medium">
           <span className="rounded-full bg-rose-500/10 px-2 py-1 text-rose-600 dark:text-rose-300">{critical} critical</span>
           <span className="rounded-full bg-amber-500/10 px-2 py-1 text-amber-700 dark:text-amber-300">{urgent} urgent</span>
         </div>}
@@ -98,7 +99,7 @@ function PageHeader({ title }: { title: string }) {
   return (
     <header className="gtm-material-toolbar gtm-topbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
       <SidebarTrigger className="-ml-1 text-muted-foreground" />
-      <h1 className="min-w-0 truncate text-base font-semibold">{title}</h1>
+      <nav aria-label="Breadcrumb" className="gtm-breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
 
       <div className="flex-1" />
 
@@ -118,7 +119,7 @@ function PageHeader({ title }: { title: string }) {
             </div>
           ) : null}
           {usage.today_calls > 0 && (
-            <span className="text-[10px] text-muted-foreground tabular-nums">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {usage.today_calls} calls · {(usage.today_tokens / 1000).toFixed(1)}k tok
             </span>
           )}
@@ -130,16 +131,17 @@ function PageHeader({ title }: { title: string }) {
       {/* Connection status */}
       <div
         className="gtm-topbar-chip"
-        title={connected ? "SSE connected" : "SSE disconnected"}
-        aria-label={connected ? "Connected" : "Offline"}
+        role="status"
+        title={connected ? "Updates connected" : "Live updates paused"}
+        aria-label={connected ? "Updates connected" : "Live updates paused"}
       >
         <Circle
           className={`size-2 fill-current ${
             connected ? "text-green-500" : "text-muted-foreground"
           }`}
         />
-        <span className="hidden text-[11px] text-muted-foreground sm:inline">
-          {connected ? "Connected" : "Offline"}
+        <span className="hidden text-xs text-muted-foreground sm:inline">
+          {connected ? "Updates connected" : "Updates paused"}
         </span>
       </div>
 
@@ -150,12 +152,28 @@ function PageHeader({ title }: { title: string }) {
 
 function AppContent() {
   const location = useLocation()
+  useEffect(() => {
+    let focused = false
+    const focusTitle = () => {
+      const title = document.querySelector<HTMLElement>("[data-page-title], main h1")
+      if (!title || focused) return
+      if (document.querySelector('[role="dialog"]:not([hidden])')) { focused=true;observer.disconnect();return }
+      title.tabIndex = -1
+      title.focus({ preventScroll: true })
+      focused = true
+      observer.disconnect()
+    }
+    const observer = new MutationObserver(focusTitle)
+    observer.observe(document.getElementById("main-content") ?? document.body, {childList:true,subtree:true})
+    const frame = requestAnimationFrame(focusTitle)
+    return () => { cancelAnimationFrame(frame); observer.disconnect() }
+  }, [location.pathname])
   // The chat home paints a sky; the toolbar continues it.
   const isChatHome = location.pathname.replace(/\/$/, "") === "/chat" && !new URLSearchParams(location.search).get("id")
 
 
   return (
-    <SidebarInset className="gtm-launch h-screen overflow-hidden flex flex-col" data-sky={isChatHome || undefined}>
+    <SidebarInset id="main-content" tabIndex={-1} className="gtm-launch h-screen overflow-hidden flex flex-col" data-sky={isChatHome || undefined}>
       <PageHeader title={getPageTitle(location.pathname)} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
         {/* Keyed by top-level section: switching sections plays the page
@@ -163,6 +181,7 @@ function AppContent() {
         <div key={location.pathname.split("/")[1] || "root"} className="gtm-page-enter h-full">
         <Suspense fallback={<RouteSpinner />}>
           <Routes>
+            <Route path="/overview" element={<OverviewPage />} />
             <Route path="/chat/*" element={<ChatPage />} />
             <Route path="/leads/:id" element={<LeadDetailPage />} />
             <Route path="/leads" element={<LeadsPage />} />
@@ -185,7 +204,7 @@ function AppContent() {
             <Route path="/analytics/*" element={<AnalyticsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/settings/*" element={<SettingsPage />} />
-            <Route path="*" element={<Navigate to="/chat" replace />} />
+            <Route path="*" element={<Navigate to="/overview" replace />} />
           </Routes>
         </Suspense>
         </div>
@@ -218,6 +237,7 @@ function Shell() {
   return (
     <QuickLookProvider>
       <div className="h-screen w-full overflow-hidden flex">
+        <a href="#main-content" className="gtm-skip-link">Skip to main content</a>
         <SidebarProvider>
           <AppSidebar />
           <AppContent />

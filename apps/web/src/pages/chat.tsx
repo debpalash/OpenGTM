@@ -89,7 +89,7 @@ function ConfirmationItem({ info }: { info: ConfirmationInfo }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm font-medium">{lines[0] || info.label}</span>
-          <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full uppercase tracking-wider ${
+          <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full uppercase tracking-wider ${
             info.level === "high" ? "bg-red-500/20 text-red-300"
             : info.level === "medium" ? "bg-amber-500/20 text-amber-300"
             : "bg-blue-500/20 text-blue-300"
@@ -786,7 +786,7 @@ export default function ChatPage() {
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background from-60% to-transparent pointer-events-none">
         <div className="mx-auto flex max-w-4xl flex-col items-center px-4 pb-4 pt-8 pointer-events-auto">
           {composer}
-          <div className="text-center mt-2.5 text-[10px] text-muted-foreground/60 select-none">
+          <div className="text-center mt-2.5 text-xs text-muted-foreground/60 select-none">
             OpenGTM agents can make mistakes. Consider verifying important information.
           </div>
         </div>

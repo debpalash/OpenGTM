@@ -166,7 +166,7 @@ export function KeyboardLayer() {
         <div className="grid max-h-[65vh] gap-x-8 gap-y-5 overflow-y-auto sm:grid-cols-2">
           {SHORTCUT_GROUPS.map(group => (
             <section key={group.title} aria-labelledby={`shortcuts-${group.title}`}>
-              <h3 id={`shortcuts-${group.title}`} className="mb-1.5 text-[11px] font-semibold text-muted-foreground">{group.title}</h3>
+              <h3 id={`shortcuts-${group.title}`} className="mb-1.5 text-xs font-semibold text-muted-foreground">{group.title}</h3>
               <dl className="grid gap-1">
                 {group.items.map(item => (
                   <div key={item.label} className="flex items-center justify-between gap-3 text-sm">
@@ -174,7 +174,7 @@ export function KeyboardLayer() {
                     <dd className="flex shrink-0 items-center gap-1">
                       {item.keys.map((k, i) => (
                         <span key={i} className="flex items-center gap-1">
-                          {i > 0 && group.title === "Go to" && <span className="text-[11px] text-muted-foreground">then</span>}
+                          {i > 0 && group.title === "Go to" && <span className="text-xs text-muted-foreground">then</span>}
                           <Kbd>{k}</Kbd>
                         </span>
                       ))}

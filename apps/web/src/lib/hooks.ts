@@ -1,3 +1,4 @@
+import { getActiveWorkspace } from "./auth"
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
@@ -462,17 +463,17 @@ export function useConversationMessages(id: string | null) {
 // ── Analytics ───────────────────────────────────────────────────
 
 export function useAnalyticsOverview() {
-  return useQuery({ queryKey: ["analytics", "overview"], queryFn: fetchAnalyticsOverview, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "overview"], queryFn: ({signal})=>fetchAnalyticsOverview(signal), staleTime: 30_000 })
 }
 export function useAnalyticsPipeline() {
-  return useQuery({ queryKey: ["analytics", "pipeline"], queryFn: fetchAnalyticsPipeline, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "pipeline"], queryFn: ({signal})=>fetchAnalyticsPipeline(signal), staleTime: 30_000 })
 }
 export function useAnalyticsCollection() {
-  return useQuery({ queryKey: ["analytics", "collection"], queryFn: fetchAnalyticsCollection, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "collection"], queryFn: ({signal})=>fetchAnalyticsCollection(signal), staleTime: 30_000 })
 }
 export function useAnalyticsEnrichment() {
-  return useQuery({ queryKey: ["analytics", "enrichment"], queryFn: fetchAnalyticsEnrichment, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "enrichment"], queryFn: ({signal})=>fetchAnalyticsEnrichment(signal), staleTime: 30_000 })
 }
 export function useAnalyticsLLM() {
-  return useQuery({ queryKey: ["analytics", "llm"], queryFn: fetchAnalyticsLLM, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "llm"], queryFn: ({signal})=>fetchAnalyticsLLM(signal), staleTime: 30_000 })
 }

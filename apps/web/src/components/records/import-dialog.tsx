@@ -1,66 +1,531 @@
-import { useState } from "react"
-import { Upload, ArrowRight, CheckCircle2, FileSpreadsheet, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import {
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle2,
+  FileSpreadsheet,
+  Loader2,
+  Download
+} from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-import { recordImportAPI, downloadData, type RecordKind, type RecordImport, type ImportResult } from "@/lib/records"
-
-export function RecordImportDialog({ kind, onClose, onImported }: { kind: RecordKind; onClose: () => void; onImported: () => void }) {
-  const [request, setRequest] = useState<RecordImport>({ record_type: kind, source: "clay:prospects", idempotency_key: crypto.randomUUID() })
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from "@/components/ui/dialog"
+import { getActiveWorkspace } from "@/lib/auth"
+import {
+  recordImportAPI,
+  downloadData,
+  type RecordKind,
+  type RecordImport,
+  type ImportResult
+} from "@/lib/records"
+import "./import-dialog.css"
+interface Draft {
+  key: string
+  hash: string
+  filename: string
+  source: string
+  mapping: Record<string, string>
+}
+function readDraft(key: string): Draft | null {
+  try {
+    const d = JSON.parse(sessionStorage.getItem(key) || "null")
+    return d &&
+      typeof d.key === "string" &&
+      typeof d.hash === "string" &&
+      typeof d.filename === "string" &&
+      typeof d.source === "string" &&
+      d.mapping &&
+      typeof d.mapping === "object"
+      ? d
+      : null
+  } catch {
+    return null
+  }
+}
+export function RecordImportDialog({
+  kind,
+  onClose,
+  onImported
+}: {
+  kind: RecordKind
+  onClose: () => void
+  onImported: () => void
+}) {
+  const storageKey = `opengtm-import:${getActiveWorkspace()}:${kind}`
+  const [recovery, setRecovery] = useState(() => readDraft(storageKey))
+  const [request, setRequest] = useState<RecordImport>({
+    record_type: kind,
+    source: recovery?.source || "clay:prospects",
+    idempotency_key: recovery?.key || crypto.randomUUID()
+  })
   const [rawRows, setRawRows] = useState("")
   const [filename, setFilename] = useState("")
+  const [hash, setHash] = useState("")
   const [result, setResult] = useState<ImportResult | null>(null)
   const [mapping, setMapping] = useState<Record<string, string>>({})
-  const [reviewed, setReviewed] = useState(false)
+  const [step, setStep] = useState(0)
   const [busy, setBusy] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
   const [error, setError] = useState("")
-  const complete = result && !result.preview
+  useEffect(() => {
+    if (!busy) return
+    const started = Date.now()
+    const timer = setInterval(
+      () => setElapsed(Math.floor((Date.now() - started) / 1000)),
+      1000
+    )
+    return () => clearInterval(timer)
+  }, [busy])
+  const complete = step === 3
+  function forget() {
+    setRecovery(null)
+    try {
+      sessionStorage.removeItem(storageKey)
+    } catch {
+      /* Storage may be unavailable. */
+    }
+  }
   async function load(file?: File) {
     if (!file) return
-    setError(""); setResult(null); setMapping({}); setReviewed(false); setRawRows("")
-    if (file.size > 15 * 1024 * 1024) { setError("Use files up to 15 MB and 10,000 rows. Split larger exports into batches."); return }
+    setError("")
+    setResult(null)
+    setFilename("")
+    setRawRows("")
+    setMapping({})
+    setStep(0)
+    if (file.size > 15 * 1024 * 1024) {
+      setError(
+        "Use files up to 15 MB and 10,000 rows. Split larger exports into batches."
+      )
+      return
+    }
     try {
       const text = await file.text()
-      const data = file.name.toLowerCase().endsWith(".json") ? { rows: JSON.parse(text) as Record<string, unknown>[] } : { csv: text }
-      if ("rows" in data && !Array.isArray(data.rows)) throw new Error("JSON must be an array of row objects.")
-      if ("rows" in data) setRawRows(text)
-      setRequest({ record_type: kind, source: request.source, idempotency_key: crypto.randomUUID(), ...data }); setFilename(file.name)
-    } catch (e) { setError(e instanceof Error ? e.message : "Could not read the file") }
+      const data = file.name.toLowerCase().endsWith(".json")
+        ? { rows: JSON.parse(text) as Record<string, unknown>[] }
+        : { csv: text }
+      if (
+        "rows" in data &&
+        (!Array.isArray(data.rows) ||
+          data.rows.some(
+            (row) => !row || typeof row !== "object" || Array.isArray(row)
+          ))
+      )
+        throw new Error("JSON must be an array of row objects.")
+      const digest = await crypto.subtle.digest(
+        "SHA-256",
+        new TextEncoder().encode(text)
+      )
+      const fingerprint = Array.from(new Uint8Array(digest), (v) =>
+        v.toString(16).padStart(2, "0")
+      ).join("")
+      const same = recovery?.hash === fingerprint
+      setHash(fingerprint)
+      setRawRows("rows" in data ? text : "")
+      setFilename(file.name)
+      setMapping(same ? recovery.mapping : {})
+      setRequest({
+        record_type: kind,
+        source: same ? recovery.source : request.source,
+        idempotency_key: same ? recovery.key : crypto.randomUUID(),
+        ...data
+      })
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Could not read the file."
+      )
+    }
   }
-  async function run(preview: boolean) {
-    setBusy(true); setError("")
+  async function preview(next: number) {
+    setBusy(true)
+    setElapsed(0)
+    setError("")
     try {
-      const output = await recordImportAPI({ ...request, ...(Object.keys(mapping).length ? { mapping } : {}) }, preview, rawRows)
-      setResult(output); setMapping(output.mapping); setReviewed(preview)
-      if (!preview) { onImported(); toast.success(`${output.imported} records imported${output.replayed ? " (previous import recovered)" : ""}`) }
-    } catch (e) { setError(e instanceof Error ? e.message : "Import failed. Retry with the same file to recover this batch.") }
-    finally { setBusy(false) }
+      const output = await recordImportAPI(
+        { ...request, ...(Object.keys(mapping).length ? { mapping } : {}) },
+        true,
+        rawRows
+      )
+      setResult(output)
+      setMapping(output.mapping)
+      setStep(next)
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Could not validate this file. Your selections are kept."
+      )
+    } finally {
+      setBusy(false)
+    }
   }
-  const targets = ["", "external_id", "company_id", "company_external_id", "company_source", "company.name", "company.domain", "company.website", "company.industry", "company.city", "company.country", "company.employee_count_exact", ...(kind === "person" ? ["person.full_name", "person.first_name", "person.last_name", "person.email", "person.phone", "person.linkedin_url", "employment.title", "employment.department", "employment.seniority"] : ["company.email", "company.phone", "company.linkedin_url"])]
-  return <Dialog open onOpenChange={open => { if (!open && !busy) onClose() }}>
-    <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-      <DialogHeader><DialogTitle>Bring your {kind === "company" ? "companies" : "people"} from Clay</DialogTitle><DialogDescription>Export a Clay table as CSV, then match its columns here. Custom fields and JSON values come with you.</DialogDescription></DialogHeader>
-      {!complete && <>
-        <label className="flex cursor-pointer items-center gap-4 rounded-lg border-2 border-dashed border-border p-5 hover:bg-muted/40">
-          <FileSpreadsheet className="size-8 text-primary" /><span className="flex-1"><strong className="block">{filename || "Choose a CSV or JSON file"}</strong><span className="text-xs text-muted-foreground">Up to 10,000 rows per batch · UTF-8 · CSV or a JSON array</span></span><Upload className="size-4" />
-          <input aria-label="Import file" type="file" accept=".csv,.json,text/csv,application/json" className="sr-only" disabled={busy} onChange={e => void load(e.target.files?.[0])} />
-        </label>
-        <label className="grid gap-1 text-xs font-medium">Source table name<Input value={request.source} disabled={busy} onChange={e => { setRequest({ ...request, source: e.target.value }); setReviewed(false) }} /><span className="font-normal text-muted-foreground">Use the same name when updating this table later. Row IDs are scoped to this source.</span></label>
-        {Object.keys(mapping).length > 0 && <div className="overflow-hidden rounded-md border"><div className="grid grid-cols-[1fr_24px_1fr] gap-2 bg-muted/50 p-3 text-xs font-semibold"><span>Source column</span><span /><span>OpenGTM field</span></div>
-          <datalist id="record-mapping-fields">{targets.filter(Boolean).map(t => <option value={t} key={t} />)}</datalist>
-          <div className="max-h-60 overflow-auto">{Object.entries(mapping).map(([header, target]) => <div key={header} className="grid grid-cols-[1fr_24px_1fr] items-center gap-2 border-t px-3 py-2 text-xs"><span className="truncate" title={header}>{header}</span><ArrowRight className="size-3 text-muted-foreground" /><Input aria-label={`Map ${header}`} list="record-mapping-fields" className="h-8 text-xs" value={target} placeholder="Ignore column" disabled={busy} onChange={e => { setMapping({ ...mapping, [header]: e.target.value }); setReviewed(false) }} /></div>)}</div>
-          <p className="border-t p-3 text-xs text-muted-foreground">Use company.*, person.* or employment.* for a custom field. Clear a mapping to ignore it.</p>
-        </div>}
-      </>}
-      {result && <div className="space-y-3 rounded-md border p-4">
-        <div className="flex items-center gap-2 font-medium">{complete && <CheckCircle2 className="size-5 text-emerald-600" />}{complete ? "Import complete" : "Preview"}: {result.imported.toLocaleString()} accepted · {result.rejected.toLocaleString()} rejected</div>
-        {result.warnings.map(warning => <p key={warning} className="text-xs text-muted-foreground">{warning}</p>)}
-        {result.rejected > 0 && <div className="max-h-32 overflow-auto text-xs text-destructive">{result.rows.filter(row => row.error).map(row => <p key={row.row} className="py-1">Row {row.row}: {row.error}</p>)}</div>}
-        <Button variant="ghost" size="sm" onClick={() => downloadData(JSON.stringify(result, null, 2), "import-report.json")}>Download row report</Button>
-      </div>}
-      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <div className="flex justify-end gap-2"><Button variant="outline" disabled={busy} onClick={onClose}>{complete ? "Done" : "Cancel"}</Button>{!complete && <><Button variant="outline" disabled={busy || !filename || !request.source.trim()} onClick={() => void run(true)}>{busy && <Loader2 className="size-4 animate-spin" />}Preview & validate</Button><Button disabled={busy || !reviewed || !result?.imported} onClick={() => void run(false)}>Import {result?.imported ? `${result.imported} records` : "records"}</Button></>}</div>
-    </DialogContent>
-  </Dialog>
+  async function commit() {
+    const draft = {
+      key: request.idempotency_key,
+      hash,
+      filename,
+      source: request.source,
+      mapping
+    }
+    setRecovery(draft)
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify(draft))
+    } catch {
+      /* In-memory retry retains this key. */
+    }
+    setBusy(true)
+    setElapsed(0)
+    setError("")
+    try {
+      const output = await recordImportAPI(
+        { ...request, mapping },
+        false,
+        rawRows
+      )
+      setResult(output)
+      setStep(3)
+      forget()
+      onImported()
+      toast.success(
+        `${output.imported.toLocaleString()} records imported${output.replayed ? " (completed batch recovered)" : ""}`
+      )
+    } catch (cause) {
+      setError(
+        `${cause instanceof Error ? cause.message : "The response was lost."} Check the batch status or retry. This batch keeps the same import key.`
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+  async function recover() {
+    if (!recovery) return
+    setBusy(true)
+    setElapsed(0)
+    setError("")
+    try {
+      const response = await fetch(
+        `/api/record-imports/${encodeURIComponent(recovery.key)}`
+      )
+      if (response.status === 404)
+        throw new Error(
+          `No completed receipt is available yet. Reselect ${recovery.filename} and retry with the same batch key. An import may still be running.`
+        )
+      if (!response.ok)
+        throw new Error("Could not check this batch. Try again.")
+      setFilename(recovery.filename)
+      setResult({ ...((await response.json()) as ImportResult), replayed: true })
+      setStep(3)
+      forget()
+      onImported()
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Could not check this batch."
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+  const targets = [
+    "external_id",
+    "company_id",
+    "company_external_id",
+    "company_source",
+    "company.name",
+    "company.domain",
+    "company.website",
+    "company.industry",
+    "company.city",
+    "company.country",
+    "company.employee_count_exact",
+    ...(kind === "person"
+      ? [
+          "person.full_name",
+          "person.first_name",
+          "person.last_name",
+          "person.email",
+          "person.phone",
+          "person.linkedin_url",
+          "employment.title",
+          "employment.department",
+          "employment.seniority"
+        ]
+      : ["company.email", "company.phone", "company.linkedin_url"])
+  ]
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open && !busy) onClose()
+      }}
+    >
+      <DialogContent className="record-import-dialog">
+        <DialogHeader>
+          <DialogTitle>
+            Import {kind === "company" ? "companies" : "people"}
+          </DialogTitle>
+          <DialogDescription>
+            Bring a Clay table or CSV into your shared record library.
+          </DialogDescription>
+        </DialogHeader>
+        <ol className="record-import-steps" aria-label="Import progress">
+          {["Choose file", "Map columns", "Review", "Results"].map(
+            (label, index) => (
+              <li
+                key={label}
+                aria-current={step === index ? "step" : undefined}
+                data-complete={step > index}
+              >
+                <span>
+                  {step > index ? (
+                    <CheckCircle2 aria-hidden="true" />
+                  ) : (
+                    index + 1
+                  )}
+                </span>
+                {label}
+              </li>
+            )
+          )}
+        </ol>
+        <div className="record-import-body" aria-busy={busy}>
+          {recovery && !complete && (
+            <div className="record-import-recovery">
+              <strong>Recover your last batch</strong>
+              <p>
+                {recovery.filename} · No file contents are stored in this
+                browser.
+              </p>
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => void recover()}
+              >
+                Check batch status
+              </Button>
+            </div>
+          )}
+          {step === 0 && (
+            <>
+              <label className="record-import-dropzone">
+                <FileSpreadsheet aria-hidden="true" />
+                <strong>{filename || "Choose a CSV or JSON file"}</strong>
+                <span>Up to 15 MB · 10,000 rows per batch · UTF-8</span>
+                <span>{filename ? "Change file" : "Choose file"}</span>
+                <input
+                  aria-label="Import file"
+                  type="file"
+                  accept=".csv,.json,text/csv,application/json"
+                  className="sr-only"
+                  disabled={busy}
+                  onChange={(event) => void load(event.target.files?.[0])}
+                />
+              </label>
+              <label className="record-import-field">
+                <span>Source table name</span>
+                <Input
+                  value={request.source}
+                  disabled={busy}
+                  onChange={(event) =>
+                    setRequest({ ...request, source: event.target.value })
+                  }
+                />
+                <small>
+                  Keep this name when updating the same table. Source row IDs
+                  reconnect to existing records.
+                </small>
+              </label>
+              <p className="record-import-hint">
+                Company, Person, and Employment fields stay separate. Custom
+                fields and JSON values come with you.
+              </p>
+            </>
+          )}
+          {step === 1 && (
+            <>
+              <div className="record-import-section">
+                <h2>Match your columns</h2>
+                <p>
+                  Suggested fields are filled in. Use company.*, person.*, or
+                  employment.* for custom fields. Clear a field to skip it.
+                </p>
+              </div>
+              <datalist id="record-mapping-fields">
+                {targets.map((target) => (
+                  <option key={target} value={target} />
+                ))}
+              </datalist>
+              <div className="record-import-mapping">
+                <div className="record-import-mapping-heading">
+                  <span>Source column</span>
+                  <span />
+                  <span>OpenGTM field</span>
+                </div>
+                {Object.entries(mapping).map(([header, target]) => (
+                  <div key={header}>
+                    <span title={header}>{header}</span>
+                    <ArrowRight aria-hidden="true" />
+                    <Input
+                      aria-label={`Map ${header}`}
+                      list="record-mapping-fields"
+                      value={target}
+                      placeholder="Skip column"
+                      disabled={busy}
+                      onChange={(event) =>
+                        setMapping({ ...mapping, [header]: event.target.value })
+                      }
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {(step === 2 || step === 3) && result && (
+            <>
+              <div className="record-import-result-title">
+                {complete ? (
+                  <CheckCircle2 aria-hidden="true" />
+                ) : (
+                  <FileSpreadsheet aria-hidden="true" />
+                )}
+                <div>
+                  <h2>
+                    {complete
+                      ? result.replayed
+                        ? "Completed batch recovered"
+                        : "Your records are connected"
+                      : "Ready to import?"}
+                  </h2>
+                  <p>
+                    {filename} · {request.source}
+                  </p>
+                </div>
+              </div>
+              <dl className="record-import-totals">
+                <div>
+                  <dt>{complete ? "Imported" : "Accepted in preview"}</dt>
+                  <dd>{result.imported.toLocaleString()}</dd>
+                </div>
+                <div>
+                  <dt>Rejected rows</dt>
+                  <dd>{result.rejected.toLocaleString()}</dd>
+                </div>
+                <div>
+                  <dt>Total rows</dt>
+                  <dd>{result.total.toLocaleString()}</dd>
+                </div>
+              </dl>
+              <p className="record-import-hint">
+                {complete
+                  ? "Accepted facts are available in your record library and linked workbooks."
+                  : "Accepted rows update matching identities or create records. Rejected rows are skipped. Source ownership protects manually reviewed facts."}
+              </p>
+              {result.warnings.map((warning) => (
+                <p key={warning} className="record-import-warning">
+                  {warning}
+                </p>
+              ))}
+              {result.rejected > 0 && (
+                <div
+                  className="record-import-errors"
+                  role="region"
+                  aria-label="Rejected rows"
+                  tabIndex={0}
+                >
+                  {result.rows
+                    .filter((row) => row.error)
+                    .map((row) => (
+                      <p key={row.row}>
+                        <strong>Row {row.row}</strong> · {row.error}
+                      </p>
+                    ))}
+                </div>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() =>
+                  downloadData(
+                    JSON.stringify(result, null, 2),
+                    "import-report.json"
+                  )
+                }
+              >
+                <Download aria-hidden="true" />
+                Download row report
+              </Button>
+            </>
+          )}
+          {error && (
+            <p role="alert" className="record-import-error">
+              {error}
+            </p>
+          )}
+        </div>
+        <div className="record-import-footer">
+          <span role="status">
+            {busy ? (
+              <>
+                <Loader2 aria-hidden="true" className="animate-spin" />
+                {step === 2 ? "Importing" : "Validating"}…{" "}
+                {elapsed ? `${elapsed}s` : ""}
+              </>
+            ) : complete ? (
+              "Import receipt saved"
+            ) : (
+              filename || "No file selected"
+            )}
+          </span>
+          <div>
+            {step > 0 && !complete && (
+              <Button
+                variant="ghost"
+                disabled={busy}
+                onClick={() => {
+                  setError("")
+                  setStep(step - 1)
+                }}
+              >
+                <ArrowLeft />
+                Back
+              </Button>
+            )}
+            <Button variant="outline" disabled={busy} onClick={onClose}>
+              {complete ? "Done" : "Cancel"}
+            </Button>
+            {step === 0 && (
+              <Button
+                disabled={busy || !filename || !request.source.trim()}
+                onClick={() => void preview(1)}
+              >
+                Map columns
+                <ArrowRight />
+              </Button>
+            )}
+            {step === 1 && (
+              <Button disabled={busy} onClick={() => void preview(2)}>
+                Validate rows
+                <ArrowRight />
+              </Button>
+            )}
+            {step === 2 && (
+              <Button
+                disabled={busy || !result?.imported}
+                onClick={() => void commit()}
+              >
+                Import {result?.imported.toLocaleString()} records
+              </Button>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }

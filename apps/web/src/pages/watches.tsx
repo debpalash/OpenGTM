@@ -235,7 +235,7 @@ function WatchListView({
         action={newButton}
       />
       {!canEdit && (
-        <p className="text-[11px] text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           You can view watches and their signals; creating, polling, and editing
           require the editor or admin role.
         </p>
@@ -295,20 +295,20 @@ function WatchRow({
     >
       <StatusDot status={watch.enabled ? "enabled" : "disabled"} />
       <span className="min-w-0 flex-1 truncate font-medium">{watch.target}</span>
-      <Badge variant="secondary" className="shrink-0 text-[10px]">
+      <Badge variant="secondary" className="shrink-0 text-xs">
         {KIND_LABELS[watch.kind]}
       </Badge>
-      <span className="shrink-0 text-[10px] text-muted-foreground">
+      <span className="shrink-0 text-xs text-muted-foreground">
         {watch.interval}
       </span>
       {watch.enabled && nextPoll && (
-        <span className="shrink-0 text-[10px] text-muted-foreground/70">
+        <span className="shrink-0 text-xs text-muted-foreground/70">
           {nextPoll}
         </span>
       )}
       {watch.consecutive_failures > 0 && (
         <span
-          className="flex shrink-0 items-center gap-1 text-[10px] text-amber-500"
+          className="flex shrink-0 items-center gap-1 text-xs text-amber-500"
           title={watch.last_error ?? "Recent poll failures"}
         >
           <TriangleAlert className="size-3" />
@@ -543,7 +543,7 @@ function WatchBuilder({
         {/* signal_types — fieldset/legend for AT grouping */}
         <fieldset className="flex flex-col gap-2 rounded-md border p-3">
           <legend className="px-1 text-xs font-medium">Signal types</legend>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Limited to the types this watch kind can emit.
           </p>
           <div className="flex flex-wrap gap-3">
@@ -566,7 +566,7 @@ function WatchBuilder({
             })}
           </div>
           {!hasTypes && (
-            <p className="text-[11px] text-destructive">
+            <p className="text-xs text-destructive">
               Select at least one signal type.
             </p>
           )}
@@ -587,7 +587,7 @@ function WatchBuilder({
             className="h-9 max-w-[12rem] text-xs"
           />
           {!leadIdValid && (
-            <p className="text-[11px] text-destructive">
+            <p className="text-xs text-destructive">
               Lead ID must be a number.
             </p>
           )}
@@ -600,7 +600,7 @@ function WatchBuilder({
               <Label htmlFor="watch-webhook-switch" className="text-xs">
                 Create webhook rule
               </Label>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Forward detected signals to a webhook (requires Automations).
               </span>
             </div>
@@ -627,19 +627,19 @@ function WatchBuilder({
                 className="h-9 text-xs"
               />
               {!webhookUrlValid && webhookUrl.trim() !== "" && (
-                <p className="text-[11px] text-destructive">
+                <p className="text-xs text-destructive">
                   Enter a valid http(s) URL without embedded credentials.
                 </p>
               )}
               {webhookErr && (
-                <p className="text-[11px] text-destructive">{webhookErr}</p>
+                <p className="text-xs text-destructive">{webhookErr}</p>
               )}
             </div>
           )}
         </div>
 
         {!canEdit && (
-          <p className="text-[11px] text-amber-500">
+          <p className="text-xs text-amber-500">
             Creating a watch requires the editor or admin role for this workspace.
           </p>
         )}
@@ -742,12 +742,12 @@ function WatchDetail({ id, onBack }: { id: string; onBack: () => void }) {
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-semibold">{watch.target}</h2>
-                <Badge variant="secondary" className="text-[10px]">
+                <Badge variant="secondary" className="text-xs">
                   {KIND_LABELS[watch.kind]}
                 </Badge>
                 <StatusDot status={watch.enabled ? "enabled" : "disabled"} />
               </div>
-              <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span>{watch.interval}</span>
                 {watch.enabled && formatRelative(watch.next_poll_at) && (
                   <span>{formatRelative(watch.next_poll_at)}</span>
@@ -819,7 +819,7 @@ function WatchDetail({ id, onBack }: { id: string; onBack: () => void }) {
           </div>
 
           {watch.last_error && (
-            <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-600 dark:text-amber-400">
+            <div className="flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs text-amber-600 dark:text-amber-400">
               <TriangleAlert className="mt-0.5 size-3.5 shrink-0" />
               <span>Last poll error: {watch.last_error}</span>
             </div>
@@ -886,9 +886,9 @@ function SignalTypesSummary({ types }: { types: string[] }) {
   if (labels.length === 0) return null
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="text-[11px] text-muted-foreground">Signal types:</span>
+      <span className="text-xs text-muted-foreground">Signal types:</span>
       {labels.map((l) => (
-        <Badge key={l} variant="outline" className="text-[10px]">
+        <Badge key={l} variant="outline" className="text-xs">
           {l}
         </Badge>
       ))}

@@ -195,7 +195,7 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
     const onMove = (ev: MouseEvent) => {
       if (!dragRef.current) return
       const diff = dragRef.current.startY - ev.clientY
-      setHeight(Math.max(160, Math.min(400, dragRef.current.startH + diff)))
+      setHeight(Math.max(160, Math.min(600, dragRef.current.startH + diff)))
     }
     const onUp = () => {
       dragRef.current = null
@@ -231,7 +231,7 @@ export function ActivityDrawer({ rows, columns, isRunning, isOpen, onToggle }: A
       style={{ height }}
     >
       {/* Resize handle */}
-      <div className="activity-drawer-resize" onMouseDown={onDragStart}>
+      <div className="activity-drawer-resize" role="separator" tabIndex={0} aria-label="Resize activity panel" aria-orientation="horizontal" aria-valuemin={160} aria-valuemax={600} aria-valuenow={height} onKeyDown={event => { const step=event.shiftKey?50:10; if(["ArrowUp","ArrowDown","Home","End"].includes(event.key)){event.preventDefault();setHeight(previous=>event.key==="Home"?160:event.key==="End"?600:Math.max(160,Math.min(600,previous+(event.key==="ArrowUp"?step:-step))))} }} onMouseDown={onDragStart}>
         <div className="activity-drawer-resize-bar" />
       </div>
 
@@ -308,7 +308,7 @@ function LiveTab({ events }: { events: ActivityEvent[] }) {
       <div className="activity-drawer-empty">
         <Activity className="size-8 text-muted-foreground/20" />
         <p>No enrichment activity yet</p>
-        <p className="text-[10px] text-muted-foreground/30">Run a workbook to see live enrichment logs</p>
+        <p className="text-xs text-muted-foreground/30">Run a workbook to see live enrichment logs</p>
       </div>
     )
   }
@@ -413,7 +413,7 @@ function ErrorsTab({ errors }: { errors: ActivityEvent[] }) {
       <div className="activity-drawer-empty">
         <Check className="size-8 text-emerald-400/20" />
         <p>No errors</p>
-        <p className="text-[10px] text-muted-foreground/30">All enrichments completed successfully</p>
+        <p className="text-xs text-muted-foreground/30">All enrichments completed successfully</p>
       </div>
     )
   }

@@ -224,7 +224,7 @@ export function WorkbookViewBar({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
           <DropdownMenuGroup>
-            <DropdownMenuLabel className="text-[10px] uppercase tracking-wide text-muted-foreground">Views</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-xs uppercase tracking-wide text-muted-foreground">Views</DropdownMenuLabel>
             {viewQuery.isPending && <p role="status" className="px-2 py-2 text-sm">Loading saved views…</p>}
             {viewQuery.isError && <p role="alert" className="px-2 py-2 text-sm">Could not load saved views.</p>}
             {viewQuery.isError && <DropdownMenuItem disabled={viewQuery.isFetching} onClick={() => void viewQuery.refetch()}>Retry saved views</DropdownMenuItem>}
@@ -276,7 +276,7 @@ export function WorkbookViewBar({
             <Dialog.Body className="space-y-3 overflow-y-auto min-h-0">
             {filterError && <p role="alert" className="text-sm">{filterError}</p>}
             {draftFilters.length === 0 && (
-              <p className="text-[11px] text-muted-foreground/70">No filters — this view shows every row.</p>
+              <p className="text-xs text-muted-foreground/70">No filters — this view shows every row.</p>
             )}
             {draftFilters.map((f, i) => (
               <div key={i} className="flex flex-wrap items-center gap-1">

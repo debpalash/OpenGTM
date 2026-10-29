@@ -6,8 +6,8 @@
  * AI/enrichment columns show overlay data.
  */
 
-import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue, createContext, useContext } from "react"
+import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import {
   useTable, tableFeatures, createSortedRowModel, sortFns,
   columnVisibilityFeature, rowSelectionFeature, rowSortingFeature,
@@ -79,14 +79,14 @@ type WorkbookTableFeatures = typeof workbookTableFeatures
 // ── Column Type Metadata ─────────────────────────────────────────────────
 
 const COL_TYPE_META: Record<string, { icon: typeof Type; color: string; label: string; headerBg: string }> = {
-  lead_field: { icon: Type, color: "text-zinc-400", label: "Lead Field", headerBg: "" },
-  input: { icon: Type, color: "text-zinc-400", label: "Lead Field", headerBg: "" },  // Legacy alias
+  lead_field: { icon: Type, color: "text-[var(--muted-foreground)]", label: "Lead Field", headerBg: "" },
+  input: { icon: Type, color: "text-[var(--muted-foreground)]", label: "Lead Field", headerBg: "" },  // Legacy alias
   source: { icon: Globe, color: "text-muted-foreground", label: "Source", headerBg: "" },
   agent: { icon: Brain, color: "text-muted-foreground", label: "Agent", headerBg: "" },
   enrichment: { icon: Sparkles, color: "text-violet-400", label: "Enrichment", headerBg: "bg-violet-500/5" },
-  waterfall: { icon: Layers, color: "text-blue-400", label: "Waterfall", headerBg: "bg-blue-500/5" },
-  ai_formula: { icon: Brain, color: "text-amber-400", label: "AI Formula", headerBg: "bg-amber-500/5" },
-  conditional: { icon: GitBranch, color: "text-emerald-400", label: "Conditional", headerBg: "bg-emerald-500/5" },
+  waterfall: { icon: Layers, color: "text-[var(--gtm-link)]", label: "Waterfall", headerBg: "bg-blue-500/5" },
+  ai_formula: { icon: Brain, color: "text-[var(--gtm-warning)]", label: "AI Formula", headerBg: "bg-amber-500/5" },
+  conditional: { icon: GitBranch, color: "text-[var(--gtm-success)]", label: "Conditional", headerBg: "bg-emerald-500/5" },
   output: { icon: Send, color: "text-rose-400", label: "Output", headerBg: "bg-rose-500/5" },
   research: { icon: Globe, color: "text-cyan-400", label: "Research", headerBg: "bg-cyan-500/5" },
   http: { icon: Webhook, color: "text-teal-400", label: "HTTP API", headerBg: "bg-teal-500/5" },
@@ -100,10 +100,10 @@ const TYPED_FIELDS = new Set(["website", "linkedin_url", "twitter_url", "faceboo
 
 function CellStatus({ status }: { status?: string }) {
   if (!status || status === "complete") return null
-  if (status === "running") return <Loader2 className="size-3 animate-spin text-blue-400 shrink-0" />
+  if (status === "running") return <Loader2 className="size-3 animate-spin text-[var(--gtm-link)] shrink-0" />
   if (status === "error") return <AlertCircle className="size-3 text-destructive shrink-0" />
   if (status === "pending") return <Clock className="size-3 text-muted-foreground/40 shrink-0" />
-  if (status === "skipped") return <span className="size-3 text-muted-foreground/40 shrink-0 text-[10px] leading-3">—</span>
+  if (status === "skipped") return <span className="size-3 text-muted-foreground/40 shrink-0 text-xs leading-3">—</span>
   return null
 }
 
@@ -143,11 +143,11 @@ function ColumnProgressBar({ rows, colId }: { rows: WorkbookLeadRow[]; colId: st
 // License → colour chip. Green = openly redistributable, amber = public-record /
 // scraped (use-at-own-risk), red = proprietary-api (vendor ToS: do not resell).
 const LICENSE_CHIP: Record<string, string> = {
-  "CC0-1.0":         "text-green-600 bg-green-500/10 border-green-500/20",
-  "CC-BY-4.0":       "text-green-600 bg-green-500/10 border-green-500/20",
-  "public-record":   "text-amber-600 bg-amber-500/10 border-amber-500/20",
-  "scraped":         "text-amber-600 bg-amber-500/10 border-amber-500/20",
-  "proprietary-api": "text-red-600 bg-red-500/10 border-red-500/20",
+  "CC0-1.0":         "text-[var(--gtm-success)] bg-green-500/10 border-green-500/20",
+  "CC-BY-4.0":       "text-[var(--gtm-success)] bg-green-500/10 border-green-500/20",
+  "public-record":   "text-[var(--gtm-warning)] bg-amber-500/10 border-amber-500/20",
+  "scraped":         "text-[var(--gtm-warning)] bg-amber-500/10 border-amber-500/20",
+  "proprietary-api": "text-[var(--gtm-danger)] bg-red-500/10 border-red-500/20",
   "user-provided":   "text-muted-foreground bg-muted border-border",
   "unknown":         "text-muted-foreground bg-muted border-border",
 }
@@ -185,11 +185,11 @@ function ProvenanceCard({ prov, ttlDays }: { prov: Provenance; ttlDays?: number 
     <div className="absolute z-50 hidden group-hover/cell:block left-0 top-full mt-1 w-56 rounded-md border bg-popover p-2.5 text-xs shadow-md text-popover-foreground">
       <div className="flex items-center justify-between gap-2 mb-1.5">
         <span className="font-medium truncate">{prov.source}</span>
-        <span className={`shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-medium ${chip}`}>
+        <span className={`shrink-0 rounded border px-1.5 py-0.5 text-xs font-medium ${chip}`}>
           {prov.license}
         </span>
       </div>
-      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {prov.confidence != null && (
           <span>conf {Math.round(prov.confidence * 100)}%</span>
         )}
@@ -339,7 +339,7 @@ function EditableCell({
         </button>
       )}
       {provider && status === "complete" && (
-        <span className="hidden group-hover/cell:inline text-[10px] text-muted-foreground/50 shrink-0">
+        <span className="hidden group-hover/cell:inline text-xs text-muted-foreground/50 shrink-0">
           {provider}
         </span>
       )}
@@ -363,7 +363,7 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
         <span className="inline-flex items-center gap-1.5 min-w-0">
           <Favicon domain={domain} />
           <a href={url} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}
-            className="text-blue-400 hover:text-blue-300 hover:underline truncate text-sm">
+            className="text-[var(--gtm-link)] hover:text-blue-300 hover:underline truncate text-sm">
             {display}
           </a>
         </span>
@@ -375,7 +375,7 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
   if (fieldName === "email" && value.includes("@")) {
     return (
       <a href={`mailto:${value}`} onClick={e => e.stopPropagation()}
-        className="text-blue-400 hover:text-blue-300 hover:underline truncate text-sm font-mono text-[13px]">
+        className="text-[var(--gtm-link)] hover:text-blue-300 hover:underline truncate text-sm font-mono text-[13px]">
         {value}
       </a>
     )
@@ -385,11 +385,11 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
   if (fieldName === "score" || fieldName === "score_tier") {
     const num = Number(value)
     if (!isNaN(num)) {
-      const color = num >= 80 ? "bg-emerald-500/15 text-emerald-400" : num >= 50 ? "bg-amber-500/15 text-amber-400" : "bg-zinc-500/15 text-zinc-400"
-      return <span className={`inline-flex px-1.5 py-0.5 rounded text-[11px] font-medium tabular-nums ${color}`}>{num}</span>
+      const color = num >= 80 ? "bg-emerald-500/15 text-[var(--gtm-success)]" : num >= 50 ? "bg-amber-500/15 text-[var(--gtm-warning)]" : "bg-zinc-500/15 text-[var(--muted-foreground)]"
+      return <span className={`inline-flex px-1.5 py-0.5 rounded text-xs font-medium tabular-nums ${color}`}>{num}</span>
     }
     // score_tier text
-    const tierColor = value === "hot" ? "text-emerald-400" : value === "warm" ? "text-amber-400" : "text-zinc-400"
+    const tierColor = value === "hot" ? "text-[var(--gtm-success)]" : value === "warm" ? "text-[var(--gtm-warning)]" : "text-[var(--muted-foreground)]"
     return <span className={`text-sm ${tierColor}`}>{value}</span>
   }
 
@@ -407,7 +407,21 @@ function TypedCellValue({ value, fieldName }: { value: string; fieldName: string
   return null // fallback to default EditableCell display
 }
 
+function rowIdentity(row: WorkbookLeadRow) {
+  const fields = {...row.lead,...row.data}
+  return {
+    name:String(fields.full_name || fields.contact_person || fields.name || fields.company || row.company || fields.email || fields.domain || "Unnamed record"),
+    detail:String(fields.contact_title || fields.title || fields.domain || fields.email || fields.website || ""),
+  }
+}
+
 // ── Sortable Column Header (DnD wrapper) ─────────────────────────────────
+
+const ColumnDragContext = createContext<Pick<ReturnType<typeof useSortable>, "attributes" | "listeners" | "setActivatorNodeRef"> | null>(null)
+function ColumnDragHandle({ name }: { name: string }) {
+  const drag = useContext(ColumnDragContext)
+  return <button type="button" ref={drag?.setActivatorNodeRef} {...drag?.attributes} {...drag?.listeners} aria-label={`Move ${name} column`} title="Move column: Space to pick up, arrow keys to move, Escape to cancel" className="workbook-column-drag" onClick={event => event.stopPropagation()}><GripVertical aria-hidden="true" className="size-3" /></button>
+}
 
 function SortableColumnHeader({ id, w, className, children, ...rest }: {
   id: string; w: number; className?: string; children: React.ReactNode;
@@ -417,6 +431,7 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -435,11 +450,9 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
       ref={setNodeRef}
       style={style}
       className={className}
-      {...attributes}
-      {...listeners}
       {...rest}
     >
-      {children}
+      <ColumnDragContext.Provider value={{attributes,listeners,setActivatorNodeRef}}>{children}</ColumnDragContext.Provider>
     </th>
   )
 }
@@ -494,6 +507,7 @@ function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
 export default function WorkbookEditorPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [workbookPage, setWorkbookPage] = useState(1)
   const [activeViewId, setActiveViewId] = useState<string | null>(null)
   const [globalFilter, setGlobalFilter] = useState("")
@@ -610,7 +624,7 @@ export default function WorkbookEditorPage() {
   const [showColumnVisibility, setShowColumnVisibility] = useState(false)
   const [activityOpen, setActivityOpen] = useState(false)
   const [exportingCsv, setExportingCsv] = useState(false)
-  const [activeCell, setActiveCell] = useState({ row: 0, column: 0 })
+  const [activeCell, setActiveCell] = useState({ row: 0, column: 2 })
   const [selectionAnchor, setSelectionAnchor] = useState<{ row: number; column: number } | null>(null)
   const availableProviders = providersData?.providers ?? []
   const queryTotalRows = data?.query_total_rows ?? data?.total_rows ?? 0
@@ -632,7 +646,7 @@ export default function WorkbookEditorPage() {
       } else return
     }
     setWorkbookPage(bounded)
-    setActiveCell({ row: 0, column: 0 })
+    setActiveCell({ row: 0, column: 2 })
     setSelectionAnchor(null)
     tableContainerRef.current?.scrollTo({ top: 0, behavior: "auto" })
   }, [cursorHistory, cursorMode, data?.next_cursor, totalPages, workbookCursor, workbookPage])
@@ -830,7 +844,7 @@ export default function WorkbookEditorPage() {
       {
         id: "_select",
         header: ({ table }) => (
-          <div className="flex items-center justify-center px-1">
+          <label className="gtm-checkbox-target">
             <input
               type="checkbox"
               aria-label="Select all rows on this page"
@@ -838,18 +852,19 @@ export default function WorkbookEditorPage() {
               checked={table.getIsAllRowsSelected()}
               onChange={table.getToggleAllRowsSelectedHandler()}
             />
-          </div>
+          </label>
         ),
         cell: ({ row }) => (
-          <div className="flex items-center justify-center px-1">
+          <label className="gtm-checkbox-target">
             <input
               type="checkbox"
               aria-label={`Select row ${row.original.row_id ?? row.original.lead_id}`}
+              tabIndex={-1}
               className="size-3.5 rounded border-border accent-primary cursor-pointer"
               checked={row.getIsSelected()}
               onChange={row.getToggleSelectedHandler()}
             />
-          </div>
+          </label>
         ),
       },
       // Row number column
@@ -858,7 +873,7 @@ export default function WorkbookEditorPage() {
         header: "#",
         cell: ({ row }) => (
           <div className="flex items-center gap-1 px-1.5">
-            <span className="text-[10px] text-muted-foreground tabular-nums">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {row.index + 1}
             </span>
             {row.original.lead_id != null && (
@@ -873,6 +888,10 @@ export default function WorkbookEditorPage() {
             )}
           </div>
         ),
+      },
+      {
+        id:"_identity", header:"Record",
+        cell:({row}) => { const identity=rowIdentity(row.original); return <div className="workbook-record-identity"><strong>{identity.name}</strong>{identity.detail&&<span>{identity.detail}</span>}</div> },
       },
       // Dynamic columns from workbook config
       ...columns.filter(col => !hiddenColumns.has(col.id)).map((col) => {
@@ -892,20 +911,21 @@ export default function WorkbookEditorPage() {
             return (
               <div
                 className={`flex items-center gap-1 px-2 h-full cursor-pointer select-none ${meta.headerBg}`}
-                onClick={column.getToggleSortingHandler()}
                 onContextMenu={(e) => {
                   e.preventDefault()
                   setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
                 }}
               >
-                <GripVertical className="size-3 text-muted-foreground/20 shrink-0 opacity-0 group-hover/th:opacity-100 transition-opacity cursor-grab active:cursor-grabbing" />
-                <Icon className={`size-3 ${meta.color} shrink-0`} />
+                <ColumnDragHandle name={col.name} />
+                <button type="button" onClick={column.getToggleSortingHandler()} aria-label={`Sort ${col.name}${sort === "asc" ? ", ascending" : sort === "desc" ? ", descending" : ""}`} className="workbook-column-sort">
+                <Icon aria-hidden="true" className={`size-3 ${meta.color} shrink-0`} />
                 <span className="truncate text-xs font-medium flex-1">{col.name}</span>
                 {sort === "asc" && <ArrowUp className="size-3 text-primary shrink-0" />}
                 {sort === "desc" && <ArrowDown className="size-3 text-primary shrink-0" />}
                 {!sort && <ArrowUpDown className="size-3 text-muted-foreground/30 shrink-0 opacity-0 group-hover/th:opacity-100 transition-opacity" />}
+                </button>
                 <button type="button" data-column-settings-trigger aria-label={`Configure ${col.name} column`}
-                  className="shrink-0 p-1 rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
+                  className="shrink-0 size-8 inline-flex items-center justify-center rounded hover:bg-muted focus-visible:outline-2 focus-visible:outline-ring"
                   onPointerDown={event => event.stopPropagation()}
                   onKeyDown={event => event.stopPropagation()}
                   onClick={event => { event.stopPropagation(); configTrigger.current = event.currentTarget; setConfigPanelColId(col.id) }}>
@@ -1146,8 +1166,9 @@ export default function WorkbookEditorPage() {
     return () => { observer.disconnect(); container.removeEventListener("scroll", measure); cancelAnimationFrame(frame) }
   }, [workbook?.id, isLoading])
   const visibleGridColumns = table.getVisibleLeafColumns()
-  const gridColumnWidths = visibleGridColumns.map(column => column.id === "_select" ? 36 : column.id === "_index" ? 50 : getColWidth(column.id, columns.find(config => config.id === column.id)?.width || 180))
-  const columnWindow = workbookColumnWindow(gridColumnWidths, horizontalViewport.left, horizontalViewport.width, [0, 1, activeCell.column])
+  const identityColumnWidth = horizontalViewport.width < 600 ? 160 : 240
+  const gridColumnWidths = visibleGridColumns.map(column => column.id === "_select" ? 36 : column.id === "_index" ? 50 : column.id === "_identity" ? identityColumnWidth : getColWidth(column.id, columns.find(config => config.id === column.id)?.width || 180))
+  const columnWindow = workbookColumnWindow(gridColumnWidths, horizontalViewport.left, horizontalViewport.width, [0, 1, 2, activeCell.column])
 
   const focusGridCell = useCallback((row: number, column: number) => {
     const rowCount = table.getRowModel().rows.length
@@ -1162,17 +1183,20 @@ export default function WorkbookEditorPage() {
     const container = tableContainerRef.current
     if (container) {
       const visible = table.getVisibleLeafColumns()
-      const widths = visible.map(col => col.id === "_select" ? 36 : col.id === "_index" ? 50 : getColWidth(col.id, columns.find(config => config.id === col.id)?.width || 180))
+      const widths = visible.map(col => col.id === "_select" ? 36 : col.id === "_index" ? 50 : col.id === "_identity" ? identityColumnWidth : getColWidth(col.id, columns.find(config => config.id === col.id)?.width || 180))
       const left = widths.slice(0, next.column).reduce((sum, width) => sum + width, 0)
-      if (left < container.scrollLeft) container.scrollLeft = left
-      else if (left + widths[next.column] > container.scrollLeft + container.clientWidth) container.scrollLeft = left + widths[next.column] - container.clientWidth
+      if (next.column > 2) {
+        const pinnedWidth=widths.slice(0,3).reduce((sum,width)=>sum+width,0)
+        if (left < container.scrollLeft+pinnedWidth) container.scrollLeft=Math.max(0,left-pinnedWidth)
+        else if (left+widths[next.column]>container.scrollLeft+container.clientWidth) container.scrollLeft=Math.max(0,Math.min(left-pinnedWidth,left+widths[next.column]-container.clientWidth))
+      }
     }
     requestAnimationFrame(() => {
-      tableContainerRef.current
-        ?.querySelector<HTMLElement>(`[data-grid-row="${next.row}"][data-grid-column="${next.column}"]`)
-        ?.focus({ preventScroll: true })
+      const cell=tableContainerRef.current?.querySelector<HTMLElement>(`[data-grid-row="${next.row}"][data-grid-column="${next.column}"]`)
+      const target=next.column===0?cell?.querySelector<HTMLElement>('input[type="checkbox"]'):cell
+      target?.focus({preventScroll:true})
     })
-  }, [rowVirtualizer, table, columns, getColWidth])
+  }, [rowVirtualizer, table, columns, getColWidth, identityColumnWidth])
 
   // Quick Look (Space) for the focused grid row: the preview shows the row's
   // visible columns; ←/→ in the preview move the grid's active row with it.
@@ -1216,6 +1240,7 @@ export default function WorkbookEditorPage() {
     const columnId = table.getVisibleLeafColumns()[columnIndex]?.id
     if (!row || !columnId || columnId === "_select") return ""
     if (columnId === "_index") return String(rowIndex + 1)
+    if (columnId === "_identity") return rowIdentity(row).name
     const config = columns.find(column => column.id === columnId)
     if (!config) return ""
     if (config.type === "lead_field" || config.type === "input") {
@@ -1228,7 +1253,8 @@ export default function WorkbookEditorPage() {
     const target = event.target as HTMLElement
     // Interactive descendants (including portalled dialogs) own their keys.
     // Grid shortcuts must not suppress button activation or dialog Escape/Tab.
-    if (target.closest("input, textarea, select, button, a, [role=dialog], [contenteditable=true]")) return
+    const checkboxNavigation=target.matches('input[type="checkbox"]') && ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End","PageUp","PageDown"].includes(event.key)
+    if (!checkboxNavigation && target.closest("input, textarea, select, button, a, [role=dialog], [contenteditable=true]")) return
 
     const shortcut = event.ctrlKey || event.metaKey
     if (event.key === " " && !shortcut && !event.shiftKey) {
@@ -1502,14 +1528,14 @@ export default function WorkbookEditorPage() {
       <div className="flex flex-wrap items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
         <button
           onClick={() => navigate("/workbooks")}
-          className="p-1.5 rounded-md hover:bg-muted transition-colors"
+          aria-label="Back to workbooks" className="size-8 inline-flex items-center justify-center rounded-md hover:bg-muted transition-colors"
         >
           <ArrowLeft className="size-4" />
         </button>
 
         <div className="flex-1 min-w-48">
-          <h2 className="text-sm font-semibold truncate">{workbook.name}</h2>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+          <h1 tabIndex={-1} data-page-title className="text-lg font-semibold truncate">{workbook.name}</h1>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Filter className="size-3" />
               {filterDesc}
@@ -1556,7 +1582,7 @@ export default function WorkbookEditorPage() {
           <div className="relative">
             <button
               onClick={() => setShowColumnVisibility(!showColumnVisibility)}
-              className="inline-flex items-center gap-1 px-2 py-1 rounded text-[10px] text-muted-foreground hover:bg-muted transition-colors"
+              className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-muted-foreground hover:bg-muted transition-colors"
             >
               <Columns3 className="size-3" />
               {hiddenColumns.size} hidden
@@ -1564,7 +1590,7 @@ export default function WorkbookEditorPage() {
             </button>
             {showColumnVisibility && (
               <div className="absolute right-0 top-7 z-50 w-52 rounded-lg border bg-card shadow-xl py-1 animate-in fade-in zoom-in-95 duration-150">
-                <div className="px-3 py-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Hidden Columns</div>
+                <div className="px-3 py-1.5 text-xs text-muted-foreground font-medium uppercase tracking-wide">Hidden Columns</div>
                 {[...hiddenColumns].map(colId => {
                   const col = columns.find(c => c.id === colId)
                   if (!col) return null
@@ -1649,7 +1675,7 @@ export default function WorkbookEditorPage() {
             onChanged={() => refetch()}
           />}
 
-          <WorkbookRunReview key={id} workbookId={id!} viewId={activeViewId}
+          <WorkbookRunReview key={id} workbookId={id!} initiallyOpen={searchParams.get("review")==="1"} viewId={activeViewId}
             viewName={activeView?.name || "All rows"} search={deferredGlobalFilter}
             running={isRunning} busy={isFetching || runMut.isPending || globalFilter !== deferredGlobalFilter}
             outputColumns={columns.filter(column => column.type === "output").map(column => column.name)} />
@@ -1663,23 +1689,24 @@ export default function WorkbookEditorPage() {
           items={columns.filter(c => !hiddenColumns.has(c.id)).map(c => c.id)}
           strategy={horizontalListSortingStrategy}
         >
-      <div ref={tableContainerRef} tabIndex={-1} aria-label="Workbook grid region" className="flex-1 overflow-auto pl-2">
-        <table className="border-collapse text-sm" role="grid" aria-label="Workbook data grid" style={{ tableLayout: "fixed", minWidth: "100%", width: gridColumnWidths.reduce((sum, width) => sum + width, 40) }}>
-          <thead className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
+      <div ref={tableContainerRef} tabIndex={-1} aria-label="Workbook grid region" className="flex-1 overflow-auto">
+        <table className="workbook-grid border-collapse text-sm" role="grid" aria-label="Workbook data grid, loaded page" aria-rowcount={table.getRowModel().rows.length + 1} aria-colcount={visibleGridColumns.length + 1} style={{ tableLayout: "fixed", width: Math.max(horizontalViewport.width, gridColumnWidths.reduce((sum, width) => sum + width, 40)) }}>
+          <caption className="sr-only">{rows.length} rows loaded on this page, {queryTotalRows} matching rows. Use arrow keys between cells and Space to preview a record.</caption>
+          <thead className="sticky top-0 z-10 bg-muted">
             {table.getHeaderGroups().map(headerGroup => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.filter(h => h.id === "_select" || h.id === "_index").map(header => {
+              <tr key={headerGroup.id} aria-rowindex={1}>
+                {headerGroup.headers.filter(h => h.id === "_select" || h.id === "_index" || h.id === "_identity").map(header => {
                   const colConfig = columns.find(c => c.id === header.id)
-                  const w = header.id === "_index" ? 50 : (header.id === "_select" ? 36 : getColWidth(header.id, colConfig?.width || 180))
+                  const w = header.id === "_index" ? 50 : header.id === "_identity" ? identityColumnWidth : (header.id === "_select" ? 36 : getColWidth(header.id, colConfig?.width || 180))
                   return (
-                    <th key={header.id} data-col-id={header.id}
+                    <th key={header.id} data-col-id={header.id} scope="col" aria-colindex={visibleGridColumns.findIndex(column => column.id === header.id) + 1}
                       className="text-left font-normal border-b border-r h-8 whitespace-nowrap overflow-hidden relative"
                       style={{ width: w, maxWidth: w }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </th>
                   )
                 })}
-                {headerGroup.headers.filter(h => h.id !== "_select" && h.id !== "_index").map(header => {
+                {headerGroup.headers.filter(h => h.id !== "_select" && h.id !== "_index" && h.id !== "_identity").map(header => {
                   const colConfig = columns.find(c => c.id === header.id)
                   const w = getColWidth(header.id, colConfig?.width || 180)
                   return (
@@ -1687,7 +1714,8 @@ export default function WorkbookEditorPage() {
                       key={header.id}
                       id={header.id}
                       w={w}
-                      data-col-id={header.id}
+                      aria-sort={header.column.getIsSorted()==="asc"?"ascending":header.column.getIsSorted()==="desc"?"descending":"none"}
+                      data-col-id={header.id} scope="col" aria-colindex={visibleGridColumns.findIndex(column => column.id === header.id) + 1}
                       className={`text-left font-normal border-b border-r last:border-r-0 h-8 whitespace-nowrap overflow-hidden relative group/th ${
                         isRunning && colConfig && (colConfig.type === 'enrichment' || colConfig.type === 'waterfall' || colConfig.type === 'ai_formula') ? 'col-running' : ''
                       }`}
@@ -1718,11 +1746,11 @@ export default function WorkbookEditorPage() {
                   )
                 })}
                 {/* Add Column Button + Picker */}
-                <th className="w-10 border-b relative">
+                <th scope="col" aria-colindex={visibleGridColumns.length + 1} className="border-b relative" style={{width:Math.max(40,horizontalViewport.width-gridColumnWidths.reduce((sum,width)=>sum+width,0))}}>
                   <button
                     onClick={() => setShowColPicker(!showColPicker)}
-                    className="p-1 rounded hover:bg-muted-foreground/10 transition-colors"
-                    title="Add column"
+                    className="size-8 inline-flex items-center justify-center rounded hover:bg-muted-foreground/10 transition-colors"
+                    aria-label="Add column" title="Add column"
                   >
                     <Plus className="size-3.5 text-muted-foreground" />
                   </button>
@@ -2129,7 +2157,7 @@ export default function WorkbookEditorPage() {
           <tbody>
             {/* Virtual padding top */}
             {getVirtualItems().length > 0 && getVirtualItems()[0].start > 0 && (
-              <tr><td style={{ height: getVirtualItems()[0].start }} /></tr>
+              <tr aria-hidden="true"><td colSpan={visibleGridColumns.length + 1} style={{ height: getVirtualItems()[0].start }} /></tr>
             )}
 
             {getVirtualItems().map(virtualRow => {
@@ -2138,6 +2166,7 @@ export default function WorkbookEditorPage() {
               return (
                 <tr
                   key={row.id}
+                  aria-rowindex={virtualRow.index + 2}
                   className="group"
                 >
                   {columnWindow.map(segment => {
@@ -2145,19 +2174,25 @@ export default function WorkbookEditorPage() {
                     const cellIndex = segment.index
                     const cell = row.getVisibleCells()[cellIndex]
                     const colConfig = columns.find(c => c.id === cell.column.id)
-                    const w = cell.column.id === "_index" ? 50 : getColWidth(cell.column.id, colConfig?.width || 180)
+                    const w = cell.column.id === "_select" ? 36 : cell.column.id === "_index" ? 50 : cell.column.id === "_identity" ? identityColumnWidth : getColWidth(cell.column.id, colConfig?.width || 180)
                     return (
                     <td
                       key={cell.id}
                       data-col-id={cell.column.id}
                       data-grid-row={virtualRow.index}
                       data-grid-column={cellIndex}
-                      tabIndex={activeCell.row === virtualRow.index && activeCell.column === cellIndex ? 0 : -1}
+                      aria-colindex={cellIndex + 1}
+                      tabIndex={cell.column.id!=="_select" && activeCell.row === virtualRow.index && activeCell.column === cellIndex ? 0 : -1}
                       onPointerDown={event => {
                         if (event.shiftKey) setSelectionAnchor(current => current ?? activeCell)
                         else setSelectionAnchor(null)
                       }}
-                      onFocus={() => setActiveCell({ row: virtualRow.index, column: cellIndex })}
+                      onFocus={event => {
+                        const input=event.target instanceof HTMLInputElement && event.target.type==="checkbox"?event.target:null
+                        tableContainerRef.current?.querySelectorAll<HTMLInputElement>('tbody input[type="checkbox"][tabindex="0"]').forEach(other=>{if(other!==input)other.tabIndex=-1})
+                        if(input)input.tabIndex=0
+                        setActiveCell(current=>current.row===virtualRow.index&&current.column===cellIndex?current:{row:virtualRow.index,column:cellIndex})
+                      }}
                       onKeyDown={event => handleGridKeyDown(event, virtualRow.index, cellIndex)}
                       onPaste={event => handleGridPaste(event, virtualRow.index, cellIndex)}
                       className={`border-b border-r last:border-r-0 h-9 p-0 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset ${
@@ -2173,15 +2208,15 @@ export default function WorkbookEditorPage() {
                     </td>
                     )
                   })}
-                  <td className="border-b w-10 p-0" />
+                  <td aria-colindex={visibleGridColumns.length+1} className="border-b p-0" style={{width:Math.max(40,horizontalViewport.width-gridColumnWidths.reduce((sum,width)=>sum+width,0))}} />
                 </tr>
               )
             })}
 
             {/* Virtual padding bottom */}
             {getVirtualItems().length > 0 && (
-              <tr>
-                <td style={{
+              <tr aria-hidden="true">
+                <td colSpan={visibleGridColumns.length + 1} style={{
                   height: getTotalSize() - (getVirtualItems()[getVirtualItems().length - 1]?.end ?? 0),
                 }} />
               </tr>
@@ -2221,7 +2256,7 @@ export default function WorkbookEditorPage() {
             style={{ left: ctxMenu.x, top: ctxMenu.y }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="px-3 py-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wide">{col.name}</div>
+            <div className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">{col.name}</div>
             <button
               onClick={() => handleRenameColumn(ctxMenu.colId)}
               className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-muted transition-colors"
@@ -2252,14 +2287,14 @@ export default function WorkbookEditorPage() {
                 <div className="h-px bg-border mx-2 my-1" />
                 <button
                   onClick={() => handleRunSingleColumn(ctxMenu.colId)}
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-blue-400 hover:bg-blue-500/10 transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--gtm-link)] hover:bg-blue-500/10 transition-colors"
                 >
                   <Zap className="size-3.5" /> Run This Column
                 </button>
                 <button
                   onClick={() => handleForceRunColumn(ctxMenu.colId)}
                   title="Re-run every cell, bypassing success-skip gates (output columns re-push)"
-                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-amber-400 hover:bg-amber-500/10 transition-colors"
+                  className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-[var(--gtm-warning)] hover:bg-amber-500/10 transition-colors"
                 >
                   <RefreshCw className="size-3.5" /> Re-run Column (force)
                 </button>
@@ -2611,7 +2646,7 @@ export default function WorkbookEditorPage() {
       />
 
       {/* ── Status Bar ───────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-1 border-t text-[11px] text-muted-foreground bg-muted/30 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-1 border-t text-xs text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           <span className="tabular-nums">
             {queryTotalRows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, queryTotalRows)}` : "0"} of {queryTotalRows} rows
@@ -2649,7 +2684,7 @@ export default function WorkbookEditorPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3 min-w-0 max-w-full">
           {connected && (
-            <span className="inline-flex items-center gap-1 text-emerald-400">
+            <span className="inline-flex items-center gap-1 text-[var(--gtm-success)]">
               <span className="size-1.5 rounded-full bg-emerald-400" />
               Live
             </span>
@@ -2659,7 +2694,7 @@ export default function WorkbookEditorPage() {
               ? Math.min(100, Math.round((connectorRun.fetched_count / connectorRun.requested_count) * 100))
               : 0
             return (
-              <span className="inline-flex items-center gap-2 text-blue-400" title={`Page ${connectorRun.pages_fetched} · ${connectorRun.connector}`}>
+              <span className="inline-flex items-center gap-2 text-[var(--gtm-link)]" title={`Page ${connectorRun.pages_fetched} · ${connectorRun.connector}`}>
                 <Loader2 className="size-3 animate-spin" />
                 <span className="capitalize">{connectorRun.connector}</span>
                 <span className="tabular-nums">{connectorRun.fetched_count}/{connectorRun.requested_count} rows</span>
@@ -2676,12 +2711,12 @@ export default function WorkbookEditorPage() {
             const { total: totalCells, complete, errors, skipped, running } = loadedCellProgress(rows, columns)
             const pct = totalCells > 0 ? Math.round(((complete + errors + skipped) / totalCells) * 100) : 0
             return (
-              <span className="inline-flex flex-wrap items-center gap-2 text-blue-400 max-w-full">
+              <span className="inline-flex flex-wrap items-center gap-2 text-[var(--gtm-link)] max-w-full">
                 <Loader2 className="size-3 animate-spin" />
                 <span className="tabular-nums">Loaded cells: {complete}/{totalCells} complete</span>
-                {errors > 0 && <span className="text-red-400 tabular-nums">{errors} err</span>}
+                {errors > 0 && <span className="text-[var(--gtm-danger)] tabular-nums">{errors} err</span>}
                 {skipped > 0 && <span className="text-muted-foreground tabular-nums">{skipped} skipped</span>}
-                {running > 0 && <span className="text-amber-400 tabular-nums">{running} active</span>}
+                {running > 0 && <span className="text-[var(--gtm-warning)] tabular-nums">{running} active</span>}
                 <span className="inline-flex items-center gap-1">
                   <span className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
                     <span className="h-full rounded-full bg-blue-400 transition-all duration-300" style={{ width: `${pct}%` }} />

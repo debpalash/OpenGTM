@@ -141,7 +141,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
   const [workspaceName, setWorkspaceName] = useState("")
   const [setupToken, setSetupToken] = useState("")
 
-  const from = (location.state as { from?: string } | null)?.from ?? "/chat"
+  const from = (location.state as { from?: string } | null)?.from ?? "/overview"
   const copy = COPY[mode]
   const ModeIcon = copy.icon
 
@@ -167,7 +167,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
       setBusy(true)
       try {
         await completeSetup({ username: username.trim(), password, workspaceName: workspaceName.trim(), setupToken: setupToken.trim() })
-        navigate("/chat", { replace: true })
+        navigate("/overview", { replace: true })
       } catch (err) {
         setError(err instanceof Error ? err.message : "Setup failed")
         // 409: another visitor finished setup first; hand over to the sign-in page.
@@ -343,7 +343,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </div>
         </section>
 
-        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12">
+        <footer className="relative z-10 px-6 pb-5 text-center text-xs text-[#1d1d1f]/55 sm:px-12">
           Inspired by{" "}
           <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">Bagas Prayogo</a>
           {" "}(sign-in design) and{" "}

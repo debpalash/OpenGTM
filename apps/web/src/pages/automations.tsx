@@ -301,10 +301,10 @@ function TriggerList({
               <span className="min-w-0 flex-1 truncate font-medium">
                 {t.name}
               </span>
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 {TRIGGER_TYPE_LABELS[t.trigger_type] ?? t.trigger_type}
               </Badge>
-              <span className="hidden w-24 shrink-0 text-right text-[11px] text-muted-foreground sm:inline">
+              <span className="hidden w-24 shrink-0 text-right text-xs text-muted-foreground sm:inline">
                 {t.last_fired_at
                   ? `fired ${relativeTime(t.last_fired_at)}`
                   : "never fired"}
@@ -352,7 +352,7 @@ function TriggerList({
                   <Trash2 className="size-3.5" /> Delete
                 </DropdownMenuItem>
                 {!canAdmin && (
-                  <p className="px-2 py-1 text-[10px] text-muted-foreground">
+                  <p className="px-2 py-1 text-xs text-muted-foreground">
                     {reason}
                   </p>
                 )}
@@ -793,7 +793,7 @@ function RuleBuilder({
               )}
             </div>
             {triggerType === "on_signal" && (
-              <p className="flex items-start gap-1 text-[11px] text-muted-foreground">
+              <p className="flex items-start gap-1 text-xs text-muted-foreground">
                 <AlertTriangle className="mt-0.5 size-3 shrink-0" />
                 On-signal rules need the Postgres lead store. If it is not
                 enabled, saving returns a 409 and your form is kept so you can
@@ -862,11 +862,11 @@ function RuleBuilder({
                 }
               />
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Operators: {CONDITION_OPERATORS}
             </p>
             {conditionError && (
-              <p className="text-[11px] text-destructive">{conditionError}</p>
+              <p className="text-xs text-destructive">{conditionError}</p>
             )}
           </div>
 
@@ -889,7 +889,7 @@ function RuleBuilder({
                   <span className="flex items-center gap-1.5">
                     {ACTION_TYPE_LABELS[a.type] ?? a.type}
                     {a.readOnly && (
-                      <Badge variant="outline" className="text-[10px]">
+                      <Badge variant="outline" className="text-xs">
                         legacy · read-only
                       </Badge>
                     )}
@@ -941,7 +941,7 @@ function RuleBuilder({
               </DropdownMenu>
             </div>
             {!allowLegacy && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 Email/Sequence actions are part of legacy outreach automation;
                 enable <code>AUTOMATIONS_ALLOW_LEGACY_OUTREACH</code> to use
                 them.
@@ -1070,7 +1070,7 @@ function ActionConfigForm({
 }) {
   if (action.readOnly) {
     return (
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Legacy action configured elsewhere. Enable legacy outreach to edit it.
       </p>
     )
@@ -1079,11 +1079,11 @@ function ActionConfigForm({
   if (action.type === "re_enrich") {
     return (
       <div className="flex flex-col gap-1.5">
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Columns to enrich (from scoped workbooks)
         </span>
         {scopedColumns.length === 0 ? (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             Select scope workbooks above to choose columns.
           </p>
         ) : (
@@ -1120,7 +1120,7 @@ function ActionConfigForm({
     return (
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted-foreground">CRM</span>
+          <span className="text-xs text-muted-foreground">CRM</span>
           <Select
             value={action.crmType}
             onValueChange={(v) =>
@@ -1139,7 +1139,7 @@ function ActionConfigForm({
             </SelectContent>
           </Select>
         </div>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Field map (CRM field ← source column/token)
         </span>
         <div className="flex flex-col gap-1.5">
@@ -1243,7 +1243,7 @@ function ActionConfigForm({
         className="min-h-16 font-mono text-xs"
       />
       <div className="flex items-center gap-1.5">
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           Header secret ref
         </span>
         <Input
@@ -1255,7 +1255,7 @@ function ActionConfigForm({
           className="h-7 max-w-[220px] text-xs"
         />
       </div>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         Reference name only — the secret value is stored server-side, never here.
       </p>
     </div>
@@ -1291,7 +1291,7 @@ function PreviewPanel({
           {usd(result.projected_total_usd)}
         </span>
         {overCap && cap != null && (
-          <Badge variant="destructive" className="text-[10px]">
+          <Badge variant="destructive" className="text-xs">
             over daily cap ({usd(cap)})
           </Badge>
         )}
@@ -1582,7 +1582,7 @@ function TriggerDetail({
             </div>
             <div className="flex flex-wrap gap-1.5">
               {t.actions.map((a, i) => (
-                <Badge key={i} variant="secondary" className="text-[10px]">
+                <Badge key={i} variant="secondary" className="text-xs">
                   {i + 1}. {ACTION_TYPE_LABELS[a.type] ?? a.type}
                 </Badge>
               ))}
@@ -1695,7 +1695,7 @@ function RunDetail({ runId, onBack }: { runId: string; onBack: () => void }) {
             <span className="text-muted-foreground">Total charged</span>
             <span className="font-semibold">{usd(r.total_charged_usd)}</span>
             {isRunActive(r.status) && (
-              <Badge variant="secondary" className="text-[10px]">
+              <Badge variant="secondary" className="text-xs">
                 live · refreshing
               </Badge>
             )}
@@ -1767,7 +1767,7 @@ function RunDetail({ runId, onBack }: { runId: string; onBack: () => void }) {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col rounded-lg border p-2">
-      <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+      <span className="text-xs uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <span className="text-lg font-semibold">{value}</span>

@@ -52,7 +52,7 @@ function ScoreRing({ score, tier }: { score: number; tier: string }) {
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <span className="text-sm font-bold tabular-nums" style={{ color }}>{score}</span>
-        <span className="text-[9px] text-muted-foreground">{tier}</span>
+        <span className="text-xs text-muted-foreground">{tier}</span>
       </div>
     </div>
   )
@@ -68,7 +68,7 @@ function CompletenessBar({ lead }: { lead: any }) {
       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden max-w-[200px]">
         <div className="h-full bg-primary/60 rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
       </div>
-      <span className="text-[10px] text-muted-foreground tabular-nums">{pct}%</span>
+      <span className="text-xs text-muted-foreground tabular-nums">{pct}%</span>
     </div>
   )
 }
@@ -83,7 +83,7 @@ function PropertyRow({ icon, label, children, provenance }: {
       <div className="text-xs text-muted-foreground w-20 shrink-0">{label}</div>
       <div className="flex items-center gap-1.5 min-w-0 flex-1">{children}</div>
       {provenance && (
-        <span className="text-[9px] text-muted-foreground/40 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="text-xs text-muted-foreground/40 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
           via {provenance}
         </span>
       )}
@@ -100,7 +100,7 @@ function DecisionMakerCard({ dm }: { dm: { name?: string; title?: string; linked
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-sm font-medium truncate">{dm.name || "Unknown"}</div>
-        {dm.title && <div className="text-[11px] text-muted-foreground truncate">{dm.title}</div>}
+        {dm.title && <div className="text-xs text-muted-foreground truncate">{dm.title}</div>}
       </div>
       {dm.linkedin && (
         <a href={dm.linkedin} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}
@@ -124,7 +124,7 @@ function EnrichButton({ icon, label, desc, loading, disabled, onClick }: {
       </div>
       <div className="min-w-0">
         <div className="text-sm font-medium">{label}</div>
-        <div className="text-[11px] text-muted-foreground">{desc}</div>
+        <div className="text-xs text-muted-foreground">{desc}</div>
       </div>
     </button>
   )
@@ -207,7 +207,7 @@ function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: strin
         <div ref={mapRef} style={{ height: 140, width: "100%" }} className={failed ? "hidden" : ""} />
       </div>
       <a href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(query)}`} target="_blank" rel="noopener noreferrer"
-        className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors">
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
         <ExternalLink className="size-2.5" /> OpenStreetMap
       </a>
     </div>
@@ -325,7 +325,7 @@ export default function LeadDetailPage() {
               <SelectTrigger className="h-6 w-auto text-xs border-dashed gap-1 px-2"><SelectValue /></SelectTrigger>
               <SelectContent>{STATUS_OPTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
             </Select>
-            {lead.source && <span className="text-[11px] text-muted-foreground">via {lead.source}</span>}
+            {lead.source && <span className="text-xs text-muted-foreground">via {lead.source}</span>}
             <div className="ml-auto">
               <Button variant={showEnrich ? "secondary" : "outline"} size="sm" onClick={() => setShowEnrich(!showEnrich)} className="h-7 text-xs gap-1.5">
                 <Sparkles className="size-3" /> {showEnrich ? "Hide" : "Enrich"}
@@ -353,7 +353,7 @@ export default function LeadDetailPage() {
             {enrichLog.length > 0 && (
               <div className="space-y-1 pt-2 border-t mt-2">
                 {enrichLog.map((log, i) => (
-                  <div key={i} className="flex items-start gap-1.5 text-[11px]">
+                  <div key={i} className="flex items-start gap-1.5 text-xs">
                     {log.step === "error" ? <AlertCircle className="size-3 text-destructive shrink-0 mt-0.5" /> : <CheckCircle className="size-3 text-emerald-500 shrink-0 mt-0.5" />}
                     <span className="text-muted-foreground">{log.message}</span>
                   </div>
@@ -376,7 +376,7 @@ export default function LeadDetailPage() {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
               {/* Left: Properties */}
               <div className="lg:col-span-3 space-y-1">
-                <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 pt-2 pb-1">Contact</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1 pt-2 pb-1">Contact</div>
                 <PropertyRow icon={<User className="size-3.5" />} label="Person">
                   <EditableCell value={lead.contact_person || ""} onSave={v => saveField("contact_person", v)} placeholder="Add contact name" />
                 </PropertyRow>
@@ -405,7 +405,7 @@ export default function LeadDetailPage() {
                 </PropertyRow>
 
                 <Separator className="my-2" />
-                <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 pt-1 pb-1">Company</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1 pt-1 pb-1">Company</div>
                 <PropertyRow icon={<Globe className="size-3.5" />} label="Website">
                   <EditableCell value={lead.website || ""} onSave={v => saveField("website", v)} placeholder="Add website" />
                   {lead.website && <a href={lead.website.startsWith("http") ? lead.website : `https://${lead.website}`} target="_blank" rel="noopener" className="text-muted-foreground hover:text-foreground"><ExternalLink className="size-3" /></a>}
@@ -432,7 +432,7 @@ export default function LeadDetailPage() {
                 )}
 
                 <Separator className="my-2" />
-                <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-1 pt-1 pb-1">Social</div>
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider px-1 pt-1 pb-1">Social</div>
                 <PropertyRow icon={<Link2 className="size-3.5" />} label="LinkedIn">
                   {lead.linkedin_url ? <a href={lead.linkedin_url} target="_blank" rel="noopener" className="text-sm text-blue-400 hover:underline truncate">{lead.linkedin_url}</a> : <span className="text-sm text-muted-foreground/40">—</span>}
                 </PropertyRow>
@@ -451,7 +451,7 @@ export default function LeadDetailPage() {
 
                 {decisionMakers.length > 0 && (
                   <div className="space-y-2">
-                    <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Decision Makers</div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Decision Makers</div>
                     {decisionMakers.map((dm, i) => <DecisionMakerCard key={i} dm={dm} />)}
                   </div>
                 )}
@@ -460,7 +460,7 @@ export default function LeadDetailPage() {
                   <div className="rounded-lg border p-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium flex items-center gap-1.5"><TrendingUp className="size-3.5 text-green-500" /> Hiring Signals</span>
-                      <Badge variant="outline" className="text-[9px] px-1 py-0">{hiringSignals.growth_signal?.replace("_", " ")}</Badge>
+                      <Badge variant="outline" className="text-xs px-1 py-0">{hiringSignals.growth_signal?.replace("_", " ")}</Badge>
                     </div>
                     <div className="text-sm"><span className="text-muted-foreground">Open positions:</span> <span className="font-medium">{hiringSignals.total_jobs}</span></div>
                     <div className="flex flex-wrap gap-1">
@@ -468,14 +468,14 @@ export default function LeadDetailPage() {
                       {hiringSignals.tech_hiring && <Badge variant="outline" className="text-[var(--t-color-turquoise9)]"><Code aria-hidden="true" />Tech</Badge>}
                     </div>
                     {hiringSignals.roles?.length > 0 && (
-                      <div className="flex flex-wrap gap-1">{hiringSignals.roles.map((r: string, i: number) => <Badge key={i} variant="secondary" className="text-[9px] px-1 py-0">{r}</Badge>)}</div>
+                      <div className="flex flex-wrap gap-1">{hiringSignals.roles.map((r: string, i: number) => <Badge key={i} variant="secondary" className="text-xs px-1 py-0">{r}</Badge>)}</div>
                     )}
                   </div>
                 )}
 
                 {/* Notes */}
                 <div className="space-y-1.5">
-                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
                     <Pencil className="size-3" /> Notes
                   </div>
                   <EditableCell value={lead.notes || ""} onSave={v => saveField("notes", v)} placeholder="Add notes about this lead..." className="text-sm min-h-[60px]" />
@@ -489,7 +489,7 @@ export default function LeadDetailPage() {
             <div className="rounded-lg border p-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium flex items-center gap-2"><Sparkles className="size-4 text-amber-500" /> AI Research</h3>
-                {lead.last_enriched_at && <span className="text-[11px] text-muted-foreground">Last: {new Date(lead.last_enriched_at).toLocaleDateString()}</span>}
+                {lead.last_enriched_at && <span className="text-xs text-muted-foreground">Last: {new Date(lead.last_enriched_at).toLocaleDateString()}</span>}
               </div>
               {(researchContent || lead.description) ? (
                 <div className="text-sm leading-relaxed">
@@ -525,7 +525,7 @@ export default function LeadDetailPage() {
                     <div className="size-7 rounded-full bg-muted flex items-center justify-center shrink-0">
                       {item.kind === "signal" ? <Zap className="size-3 text-amber-500" /> : item.kind === "audience" ? <Activity className="size-3 text-blue-500" /> : item.kind === "activation" ? <Send className="size-3 text-emerald-500" /> : item.kind === "outreach" ? <Mail className="size-3 text-purple-500" /> : <Sparkles className="size-3 text-muted-foreground" />}
                     </div>
-                    <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium">{item.title}</span><Badge variant="outline" className="text-[9px]">{item.status}</Badge></div>{item.description && <p className="truncate text-[11px] text-muted-foreground">{item.description}</p>}<p className="text-[10px] text-muted-foreground">{new Date(item.occurred_at * 1000).toLocaleString()}</p></div>
+                    <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium">{item.title}</span><Badge variant="outline" className="text-xs">{item.status}</Badge></div>{item.description && <p className="truncate text-xs text-muted-foreground">{item.description}</p>}<p className="text-xs text-muted-foreground">{new Date(item.occurred_at * 1000).toLocaleString()}</p></div>
                   </div>
                 ))}
                 {!timeline.isLoading && !timeline.data?.items.length && <p className="py-6 text-center text-xs text-muted-foreground">No activity recorded yet.</p>}

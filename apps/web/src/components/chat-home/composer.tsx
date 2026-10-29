@@ -108,7 +108,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
             const header = command.group !== lastGroup ? (lastGroup = command.group) : null
             return (
               <div key={command.name}>
-                {header && <div className="px-2.5 pt-2 pb-1 text-[11px] font-medium tracking-wide text-muted-foreground uppercase">{header}</div>}
+                {header && <div className="px-2.5 pt-2 pb-1 text-xs font-medium tracking-wide text-muted-foreground uppercase">{header}</div>}
                 <button type="button" role="option" id={`gtm-slash-${command.name}`} aria-selected={i === active}
                   onMouseEnter={() => setActive(i)} onMouseDown={e => e.preventDefault()} onClick={() => pick(command)}
                   className={cn("flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left", i === active && "bg-[var(--gtm-chat-hover)]")}>
@@ -141,10 +141,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
           disabled={isLoading}
           placeholder={hero ? "Ask for a list, a person, a brief… or type / for commands" : "Reply, or type / for commands"}
           aria-label="Message OpenGTM"
-          role="combobox"
-          aria-expanded={menuOpen}
           aria-controls={menuOpen ? "gtm-slash-menu" : undefined}
-          aria-autocomplete="list"
           aria-activedescendant={menuOpen ? `gtm-slash-${matches[active]?.name}` : undefined}
           className={cn("w-full resize-none bg-transparent px-5 text-[15px] leading-6 text-foreground outline-none placeholder:text-muted-foreground/70",
             hero ? "min-h-[76px] max-h-[240px] pt-4" : "min-h-[48px] max-h-[200px] pt-3.5")}
@@ -154,7 +151,7 @@ export const Composer = forwardRef<ComposerHandle, ComposerProps>(function Compo
             className="gtm-composer-tool inline-flex h-8 items-center gap-1.5 rounded-full px-2.5 text-[12px] font-medium" aria-label="Commands">
             <Slash className="size-3.5" aria-hidden="true" /> Commands
           </button>
-          <span className="ml-auto hidden text-[11px] text-muted-foreground sm:inline">
+          <span className="ml-auto hidden text-xs text-muted-foreground sm:inline">
             <kbd className="gtm-kbd">Enter</kbd> send · <kbd className="gtm-kbd">Shift</kbd>+<kbd className="gtm-kbd">Enter</kbd> new line
           </span>
           {isLoading ? (

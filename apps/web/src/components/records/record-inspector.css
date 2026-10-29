@@ -1,0 +1,364 @@
+.record-inspector[data-side="right"] {
+  width: min(100%, 440px);
+  max-width: 440px;
+  gap: 0;
+  background: var(--gtm-surface);
+  box-shadow: var(--gtm-shadow-window);
+}
+.record-inspector-header {
+  padding: 24px 52px 24px 24px;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.record-inspector-header > [data-slot="sheet-title"] {
+  font-size: 1.375rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+.record-inspector-header > [data-slot="sheet-description"] {
+  font-size: 0.8125rem;
+}
+.record-inspector-kind {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  margin-bottom: 6px;
+}
+.record-inspector-kind svg {
+  width: 14px;
+  height: 14px;
+}
+.record-inspector-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-inspector-tabs {
+  min-height: 0;
+  flex: 1;
+  gap: 0;
+}
+.record-inspector-tablist[data-slot="tabs-list"] {
+  padding: 0 16px;
+  min-height: 48px;
+  gap: 4px;
+  border-radius: 0;
+  flex: none;
+}
+.record-inspector-tablist [data-slot="tabs-trigger"] {
+  min-height: 40px;
+  padding-inline: 12px;
+  font-size: 0.8125rem;
+}
+.record-inspector-scroll {
+  overflow: auto;
+  padding: 24px;
+  flex: 1;
+  min-height: 0;
+}
+.record-inspector-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.record-inspector-section-heading h2 {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.record-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.record-fact {
+  display: grid;
+  grid-template-columns: 128px 1fr;
+  gap: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+.record-fact dt {
+  color: var(--muted-foreground);
+}
+.record-fact dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.record-fact-empty {
+  color: var(--muted-foreground);
+}
+.record-current-employment {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 24px;
+  font-size: 0.8125rem;
+}
+.record-current-employment h3 {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  margin-bottom: 12px;
+}
+.record-current-employment strong {
+  font-weight: 500;
+}
+.record-current-employment p {
+  margin: 4px 0 12px;
+  color: var(--muted-foreground);
+}
+.record-current-employment a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gtm-link);
+  min-height: 32px;
+}
+.record-current-employment svg {
+  width: 14px;
+  height: 14px;
+}
+.record-shared-explainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 24px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+.record-shared-explainer svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  flex: none;
+}
+.record-inspector-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--gtm-surface);
+}
+.record-inspector-footer > span {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-inspector-footer > div {
+  display: flex;
+  gap: 8px;
+}
+.record-inspector-footer > p {
+  width: 100%;
+  color: var(--gtm-danger);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.record-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.record-edit-form > .record-inspector-section-heading {
+  margin-bottom: 0;
+}
+.record-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.record-edit-field input,
+.record-edit-field textarea,
+.record-edit-field select {
+  font-weight: 400;
+}
+.record-edit-field textarea {
+  min-height: 88px;
+}
+.record-edit-field select {
+  border: 1px solid var(--input);
+  box-shadow: none;
+  width: 100%;
+}
+.record-custom-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.record-employment-form {
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.record-employment-form h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.record-employment-form > p {
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+}
+.record-timeline {
+  margin-left: 5px;
+  border-left: 1px solid var(--border);
+  padding-left: 20px;
+}
+.record-timeline article {
+  position: relative;
+  padding: 0 0 24px;
+}
+.record-rail-dot {
+  position: absolute;
+  left: -25px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--gtm-surface);
+  border-radius: 50%;
+  background: var(--gtm-accent);
+  box-shadow: 0 0 0 1px var(--gtm-border-subtle);
+}
+.record-rail-dot[data-accepted="false"] {
+  background: var(--gtm-text-secondary);
+}
+.record-observation-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+.record-observation-heading strong {
+  font-weight: 500;
+}
+.record-observation-value {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin: 10px 0;
+  padding: 12px;
+  background: var(--muted);
+  border-radius: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 180px;
+  overflow: auto;
+}
+.record-observation-source {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-observation-source > span {
+  overflow-wrap: anywhere;
+}
+.record-tab-description,
+.record-inspector-empty {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--muted-foreground);
+  margin-bottom: 24px;
+}
+.record-source-identities {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+.record-source-identities h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.record-source-identities > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  font-size: 0.8125rem;
+}
+.record-source-identities strong {
+  font-weight: 500;
+}
+.record-source-identities code {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  overflow-wrap: anywhere;
+}
+.record-activity strong {
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+.record-activity p,
+.record-activity time,
+.record-employment-entry time {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  margin-top: 6px;
+  display: block;
+}
+.record-employment-entry > div > p {
+  font-size: 0.8125rem;
+  margin-top: 8px;
+}
+@media (max-width: 767px) {
+  .record-inspector[data-side="right"] {
+    width: 100%;
+    max-width: none;
+  }
+  .record-inspector-header {
+    padding: 20px 52px 20px 20px;
+  }
+  .record-inspector-scroll {
+    padding: 20px;
+  }
+  .record-inspector-footer {
+    padding: 16px 20px;
+  }
+  .record-inspector-footer > span {
+    width: 100%;
+  }
+  .record-inspector-footer > div {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.record-fact-origin {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: 6px;
+}
+.record-fact-origin svg {
+  width: 12px;
+  height: 12px;
+  color: var(--gtm-success);
+}
+
+@media(max-width:400px) { .record-inspector-tablist[data-slot="tabs-list"] { display:flex; width:100%; padding:0 8px; gap:0; } .record-inspector-tablist [data-slot="tabs-trigger"] { flex:1; min-width:0; padding-inline:4px; font-size:.75rem; } }

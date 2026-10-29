@@ -216,7 +216,7 @@ export default function TemplatesPage() {
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Icon className="size-4 text-primary" />
                   </div>
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${catColor}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-medium ${catColor}`}>
                     {catLabel}
                   </span>
                 </div>
@@ -228,13 +228,13 @@ export default function TemplatesPage() {
 
                 {/* Column mix */}
                 <div className="flex items-center gap-1 flex-wrap mb-4">
-                  <span className="text-[10px] text-muted-foreground mr-1">
+                  <span className="text-xs text-muted-foreground mr-1">
                     {r.columns_count} columns
                   </span>
                   {Object.entries(r.column_types)
                     .filter(([t]) => t !== "lead_field")
                     .map(([t, n]) => (
-                      <Badge key={t} variant="secondary" className="text-[10px] px-1.5 py-0">
+                      <Badge key={t} variant="secondary" className="text-xs px-1.5 py-0">
                         {n}× {TYPE_LABELS[t] || t}
                       </Badge>
                     ))}

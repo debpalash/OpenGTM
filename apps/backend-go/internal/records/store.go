@@ -34,17 +34,24 @@ var ErrNotFound = errors.New("record not found")
 var ErrConflict = errors.New("record identity or version conflict")
 
 type Record struct {
-	ID           string         `json:"id"`
-	Type         Kind           `json:"record_type"`
-	CompanyID    *string        `json:"company_id"`
-	PersonID     *string        `json:"person_id"`
-	EmploymentID *int32         `json:"employment_id"`
-	Version      int64          `json:"version"`
-	Fields       map[string]any `json:"fields"`
-	Company      map[string]any `json:"company,omitempty"`
-	Employments  []Employment   `json:"employments,omitempty"`
-	ExternalIDs  []ExternalID   `json:"external_ids,omitempty"`
+	ID           string                `json:"id"`
+	Type         Kind                  `json:"record_type"`
+	CompanyID    *string               `json:"company_id"`
+	PersonID     *string               `json:"person_id"`
+	EmploymentID *int32                `json:"employment_id"`
+	Version      int64                 `json:"version"`
+	UpdatedAt    string                `json:"updated_at,omitempty"`
+	Fields       map[string]any        `json:"fields"`
+	FieldOwners  map[string]FieldOwner `json:"field_owners,omitempty"`
+	Company      map[string]any        `json:"company,omitempty"`
+	Employments  []Employment          `json:"employments,omitempty"`
+	ExternalIDs  []ExternalID          `json:"external_ids,omitempty"`
 }
+type FieldOwner struct {
+	Source    string `json:"source"`
+	UpdatedAt string `json:"updated_at"`
+}
+
 type Employment struct {
 	ID            int32          `json:"id"`
 	CompanyID     *string        `json:"company_id"`
@@ -316,6 +323,13 @@ func get(ctx context.Context, tx pgx.Tx, ws string, k Kind, id string, details b
 	if e != nil {
 		return r, e
 	}
+	var owners []byte
+	if e = tx.QueryRow(ctx, `SELECT coalesce(jsonb_object_agg(field_name,jsonb_build_object('source',source,'updated_at',updated_at)),'{}') FROM record_field_owners WHERE workspace_id=$1 AND record_type=$2 AND record_id=$3`, ws, string(k), id).Scan(&owners); e != nil {
+		return r, e
+	}
+	if e = decodeJSON(owners, &r.FieldOwners); e != nil {
+		return r, e
+	}
 	if k == Person {
 		if company.Valid {
 			var c []byte
@@ -359,7 +373,17 @@ func get(ctx context.Context, tx pgx.Tx, ws string, k Kind, id string, details b
 	}
 	return r, nil
 }
+
+type ListOptions struct {
+	Search, Filter, Sort, Direction string
+	Limit, Offset                   int
+}
+
 func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit, offset int) (List, error) {
+	return s.ListFiltered(ctx, ws, k, ListOptions{Search: search, Limit: limit, Offset: offset})
+}
+func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options ListOptions) (List, error) {
+	search, limit, offset := options.Search, options.Limit, options.Offset
 	out := List{Records: []Record{}, Limit: limit, Offset: offset}
 	if !k.Valid() {
 		return out, errors.New("invalid record type")
@@ -373,8 +397,44 @@ func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit
 		table = "person_entities"
 		name = "full_name"
 	}
+	filter := ""
+	switch options.Filter {
+	case "", "all":
+	case "needs_email":
+		if k != Person {
+			return out, errors.New("email filter requires people")
+		}
+		filter = " AND lower(trim(coalesce(accepted_fields->>'email',''))) IN ('','n/a')"
+	case "needs_domain":
+		if k != Company {
+			return out, errors.New("domain filter requires companies")
+		}
+		filter = " AND nullif(trim(coalesce(accepted_fields->>'domain',primary_domain,'')),'') IS NULL"
+	case "qualified":
+		filter = " AND accepted_fields->>'score_tier' IN ('hot','warm')"
+	default:
+		return out, errors.New("unsupported record filter")
+	}
+	order := "lower(" + name + ")"
+	switch options.Sort {
+	case "", "name":
+	case "updated":
+		order = "last_seen"
+	case "score":
+		order = "CASE WHEN (accepted_fields->>'score') ~ '^[0-9]{1,3}$' THEN (accepted_fields->>'score')::int END"
+	default:
+		return out, errors.New("unsupported record sort")
+	}
+	direction := " ASC"
+	switch options.Direction {
+	case "", "asc":
+	case "desc":
+		direction = " DESC"
+	default:
+		return out, errors.New("invalid sort direction")
+	}
 	err := tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
-		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR accepted_fields::text ILIKE '%'||$2||'%')`
+		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR accepted_fields::text ILIKE '%'||$2||'%')` + filter
 		if e := tx.QueryRow(ctx, `SELECT count(*) FROM `+table+` WHERE `+where, ws, search).Scan(&out.Total); e != nil {
 			return e
 		}
@@ -382,7 +442,7 @@ func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit
 		if k == Person {
 			companyExpr = "company_entity_id, (SELECT c.accepted_fields FROM company_entities c WHERE c.workspace_id=$1 AND c.id=" + table + ".company_entity_id), (SELECT coalesce(jsonb_agg(jsonb_build_object('id',e.id,'company_id',e.company_entity_id,'company_name',e.company_name,'fields',e.accepted_fields,'current',true,'first_observed_at',e.first_observed_at::text,'last_observed_at',e.last_observed_at::text)),'[]') FROM person_employments e WHERE e.workspace_id=$1 AND e.person_id=" + table + ".id AND e.is_current<>0)"
 		}
-		rows, e := tx.Query(ctx, `SELECT id,accepted_fields,record_version,`+companyExpr+` FROM `+table+` WHERE `+where+` ORDER BY lower(`+name+`),id LIMIT $3 OFFSET $4`, ws, search, limit, offset)
+		rows, e := tx.Query(ctx, `SELECT id,accepted_fields,record_version,`+companyExpr+`,last_seen::text FROM `+table+` WHERE `+where+` ORDER BY `+order+direction+` NULLS LAST,id LIMIT $3 OFFSET $4`, ws, search, limit, offset)
 		if e != nil {
 			return e
 		}
@@ -390,8 +450,8 @@ func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit
 		for rows.Next() {
 			r := Record{Type: k}
 			var fields, companyFields, employmentFields []byte
-			var cid pgtype.Text
-			if e = rows.Scan(&r.ID, &fields, &r.Version, &cid, &companyFields, &employmentFields); e != nil {
+			var cid, updated pgtype.Text
+			if e = rows.Scan(&r.ID, &fields, &r.Version, &cid, &companyFields, &employmentFields, &updated); e != nil {
 				return e
 			}
 			if e = decodeJSON(fields, &r.Fields); e != nil {
@@ -418,6 +478,7 @@ func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit
 					r.EmploymentID = &r.Employments[0].ID
 				}
 			}
+			r.UpdatedAt = updated.String
 			out.Records = append(out.Records, r)
 		}
 		if e = rows.Err(); e != nil {

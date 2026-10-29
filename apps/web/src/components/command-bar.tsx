@@ -57,7 +57,7 @@ export function CommandBar(props: Props) {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary live-dot" />
             <span className="text-sm font-semibold tracking-tight">OpenGTM</span>
-            <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-border text-muted-foreground font-medium">
+            <Badge variant="outline" className="text-xs h-4 px-1.5 border-border text-muted-foreground font-medium">
               Pipeline
             </Badge>
           </div>
@@ -66,7 +66,7 @@ export function CommandBar(props: Props) {
             <Button
               variant={props.view === "leads" ? "secondary" : "ghost"}
               size="sm"
-              className="h-6 text-[11px] px-2.5 rounded-full"
+              className="h-6 text-xs px-2.5 rounded-full"
               onClick={() => props.onViewChange("leads")}
             >
               Leads
@@ -74,7 +74,7 @@ export function CommandBar(props: Props) {
             <Button
               variant={props.view === "pipeline" ? "secondary" : "ghost"}
               size="sm"
-              className="h-6 text-[11px] px-2.5 rounded-full"
+              className="h-6 text-xs px-2.5 rounded-full"
               onClick={() => props.onViewChange("pipeline")}
             >
               Pipeline
@@ -86,16 +86,16 @@ export function CommandBar(props: Props) {
           <Button
             variant={collectOpen ? "default" : "outline"}
             size="sm"
-            className="h-7 text-[11px] gap-1.5"
+            className="h-7 text-xs gap-1.5"
             onClick={() => setCollectOpen(!collectOpen)}
           >
             <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none"><path d="M14 14L10.5 10.5M11.5 6.5C11.5 9.26 9.26 11.5 6.5 11.5C3.74 11.5 1.5 9.26 1.5 6.5C1.5 3.74 3.74 1.5 6.5 1.5C9.26 1.5 11.5 3.74 11.5 6.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
             Collect
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={props.onExport}>
+          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={props.onExport}>
             Export
           </Button>
-          <Button size="sm" className="h-7 text-[11px]" onClick={props.onAdd}>
+          <Button size="sm" className="h-7 text-xs" onClick={props.onAdd}>
             + Add
           </Button>
         </div>
@@ -112,7 +112,7 @@ export function CommandBar(props: Props) {
               onChange={(e) => setCollectQuery(e.target.value)}
               className="h-8 text-xs flex-1 bg-background/50"
             />
-            <Button type="submit" size="sm" className="h-8 text-[11px] px-4" disabled={!collectQuery.trim()}>
+            <Button type="submit" size="sm" className="h-8 text-xs px-4" disabled={!collectQuery.trim()}>
               Start Collection
             </Button>
           </form>
@@ -126,11 +126,11 @@ export function CommandBar(props: Props) {
           placeholder="Search leads…"
           defaultValue={props.search}
           onChange={(e) => handleSearch(e.target.value)}
-          className="h-6 w-44 text-[11px] bg-background/30 border-border/50 rounded-md"
+          className="h-6 w-44 text-xs bg-background/30 border-border/50 rounded-md"
         />
 
         <Select value={props.city || "__all__"} onValueChange={(v) => props.onCityChange(clean(v))}>
-          <SelectTrigger className="h-6 w-24 text-[11px] bg-background/30 border-border/50">
+          <SelectTrigger className="h-6 w-24 text-xs bg-background/30 border-border/50">
             <SelectValue placeholder="City" />
           </SelectTrigger>
           <SelectContent>
@@ -142,7 +142,7 @@ export function CommandBar(props: Props) {
         </Select>
 
         <Select value={props.tier || "__all__"} onValueChange={(v) => props.onTierChange(clean(v))}>
-          <SelectTrigger className="h-6 w-24 text-[11px] bg-background/30 border-border/50">
+          <SelectTrigger className="h-6 w-24 text-xs bg-background/30 border-border/50">
             <SelectValue placeholder="Tier" />
           </SelectTrigger>
           <SelectContent>
@@ -155,7 +155,7 @@ export function CommandBar(props: Props) {
         </Select>
 
         <Select value={props.status || "__all__"} onValueChange={(v) => props.onStatusChange(clean(v))}>
-          <SelectTrigger className="h-6 w-28 text-[11px] bg-background/30 border-border/50">
+          <SelectTrigger className="h-6 w-28 text-xs bg-background/30 border-border/50">
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
@@ -167,7 +167,7 @@ export function CommandBar(props: Props) {
         </Select>
 
         <Select value={props.source || "__all__"} onValueChange={(v) => props.onSourceChange(clean(v))}>
-          <SelectTrigger className="h-6 w-28 text-[11px] bg-background/30 border-border/50">
+          <SelectTrigger className="h-6 w-28 text-xs bg-background/30 border-border/50">
             <SelectValue placeholder="Source" />
           </SelectTrigger>
           <SelectContent>
@@ -181,7 +181,7 @@ export function CommandBar(props: Props) {
         <div className="flex-1" />
 
         <Select value={props.orderBy} onValueChange={(v) => v && props.onOrderByChange(v)}>
-          <SelectTrigger className="h-6 w-24 text-[11px] bg-background/30 border-border/50">
+          <SelectTrigger className="h-6 w-24 text-xs bg-background/30 border-border/50">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>

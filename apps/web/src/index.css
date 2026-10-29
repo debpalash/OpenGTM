@@ -4,6 +4,8 @@
 @import "@fontsource/inter/latin-400.css";
 @import "@fontsource/inter/latin-500.css";
 @import "@fontsource/inter/latin-600.css";
+@import "@fontsource/manrope/latin-600.css";
+@import "./design-system/patterns/workbench.css";
 @import "twenty-ui/theme-light.css";
 @import "twenty-ui/theme-dark.css";
 @import "./design-system/theme/tokens.css";
@@ -14,27 +16,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Tailwind's text scale on the macOS HIG ramp, with SF-style optical tracking
- * (tighter as size grows): xs 12 callout · sm 13 body · base 15 title3 ·
- * lg 17 title2 · xl 22 title1 · 2xl 26 large title. */
+/* App typography scales with text zoom; line heights stay proportional. */
 @theme {
-    --text-xs: 12px;
-    --text-xs--line-height: 16px;
+    --text-xs: .75rem;
+    --text-xs--line-height: 1.333333;
     --text-xs--letter-spacing: 0;
-    --text-sm: 13px;
-    --text-sm--line-height: 18px;
+    --text-sm: .875rem;
+    --text-sm--line-height: 1.285714;
     --text-sm--letter-spacing: -0.006em;
-    --text-base: 15px;
-    --text-base--line-height: 20px;
+    --text-base: 1rem;
+    --text-base--line-height: 1.25;
     --text-base--letter-spacing: -0.014em;
-    --text-lg: 17px;
-    --text-lg--line-height: 22px;
+    --text-lg: 1.125rem;
+    --text-lg--line-height: 1.222222;
     --text-lg--letter-spacing: -0.022em;
-    --text-xl: 22px;
-    --text-xl--line-height: 28px;
+    --text-xl: 1.5rem;
+    --text-xl--line-height: 1.166667;
     --text-xl--letter-spacing: -0.02em;
-    --text-2xl: 26px;
-    --text-2xl--line-height: 32px;
+    --text-2xl: 1.625rem;
+    --text-2xl--line-height: 1.230769;
     --text-2xl--letter-spacing: -0.022em;
     --font-mono: var(--gtm-font-mono);
 }
@@ -213,16 +213,6 @@
  *  Zebra striping, row hover, cell flash, row stagger, column progress
  * ══════════════════════════════════════════════════════════════════════
  */
-
-/* ── Zebra striping and row hover — transparent token tints ── */
-[data-slot="table-body"] tr:nth-child(even) td,
-tbody tr:nth-child(even) td {
-  background-color: var(--t-background-transparent-lighter);
-}
-[data-slot="table-body"] tr:hover td,
-tbody tr:hover td {
-  background-color: var(--t-background-transparent-light) !important;
-}
 
 /* ── Cell flash — fires when enrichment data arrives ── */
 @keyframes cell-flash-dark {
@@ -680,3 +670,26 @@ tbody tr:hover td {
   background: oklch(0.55 0.22 27 / 0.10);
   color: oklch(0.50 0.22 25);
 }
+
+.workbook-column-drag { display:inline-flex; align-items:center; justify-content:center; flex:none; width:24px; height:32px; color:var(--muted-foreground); cursor:grab; border-radius:4px; }
+.workbook-column-sort { display:flex; align-items:center; gap:6px; flex:1; min-width:0; height:32px; text-align:left; }
+.workbook-column-drag:hover,.workbook-column-drag:focus-visible { background:var(--gtm-selection); color:var(--gtm-link); }
+
+.workbook-grid [data-col-id="_select"] { position:sticky; left:0; z-index:2; background:var(--gtm-surface); }
+.workbook-grid [data-col-id="_index"] { position:sticky; left:36px; z-index:2; background:var(--gtm-surface); }
+.workbook-grid [data-col-id="_identity"] { position:sticky; left:86px; z-index:2; background:var(--gtm-surface); box-shadow:3px 0 6px -5px var(--gtm-border-control); }
+.workbook-grid thead [data-col-id] { background:var(--muted); }
+.workbook-grid [data-col-id="_identity"] { padding-inline:12px; }
+.workbook-record-identity { display:flex; justify-content:center; flex-direction:column; min-height:36px; gap:2px; overflow:hidden; }
+.workbook-record-identity strong { font-size:.8125rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.workbook-record-identity span { color:var(--muted-foreground); font-size:.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.workbook-grid .gtm-checkbox-target input { width:24px; height:24px; }
+
+.analytics-data-tables { font-size:.8125rem; padding:12px 16px; border:1px solid var(--border); border-radius:8px; }
+.analytics-data-tables summary { cursor:pointer; min-height:24px; color:var(--gtm-link); }
+.analytics-data-tables>div { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:24px; margin-top:20px; }
+.analytics-data-tables h2 { font-size:.875rem; font-weight:600; margin-bottom:12px; }
+.analytics-data-tables table { width:100%; border-collapse:collapse; text-align:left; }
+.analytics-data-tables th,.analytics-data-tables td { padding:8px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+.analytics-data-tables th,.analytics-data-tables p { color:var(--muted-foreground); font-weight:400; }

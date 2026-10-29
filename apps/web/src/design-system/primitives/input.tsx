@@ -1,9 +1,14 @@
 import type { ComponentProps } from "react"
-import { Input as TwentyInput } from "twenty-ui/primitives/input"
-
+import { Input as AppInput } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 
-/** Twenty's Input as a macOS text field (see .gtm-text-field in styles.css). */
-export function Input({ className, ...props }: ComponentProps<typeof TwentyInput>) {
-  return <TwentyInput {...props} className={cn("gtm-text-field", className)} />
+/** App-owned input with the existing design-system call signature. */
+export function Input({
+  className,
+  size = "md",
+  ...props
+}: Omit<ComponentProps<typeof AppInput>, "size"> & { size?: "sm" | "md" }) {
+  return (
+    <AppInput {...props} className={cn(size === "sm" && "h-8", className)} />
+  )
 }

@@ -82,14 +82,14 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
               <SheetTitle className="text-base font-bold text-foreground truncate">{lead.company}</SheetTitle>
               <SheetDescription className="sr-only">Details for {lead.company}</SheetDescription>
               {!isEmpty(lead.city) && (
-                <div className="text-[11px] text-muted-foreground mt-0.5">{lead.city}{lead.state ? `, ${lead.state}` : ""}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{lead.city}{lead.state ? `, ${lead.state}` : ""}</div>
               )}
             </div>
             <div className="flex items-center gap-1.5 shrink-0 pt-0.5">
-              <Badge variant="outline" className={`text-[10px] font-mono font-bold px-2 py-0.5 ${TIER_STYLES[lead.score_tier] ?? TIER_STYLES.unqualified}`}>
+              <Badge variant="outline" className={`text-xs font-mono font-bold px-2 py-0.5 ${TIER_STYLES[lead.score_tier] ?? TIER_STYLES.unqualified}`}>
                 {lead.score}
               </Badge>
-              <Badge variant="outline" className={`text-[10px] capitalize px-2 py-0.5 ${STATUS_STYLES[lead.status] ?? ""}`}>
+              <Badge variant="outline" className={`text-xs capitalize px-2 py-0.5 ${STATUS_STYLES[lead.status] ?? ""}`}>
                 {lead.status}
               </Badge>
             </div>
@@ -108,7 +108,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
                 <TooltipContent className="text-xs">{s.label}: {s.active ? "Available" : "Missing"}</TooltipContent>
               </Tooltip>
             ))}
-            <span className="text-[10px] text-muted-foreground/40 ml-auto font-mono">{lead.source}</span>
+            <span className="text-xs text-muted-foreground/40 ml-auto font-mono">{lead.source}</span>
           </div>
         </SheetHeader>
 
@@ -152,8 +152,8 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
           </div>
           {!isEmpty(lead.description) && (
             <div className="mt-2">
-              <div className="text-[10px] text-muted-foreground/50 uppercase tracking-wider font-medium mb-1">Description</div>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">{lead.description}</p>
+              <div className="text-xs text-muted-foreground/50 uppercase tracking-wider font-medium mb-1">Description</div>
+              <p className="text-xs text-muted-foreground leading-relaxed">{lead.description}</p>
             </div>
           )}
         </section>
@@ -187,16 +187,16 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         {/* ── Timeline ── */}
         <section className="px-5 py-4 space-y-2">
           <SectionLabel>Timeline</SectionLabel>
-          <div className="flex items-center justify-between text-[10px]">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground/40">Created</span>
             <span className="text-muted-foreground font-mono">{timeAgo(lead.created_at)}</span>
           </div>
-          <div className="flex items-center justify-between text-[10px]">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground/40">Updated</span>
             <span className="text-muted-foreground font-mono">{timeAgo(lead.updated_at)}</span>
           </div>
           {!isEmpty(lead.last_enriched_at) && (
-            <div className="flex items-center justify-between text-[10px]">
+            <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground/40">Enriched</span>
               <span className="text-muted-foreground font-mono">{timeAgo(lead.last_enriched_at)}</span>
             </div>
@@ -214,7 +214,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
                 key={s}
                 variant={lead.status === s ? "default" : "outline"}
                 size="sm"
-                className={`h-7 text-[11px] capitalize px-3 ${
+                className={`h-7 text-xs capitalize px-3 ${
                   lead.status === s ? "" : "border-border/60 text-muted-foreground hover:text-foreground"
                 }`}
                 onClick={() => handleStatus(s)}
@@ -230,7 +230,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
           <Button
             variant="ghost"
             size="sm"
-            className="w-full h-8 text-[11px] text-destructive/60 hover:text-destructive hover:bg-destructive/10 border border-border/30"
+            className="w-full h-8 text-xs text-destructive/60 hover:text-destructive hover:bg-destructive/10 border border-border/30"
             onClick={handleDelete}
           >
             Delete Lead
@@ -246,14 +246,14 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-semibold">{children}</div>
+    <div className="text-xs text-muted-foreground/40 uppercase tracking-widest font-semibold">{children}</div>
   )
 }
 
 function DataField({ label, value }: { label: string; value?: string }) {
   return (
     <div>
-      <div className="text-[10px] text-muted-foreground/40 uppercase tracking-wider font-medium mb-0.5">{label}</div>
+      <div className="text-xs text-muted-foreground/40 uppercase tracking-wider font-medium mb-0.5">{label}</div>
       <div className={`text-[12px] ${isEmpty(value) ? "text-muted-foreground/15" : "text-foreground/80"}`}>
         {isEmpty(value) ? "—" : value}
       </div>
@@ -273,7 +273,7 @@ function DataRow({ label, value, action, actionLabel, mono, truncateValue }: {
   return (
     <div className="flex items-center justify-between gap-3 py-1.5 px-3 rounded-lg bg-card/50 border border-border/30">
       <div className="min-w-0 flex-1">
-        <div className="text-[9px] text-muted-foreground/40 uppercase tracking-wider font-medium">{label}</div>
+        <div className="text-xs text-muted-foreground/40 uppercase tracking-wider font-medium">{label}</div>
         <div className={`text-[12px] ${empty ? "text-muted-foreground/15" : "text-foreground/80"} ${mono ? "font-mono" : ""} ${truncateValue ? "truncate" : "break-all"}`}>
           {empty ? "—" : value}
         </div>
@@ -282,7 +282,7 @@ function DataRow({ label, value, action, actionLabel, mono, truncateValue }: {
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 text-[10px] text-primary/70 hover:text-primary px-2 shrink-0"
+          className="h-6 text-xs text-primary/70 hover:text-primary px-2 shrink-0"
           onClick={(e: React.MouseEvent) => { e.stopPropagation(); action() }}
         >
           {actionLabel}
@@ -298,7 +298,7 @@ function LinkButton({ label, url }: { label: string; url?: string }) {
     <Button
       variant="outline"
       size="sm"
-      className={`h-7 text-[11px] px-3 flex-1 ${
+      className={`h-7 text-xs px-3 flex-1 ${
         active
           ? "border-primary/20 text-primary hover:bg-primary/10"
           : "border-border/30 text-muted-foreground/20 pointer-events-none"

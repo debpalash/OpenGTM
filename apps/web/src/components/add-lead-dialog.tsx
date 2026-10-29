@@ -16,7 +16,7 @@ function FormField({ label, name, required, type = "text", span }: {
 }) {
   return (
     <div className={`space-y-1 ${span ? "col-span-2" : ""}`}>
-      <label className="text-[10px] text-muted-foreground/50 uppercase tracking-wider font-semibold">
+      <label className="text-xs text-muted-foreground/50 uppercase tracking-wider font-semibold">
         {label}{required && <span className="text-primary ml-0.5">*</span>}
       </label>
       <Input
@@ -56,7 +56,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
       <DialogContent className="bg-background border-border max-w-md p-0 gap-0">
         <DialogHeader className="px-5 pt-5 pb-3">
           <DialogTitle className="text-sm font-bold text-foreground">Add Lead</DialogTitle>
-          <DialogDescription className="text-[11px] text-muted-foreground/60">
+          <DialogDescription className="text-xs text-muted-foreground/60">
             Add a new company to the pipeline.
           </DialogDescription>
         </DialogHeader>
@@ -66,7 +66,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
         <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
           {/* Primary fields */}
           <div>
-            <div className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Identity</div>
+            <div className="text-xs text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Identity</div>
             <div className="grid grid-cols-2 gap-2.5">
               <FormField label="Company" name="company" required />
               <FormField label="City" name="city" />
@@ -75,7 +75,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
 
           {/* Contact */}
           <div>
-            <div className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Contact</div>
+            <div className="text-xs text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Contact</div>
             <div className="grid grid-cols-2 gap-2.5">
               <FormField label="Website" name="website" />
               <FormField label="Email" name="email" type="email" />
@@ -86,7 +86,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
 
           {/* Details */}
           <div>
-            <div className="text-[10px] text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Details</div>
+            <div className="text-xs text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Details</div>
             <div className="grid grid-cols-2 gap-2.5">
               <FormField label="Specialization" name="specialization" />
               <FormField label="Contact Person" name="contact_person" />
@@ -104,7 +104,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 text-[11px] text-muted-foreground"
+              className="h-8 text-xs text-muted-foreground"
               onClick={() => onOpenChange(false)}
             >
               Cancel
@@ -112,7 +112,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
             <Button
               type="submit"
               size="sm"
-              className="h-8 text-[11px] px-5"
+              className="h-8 text-xs px-5"
               disabled={loading}
             >
               {loading ? "Adding…" : "Add Lead"}

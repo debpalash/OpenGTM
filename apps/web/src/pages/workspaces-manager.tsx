@@ -169,19 +169,19 @@ export default function WorkspacesManagerPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium truncate">{ws.name}</span>
                   {ws.is_active && (
-                    <span className="inline-flex items-center gap-1 text-[10px] text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded-full">
                       <Check className="size-2.5" /> Active
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 mt-0.5 text-[11px] text-muted-foreground">
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
                   <span>{ws.leads_count} leads</span>
                   <span>{ws.slug}</span>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 {!ws.is_active && (
-                  <Button size="sm" variant="outline" onClick={() => switchTo(ws.id)} className="h-6 text-[10px] gap-1">
+                  <Button size="sm" variant="outline" onClick={() => switchTo(ws.id)} className="h-6 text-xs gap-1">
                     <ArrowRight className="size-3" /> Switch
                   </Button>
                 )}

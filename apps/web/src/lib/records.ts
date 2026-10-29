@@ -1,8 +1,9 @@
+import { parseRecordJSON } from "./record-json"
 export type RecordKind = "company" | "person"
 export interface SharedRecord {
-  id: string; record_type: RecordKind; version: number
+  id: string; record_type: RecordKind; version: number; updated_at?: string
   company_id: string | null; person_id: string | null; employment_id: number | null
-  fields: Record<string, unknown>; company?: Record<string, unknown>
+  fields: Record<string, unknown>; field_owners?: Record<string,{source:string;updated_at:string}>; company?: Record<string, unknown>
   employments?: { id: number; company_id: string | null; company_name: string; fields: Record<string, unknown>; current: boolean; first_observed_at: string; last_observed_at: string }[]
   external_ids?: { source: string; external_id: string }[]
 }
@@ -20,7 +21,7 @@ export interface RecordWorkflow { name: string; columns: Record<string, unknown>
 export async function recordAPI<T>(path: string, body?: unknown, method = "POST", signal?: AbortSignal): Promise<T> {
   const res = await fetch(`/api/${path}`, body === undefined ? { signal } : { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal })
   if (!res.ok) { const error = await res.json().catch(() => ({})); throw new Error(typeof error.detail === "string" ? error.detail : `Request failed (${res.status})`) }
-  return res.json()
+  return parseRecordJSON(await res.text()) as T
 }
 export function displayField(value: unknown): string {
   return value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)

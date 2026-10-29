@@ -83,11 +83,11 @@ export function SignalFeed({ signals }: { signals: WatchSignal[] }) {
                 )}
               </div>
               {signal.description && (
-                <p className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">
+                <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                   {signal.description}
                 </p>
               )}
-              <div className="mt-1 flex items-center gap-3 text-[10px] text-muted-foreground/60">
+              <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground/60">
                 <span>{signal.company}</span>
                 <span>{signal.source}</span>
                 {signal.source_url && (

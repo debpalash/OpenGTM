@@ -87,12 +87,12 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
         </div>
         <div className="flex items-center gap-1">
           {pp && (
-            <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-border text-muted-foreground">
+            <Badge variant="outline" className="text-xs h-4 px-1.5 border-border text-muted-foreground">
               {pp.total} proxies
             </Badge>
           )}
           {jq && jq.running > 0 && (
-            <Badge variant="outline" className="text-[9px] h-4 px-1.5 border-blue-500/30 bg-blue-500/10 text-blue-400 live-dot">
+            <Badge variant="outline" className="text-xs h-4 px-1.5 border-blue-500/30 bg-blue-500/10 text-blue-400 live-dot">
               {jq.running} active
             </Badge>
           )}
@@ -103,12 +103,12 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
       {jobs.length > 0 && (
         <div className="px-3 py-2 border-b border-border/50 space-y-1 max-h-36 overflow-y-auto">
           {jobs.slice(0, 6).map((job) => (
-            <div key={job.id} className="flex items-center gap-2 text-[11px]">
+            <div key={job.id} className="flex items-center gap-2 text-xs">
               <StatusDot status={job.status} />
-              <span className="font-mono text-muted-foreground text-[9px] w-12 shrink-0">{job.id}</span>
+              <span className="font-mono text-muted-foreground text-xs w-12 shrink-0">{job.id}</span>
               <span className="flex-1 truncate text-foreground/80">{job.query}</span>
               {job.leads_found > 0 && (
-                <Badge variant="outline" className="text-[9px] h-3.5 px-1 border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
+                <Badge variant="outline" className="text-xs h-3.5 px-1 border-emerald-500/30 bg-emerald-500/10 text-emerald-400">
                   {job.leads_found}
                 </Badge>
               )}
@@ -120,10 +120,10 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
       {/* Live Leads Discovered */}
       {leadEvents.length > 0 && (
         <div className="px-3 py-2 border-b border-border/50 max-h-40 overflow-y-auto">
-          <div className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground/50 mb-1">Discovered Leads</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50 mb-1">Discovered Leads</div>
           <div className="space-y-0.5">
             {leadEvents.slice(-8).map((ev, i) => (
-              <div key={i} className="feed-entry flex items-center gap-2 text-[10px] py-0.5 px-1.5 rounded bg-emerald-500/5">
+              <div key={i} className="feed-entry flex items-center gap-2 text-xs py-0.5 px-1.5 rounded bg-emerald-500/5">
                 <span aria-hidden="true" className="inline-block size-1.5 rounded-full bg-[var(--t-color-green9)]" />
                 <span className="font-medium text-foreground/80 truncate flex-1">
                   {ev.lead?.company || "Unknown"}
@@ -134,7 +134,7 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
                 {ev.lead?.phone && (
                   <ChannelIcon channel="phone" className="size-3 text-muted-foreground" />
                 )}
-                <Badge variant="outline" className="text-[8px] h-3 px-1 border-border text-muted-foreground/40">
+                <Badge variant="outline" className="text-xs h-3 px-1 border-border text-muted-foreground/40">
                   {ev.stage}
                 </Badge>
               </div>
@@ -150,12 +150,12 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
             <div className="text-center text-muted-foreground/30 text-xs py-8">
               <Satellite aria-hidden="true" className="mx-auto mb-2 size-5 text-muted-foreground" />
               <div>Waiting for pipeline events…</div>
-              <div className="text-[10px] mt-1">Submit a collection query to start</div>
+              <div className="text-xs mt-1">Submit a collection query to start</div>
             </div>
           )}
           {progressEvents.map((ev, i) => (
-            <div key={i} className="feed-entry text-[11px] leading-relaxed py-0.5">
-              <span className="text-muted-foreground/30 font-mono text-[9px] mr-2">
+            <div key={i} className="feed-entry text-xs leading-relaxed py-0.5">
+              <span className="text-muted-foreground/30 font-mono text-xs mr-2">
                 {ev.ts ? new Date(ev.ts * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) : ""}
               </span>
               <span className={

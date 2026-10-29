@@ -19,6 +19,8 @@ func RegisterRecords(r *httpx.Router, d Deps) {
 	h := recordRoutes{records.Store{Pool: d.Pool, Hook: d.automationHook()}, d}
 	read := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	write := append(append([]httpx.Middleware{}, read...), identity.RequireRole("tables.write", "editor", "admin"))
+	r.Handle("GET /api/records/access", http.HandlerFunc(h.access), read...)
+	r.Handle("GET /api/records/summary", http.HandlerFunc(h.overview), read...)
 	r.Handle("GET /api/records/{kind}", http.HandlerFunc(h.list), read...)
 	r.Handle("GET /api/records/{kind}/export", http.HandlerFunc(h.export), read...)
 	r.Handle("GET /api/records/{kind}/workflow", http.HandlerFunc(h.workflow), read...)
@@ -33,6 +35,7 @@ func RegisterRecords(r *httpx.Router, d Deps) {
 	r.Handle("PATCH /api/records/{kind}/{id}", http.HandlerFunc(h.patch), write...)
 	r.Handle("POST /api/record-imports/preview", http.HandlerFunc(h.preview), write...)
 	r.Handle("POST /api/record-imports", http.HandlerFunc(h.importRecords), write...)
+	r.Handle("GET /api/record-imports/{key}", http.HandlerFunc(h.importReceipt), read...)
 	r.Handle("GET /api/record-snapshots", http.HandlerFunc(h.snapshot), read...)
 	r.Handle("POST /api/record-snapshots/preview", http.HandlerFunc(h.restorePreview), write...)
 	r.Handle("POST /api/record-snapshots/restore", http.HandlerFunc(h.restore), write...)
@@ -137,7 +140,7 @@ func (h recordRoutes) list(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	out, e := h.s.List(r.Context(), ws, k, r.URL.Query().Get("search"), limit, offset)
+	out, e := h.s.ListFiltered(r.Context(), ws, k, records.ListOptions{Search: r.URL.Query().Get("search"), Filter: r.URL.Query().Get("filter"), Sort: r.URL.Query().Get("sort"), Direction: r.URL.Query().Get("direction"), Limit: limit, Offset: offset})
 	if e != nil {
 		h.fail(w, e)
 		return
@@ -383,4 +386,34 @@ func (h recordRoutes) findPeople(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, 201, map[string]any{"workbook_id": id})
+}
+
+func (h recordRoutes) overview(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	out, e := h.s.Overview(r.Context(), wc.WorkspaceID)
+	if e != nil {
+		h.fail(w, e)
+		return
+	}
+	httpx.WriteJSON(w, 200, out)
+}
+
+func (h recordRoutes) importReceipt(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	out, err := h.s.ImportReceipt(r.Context(), wc.WorkspaceID, r.PathValue("key"))
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	httpx.WriteJSON(w, 200, out)
+}
+
+func (h recordRoutes) access(w http.ResponseWriter, r *http.Request) {
+	wc, _ := identity.WorkspaceFrom(r.Context())
+	allowed, err := h.d.Identity.HasPermission(r.Context(), wc.WorkspaceID, wc.User.ID, "tables.write", "editor", "admin")
+	if err != nil {
+		httpx.Detail(w, 500, "Could not check record permissions")
+		return
+	}
+	httpx.WriteJSON(w, 200, map[string]bool{"can_write": allowed})
 }

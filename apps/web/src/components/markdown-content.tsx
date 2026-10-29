@@ -41,7 +41,7 @@ export function MarkdownContent({ content, className = "" }: { content: string; 
             <thead className="border-b border-border/40" style={{ background: "color-mix(in srgb, var(--muted) 50%, transparent)" }}>{children}</thead>
           ),
           th: ({ children }) => (
-            <th className="px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{children}</th>
+            <th className="px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-widest text-muted-foreground">{children}</th>
           ),
           tr: ({ children }) => (
             <tr className="border-b border-border/10 last:border-0 transition-colors" style={{ cursor: "default" }}
