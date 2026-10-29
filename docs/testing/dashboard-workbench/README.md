@@ -66,6 +66,8 @@ Full product release still requires the specification's VoiceOver/NVDA and Safar
 
 The [completion audit](completion-audit.md) retains outstanding acceptance across every work package and hard gate. The [compact workstation evidence](compact/README.md) records the denser layout revision separately from the original build below.
 
+The [workbook controls evidence](workbook-controls/README.md) records click-based ordering, keyboard-drop/focus fixes, persistent activity sizing and truthful result inspection, including its built-app and database checks.
+
 ## Recorded local result — 2026-10-29
 
 Core implementation: `3f98524b`. The production web build was embedded in the Go API and served on port 8002 for this pass. [Machine-readable results](results.json) retain the tested revision, environment, route list, counts, and interaction outcomes.
