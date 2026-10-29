@@ -9,13 +9,49 @@
   <a href="LICENSE">AGPL-3.0</a>
 </p>
 
-<p align="center"><img src="docs/assets/opengtm-chat.png" alt="OpenGTM chat workspace with quick actions and a message composer" width="840" /></p>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="docs/assets/opengtm-workbench-preview-light.png" />
+    <img src="docs/assets/opengtm-workbench-preview.png" alt="OpenGTM dashboard workbench design preview with a compact company table, qualification scores and data completeness" width="1120" />
+  </picture>
+</p>
+<p align="center"><em>Dashboard workbench design preview · in development · fictional demo data</em></p>
 
 Give OpenGTM a market, a list, or a workbook. It finds companies and people,
 enriches rows through cost-ordered provider waterfalls, researches hard questions
 with cited agents, watches for buying intent, and sends qualified records to
 the tools your team already uses. Your data stays on your infrastructure;
 third-party calls use keys you choose. A zero-key demo is included.
+
+## See the workbench
+
+The dashboard redesign is in development alongside the Go backend port. These
+recordings show the latest local workbench preview; they are not a promise that
+every preview feature is included in the current release.
+
+<details>
+<summary><strong>Companies, People and connected employment</strong> · 11-second demo</summary>
+
+Inspect shared company facts, see its people, and follow a person's employment
+history without leaving the workbench.
+
+![Demo of the company inspector, connected people and employment history](docs/assets/opengtm-records-preview.gif)
+
+[Open the static dashboard screenshot](docs/assets/opengtm-workbench-preview.png).
+
+</details>
+
+<details>
+<summary><strong>Import a Clay table</strong> · 11-second demo</summary>
+
+Map source columns, check the row preview, and import into the record library.
+The preview keeps import and enrichment as separate actions.
+
+![Demo of CSV upload, column mapping, row review and a confirmed import](docs/assets/opengtm-import-preview.gif)
+
+[Open the static dashboard screenshot](docs/assets/opengtm-workbench-preview.png).
+
+</details>
 
 ## Co-maintainer wanted
 
@@ -60,13 +96,17 @@ the stack. It leaves an existing `.env` untouched.
 
 ### On a server
 
-Use a versioned checkout. Point a domain at the host and provide a
-TLS reverse proxy such as Caddy; the app itself stays on loopback. On a Linux
-host with Git and Docker Compose:
+Use a reviewed Go tag or commit. The example starts from `main`; replace
+`OPENGTM_REF` with your tested revision and record the resolved commit. Point a
+domain at the host and provide a TLS reverse proxy such as Caddy. On Linux with
+Git and Docker Compose:
 
 ```bash
-git clone --depth 1 --branch v3.0.0 https://github.com/debpalash/OpenGTM.git
+OPENGTM_REF=main                 # replace with a tested Go tag or commit
+git clone https://github.com/debpalash/OpenGTM.git
 cd OpenGTM
+git checkout "$OPENGTM_REF"
+git rev-parse HEAD               # record this revision for rollback
 ./scripts/install.sh --no-start
 DOMAIN=gtm.example.com                 # replace with your domain
 cat >> .env <<EOF
@@ -98,6 +138,15 @@ For a new release, fetch its tag, check it out and run `docker compose up -d --b
 (the `migrate` service applies schema changes before the API starts). Keep the existing
 `.env` and Docker volumes when upgrading. The [Docker guide](https://opengtm.palash.dev/self-hosting/docker/)
 explains the services and scaling.
+
+### Upgrade an existing Python installation
+
+Take and verify a database and data-directory backup before cutover. The Go
+migration runner adopts the exact Alembic revision `e7b2c4d6f8a0`; older schemas
+must be upgraded with the previous Python release first. Drain Python workers,
+backfill pending jobs, and rehearse restoring the previous release before a
+production cutover. Follow the [cutover runbook](docs/go-port/runbooks/15-cutover.md)
+and [migration guide](docs/go-port/runbooks/migrations.md).
 
 ### Operate it
 
