@@ -64,3 +64,32 @@ func TestWireAIColsWithFirecrawlWithoutBrowser(t *testing.T) {
 		t.Fatal("API-only search must be available without enabling an unconfigured page fetcher")
 	}
 }
+
+func TestWireAIColsWithSpicrawlWithoutBrowser(t *testing.T) {
+	for _, key := range []string{"BROWSER_SERVICE_URL", "BROWSER_SERVICE_TOKEN", "SERPAPI_KEY", "BING_SEARCH_KEY",
+		"GOOGLE_CSE_KEY", "GOOGLE_CSE_ID", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY", "SERPLY_API_KEY", "FIRECRAWL_API_KEY"} {
+		t.Setenv(key, "")
+	}
+	t.Setenv("SPICRAWL_API_KEY", "sp-wire-test")
+	cfg := config.Config{SecretKey: "a-strong-secret-key-of-32-bytes-or-more", AppEnv: "test"}
+	shared, err := newWorkerShared(cfg, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var deps workbook.Deps
+	wireAICols(&deps, cfg, nil, slog.Default(), shared)
+	if deps.AICols == nil {
+		t.Fatal("research columns are not wired")
+	}
+	configured := deps.AICols.For(context.Background(), "spicrawl-only")
+	if configured.Pages == nil || configured.Search != nil {
+		t.Fatal("markdown-only configuration not respected")
+	}
+	t.Setenv("FIRECRAWL_API_KEY", "fc-with-spicrawl")
+	var both workbook.Deps
+	wireAICols(&both, cfg, nil, slog.Default(), shared)
+	combined := both.AICols.For(context.Background(), "both-api-providers")
+	if combined.Pages == nil || combined.Search == nil {
+		t.Fatal("API-only research must expose search and page fetch")
+	}
+}

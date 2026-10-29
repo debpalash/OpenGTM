@@ -58,6 +58,9 @@ func aiColumns(d Deps, log *slog.Logger) *workbook.AIColumns {
 			if bc.Configured() {
 				cd.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
 			}
+			if web.Spicrawl != nil {
+				cd.Pages = web.Spicrawl
+			}
 		}
 		return cd
 	}}

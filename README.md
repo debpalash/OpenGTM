@@ -10,6 +10,16 @@
 </p>
 
 <p align="center">
+  <strong>Strategic sponsor · Spicrawl</strong><br />
+  <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
+    <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="220" />
+  </a><br />
+  Our recommended API for clean page and PDF content in research columns.<br />
+  <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Start free — 1,000 credits/month during beta</strong></a> ·
+  <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing and limits</a>
+</p>
+
+<p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/assets/opengtm-workbench-preview-light.png" />
     <img src="docs/assets/opengtm-workbench-preview.png" alt="OpenGTM dashboard workbench design preview with a compact company table, qualification scores and data completeness" width="1120" />
@@ -23,15 +33,15 @@ with cited agents, watches for buying intent, and sends qualified records to
 the tools your team already uses. Your data stays on your infrastructure;
 third-party calls use keys you choose. A zero-key demo is included.
 
-[Configure optional Firecrawl search](docs/providers/firecrawl.md).
+[Configure Firecrawl search and Spicrawl research](docs/web-providers.md).
 
 ## See the workbench
 
-The dashboard redesign is in development alongside the Go backend port. These
+The dashboard redesign is in development on the native Go backend. These
 recordings show the latest local workbench preview; they are not a promise that
 every preview feature is included in the current release.
 
-<details>
+<details open>
 <summary><strong>Companies, People and connected employment</strong> · 11-second demo</summary>
 
 Inspect shared company facts, see its people, and follow a person's employment
@@ -43,7 +53,7 @@ history without leaving the workbench.
 
 </details>
 
-<details>
+<details open>
 <summary><strong>Import a Clay table</strong> · 11-second demo</summary>
 
 Map source columns, check the row preview, and import into the record library.

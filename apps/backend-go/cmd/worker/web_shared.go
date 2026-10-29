@@ -41,7 +41,7 @@ func workerLeadweb(cfg config.Config, get func(string) string) (sharedWeb, error
 	// credentials separately so different provider accounts never share a cache.
 	credentials := sha256.New()
 	for _, secret := range []config.Secret{lw.SerpAPIKey, lw.BingKey, lw.GoogleCSEID, lw.GoogleCSEKey,
-		lw.BraveKey, lw.SerpingAPIKey, lw.SerplyKey, lw.FirecrawlKey, lw.ProxyManagerURL, lw.ProxyList} {
+		lw.BraveKey, lw.SerpingAPIKey, lw.SerplyKey, lw.FirecrawlKey, lw.SpicrawlKey, lw.ProxyManagerURL, lw.ProxyList} {
 		_, _ = fmt.Fprintf(credentials, "%d:", len(secret.Reveal()))
 		_, _ = credentials.Write([]byte(secret.Reveal()))
 	}
