@@ -1,6 +1,6 @@
-.gtm-workbook-list { padding: 24px; max-width: 1440px; margin: auto; }
-.gtm-workbook-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
-.gtm-workbook-heading h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -.025em; }
+.gtm-workbook-list { padding:16px; max-width: 1440px; margin: auto; }
+.gtm-workbook-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom:16px; }
+.gtm-workbook-heading h1 { font-size:1.125rem; font-weight: 600; letter-spacing: -.025em; }
 .gtm-workbook-heading p { font-size: .8125rem; color: var(--t-font-color-secondary); margin-top: 4px; }
 .gtm-workbook-toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
 .gtm-workbook-toolbar > label { display: flex; align-items: center; gap: 8px; color: var(--t-font-color-secondary); font-size: .75rem; }
@@ -9,7 +9,7 @@
 .gtm-workbook-table-scroll { overflow-x: auto; border: 1px solid var(--t-border-color-medium); border-radius: var(--t-border-radius-md); }
 .gtm-workbook-table { width: 100%; border-collapse: collapse; text-align: left; font-size: .8125rem; }
 .gtm-workbook-table th { color: var(--t-font-color-secondary); background: var(--t-background-secondary); font-size: .75rem; font-weight: 500; white-space: nowrap; }
-.gtm-workbook-table th, .gtm-workbook-table td { padding: 8px 12px; border-bottom: 1px solid var(--t-border-color-medium); font-variant-numeric: tabular-nums; }
+.gtm-workbook-table th, .gtm-workbook-table td { padding:6px 10px; border-bottom: 1px solid var(--t-border-color-medium); font-variant-numeric: tabular-nums; }
 .gtm-workbook-list .gtm-workbook-table tbody tr:nth-child(n) td { background: var(--t-background-primary); }
 /* Overrides the legacy global zebra/hover rules until the remaining tables migrate. */
 .gtm-workbook-list .gtm-workbook-table tbody tr:hover td { background: var(--t-background-secondary); }

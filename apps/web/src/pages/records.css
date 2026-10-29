@@ -25,18 +25,18 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  height: 40px;
+  height: 32px;
   border-bottom: 1px solid var(--border);
   color: var(--muted-foreground);
   background: var(--gtm-canvas);
-  padding: 0 16px;
+  padding: 0 12px;
   font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
 .records-table td {
-  padding: 6px 16px;
-  height: 44px;
+  padding: 3px 12px;
+  height: 40px;
   border-bottom: 1px solid var(--border);
   background: var(--gtm-surface);
   max-width: 260px;
@@ -53,26 +53,26 @@
   min-height: var(--gtm-row-height);
 }
 .records-table[data-density="compact"] td {
-  height: 36px;
-  padding-block: 2px;
+  height: 34px;
+  padding-block: 0;
 }
 .records-table[data-density="comfortable"] td {
-  height: 52px;
-  padding-block: 10px;
+  height: 48px;
+  padding-block: 6px;
 }
 .records-table .records-check {
-  width: 48px;
-  min-width: 48px;
-  padding: 0 8px;
+  width: 40px;
+  min-width: 40px;
+  padding: 0 4px;
   position: sticky;
   left: 0;
   z-index: 1;
 }
 .records-table .records-identity {
-  min-width: 230px;
+  min-width: 200px;
   max-width: 320px;
   position: sticky;
-  left: 48px;
+  left: 40px;
   z-index: 1;
 }
 .records-table th.records-check,
@@ -83,7 +83,7 @@
   display: flex;
   align-items: center;
   width: 100%;
-  gap: 12px;
+  gap: 8px;
   text-align: left;
   min-height: 32px;
   font-weight: 500;
@@ -179,7 +179,7 @@
   border: 1px solid var(--border);
   font-size: 0.8125rem;
   padding: 0 28px 0 12px;
-  height: 36px;
+  height: 32px;
 }
 .records-toolbar select:focus-visible {
   outline: 2px solid var(--ring);
@@ -190,8 +190,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 12px 24px;
-  min-height: 60px;
+  padding: 6px 16px;
+  min-height: 44px;
   border-top: 1px solid var(--border);
   font-size: 0.75rem;
   color: var(--muted-foreground);
@@ -315,14 +315,66 @@
   height: 24px;
 }
 
-.records-permission { padding:12px 24px; color:var(--muted-foreground); background:var(--muted); font-size:.8125rem; border-bottom:1px solid var(--border); }
-.records-permission button { color:var(--gtm-link); text-decoration:underline; }
+.records-permission {
+  padding: 12px 24px;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  font-size: 0.8125rem;
+  border-bottom: 1px solid var(--border);
+}
+.records-permission button {
+  color: var(--gtm-link);
+  text-decoration: underline;
+}
 
 /* Adapt to the work area, including tablet layouts with the sidebar open. */
-.records-page { container-type:inline-size; container-name:records; }
-.records-import-label-short { display:none; }
+.records-page {
+  container-type: inline-size;
+  container-name: records;
+}
+.records-import-label-short {
+  display: none;
+}
 @container records (max-width:650px) {
-  .records-page>.workbench-page-header { padding:18px 16px; min-height:72px; }
-  .records-page .workbench-description,.records-page .records-new-button,.records-import-label-wide { display:none; }
-  .records-import-label-short { display:inline; }
+  .records-page > .workbench-page-header {
+    padding: 18px 16px;
+    min-height: 72px;
+  }
+  .records-page .workbench-description,
+  .records-page .records-new-button,
+  .records-import-label-wide {
+    display: none;
+  }
+  .records-import-label-short {
+    display: inline;
+  }
+}
+
+.records-table[data-density="compact"] .records-name {
+  min-height: 28px;
+}
+.records-table[data-density="compact"] .records-two-line {
+  line-height: 14px;
+  gap: 0;
+}
+.records-toolbar select {
+  height: 32px;
+}
+@media (pointer: coarse) {
+  .records-table .records-check {
+    width: 52px;
+    min-width: 52px;
+  }
+  .records-table .records-identity {
+    left: 52px;
+  }
+  .records-table[data-density] .records-name {
+    min-height: 44px;
+  }
+}
+@container records (max-width:650px) {
+  .records-page > .workbench-page-header {
+    min-height: 56px;
+    padding: 8px 12px;
+  }
 }

@@ -373,7 +373,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     return compact ? (
       <Skeleton className="h-24 w-full rounded-lg" />
     ) : (
-      <div className="space-y-3 p-4">
+      <div className="space-y-3 p-3">
         <Skeleton className="h-6 w-64" />
         <Skeleton className="h-4 w-48" />
         {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
@@ -383,7 +383,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
 
   if (!job) {
     return (
-      <div className="text-sm text-muted-foreground p-4 text-center">
+      <div className="text-sm text-muted-foreground p-3 text-center">
         Task not found
       </div>
     )

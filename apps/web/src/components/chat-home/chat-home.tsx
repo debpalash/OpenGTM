@@ -32,7 +32,7 @@ export function ChatHome({ composer, onAction }: { composer: React.ReactNode; on
   const recent = (conversations ?? []).slice(0, 3)
 
   return (
-    <div className="relative flex min-h-full flex-col items-center px-4 pt-[max(3vh,16px)] pb-16">
+    <div className="relative flex min-h-full flex-col items-center px-3 pt-[max(3vh,16px)] pb-16">
       <ChatMascot />
       <h1 className="mt-1 text-center text-[28px] leading-tight font-semibold tracking-tight text-foreground sm:text-[32px]">
         {greeting()}. What should we go after?

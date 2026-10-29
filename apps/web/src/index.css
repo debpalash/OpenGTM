@@ -693,3 +693,15 @@
 .analytics-data-tables table { width:100%; border-collapse:collapse; text-align:left; }
 .analytics-data-tables th,.analytics-data-tables td { padding:8px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
 .analytics-data-tables th,.analytics-data-tables p { color:var(--muted-foreground); font-weight:400; }
+
+/* Workstation density keeps controls readable and leaves room for the data. */
+.workbook-record-identity { min-height:32px; gap:0; }
+.workbook-record-identity strong { line-height:16px; }
+.workbook-record-identity span { line-height:14px; }
+.workbook-grid tbody>tr>td { height:32px; }
+@media(pointer:coarse) {
+ [data-slot=button],[data-slot=input],select { min-height:44px; }
+ [role=menuitem],[role=menuitemradio],[role=menuitemcheckbox] { min-height:44px; }
+ [data-sidebar=menu-button] { min-height:44px; height:auto; }
+ .gtm-notification-trigger { width:44px; height:44px; }
+}

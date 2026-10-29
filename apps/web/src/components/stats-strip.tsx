@@ -13,7 +13,7 @@ export function StatsStrip({ stats }: Props) {
   const pct = (n: number) => e.total ? Math.round((n / e.total) * 100) : 0
 
   return (
-    <div className="flex items-center gap-0 px-4 h-8 border-b border-border text-xs font-medium shrink-0 bg-[var(--t-background-secondary)]">
+    <div className="flex items-center gap-0 px-3 h-8 border-b border-border text-xs font-medium shrink-0 bg-[var(--t-background-secondary)]">
       <Tooltip>
         <TooltipTrigger>
           <Badge variant="secondary" className="text-foreground">{stats.total} total</Badge>

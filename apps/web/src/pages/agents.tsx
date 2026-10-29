@@ -166,8 +166,8 @@ function ResearchPlaybooksPanel() {
     }
 
   return <div className="border-b bg-muted/10">
-    <button className="flex w-full items-center gap-2 px-4 py-2 text-left" onClick={() => setOpen(!open)}><BookOpen className="size-4 text-primary" /><span className="text-sm font-semibold">Audience research playbooks</span><Badge variant="secondary" className="text-xs">{playbooks.data?.length ?? 0}</Badge><ChevronDown className={cn("ml-auto size-4 transition-transform", open && "rotate-180")} /></button>
-    {open && <div className="grid gap-3 px-4 pb-4 xl:grid-cols-[1fr_1fr]">
+    <button className="flex w-full items-center gap-2 px-3 py-2 text-left" onClick={() => setOpen(!open)}><BookOpen className="size-4 text-primary" /><span className="text-sm font-semibold">Audience research playbooks</span><Badge variant="secondary" className="text-xs">{playbooks.data?.length ?? 0}</Badge><ChevronDown className={cn("ml-auto size-4 transition-transform", open && "rotate-180")} /></button>
+    {open && <div className="grid gap-3 px-3 pb-4 xl:grid-cols-[1fr_1fr]">
       {!!capabilities.length && <div className="flex flex-wrap gap-2 xl:col-span-2">{capabilities.map(capability => <Badge key={capability.id} variant={capability.maturity === "supported" ? "default" : "secondary"} title={capability.features.join(", ")}>{capability.id.replaceAll("_", " ")} · {capability.maturity}</Badge>)}</div>}
       <Card><CardContent className="space-y-3 p-3">
         <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
@@ -290,7 +290,7 @@ export default function AgentsPage() {
     <div className="flex flex-col h-full">
       <ResearchPlaybooksPanel />
       {/* Header Bar */}
-      <div className="shrink-0 border-b px-4 py-3 space-y-3">
+      <div className="shrink-0 border-b px-3 py-3 space-y-3">
         {/* Top row: title + controls */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 flex-1 min-w-0">

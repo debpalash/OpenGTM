@@ -27,7 +27,7 @@ export function TemplateGallery() {
     finally { busy.current = false }
   }
 
-  return <section className="rounded-md border p-4" aria-label="Workbook templates">
+  return <section className="rounded-md border p-3" aria-label="Workbook templates">
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-sm font-medium">Start from a template</h2>
       <label className="flex items-center gap-2 text-xs text-muted-foreground">Category<NativeSelect aria-label="Category" value={category} onChange={event => setCategory(event.target.value)} disabled={create.isPending}>

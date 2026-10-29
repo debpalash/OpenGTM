@@ -105,9 +105,9 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   }
 
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={() => { if (!importing) onClose() }}>
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm" onClick={() => { if (!importing) onClose() }}>
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="csv-import-title" aria-describedby="csv-import-summary" tabIndex={-1} className="flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl outline-none" onClick={event => event.stopPropagation()}>
-        <div className="flex items-start justify-between border-b px-5 py-4">
+        <div className="flex items-start justify-between border-b px-5 py-3">
           <div className="flex gap-3">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileSpreadsheet className="size-4" /></div>
             <div>
@@ -153,7 +153,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-4 border-t bg-muted/20 px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3 border-t bg-muted/20 px-5 py-3.5">
           <div>
             <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
               <input type="checkbox" checked={dedupe} onChange={event => setDedupe(event.target.checked)} className="size-3.5 rounded border" />

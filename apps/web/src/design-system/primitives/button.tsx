@@ -53,6 +53,7 @@ export function Button({
       disabled={disabled || loading || soon}
       aria-busy={loading || undefined}
       className={cn(
+        "relative",
         fullWidth && "w-full",
         color === "danger" && variant !== "solid" && "text-[var(--gtm-danger)]",
         color === "accent" && variant !== "solid" && "text-[var(--gtm-link)]",
@@ -60,19 +61,25 @@ export function Button({
         className
       )}
     >
-      {loading ? (
-        <Loader2 aria-hidden="true" className="size-4 animate-spin" />
-      ) : (
-        startIcon
+      <span
+        className={cn(
+          "inline-flex items-center justify-center gap-2",
+          loading && "opacity-0"
+        )}
+      >
+        {startIcon}
+        {children}
+        {endIcon}
+        {hotkeys?.map((key) => (
+          <kbd key={key} className="gtm-kbd">
+            {key}
+          </kbd>
+        ))}
+        {soon && <span>{soonLabel || "Coming soon"}</span>}
+      </span>
+      {loading && (
+        <Loader2 aria-hidden="true" className="absolute size-4 animate-spin" />
       )}
-      {children}
-      {endIcon}
-      {hotkeys?.map((key) => (
-        <kbd key={key} className="gtm-kbd">
-          {key}
-        </kbd>
-      ))}
-      {soon && <span>{soonLabel || "Coming soon"}</span>}
     </AppButton>
   )
 }

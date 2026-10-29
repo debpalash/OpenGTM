@@ -22,6 +22,13 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RecordImportDialog } from "@/components/records/import-dialog"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
+} from "@/design-system/primitives"
 import { RecordEditor } from "@/components/records/record-editor"
 import { FindPeopleDialog } from "@/components/records/find-people-dialog"
 import { SnapshotDialog } from "@/components/records/snapshot-dialog"
@@ -38,7 +45,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem
 } from "@/components/ui/dropdown-menu"
 import { relativeTime } from "@/lib/record-overview"
 import "./records.css"
@@ -59,7 +68,7 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   const workspace = getActiveWorkspace()
   const [params, setParams] = useSearchParams()
   const search = params.get("q") || ""
-  const searchInput = useUrlSearchInput(search,value=>setView("q",value))
+  const searchInput = useUrlSearchInput(search, (value) => setView("q", value))
   const deferred = useDeferredValue(searchInput.value)
   const offsetValue = Number(params.get("offset"))
   const offset =
@@ -83,7 +92,25 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   )
     ? params.get("sort") || "name"
     : "name"
-  const [density, setDensity] = useState("default")
+  const [density, setDensity] = useState(() => {
+    try {
+      const saved = localStorage.getItem("opengtm-record-density")
+      return saved && ["compact", "default", "comfortable"].includes(saved)
+        ? saved
+        : "compact"
+    } catch {
+      return "compact"
+    }
+  })
+  const changeDensity = (value: string) => {
+    if (!["compact", "default", "comfortable"].includes(value)) return
+    setDensity(value)
+    try {
+      localStorage.setItem("opengtm-record-density", value)
+    } catch {
+      /* In-memory preference remains available. */
+    }
+  }
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const returnFocus = useRef<HTMLElement | null>(null)
   const setView = (key: string, value: string) => {
@@ -106,7 +133,23 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   const [snapshotOpen, setSnapshotOpen] = useState(false)
   const [enrollOpen, setEnrollOpen] = useState(false)
   const [importOpen, setImportOpen] = useState(params.get("import") === "1")
-  const [editor, setEditor] = useState<SharedRecord | "new" | null>(null)
+  const [editor, setEditor] = useState<"new" | null>(null)
+  const recordID = params.get("record")
+  const inspected = useQuery({
+    queryKey: ["record-inspect", workspace, kind, recordID],
+    queryFn: ({ signal }) =>
+      recordAPI<SharedRecord>(
+        `records/${kind}/${encodeURIComponent(recordID!)}`,
+        undefined,
+        "GET",
+        signal
+      ),
+    enabled: !!recordID,
+    staleTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false
+  })
   const [workflowOpen, setWorkflowOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const plural = kind === "company" ? "Companies" : "People"
@@ -149,13 +192,14 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
     void client.invalidateQueries({ queryKey: ["record-companies-picker"] })
     void client.invalidateQueries({ queryKey: ["record-overview"] })
   }
-  async function edit(r: SharedRecord) {
+  function edit(record: SharedRecord) {
     returnFocus.current = document.activeElement as HTMLElement
-    try {
-      setEditor(await recordAPI<SharedRecord>(`records/${kind}/${r.id}`))
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not open record")
-    }
+    setEditor(null)
+    setParams((previous) => {
+      const next = new URLSearchParams(previous)
+      next.set("record", record.id)
+      return next
+    })
   }
   async function workbook(run: boolean) {
     setBusy(true)
@@ -251,7 +295,20 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   }
   function closeEditor() {
     setEditor(null)
-    requestAnimationFrame(() => returnFocus.current?.focus())
+    setParams(
+      (previous) => {
+        const next = new URLSearchParams(previous)
+        next.delete("record")
+        return next
+      },
+      { replace: true }
+    )
+    requestAnimationFrame(() => {
+      const target = returnFocus.current?.isConnected
+        ? returnFocus.current
+        : document.querySelector<HTMLElement>("[data-page-title]")
+      target?.focus()
+    })
   }
   const checkedOnPage = rows.filter((row) => selected.has(row.id)).length
   const fitLabel = (record: SharedRecord) =>
@@ -276,7 +333,9 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
           <>
             <Button disabled={!canWrite} onClick={() => setImportOpen(true)}>
               <Upload aria-hidden="true" />
-              <span className="records-import-label-wide">Import from Clay</span>
+              <span className="records-import-label-wide">
+                Import from Clay
+              </span>
               <span className="records-import-label-short">Import</span>
             </Button>
             <Button
@@ -395,15 +454,20 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
               <SlidersHorizontal />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setDensity("compact")}>
-                Compact rows
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDensity("default")}>
-                Default rows
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDensity("comfortable")}>
-                Comfortable rows
-              </DropdownMenuItem>
+              <DropdownMenuRadioGroup
+                value={density}
+                onValueChange={(value) => changeDensity(String(value))}
+              >
+                <DropdownMenuRadioItem value="compact">
+                  Compact rows
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="default">
+                  Standard rows
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="comfortable">
+                  Comfortable rows
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -790,14 +854,58 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
       )}
       {editor && (
         <RecordEditor
-          key={editor === "new" ? "new" : `${editor.id}:${editor.version}`}
+          key="new"
           kind={kind}
           readOnly={!canWrite}
-          record={editor === "new" ? undefined : editor}
           onClose={closeEditor}
           onSaved={changed}
         />
       )}
+      {recordID &&
+        !editor &&
+        (inspected.isFetching || inspected.isPending || inspected.isError) && (
+          <Sheet
+            open
+            onOpenChange={(open) => {
+              if (!open) closeEditor()
+            }}
+          >
+            <SheetContent className="record-inspector">
+              <SheetHeader>
+                <SheetTitle>
+                  {inspected.isError ? "Record unavailable" : "Opening record…"}
+                </SheetTitle>
+                <SheetDescription>
+                  {inspected.isError
+                    ? "The record may have moved or your access may have changed."
+                    : "Loading accepted facts and source history."}
+                </SheetDescription>
+              </SheetHeader>
+              {inspected.isError ? (
+                <ErrorState
+                  error={inspected.error}
+                  retry={() => void inspected.refetch()}
+                />
+              ) : (
+                <ViewState kind="loading" title="Loading record…" />
+              )}
+            </SheetContent>
+          </Sheet>
+        )}
+      {recordID &&
+        !editor &&
+        inspected.data &&
+        !inspected.isFetching &&
+        !inspected.isError && (
+          <RecordEditor
+            key={`${inspected.data.id}:${inspected.data.version}`}
+            kind={kind}
+            readOnly={!canWrite}
+            record={inspected.data}
+            onClose={closeEditor}
+            onSaved={changed}
+          />
+        )}
       {workflowOpen && workflow.data && (
         <WorkflowDialog
           kind={kind}

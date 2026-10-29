@@ -161,7 +161,7 @@ export default function AnalyticsPage() {
 
   if (unavailable) return <div className="workbench-page"><PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
   if (isLoading) return (
-    <div className="p-4 space-y-3">
+    <div className="p-3 space-y-3">
       <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." />
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
@@ -174,11 +174,11 @@ export default function AnalyticsPage() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-4 space-y-3 max-w-[1600px] mx-auto">
+      <div className="p-3 space-y-3 max-w-[1600px] mx-auto">
 
         <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." actions={<Link to="/overview" className="workbench-text-action">Company & people overview</Link>} />
         {stale && <div className="overview-notice" role="alert">The latest refresh failed. Showing the last successful data. <button onClick={retry}>Try again</button></div>}
-        <div className="flex items-center justify-between gap-4 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{stale ? "Last successful load" : "Loaded"} {Number.isFinite(lastLoaded) ? relativeTime(new Date(lastLoaded).toISOString()).toLowerCase() : "time unavailable"}</span></div>
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{stale ? "Last successful load" : "Loaded"} {Number.isFinite(lastLoaded) ? relativeTime(new Date(lastLoaded).toISOString()).toLowerCase() : "time unavailable"}</span></div>
 
         <details className="analytics-data-tables"><summary>View chart data as tables</summary><div>
           <AnalyticsTable title="Pipeline stages" columns={["Stage","Leads"]} rows={funnelData.map(row=>[row.status,row.count])}/>
@@ -250,7 +250,7 @@ export default function AnalyticsPage() {
           {/* Tier Distribution */}
           <Panel title="Score Tiers" icon={Sparkles} className="lg:col-span-4">
             {tierData.length > 0 ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <ResponsiveContainer width="50%" height={160}>
                   <PieChart>
                     <Pie data={tierData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">

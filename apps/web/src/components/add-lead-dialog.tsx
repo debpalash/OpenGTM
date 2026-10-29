@@ -63,7 +63,7 @@ export function AddLeadDialog({ open, onOpenChange, onAdded }: Props) {
 
         <Separator />
 
-        <form onSubmit={handleSubmit} className="px-5 py-4 space-y-4">
+        <form onSubmit={handleSubmit} className="px-5 py-3 space-y-3">
           {/* Primary fields */}
           <div>
             <div className="text-xs text-muted-foreground/40 uppercase tracking-widest font-semibold mb-2.5">Identity</div>

@@ -113,7 +113,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         </SheetHeader>
 
         {/* ── Contact Section ── */}
-        <section className="px-5 py-4 space-y-3">
+        <section className="px-5 py-3 space-y-3">
           <SectionLabel>Contact</SectionLabel>
           <div className="grid grid-cols-1 gap-2.5">
             <DataRow
@@ -142,7 +142,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         <Separator />
 
         {/* ── Company Details ── */}
-        <section className="px-5 py-4 space-y-3">
+        <section className="px-5 py-3 space-y-3">
           <SectionLabel>Company</SectionLabel>
           <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
             <DataField label="Specialization" value={lead.specialization} />
@@ -161,7 +161,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         <Separator />
 
         {/* ── Social & Links ── */}
-        <section className="px-5 py-4 space-y-3">
+        <section className="px-5 py-3 space-y-3">
           <SectionLabel>Links</SectionLabel>
           <div className="flex gap-2">
             <LinkButton label="LinkedIn" url={lead.linkedin_url} />
@@ -173,7 +173,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         {(!isEmpty(lead.notes) || !isEmpty(lead.yupcha_value_prop) || !isEmpty(lead.company_need)) && (
           <>
             <Separator />
-            <section className="px-5 py-4 space-y-2.5">
+            <section className="px-5 py-3 space-y-2.5">
               <SectionLabel>Notes & Context</SectionLabel>
               {!isEmpty(lead.yupcha_value_prop) && <DataField label="Value Proposition" value={lead.yupcha_value_prop} />}
               {!isEmpty(lead.company_need) && <DataField label="Company Need" value={lead.company_need} />}
@@ -185,7 +185,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         <Separator />
 
         {/* ── Timeline ── */}
-        <section className="px-5 py-4 space-y-2">
+        <section className="px-5 py-3 space-y-2">
           <SectionLabel>Timeline</SectionLabel>
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground/40">Created</span>
@@ -206,7 +206,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
         <Separator />
 
         {/* ── Status Actions ── */}
-        <section className="px-5 py-4 space-y-2.5">
+        <section className="px-5 py-3 space-y-2.5">
           <SectionLabel>Change Status</SectionLabel>
           <div className="flex flex-wrap gap-1.5">
             {(["new", "contacted", "qualified", "negotiating", "converted", "dead"] as const).map((s) => (

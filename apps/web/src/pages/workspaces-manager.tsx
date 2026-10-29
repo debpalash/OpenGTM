@@ -92,7 +92,7 @@ export default function WorkspacesManagerPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 max-w-3xl">
+    <div className="flex flex-col gap-3 p-3 max-w-3xl">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -113,7 +113,7 @@ export default function WorkspacesManagerPage() {
 
       {/* Agency Dashboard */}
       {dashboard && (
-        <div className="flex items-center gap-6 text-xs">
+        <div className="flex items-center gap-4 text-xs">
           <div className="flex items-center gap-2">
             <LayoutDashboard className="size-3.5 text-muted-foreground" />
             <span className="font-medium text-foreground">{dashboard.total_workspaces}</span>

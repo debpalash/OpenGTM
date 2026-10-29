@@ -4,7 +4,7 @@ import { ChevronsUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type NativeSelectProps = Omit<React.ComponentProps<"select">, "size"> & {
-  /** Control height: sm 24px, default 28px (32px on touch widths). */
+  /** Control height: compact 28px, default 32px; touch targets grow via the global preference rule. */
   size?: "sm" | "default"
   /** Classes for the select element itself; `className` sizes the wrapper. */
   selectClassName?: string
@@ -20,7 +20,7 @@ function NativeSelect({ className, selectClassName, size = "default", children, 
       <select
         className={cn(
           "w-full min-w-0 appearance-none rounded-md border-0 bg-[var(--gtm-control-bezel)] pr-7 pl-2.5 text-foreground shadow-[var(--gtm-control-shadow)] transition-[background-color,box-shadow] outline-none hover:bg-[color-mix(in_srgb,var(--gtm-control-bezel)_94%,var(--foreground))] focus-visible:outline-[3px] focus-visible:outline-offset-0 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-40 aria-invalid:outline-destructive",
-          size === "sm" ? "h-[22px] text-xs" : "h-8 text-sm sm:h-7",
+          size === "sm" ? "h-7 text-xs" : "h-8 text-sm",
           selectClassName
         )}
         {...props}

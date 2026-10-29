@@ -219,7 +219,7 @@ export default function AutomationsPage() {
 
   // list
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <header className="flex items-start justify-between gap-3">
         <div>
           <h1 className="text-base font-semibold">Automations</h1>
@@ -718,7 +718,7 @@ function RuleBuilder({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <header className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -1486,7 +1486,7 @@ function TriggerDetail({
     !!pendingFireKey && !runList.some((r) => r.fire_key === pendingFireKey)
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <header className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -1657,7 +1657,7 @@ function RunDetail({ runId, onBack }: { runId: string; onBack: () => void }) {
   const r = run.data
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <header className="flex items-center gap-2">
         <Button
           variant="ghost"

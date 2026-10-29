@@ -21,14 +21,24 @@
     --tw-button-color: var(--gtm-accent-foreground);
     --tw-button-hover: var(--gtm-accent-hover);
     --tw-button-active: var(--gtm-accent-hover);
-    box-shadow: 0 0.5px 1px rgb(0 0 0 / 0.18), inset 0 0.5px 0 rgb(255 255 255 / 0.18);
+    box-shadow:
+      0 0.5px 1px rgb(0 0 0 / 0.18),
+      inset 0 0.5px 0 rgb(255 255 255 / 0.18);
   }
   :is(button, a)[data-variant="outline"][data-color="neutral"] {
     --tw-button-background: var(--gtm-control-bezel);
     --tw-button-border: transparent;
     --tw-button-color: var(--t-font-color-primary);
-    --tw-button-hover: color-mix(in srgb, var(--gtm-control-bezel) 92%, var(--t-font-color-primary));
-    --tw-button-active: color-mix(in srgb, var(--gtm-control-bezel) 86%, var(--t-font-color-primary));
+    --tw-button-hover: color-mix(
+      in srgb,
+      var(--gtm-control-bezel) 92%,
+      var(--t-font-color-primary)
+    );
+    --tw-button-active: color-mix(
+      in srgb,
+      var(--gtm-control-bezel) 86%,
+      var(--t-font-color-primary)
+    );
     box-shadow: var(--gtm-control-shadow);
   }
 }
@@ -51,3 +61,33 @@
   }
 }
 
+.gtm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.gtm-field-label {
+  color: var(--foreground);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.gtm-field-required,
+.gtm-field-help {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+.gtm-field-help,
+.gtm-field-error {
+  line-height: 1.6;
+  margin: 0;
+}
+.gtm-field-error {
+  color: var(--gtm-danger);
+  font-size: 0.8125rem;
+}
+.gtm-field[data-invalid="true"] :is(input, textarea, select) {
+  border-color: var(--gtm-danger);
+}

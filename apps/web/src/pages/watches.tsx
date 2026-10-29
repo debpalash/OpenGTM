@@ -229,7 +229,7 @@ function WatchListView({
   )
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <PageHeader
         subtitle="Monitor exact accounts for funding, hiring, leadership, pricing, and company signals."
         action={newButton}
@@ -469,7 +469,7 @@ function WatchBuilder({
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -483,7 +483,7 @@ function WatchBuilder({
       </div>
       <Separator />
 
-      <div className="flex max-w-2xl flex-col gap-4">
+      <div className="flex max-w-2xl flex-col gap-3">
         {/* Kind */}
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5">
@@ -717,7 +717,7 @@ function WatchDetail({ id, onBack }: { id: string; onBack: () => void }) {
   const editAllowed = useCanRole("editor").allowed
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"

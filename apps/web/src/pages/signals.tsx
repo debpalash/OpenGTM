@@ -143,7 +143,7 @@ export default function SignalsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -183,7 +183,7 @@ export default function SignalsPage() {
       </div>}
 
       {/* Stats */}
-      <div className="flex items-center gap-4 text-xs">
+      <div className="flex items-center gap-3 text-xs">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <Bell className="size-3" />
           <span className="font-medium text-foreground">{counts.unread || 0}</span> unread

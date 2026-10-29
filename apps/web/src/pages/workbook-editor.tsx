@@ -1477,12 +1477,12 @@ export default function WorkbookEditorPage() {
     const status = (error as (Error & { status?: number }) | null)?.status
     const notFound = status === 404 || status === 403 || (!error && !workbook)
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
+      <div className="flex flex-col items-center justify-center h-full gap-3">
         <AlertCircle className="size-8 text-destructive" />
         <p className="text-sm text-muted-foreground">
           {notFound ? "Workbook not found or you don't have access" : "Couldn't load this workbook"}
         </p>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {!notFound && (
             <Button variant="outline" size="sm" onClick={() => refetch()}>
               <RefreshCw /> Retry
@@ -1505,7 +1505,7 @@ export default function WorkbookEditorPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-4 py-3 text-sm shrink-0">
+      {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
         <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
         <div><p className="font-medium">Run needs attention</p>
           <p className="text-muted-foreground">Some work failed. Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
@@ -1525,7 +1525,7 @@ export default function WorkbookEditorPage() {
         onDelete={handleDeleteSelected} />
 
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 px-4 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
+      <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
         <button
           onClick={() => navigate("/workbooks")}
           aria-label="Back to workbooks" className="size-8 inline-flex items-center justify-center rounded-md hover:bg-muted transition-colors"
@@ -2380,7 +2380,7 @@ export default function WorkbookEditorPage() {
               || (configTrigger.current?.isConnected ? configTrigger.current : tableContainerRef.current)
           }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b">
+            <div className="flex items-center justify-between px-3 py-3 border-b">
               <div className="flex items-center gap-2">
                 <Icon className={`size-4 ${meta.color}`} />
                 <Dialog.Title className="text-sm font-semibold truncate">{col.name} column settings</Dialog.Title>
@@ -2390,7 +2390,7 @@ export default function WorkbookEditorPage() {
             </div>
 
             {/* Body */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
               <ColumnWidthEditor key={`${id}:${col.id}`} workbookId={id!} columnId={col.id}
                 width={getColWidth(col.id, col.width || 180)} onSaved={width => {
                   columnWidthsRef.current[col.id] = width
@@ -2421,7 +2421,7 @@ export default function WorkbookEditorPage() {
                   setConfigPanelColId(null)
                 }}>Discard submitted edit and reload settings</Button>
               </div>}
-              <fieldset disabled={settingsSave.isPending || settingsSave.isError} className="space-y-4 disabled:opacity-60">
+              <fieldset disabled={settingsSave.isPending || settingsSave.isError} className="space-y-3 disabled:opacity-60">
               <div className="space-y-1.5">
                 <label htmlFor="column-settings-name" className="text-xs text-muted-foreground font-medium">Column Name</label>
                 <input
@@ -2587,7 +2587,7 @@ export default function WorkbookEditorPage() {
             </div>
 
             {/* Footer */}
-            <div className="px-4 py-3 border-t flex items-center justify-between">
+            <div className="px-3 py-3 border-t flex items-center justify-between">
               <Button
                 variant="destructive"
                 size="sm"
@@ -2646,7 +2646,7 @@ export default function WorkbookEditorPage() {
       />
 
       {/* ── Status Bar ───────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-1 border-t text-xs text-muted-foreground bg-muted/30 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-3 py-1 border-t text-xs text-muted-foreground bg-muted/30 shrink-0">
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           <span className="tabular-nums">
             {queryTotalRows ? `${(displayedWorkbookPage - 1) * workbookPageSize + 1}–${Math.min(displayedWorkbookPage * workbookPageSize, queryTotalRows)}` : "0"} of {queryTotalRows} rows

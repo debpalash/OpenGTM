@@ -1,17 +1,17 @@
 .record-inspector[data-side="right"] {
-  width: min(100%, 440px);
-  max-width: 440px;
+  width: min(100%, var(--gtm-inspector-width));
+  max-width: var(--gtm-inspector-width);
   gap: 0;
   background: var(--gtm-surface);
   box-shadow: var(--gtm-shadow-window);
 }
 .record-inspector-header {
-  padding: 24px 52px 24px 24px;
+  padding: 16px 48px 16px 16px;
   gap: 8px;
   border-bottom: 1px solid var(--border);
 }
 .record-inspector-header > [data-slot="sheet-title"] {
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   line-height: 1.4;
   font-weight: 600;
   letter-spacing: -0.03em;
@@ -47,19 +47,19 @@
 }
 .record-inspector-tablist[data-slot="tabs-list"] {
   padding: 0 16px;
-  min-height: 48px;
+  min-height: 36px;
   gap: 4px;
   border-radius: 0;
   flex: none;
 }
 .record-inspector-tablist [data-slot="tabs-trigger"] {
-  min-height: 40px;
+  min-height: 32px;
   padding-inline: 12px;
   font-size: 0.8125rem;
 }
 .record-inspector-scroll {
   overflow: auto;
-  padding: 24px;
+  padding: 16px;
   flex: 1;
   min-height: 0;
 }
@@ -68,7 +68,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 .record-inspector-section-heading h2 {
   font-size: 0.875rem;
@@ -81,9 +81,9 @@
 }
 .record-fact {
   display: grid;
-  grid-template-columns: 128px 1fr;
-  gap: 16px;
-  padding: 12px 0;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 12px;
+  padding: 8px 0;
   border-bottom: 1px solid var(--border);
   font-size: 0.8125rem;
   line-height: 1.6;
@@ -148,7 +148,7 @@
 }
 .record-inspector-footer {
   border-top: 1px solid var(--border);
-  padding: 16px 24px;
+  padding: 12px 16px;
   flex: none;
   display: flex;
   flex-wrap: wrap;
@@ -174,7 +174,7 @@
 .record-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
 }
 .record-edit-form > .record-inspector-section-heading {
   margin-bottom: 0;
@@ -192,7 +192,7 @@
   font-weight: 400;
 }
 .record-edit-field textarea {
-  min-height: 88px;
+  min-height: 72px;
 }
 .record-edit-field select {
   border: 1px solid var(--input);
@@ -209,7 +209,7 @@
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 .record-employment-form h3 {
   font-size: 0.875rem;
@@ -227,7 +227,7 @@
 }
 .record-timeline article {
   position: relative;
-  padding: 0 0 24px;
+  padding: 0 0 16px;
 }
 .record-rail-dot {
   position: absolute;
@@ -256,8 +256,8 @@
 .record-observation-value {
   font-size: 0.8125rem;
   line-height: 1.6;
-  margin: 10px 0;
-  padding: 12px;
+  margin: 6px 0;
+  padding: 8px;
   background: var(--muted);
   border-radius: 8px;
   white-space: pre-wrap;
@@ -361,4 +361,17 @@
   color: var(--gtm-success);
 }
 
-@media(max-width:400px) { .record-inspector-tablist[data-slot="tabs-list"] { display:flex; width:100%; padding:0 8px; gap:0; } .record-inspector-tablist [data-slot="tabs-trigger"] { flex:1; min-width:0; padding-inline:4px; font-size:.75rem; } }
+@media (max-width: 400px) {
+  .record-inspector-tablist[data-slot="tabs-list"] {
+    display: flex;
+    width: 100%;
+    padding: 0 8px;
+    gap: 0;
+  }
+  .record-inspector-tablist [data-slot="tabs-trigger"] {
+    flex: 1;
+    min-width: 0;
+    padding-inline: 4px;
+    font-size: 0.75rem;
+  }
+}

@@ -80,7 +80,7 @@ export function LiveFeed({ onRefresh, workspaceId: _workspaceId }: Props) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 h-10 border-b border-border shrink-0">
+      <div className="flex items-center justify-between px-3 h-10 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <div className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-emerald-400 live-dot" : "bg-zinc-600"}`} />
           <span className="text-xs font-semibold">Pipeline</span>

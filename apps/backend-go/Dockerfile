@@ -35,6 +35,7 @@ FROM oven/bun:1 AS web-build
 WORKDIR /web
 COPY --from=web package.json bun.lock ./
 COPY --from=web vendor/ ./vendor/
+COPY --from=web patches/ ./patches/
 RUN bun install --frozen-lockfile --ignore-scripts
 COPY --from=web . .
 RUN bun run build

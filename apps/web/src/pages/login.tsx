@@ -213,7 +213,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
         </svg>
         <LoginScene />
 
-        <header className="relative z-10 flex items-center justify-between gap-4 px-6 pt-6 sm:px-12 sm:pt-8">
+        <header className="relative z-10 flex items-center justify-between gap-3 px-4 pt-6 sm:px-12 sm:pt-8">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-[var(--t-border-radius-lg)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2),0_6px_16px_rgb(0_0_0/0.12)]">
               <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-7 object-contain" />
@@ -237,9 +237,9 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </nav>
         </header>
 
-        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-3 py-10">
           <div className="gtm-launch pointer-events-auto w-full max-w-[400px]">
-            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
+            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-4 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
               <div className="gtm-login-texture" aria-hidden="true" />
               <div className="relative">
                 <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)]">
@@ -343,7 +343,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </div>
         </section>
 
-        <footer className="relative z-10 px-6 pb-5 text-center text-xs text-[#1d1d1f]/55 sm:px-12">
+        <footer className="relative z-10 px-4 pb-5 text-center text-xs text-[#1d1d1f]/55 sm:px-12">
           Inspired by{" "}
           <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">Bagas Prayogo</a>
           {" "}(sign-in design) and{" "}

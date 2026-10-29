@@ -562,7 +562,7 @@ export default function ChatPage() {
   return (
     <div className="gtm-chat h-full min-h-0 relative bg-background w-full overflow-hidden flex flex-col">
       <div className="flex-1 min-h-0 overflow-y-auto scroll-smooth" ref={scrollRef}>
-        <div className="max-w-4xl mx-auto pb-44 pt-6 px-4">
+        <div className="max-w-4xl mx-auto pb-44 pt-6 px-3">
 
           {/* ── Loading ── */}
           {isLoadingMessages && activeConvId && displayMessages.length === 0 && (
@@ -654,7 +654,7 @@ export default function ChatPage() {
                                 if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleEditSubmit(msg.id) }
                                 if (e.key === "Escape") setEditingMsgId(null)
                               }}
-                              className="resize-none min-h-[52px] max-h-[200px] w-full rounded-2xl bg-muted border-primary/20 px-4 py-3 text-[15px] focus-visible:ring-1 focus-visible:ring-primary/30"
+                              className="resize-none min-h-[52px] max-h-[200px] w-full rounded-2xl bg-muted border-primary/20 px-3 py-3 text-[15px] focus-visible:ring-1 focus-visible:ring-primary/30"
                               rows={2}
                             />
                             <div className="flex justify-end gap-1.5">
@@ -669,7 +669,7 @@ export default function ChatPage() {
                           </div>
                         ) : (
                           <>
-                            <div className="px-4 py-2.5 rounded-[20px] bg-primary text-primary-foreground text-[15px] leading-relaxed whitespace-pre-wrap shadow-sm">
+                            <div className="px-3 py-2.5 rounded-[20px] bg-primary text-primary-foreground text-[15px] leading-relaxed whitespace-pre-wrap shadow-sm">
                               {msg.content}
                             </div>
                             {!isLoading && isServerMsg && (
@@ -784,7 +784,7 @@ export default function ChatPage() {
 
       {/* ── Input Area ── */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background from-60% to-transparent pointer-events-none">
-        <div className="mx-auto flex max-w-4xl flex-col items-center px-4 pb-4 pt-8 pointer-events-auto">
+        <div className="mx-auto flex max-w-4xl flex-col items-center px-3 pb-4 pt-8 pointer-events-auto">
           {composer}
           <div className="text-center mt-2.5 text-xs text-muted-foreground/60 select-none">
             OpenGTM agents can make mistakes. Consider verifying important information.

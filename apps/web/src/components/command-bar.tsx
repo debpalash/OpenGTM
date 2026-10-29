@@ -52,7 +52,7 @@ export function CommandBar(props: Props) {
   return (
     <div className="shrink-0 border-b border-border bg-card/80 backdrop-blur-sm">
       {/* ── Top Row: Brand + Actions ── */}
-      <div className="flex items-center justify-between px-4 h-11">
+      <div className="flex items-center justify-between px-3 h-11">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-primary live-dot" />
@@ -103,7 +103,7 @@ export function CommandBar(props: Props) {
 
       {/* ── Collect Input (expandable) ── */}
       {collectOpen && (
-        <div className="px-4 pb-2.5">
+        <div className="px-3 pb-2.5">
           <form onSubmit={handleCollectSubmit} className="flex gap-2">
             <Input
               autoFocus
@@ -112,7 +112,7 @@ export function CommandBar(props: Props) {
               onChange={(e) => setCollectQuery(e.target.value)}
               className="h-8 text-xs flex-1 bg-background/50"
             />
-            <Button type="submit" size="sm" className="h-8 text-xs px-4" disabled={!collectQuery.trim()}>
+            <Button type="submit" size="sm" className="h-8 text-xs px-3" disabled={!collectQuery.trim()}>
               Start Collection
             </Button>
           </form>
@@ -120,7 +120,7 @@ export function CommandBar(props: Props) {
       )}
 
       {/* ── Filter Row ── */}
-      <div className="flex items-center gap-1.5 px-4 h-9 border-t border-border/50">
+      <div className="flex items-center gap-1.5 px-3 h-9 border-t border-border/50">
         <Input
           ref={props.searchRef}
           placeholder="Search leads…"

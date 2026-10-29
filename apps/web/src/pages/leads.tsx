@@ -574,7 +574,7 @@ export default function LeadsPage() {
               </DropdownMenuItem>
               {audiences.length > 0 && <DropdownMenuSeparator />}
               {audiences.map(audience => (
-                <DropdownMenuItem key={audience.id} onClick={() => applySegment(audience.id)} className="justify-between gap-4">
+                <DropdownMenuItem key={audience.id} onClick={() => applySegment(audience.id)} className="justify-between gap-3">
                   <span className="truncate">{audience.name} <span className="text-muted-foreground">({audience.member_count})</span></span>
                   <X className="size-3 text-muted-foreground hover:text-destructive"
                      onClick={(e) => { e.stopPropagation(); void deleteSegment(audience.id) }} />
@@ -625,7 +625,7 @@ export default function LeadsPage() {
 
       {/* Bulk Actions Bar */}
       {selectedRows.length > 0 && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg border bg-background px-4 py-2 shadow-lg">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-lg border bg-background px-3 py-2 shadow-lg">
           <span className="text-sm font-medium">{selectedRows.length} selected</span>
           <Separator orientation="vertical" className="h-4" />
           <DropdownMenu>
@@ -695,11 +695,11 @@ export default function LeadsPage() {
             Scans a bounded subset (current city/source/tier filters, up to 2,000 rows). Filter first to target a region.
           </p>
           {dedupRunning ? (
-            <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground justify-center">
+            <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground justify-center">
               <Loader2 className="size-4 animate-spin" /> Scanning for duplicates…
             </div>
           ) : !dedupData ? null : dedupData.merge_suggestions.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">
+            <p className="text-sm text-muted-foreground py-3">
               No duplicates found in {dedupData.scanned ?? dedupData.stats.total_leads} scanned leads.
             </p>
           ) : (
@@ -747,7 +747,7 @@ export default function LeadsPage() {
               {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
             </div>
           ) : similar.similar_leads.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-4">No similar leads found.</p>
+            <p className="text-sm text-muted-foreground py-3">No similar leads found.</p>
           ) : (
             <div className="max-h-[60vh] overflow-auto divide-y">
               {similar.similar_leads.map(l => (

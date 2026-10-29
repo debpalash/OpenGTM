@@ -89,7 +89,7 @@ export default function CampaignsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div>
         <h2 className="text-lg font-semibold flex items-center gap-2">
           <Sparkles className="size-5" />
@@ -103,7 +103,7 @@ export default function CampaignsPage() {
       <Separator />
 
       {/* Controls */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-2">
           <label className="text-sm font-medium">Target Tier</label>
           <Select value={selectedTier} onValueChange={(v) => setSelectedTier(v ?? "")}>
@@ -169,7 +169,7 @@ export default function CampaignsPage() {
 
       {/* Generated Emails */}
       {emails.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <h3 className="text-sm font-medium flex items-center gap-2">
             <Mail className="size-4" />
             Generated Emails ({emails.length})
@@ -210,7 +210,7 @@ export default function CampaignsPage() {
 
       {/* Feature Cards */}
       {emails.length === 0 && (
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:grid-cols-2">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">

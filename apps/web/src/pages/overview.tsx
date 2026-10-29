@@ -61,7 +61,6 @@ export default function OverviewPage() {
   return (
     <div className="workbench-page overview-page">
       <PageHeader
-        eyebrow={workspace?.name || "Your workspace"}
         title="Workspace overview"
         description="Your accounts, people, and enrichment work. All connected."
         actions={
@@ -106,7 +105,8 @@ export default function OverviewPage() {
           )}
           <div className="overview-context">
             <span>
-              <span className="overview-workspace-dot" /> Workspace overview
+              <span className="overview-workspace-dot" />{" "}
+              {workspace?.name || "Workspace overview"}
             </span>
             <span>Updated {relativeTime(data.sampled_at).toLowerCase()}</span>
           </div>
@@ -171,7 +171,6 @@ export default function OverviewPage() {
               <FileSpreadsheet aria-hidden="true" />
             </div>
             <div>
-              <p className="workbench-eyebrow">BUILD YOUR WAREHOUSE</p>
               <h2 id="next-step-heading">
                 {data.companies
                   ? "Add your next company list."
@@ -191,7 +190,7 @@ export default function OverviewPage() {
           <div className="overview-columns">
             <section className="workbench-panel overview-workbooks">
               <SectionHeading
-                title="Pick up where you left off"
+                title="Recent workbooks"
                 description="Your recent enrichment and research workbooks."
                 action={
                   <Link to="/workbooks" className="workbench-text-action">
@@ -246,7 +245,7 @@ export default function OverviewPage() {
             </section>
             <aside className="overview-sidebar">
               <section className="workbench-panel overview-attention">
-                <SectionHeading title="Needs your attention" />
+                <SectionHeading title="Needs attention" />
                 {data.failed_workbooks > 0 && (
                   <Link
                     to="/workbooks"

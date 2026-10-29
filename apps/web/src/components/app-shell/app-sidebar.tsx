@@ -40,7 +40,7 @@ export function AppSidebar() {
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
   const [historyOpen, setHistoryOpen] = useState(false)
-  const [closedGroups, setClosedGroups] = useState(() => new Set(["Operations", "Resources"]))
+  const [closedGroups, setClosedGroups] = useState(() => new Set<string>())
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatDraft, setNewChatDraft] = useState("")
   const newChatInput = useRef<HTMLInputElement>(null)

@@ -45,7 +45,7 @@ export function SourceEnginePanel({
           <SheetDescription>Source, enrich, and keep this workbook alive.</SheetDescription>
         </SheetHeader>
 
-        <Tabs defaultValue="source" className="mt-4 px-4 pb-6">
+        <Tabs defaultValue="source" className="mt-4 px-3 pb-6">
           <TabsList className="grid grid-cols-5 w-full">
             <TabsTrigger value="source" aria-label="Source" title="Source"><Radar aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>
             <TabsTrigger value="cost" aria-label="Budget" title="Budget"><DollarSign aria-hidden="true" className="h-3.5 w-3.5" /></TabsTrigger>

@@ -23,6 +23,19 @@ The state script uses the journey report to exercise stale/failed/malformed resp
 
 The matrix scans thirteen route families in light/dark at desktop size, then Overview, Companies, People, and an available workbook at 320px and 390px in both themes. It records headings, landmarks, focus targets, overflow, grid counts, token values, raw axe findings, and screenshots. It fails on axe violations or JavaScript page errors. Small-control candidates are measured separately: a visual element's dimensions alone do not establish a WCAG target-size failure when its actual hit area or spacing differs.
 
+Additional workstation checks:
+
+```sh
+uv run --with playwright python scripts/qa/dashboard_density.py --workspace-id '<synthetic workspace with at least 100 Companies>'
+uv run --with playwright python scripts/qa/dashboard_density.py --engine webkit --workspace-id '<same synthetic workspace>'
+uv run --with playwright python scripts/qa/dashboard_gallery.py
+uv run --with playwright python scripts/qa/dashboard_audiences.py
+```
+
+Install WebKit with `uv run --with playwright playwright install webkit` before the WebKit check. Density measures the same 1440×1000 viewport, verifies all three row preferences and reload persistence, scans focused light/dark menus, and checks actual touch-device targets and pinned-column offsets at 320/390/768px. Optional `--baseline-url` compares a prior build using the same synthetic workspace and API identity. The gallery verifies stable loading-button width, connected invalid-field state, dialog focus restoration, and 320px reflow without account data. The audience script creates an isolated synthetic workspace, verifies Company/Person member links into shareable inspectors, compares refresh receipts to the actual API response, and injects a recoverable members error. These scripts fail on axe violations and page errors.
+
+`dashboard_matrix.py --engine webkit` can run the complete route matrix with that engine; the recorded compact pass uses Chromium for the full matrix and WebKit for the density/popup/touch subset. Do not describe subset coverage as a complete cross-browser certification.
+
 Output defaults to the ignored `.run/dashboard-journey` and `.run/dashboard-matrix` directories. Do not commit production account screenshots or raw contact data. Committed example images use synthetic fixtures.
 
 ## Code checks
@@ -49,6 +62,8 @@ The integration fixture creates and drops its own databases. It verifies scoped 
 Implemented: semantic light/dark tokens, Inter/Manrope type scale, larger controls and readable metadata, reduced motion, shell/navigation/skip link/route focus, shared states, real record overview, server-backed record views, provenance inspector, staged import/recovery, workbook header semantics and pinned identity, reviewed enrichment, searchable source settings, API-key labels, honest analytics failures/freshness, and chart tables. Existing activation and legacy routes inherit the shared foundation; this change does not replace their domain workflows.
 
 Full product release still requires the specification's VoiceOver/NVDA and Safari/Firefox checks, the operator pilot, production telemetry, and deployment/rollback review. Local Chromium/axe results are automated evidence, not a screen-reader or production Core Web Vitals certification. Other route-specific P2 workflow redesigns remain scoped follow-up work under UI-10/UI-11; advanced forms and extraction of the large legacy workbook module are not represented as completed here.
+
+The [completion audit](completion-audit.md) retains outstanding acceptance across every work package and hard gate. The [compact workstation evidence](compact/README.md) records the denser layout revision separately from the original build below.
 
 ## Recorded local result — 2026-10-29
 

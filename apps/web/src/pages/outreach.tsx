@@ -88,7 +88,7 @@ export default function OutreachPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
@@ -146,7 +146,7 @@ export default function OutreachPage() {
 
       {/* Stats bar */}
       {!draftId && view === "list" && rows.length > 0 && (
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Hash className="size-3" /> {rows.length} sequences
           </span>
@@ -159,7 +159,7 @@ export default function OutreachPage() {
           onBack={() => setSearchParams({}, { replace: true })}
         />
       ) : view === "list" ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <GroundedDraftList onOpen={openDraft} />
           <section aria-labelledby="sequences-heading" className="space-y-3">
             <div>
@@ -275,7 +275,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
   }
 
   return (
-    <article className="max-w-4xl space-y-4" aria-labelledby="draft-subject">
+    <article className="max-w-4xl space-y-3" aria-labelledby="draft-subject">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-2">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2 text-xs">
@@ -299,7 +299,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
         <Card>
           <CardHeader className="space-y-2 pb-3">
             <div className="grid gap-2 text-xs sm:grid-cols-[72px_1fr]">
@@ -427,7 +427,7 @@ function SequenceList({
         {rows.map((seq) => (
           <div
             key={seq.id}
-            className="group flex cursor-pointer items-center gap-4 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/30"
+            className="group flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/30"
             onClick={() => onOpen(seq.id)}
           >
             <div className="min-w-0 flex-1">
@@ -571,7 +571,7 @@ function SequenceCreator({
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-2xl space-y-3">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel} className="h-7 text-xs">
           ← Back
@@ -841,7 +841,7 @@ function SequenceDetailView({ id, onBack }: { id: string; onBack: () => void }) 
   }
 
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="max-w-3xl space-y-3">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">

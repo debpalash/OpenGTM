@@ -258,14 +258,14 @@ export default function LeadDetailPage() {
   const saveField = (field: string, value: string) => updateLead.mutate({ id: leadId, fields: { [field]: value } })
 
   if (isLoading) return (
-    <div className="p-6 space-y-4">
-      <div className="flex items-center gap-4"><Skeleton className="size-10 rounded-lg" /><Skeleton className="h-8 w-64" /></div>
+    <div className="p-4 space-y-3">
+      <div className="flex items-center gap-3"><Skeleton className="size-10 rounded-lg" /><Skeleton className="h-8 w-64" /></div>
       <Skeleton className="h-[400px]" />
     </div>
   )
 
   if (!lead) return (
-    <div className="p-6 flex flex-col items-center justify-center gap-4 min-h-[60vh]">
+    <div className="p-4 flex flex-col items-center justify-center gap-3 min-h-[60vh]">
       <AlertCircle className="size-12 text-muted-foreground" />
       <p className="text-lg text-muted-foreground">Lead not found</p>
       <Button variant="outline" onClick={() => navigate("/leads")}><ArrowLeft className="size-4 mr-2" /> Back to Leads</Button>
@@ -285,7 +285,7 @@ export default function LeadDetailPage() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="max-w-5xl mx-auto p-6 space-y-5">
+      <div className="max-w-5xl mx-auto p-4 space-y-5">
 
         {/* ═══ HERO HEADER ═══ */}
         <div className="space-y-3">
@@ -299,7 +299,7 @@ export default function LeadDetailPage() {
             </Button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <CompanyAvatar company={lead.company} website={lead.website} />
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold tracking-tight truncate">{lead.company}</h1>
@@ -339,7 +339,7 @@ export default function LeadDetailPage() {
 
         {/* ═══ ENRICHMENT PANEL (collapsible) ═══ */}
         {showEnrich && (
-          <div className="rounded-lg border border-dashed p-4 space-y-2 bg-card/50 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="rounded-lg border border-dashed p-3 space-y-2 bg-card/50 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-2">
               <Sparkles className="size-3 text-amber-500" /> Enrich with AI
             </div>
@@ -364,7 +364,7 @@ export default function LeadDetailPage() {
         )}
 
         {/* ═══ TABS ═══ */}
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-3">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="research">Research</TabsTrigger>
@@ -442,7 +442,7 @@ export default function LeadDetailPage() {
               </div>
 
               {/* Right: Map + Decision Makers + Hiring + Notes */}
-              <div className="lg:col-span-2 space-y-4">
+              <div className="lg:col-span-2 space-y-3">
                 <LeafletMap
                   query={[lead.address, lead.city, lead.state].filter(Boolean).join(", ")}
                   fallbackQueries={[[lead.city, lead.state].filter(Boolean).join(", "), lead.city || ""]}
@@ -485,7 +485,7 @@ export default function LeadDetailPage() {
           </TabsContent>
 
           {/* ── RESEARCH TAB ── */}
-          <TabsContent value="research" className="space-y-4">
+          <TabsContent value="research" className="space-y-3">
             <div className="rounded-lg border p-5">
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-medium flex items-center gap-2"><Sparkles className="size-4 text-amber-500" /> AI Research</h3>
@@ -516,7 +516,7 @@ export default function LeadDetailPage() {
 
           {/* ── ACTIVITY TAB ── */}
           <TabsContent value="activity">
-            <div className="rounded-lg border p-5 space-y-4">
+            <div className="rounded-lg border p-5 space-y-3">
               <h3 className="text-sm font-medium">Unified timeline</h3>
               <div className="space-y-3">
                 {timeline.isLoading && <Skeleton className="h-28 w-full" />}
@@ -528,7 +528,7 @@ export default function LeadDetailPage() {
                     <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium">{item.title}</span><Badge variant="outline" className="text-xs">{item.status}</Badge></div>{item.description && <p className="truncate text-xs text-muted-foreground">{item.description}</p>}<p className="text-xs text-muted-foreground">{new Date(item.occurred_at * 1000).toLocaleString()}</p></div>
                   </div>
                 ))}
-                {!timeline.isLoading && !timeline.data?.items.length && <p className="py-6 text-center text-xs text-muted-foreground">No activity recorded yet.</p>}
+                {!timeline.isLoading && !timeline.data?.items.length && <p className="py-4 text-center text-xs text-muted-foreground">No activity recorded yet.</p>}
               </div>
             </div>
           </TabsContent>

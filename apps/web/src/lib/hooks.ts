@@ -61,20 +61,20 @@ export function useLeadTimeline(id: number) {
 }
 
 export function useAudiences() {
-  return useQuery({ queryKey: queryKeys.audiences.all, queryFn: fetchAudiences })
+  return useQuery({ queryKey: [...queryKeys.audiences.all,getActiveWorkspace()], queryFn: ({signal})=>fetchAudiences(signal) })
 }
 
-export function useAudienceMembers(id: string | null) {
+export function useAudienceMembers(id: string | null, offset=0) {
   return useQuery({
-    queryKey: queryKeys.audiences.members(id ?? ""),
-    queryFn: () => fetchAudienceMembers(id!), enabled: !!id,
+    queryKey: [...queryKeys.audiences.members(id ?? ""),getActiveWorkspace(),offset],
+    queryFn: ({signal}) => fetchAudienceMembers(id!,offset,signal), enabled: !!id,
   })
 }
 
 export function useAudienceEvents(id: string | null) {
   return useQuery({
-    queryKey: queryKeys.audiences.events(id ?? ""),
-    queryFn: () => fetchAudienceEvents(id!), enabled: !!id,
+    queryKey: [...queryKeys.audiences.events(id ?? ""),getActiveWorkspace()],
+    queryFn: ({signal}) => fetchAudienceEvents(id!,signal), enabled: !!id,
   })
 }
 
@@ -116,8 +116,8 @@ export function useUpdateAudience() {
 
 export function useAudienceDestinations(audienceId: string | null) {
   return useQuery({
-    queryKey: queryKeys.audienceDestinations(audienceId ?? ""),
-    queryFn: () => fetchAudienceDestinations(audienceId!), enabled: !!audienceId,
+    queryKey: [...queryKeys.audienceDestinations(audienceId ?? ""),getActiveWorkspace()],
+    queryFn: ({signal}) => fetchAudienceDestinations(audienceId!,signal), enabled: !!audienceId,
     refetchInterval: 5_000,
   })
 }

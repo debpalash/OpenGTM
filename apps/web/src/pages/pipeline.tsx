@@ -262,7 +262,7 @@ export default function PipelinePage() {
       {/* Job Detail Panel */}
       <div className="flex-1 overflow-auto">
         {selectedJob ? (
-          <div className="p-6 max-w-2xl mx-auto space-y-6">
+          <div className="p-4 max-w-2xl mx-auto space-y-4">
             <div>
               <h2 className="text-lg font-semibold">{selectedJob.query}</h2>
               <div className="flex items-center gap-2 mt-1">
@@ -288,7 +288,7 @@ export default function PipelinePage() {
               {stages.length > 0 ? (
                 stages.map(s => <StageCard key={s.id} stage={s} />)
               ) : (
-                <div className="text-sm text-muted-foreground py-4 text-center">
+                <div className="text-sm text-muted-foreground py-3 text-center">
                   Loading stages...
                 </div>
               )}

@@ -6,6 +6,9 @@ import argparse, os
 parser = argparse.ArgumentParser(
     description="Capture the dashboard in both themes and scan rendered screens with axe. Temporarily switches the active workspace and restores it on exit."
 )
+parser.add_argument(
+    "--engine", choices=["chromium", "firefox", "webkit"], default="chromium"
+)
 parser.add_argument("--base-url", default="http://127.0.0.1:8002")
 parser.add_argument(
     "--browser-path", default=os.environ.get("PLAYWRIGHT_CHROMIUM_EXECUTABLE")
@@ -66,7 +69,6 @@ prior = req("GET", "/api/workspaces")["active_id"]
 ws = args.workspace_id or prior
 if not ws:
     parser.error("No accessible workspace. Create one before scanning.")
-req("POST", "/api/workspaces/switch", {"workspace_id": ws})
 headers["X-Workspace-Id"] = ws
 summary = req("GET", "/api/records/summary")
 workbook = args.workbook_id or (
@@ -158,8 +160,12 @@ def capture(page, label, path, theme, width=1440, height=1000, scan=True):
 
 
 try:
+    req("POST", "/api/workspaces/switch", {"workspace_id": ws})
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, executable_path=args.browser_path)
+        browser = getattr(p, args.engine).launch(
+            headless=True,
+            executable_path=args.browser_path if args.engine == "chromium" else None,
+        )
         context = browser.new_context(
             viewport={"width": 1440, "height": 1000}, reduced_motion="reduce"
         )

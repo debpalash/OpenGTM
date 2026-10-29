@@ -1,7 +1,7 @@
 {
-  "version": 1,
-  "status": "proposed",
-  "purpose": "Implementation contract for docs/specs/dashboard-ui-ux-transformation.md; not installed application tokens.",
+  "version": 2,
+  "status": "implemented foundation; compact workstation revision",
+  "purpose": "Design contract for the dashboard transformation. Layout values reflect the user’s compact workstation direction of 2026-10-29.",
   "units": "CSS pixels unless stated otherwise",
   "color": {
     "light": {
@@ -67,8 +67,8 @@
       "monospace"
     ],
     "pageTitle": {
-      "size": 24,
-      "lineHeight": 32,
+      "size": 18,
+      "lineHeight": 24,
       "weight": 600
     },
     "sectionTitle": {
@@ -92,8 +92,8 @@
       "weight": 400
     },
     "metric": {
-      "size": 28,
-      "lineHeight": 36,
+      "size": 24,
+      "lineHeight": 32,
       "weight": 600
     }
   },
@@ -115,22 +115,23 @@
     12
   ],
   "layout": {
-    "sidebarExpanded": 240,
-    "sidebarCollapsed": 64,
-    "globalBar": 56,
-    "pageHeaderMin": 72,
-    "resourceToolbarMin": 48,
-    "tableHeader": 40,
-    "rowDefault": 44,
-    "rowCompact": 36,
-    "rowComfortable": 52,
-    "controlDefault": 36,
-    "controlCompact": 32,
+    "sidebarExpanded": 208,
+    "sidebarCollapsed": 52,
+    "globalBar": 44,
+    "pageHeaderMin": 64,
+    "resourceToolbarMin": 44,
+    "tableHeader": 32,
+    "rowDefault": 34,
+    "rowCompact": 34,
+    "rowComfortable": 48,
+    "controlDefault": 32,
+    "controlCompact": 28,
     "controlTouch": 44,
-    "inspectorDesktop": 440,
-    "insetDesktop": 24,
-    "insetMobile": 16,
-    "overviewMaxWidth": 1600
+    "inspectorDesktop": 400,
+    "insetDesktop": 16,
+    "insetMobile": 12,
+    "overviewMaxWidth": 1600,
+    "rowStandard": 40
   },
   "motion": {
     "interactionDurationMs": [

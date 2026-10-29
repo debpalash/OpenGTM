@@ -16,7 +16,7 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <div className="p-4 space-y-3 max-w-5xl">
+    <div className="p-3 space-y-3 max-w-5xl">
         <Button
           variant="ghost"
           size="sm"
