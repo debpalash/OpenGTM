@@ -503,6 +503,15 @@ BEGIN
  IF subject IS NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL
   AND nullif(d->>'website','') IS NULL AND nullif(d->>'domain','') IS NULL
   AND (SELECT count(*) FROM company_entities WHERE workspace_id=NEW.workspace_id AND record_name_key=lower(trim(d->>'company')))>1 THEN RETURN NEW;END IF;
+ -- Untyped workbooks permit arbitrary cell values. Keep those in NEW.data,
+ -- but omit values that cannot be accepted as validated shared facts.
+ IF subject IS NULL THEN
+  IF d?'score' AND coalesce(d->>'score','')<>'' AND (d->>'score') !~ '^([0-9]|[1-9][0-9]|100)$' THEN d:=d-'score';END IF;
+  IF d?'employee_count_exact' AND coalesce(d->>'employee_count_exact','')<>'' THEN
+   IF (d->>'employee_count_exact') !~ '^[0-9]{1,10}$' THEN d:=d-'employee_count_exact';
+   ELSIF (d->>'employee_count_exact')::numeric>1000000000 THEN d:=d-'employee_count_exact';END IF;
+  END IF;
+ END IF;
  src:=coalesce(nullif(current_setting('opengtm.record_source',true),''),CASE WHEN TG_OP='INSERT' THEN 'import:workbook' WHEN patch IS NOT NULL THEN 'manual' ELSE 'provider:workbook' END);
  links:=opengtm_record_ingest_flat(NEW.workspace_id,subject,d,src,'row:'||NEW.id,NEW.company_entity_id,NEW.person_entity_id,src='manual');
  NEW.company_entity_id:=links->>'company_id';IF subject IS NOT NULL THEN NEW.canonical_entity_id:=coalesce(NEW.canonical_entity_id,NEW.company_entity_id); END IF;NEW.person_entity_id:=links->>'person_id';NEW.employment_id:=(links->>'employment_id')::integer;RETURN NEW;
@@ -791,12 +800,12 @@ CREATE FUNCTION opengtm_record_merge_data(base json,patch json) RETURNS json LAN
   SELECT CASE WHEN json_typeof(base)='object' THEN base ELSE '{}'::json END AS b,
          CASE WHEN json_typeof(patch)='object' THEN patch ELSE '{}'::json END AS p
  ), entries AS (
-  SELECT old.key,CASE WHEN a.p::jsonb?old.key THEN a.p::jsonb->old.key ELSE old.value::jsonb END AS value,old.ord
+  SELECT old.key,CASE WHEN a.p::jsonb?old.key THEN (SELECT value FROM json_each(a.p) changed WHERE changed.key=old.key LIMIT 1) ELSE old.value END AS value,old.ord
   FROM args a,json_each(a.b) WITH ORDINALITY old(key,value,ord)
   UNION ALL
-  SELECT added.key,added.value::jsonb,added.ord+2147483647
+  SELECT added.key,added.value,added.ord+2147483647
   FROM args a,json_each(a.p) WITH ORDINALITY added(key,value,ord) WHERE NOT(a.b::jsonb?added.key)
- ) SELECT coalesce(json_object_agg(key,value ORDER BY ord),'{}'::json) FROM entries
+ ) SELECT coalesce(('{'||string_agg(to_json(key)::text||': '||value::text,', ' ORDER BY ord)||'}')::json,'{}'::json) FROM entries
 $$;
 -- +goose StatementEnd
 
