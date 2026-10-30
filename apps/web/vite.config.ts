@@ -45,11 +45,18 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   css: { postcss: { plugins: [twentyCss()] } },
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url))
     }
   },
   server: {
+    fs: {
+      allow: [
+        fileURLToPath(new URL("./", import.meta.url)),
+        fileURLToPath(new URL("../../node_modules", import.meta.url))
+      ]
+    },
     port: 4099,
     proxy: {
       "/api": {
