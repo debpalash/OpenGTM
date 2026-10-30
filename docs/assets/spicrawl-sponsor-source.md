@@ -3,8 +3,8 @@
 The sponsor wordmark was downloaded from Spicrawl's own site:
 https://spicrawl.com/spicrawl%20assets/svg/Spicrawl%20text%20logo%20dark.svg?v=a04ba029cd
 
-`spicrawl-sponsor.svg` retains the official vector paths, with a neutral white
-backing so the dark wordmark remains readable in both GitHub themes.
+`spicrawl-sponsor.svg` retains the official white vector artwork, with a dark
+charcoal backing so the wordmark remains readable in both GitHub themes.
 
 The signup link uses the official `https://app.spicrawl.com/signup` destination
 with `utm_source=opengtm`, `utm_medium=github_readme`,
