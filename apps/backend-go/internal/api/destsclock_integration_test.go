@@ -4,11 +4,12 @@ package api
 
 import (
 	"context"
+	"testing"
+	"time"
+
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/deststore"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/jackc/pgx/v5"
-	"testing"
-	"time"
 )
 
 func TestCreatedDestinationTimestampsAreUTCInEverySessionTimezone(t *testing.T) {
