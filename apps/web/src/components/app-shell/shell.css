@@ -146,21 +146,51 @@ html:has(.gtm-dashboard) body {
 /* Keep desktop navigation dense enough to leave recent conversations in view. */
 @media (min-width:768px) and (pointer:fine) {
   .gtm-dashboard [data-slot="sidebar-content"] { padding:4px 8px; }
-  .gtm-dashboard [data-sidebar="group"] { padding-block:2px; }
+  .gtm-dashboard [data-sidebar="group"] { padding-block:4px; }
   .gtm-dashboard [data-sidebar="group-label"] {
     height:max(22px, 1.375rem);
     min-height:max(22px, 1.375rem);
   }
   .gtm-dashboard [data-sidebar="menu-button"]:not([data-size="lg"]) {
-    height:max(24px, 1.5rem);
-    min-height:max(24px, 1.5rem);
-    padding-block:2px;
+    height:max(28px, 1.75rem);
+    min-height:max(28px, 1.75rem);
+    padding:4px 12px;
   }
   .gtm-dashboard [data-sidebar="menu-action"] {
-    top:0;
+    top:2px;
     min-width:24px;
     min-height:24px;
     width:24px;
     height:24px;
   }
 }
+
+/* Space around controls, with theme choices sharing one quiet row. */
+.gtm-account-menu { padding:8px; }
+.gtm-account-menu [data-slot="dropdown-menu-item"],
+.gtm-account-menu [data-slot="dropdown-menu-sub-trigger"],
+.gtm-account-menu [data-slot="dropdown-menu-radio-item"] {
+  min-height:32px;
+  padding:6px 10px;
+  gap:10px;
+}
+.gtm-account-menu [data-slot="dropdown-menu-label"] { padding:8px 10px 6px; }
+.gtm-account-menu [data-slot="dropdown-menu-separator"] { margin:6px 2px; }
+.gtm-account-theme { display:flex; gap:6px; padding:0 4px 8px; }
+.gtm-account-theme .gtm-account-theme-option {
+  flex:1;
+  justify-content:center;
+  min-height:36px;
+  padding:7px 5px;
+  gap:5px;
+  font-size:.75rem;
+  color:var(--muted-foreground);
+  background:var(--gtm-surface);
+}
+.gtm-account-theme-option[aria-checked="true"] {
+  color:var(--gtm-link);
+  background:var(--gtm-selection);
+  box-shadow:inset 0 0 0 1px var(--gtm-border-control);
+}
+.gtm-account-theme-option [data-slot="dropdown-menu-radio-item-indicator"] { display:none; }
+.gtm-account-theme-option:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }

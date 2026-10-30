@@ -14,6 +14,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger,
   DropdownMenuRadioGroup, DropdownMenuRadioItem,
+  DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
@@ -216,7 +217,7 @@ export function AppSidebar() {
             </span>
             <ChevronsUpDown className="ml-auto size-4 opacity-50" aria-hidden="true" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={6} className="min-w-56">
+          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={8} className="gtm-account-menu min-w-64">
             <DropdownMenuGroup>
               <DropdownMenuItem onClick={() => go("/leads")}><MoreHorizontal aria-hidden="true" />Legacy data</DropdownMenuItem>
               <DropdownMenuItem onClick={() => go("/settings")}><Settings aria-hidden="true" />Settings</DropdownMenuItem>
@@ -228,30 +229,31 @@ export function AppSidebar() {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuLabel>Color theme</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value={preference} onValueChange={value => setPreference(value as ThemePreference)}>
+              <DropdownMenuRadioGroup className="gtm-account-theme" value={preference} onValueChange={value => setPreference(value as ThemePreference)}>
                 {([
                   { value: "light", label: "Light", icon: Sun },
                   { value: "dark", label: "Dark", icon: Moon },
                   { value: "system", label: "System", icon: Monitor },
                 ] as const).map(({ value, label, icon: Icon }) => (
-                  <DropdownMenuRadioItem key={value} value={value}>
+                  <DropdownMenuRadioItem key={value} value={value} className="gtm-account-theme-option">
                     <Icon aria-hidden="true" />{label}
                   </DropdownMenuRadioItem>
                 ))}
               </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs text-muted-foreground">{uiScale.percent}%</span></DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="gtm-account-menu min-w-56" sideOffset={6}>
+                <DropdownMenuRadioGroup value={uiScale.preference}
+                  onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
+                  <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => void logout()}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>UI scale · {uiScale.percent}%</DropdownMenuLabel>
-              <DropdownMenuRadioGroup value={uiScale.preference}
-                onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
-                <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-            </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem></SidebarMenu>
