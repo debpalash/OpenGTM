@@ -1,6 +1,6 @@
 # OpenGTM dashboard transformation work spec
 
-**Status:** implementation-ready proposal; audit complete; application redesign not yet implemented.
+**Status:** dashboard workbench implemented in this branch, including shared Companies/People, import mapping, activation review, adaptive scaling, and source logos. The final merge is subject to combined Go/PostgreSQL/Redis and frontend checks. Production deployment and release publication remain separate work.
 
 **Baseline:** `4375bbdc`, Go-backed local dashboard on port 8002, audited 29 October 2026.
 
