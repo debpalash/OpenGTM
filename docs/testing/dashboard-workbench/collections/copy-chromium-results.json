@@ -1,0 +1,39 @@
+{
+  "engine": "chromium",
+  "axe": [
+    {
+      "name": "concise-populated-overview",
+      "violations": []
+    },
+    {
+      "name": "stale-summary-retains-explicit-warning",
+      "violations": []
+    },
+    {
+      "name": "concise-counts-retain-denominators-and-filtered-actions",
+      "violations": []
+    },
+    {
+      "name": "concise-overview-dark-320",
+      "violations": []
+    },
+    {
+      "name": "concise-overview-dark-390",
+      "violations": []
+    },
+    {
+      "name": "concise-overview-dark-768",
+      "violations": []
+    },
+    {
+      "name": "concise-overview-enlarged-text",
+      "violations": []
+    },
+    {
+      "name": "concise-empty-overview-remains-actionable",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "visible_words": 49
+}

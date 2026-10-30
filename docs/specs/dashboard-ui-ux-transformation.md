@@ -403,6 +403,116 @@ The shell preserves existing routes and `g h` for the assistant; `g d` opens Ove
 
 ## Compact workstation direction — 2026-10-29
 
-The user requested a denser overall site with more workstation depth. This revision supersedes the earlier spacious geometry: 208/52px sidebar, 44px global bar, 64px desktop page header, 44px resource toolbar, 32px table headers, 34px default compact record rows, 32px standard controls, 28px compact controls, and a 400px inspector. Touch controls retain 44px targets and essential metadata retains its 12px readability floor. Standard/comfortable record rows remain available. Operations and Resources start expanded so the complete toolset is visible.
+The user requested a denser overall site with more workstation depth. The current workstation revision supersedes the earlier spacious geometry: 192/52px sidebar, 36px desktop global bar, 44px minimum desktop page header, 40px minimum resource toolbar (41px measured with its border), 32px table headers, 28px compact record rows, 32px standard controls, 28px compact controls, and a 400px inspector. Wide headers place the title and description on one line when space allows. Both text and headers can wrap; touch global chrome grows to 48px. Touch controls retain 44px targets and essential metadata retains its 12px readability floor. Standard/comfortable record rows remain available. Operations and Resources start expanded so the complete toolset is visible.
 
 At the same 1440×1000 viewport and dataset, the initial measured Chromium comparison shows **22 fully visible rows versus 15** in the previous build, with no automated axe violations in either state. Chrome heights: global bar 56→44px, page header 108→64px, toolbar 61→45px, and rows 45→34px. Retest these values after further layout changes rather than treating them as universal screen-density guarantees.
+
+The previous tighter production build showed **24 complete rows at 1440×1000**, versus 22 in the first compact build (9.1% more) and 15 in the original build (60% more). Sidebar collapse now survives a full reload; `[` toggles the rail. Overview and workbook lists use the available width, and audience navigation/detail spacing follows the compact rhythm. These geometry measurements are fixture-specific; workflow, browser and manual gates remain in the completion audit.
+
+
+The dense workstation revision fits **28 complete company rows at 1440×1000**
+against 24 in the immediately preceding build, using the same 1,000-company
+fixture. Collection text stays at 13px; standard and comfortable rows remain
+40/48px. Coarse-pointer identity and selection controls remain at least 44px.
+The shared table primitive uses 13px data text, 32px headings and 4px vertical
+cell insets; controls and multiline content can grow rows intrinsically.
+
+Overview metrics form one divided strip, while recent workbooks and imports
+share the primary column beside attention/tools. The workbook editor uses two
+intentional tool rows with inline title metadata when space allows. Workbook
+lists, inspector facts and editing forms use tighter padding without hiding
+fields or reducing form-control targets. Local verification and captures are
+recorded in [Dense workstation verification](../testing/dashboard-workbench/workstation/README.md).
+
+
+## Workspace, draft and activation trust implementation — 2026-10-29
+
+The shared leave guard owns route/Back/reload and explicit workspace/sign-out
+confirmation for registered editors. Record and instance-provider drafts use it;
+provider section changes also request a decision before unmounting their forms.
+An in-flight registered save cannot be discarded. Forced session revocation
+cancels pending decisions and clears private views immediately. Drafts and tokens
+stay in memory, without persisting contact data or secrets in browser storage.
+
+The active workspace used by request headers is bound to each tab's displayed
+workspace. Local storage retains the preference for new tabs. A switch in another
+tab does not silently redirect existing tabs' requests. The workspace manager
+uses the same auth switch, cache clearing and error contract as the shell.
+
+Instance provider controls follow `/auth/me.is_admin`, matching the Go routes'
+`RequireGlobalAdmin` policy. Workspace administration does not imply permission
+to change instance-wide provider credentials. Failed writes/tests/default changes
+retain drafts and show errors. A confirmed provider save settles the edit
+baseline independently of a subsequent settings read. Agents settings link to
+actual workbook, automation and watch configuration instead of local-only toggles.
+
+Inbound token setup owns rotation review, token memory, paged callbacks and
+clipboard/manual-storage acknowledgement. A history error cannot hide a newly
+issued token or become a successful empty history. Advertising destinations
+require an explicit attestation scoped to the audience and destination type.
+External sync/retry/cancel review, the remaining administration forms and all
+manual/browser/release gates remain tracked in the completion audit.
+
+
+## Reviewed audience activation implementation — 2026-10-29
+
+Audience destination actions use a feature-owned workbench. Sync, retry and
+cancellation load current audience/destination data, show the target, mapping and
+operation semantics, and recheck effective permission and reviewed scope before
+submission. Reordered custom field maps remain review-significant because the
+backend resolves duplicate target mappings in source order. A changed scope
+requires another explicit review. This is a preflight recheck, not an immutable
+execution snapshot: sync/retry use membership/settings available when the job
+executes, as the interface explains.
+
+A confirmed action receipt is kept before any subsequent read. The shared query
+cache also records its latest run, so a failed destination-list refresh cannot
+revert the card to “No sync runs yet.” Queued work is distinct from delivered
+records; cancellation requested is distinct from cancellation completed. A lost
+response requires history review before another submission. Run history uses
+20-row cursor pages; delivery history uses 50-row keyset pages and native status
+filters. Counts stay scoped to the selected run; loaded receipt counts are labeled
+as loaded. Canonical Company/Person links do not manufacture a legacy lead ID.
+
+Membership refresh may enqueue enabled destinations when membership changes.
+Refresh, schedule enablement and interval changes therefore review those targets
+and recheck the scope. Pausing a schedule explicitly leaves existing sync runs
+alone. Refresh receipts represent membership, with a last-confirmed time; external
+delivery results are read from destination run history. Registered pending writes
+use operation-specific leave-guard labels. Keyboard focus moves to the result
+heading after a confirmation control is replaced, and restores to an available
+trigger on close.
+
+The Go API adds workspace-scoped `GET /api/audience-destinations/access` for the
+effective `activation.write` permission, including explicit member overrides.
+Canonical-only delivery rows expose `company_id`/`person_id` with `lead_id: null`;
+legacy Lead response shapes stay unchanged even when compatibility aliases exist.
+The original parity route/fixture gates remain separate from the explicit Go-only
+permission extension and its integration coverage. No schema migration is needed.
+
+Destination creation now has configure/review/receipt across all 12 types, visible labels, guarded per-type drafts, automatic-activation and ad acknowledgements, scope/permission rechecks, exact endpoint inspection, and unknown-response reconciliation without resubmission. Saved configuration never asserts successful external delivery. Evidence and distinct build snapshots are in `../testing/dashboard-workbench/setup/README.md`.
+
+The actual home URL now has an index redirect through authentication; signed-out and signed-in reloads pass in Chromium and WebKit. Native destination inserts explicitly write UTC under every session timezone, with a three-zone regression. Historical timestamps are not rewritten. The remaining activation routes, manual AT, browser/performance/operator and rollout gates stay open in the completion audit.
+
+## Provider settings trust and compact controls — 2026-10-29
+
+Provider key, endpoint, model and default updates now commit together; encryption/write failures leave all fields unchanged. The editor accepts only a receipt for the requested provider, distinguishes refused/unknown outcomes, and reconciles saved model/default values without a new write. Masked keys never establish exact equality. Confirmed receipts settle drafts even if the following read fails. Search/configuration filters keep forms mounted and drafts protected. Explicit discard clears only the selected provider draft, discloses that saved settings remain, and returns focus to its receipt. Testing uses saved settings, discloses usage and clears stale results after edits. Settings now shares the compact heading; controls wrap and grow for readable touch interaction. Evidence and remaining limitations are in `../testing/dashboard-workbench/providers/README.md`. Other administration forms and full release gates remain in the completion audit.
+
+## Collection configuration and concise overview — 2026-10-29
+
+Companies and People now have the specified defaults, with previewable show/hide/order controls, fixed pinned identity and user/workspace/type-scoped preferences. Core-fact coverage is explained per record without implying verified accuracy. Verification status accepts structured results; company links resolve actual canonical identity, and unknown employers are plain text. The overview keeps numeric scope/freshness and errors while removing repeated explanations and promoting compact actions. Native large-data, focus, browser-preference and rendered evidence is maintained in `../testing/dashboard-workbench/collections/README.md`. Remaining lifecycle, manual accessibility, performance and rollout gates remain authoritative in the completion audit.
+
+## Import mapping implementation — 2026-10-29
+
+File inspection now precedes row preview, so duplicate suggestions can be repaired
+before validation. The feature groups destinations by ownership, shows exact
+source samples and match provenance, preserves typing focus during remapping, and
+keeps source/mapping immutable during an uncertain import. Receipt recovery is
+validated and read-only, including after reload; storage failures are explicit.
+Results link accepted records and offer selection for separately reviewed
+enrichment without starting a provider run. The compact mobile task retains its
+footer, touch targets and leave protection.
+
+[Import verification](../testing/dashboard-workbench/imports/README.md) records
+the native browser journeys and the unresolved 10,000-row integration timeout.
+The original transformation scope and release gates remain unchanged.

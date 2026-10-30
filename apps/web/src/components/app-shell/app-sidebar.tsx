@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useRef, useState } from "react"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
-  MoreHorizontal, Search, Settings, SquarePen, Sun, SunMoon, Trash2,
+  MoreHorizontal, Search, Settings, SquarePen, Sun, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -13,12 +13,14 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger,
+  DropdownMenuRadioGroup, DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
 import { useConversations, useJobs } from "@/lib/hooks"
 import { useAuth } from "@/lib/auth-context"
-import { useTheme } from "@/design-system/theme/use-theme"
+import { useTheme, type ThemePreference } from "@/design-system/theme/use-theme"
+import { useUIScale, type UIScalePreference } from "@/design-system/theme/use-ui-scale"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
@@ -37,9 +39,10 @@ export function AppSidebar() {
   const { data: conversations } = useConversations()
   const { user, workspaces, activeWorkspaceId, switchWorkspace, logout } = useAuth()
   const { preference, setPreference } = useTheme()
+  const uiScale = useUIScale()
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
-  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(true)
   const [closedGroups, setClosedGroups] = useState(() => new Set<string>())
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatDraft, setNewChatDraft] = useState("")
@@ -72,7 +75,7 @@ export function AppSidebar() {
   async function changeWorkspace(id: string) {
     if (id === activeWorkspaceId) return
     setSwitching(true)
-    try { await switchWorkspace(id); go("/chat") }
+    try { if (await switchWorkspace(id)) go("/chat") }
     catch (error) { toast.error(error instanceof Error ? error.message : "Could not switch workspace. Try again.") }
     finally { setSwitching(false) }
   }
@@ -166,7 +169,7 @@ export function AppSidebar() {
         </SidebarGroup>)}
       </nav>
 
-      <SidebarGroup role="region" aria-label="Recent conversations" className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroup role="region" aria-label="Recent chats navigation" className="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel render={<button type="button" aria-expanded={historyOpen} aria-controls="recent-chat-list" onClick={() => setHistoryOpen(!historyOpen)} />}
           className="cursor-pointer hover:text-sidebar-foreground">
           Recent chats
@@ -203,7 +206,7 @@ export function AppSidebar() {
     <SidebarFooter>
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
+          <DropdownMenuTrigger aria-label="Account menu" title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
             <Avatar className="size-8 rounded-lg">
               <AvatarFallback className="rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">{initials(user?.username ?? "")}</AvatarFallback>
             </Avatar>
@@ -223,30 +226,31 @@ export function AppSidebar() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem></SidebarMenu>
-      <SidebarMenu><SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger title="Change appearance"
-            render={<SidebarMenuButton className="data-popup-open:bg-sidebar-accent" />}>
-            <SunMoon aria-hidden="true" /><span>Appearance</span>
-            <span className="ml-auto text-xs capitalize text-muted-foreground group-data-[collapsible=icon]:hidden">{preference}</span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={6} className="min-w-44">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Color theme</DropdownMenuLabel>
-              {([
-                { value: "light", label: "Light", icon: Sun },
-                { value: "dark", label: "Dark", icon: Moon },
-                { value: "system", label: "System", icon: Monitor },
-              ] as const).map(({ value, label, icon: Icon }) => (
-                <DropdownMenuItem key={value} onClick={() => setPreference(value)}>
-                  <Icon aria-hidden="true" />{label}
-                  {preference === value && <Check className="ml-auto" aria-label="Selected" />}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuRadioGroup value={preference} onValueChange={value => setPreference(value as ThemePreference)}>
+                {([
+                  { value: "light", label: "Light", icon: Sun },
+                  { value: "dark", label: "Dark", icon: Moon },
+                  { value: "system", label: "System", icon: Monitor },
+                ] as const).map(({ value, label, icon: Icon }) => (
+                  <DropdownMenuRadioItem key={value} value={value}>
+                    <Icon aria-hidden="true" />{label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => void logout()}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>UI scale · {uiScale.percent}%</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={uiScale.preference}
+                onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
+                <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
           </DropdownMenuContent>
         </DropdownMenu>

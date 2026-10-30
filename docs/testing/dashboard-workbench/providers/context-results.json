@@ -1,0 +1,53 @@
+{
+  "axe": [
+    {
+      "name": "settings-section-guard",
+      "violations": []
+    },
+    {
+      "name": "workspace-guard",
+      "violations": []
+    },
+    {
+      "name": "provider-save-error",
+      "violations": []
+    },
+    {
+      "name": "pending-provider-save",
+      "violations": []
+    },
+    {
+      "name": "providers-unavailable",
+      "violations": []
+    },
+    {
+      "name": "honest-agent-workflows",
+      "violations": []
+    },
+    {
+      "name": "instance-provider-view-only",
+      "violations": []
+    },
+    {
+      "name": "mobile-settings-guard",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "workspace_ids": [
+    "1476bed0-594e-41ee-90e5-bdf922606bf2",
+    "a1633adc-6ce3-43fc-b415-2d760f7bacf9"
+  ],
+  "section_route_and_workspace_cancel_keep_drafts_without_switch_requests": "pass",
+  "explicit_section_discard_releases_the_old_form": "pass",
+  "provider_http_failure_keeps_draft_and_has_no_false_success": "pass",
+  "pending_save_cannot_be_abandoned_by_workspace_change": "pass",
+  "confirmed_provider_save_does_not_depend_on_followup_read": "pass",
+  "cross_tab_workspace_switch_does_not_redirect_existing_tab_requests": "pass",
+  "denied_switch_keeps_current_workspace_and_data": "pass",
+  "workspace_manager_uses_auth_context_and_clears_previous_data": "pass",
+  "provider_read_error_and_malformed_response_retry": "pass",
+  "instance_permissions_and_agent_workflows_are_honest": "pass",
+  "explicit_signout_is_guarded_and_other_tabs_clear_private_data": "pass",
+  "revoked_session_cancels_pending_actions_and_clears_private_forms": "pass"
+}

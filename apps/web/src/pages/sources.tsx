@@ -17,6 +17,7 @@ import {
 import { getActiveWorkspace } from "@/lib/auth"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
+import { SourceLogo } from "@/components/source-logo"
 import {
   Loader2,
   Search,
@@ -69,7 +70,7 @@ import { toast } from "sonner"
 const API_BASE = import.meta.env.VITE_API_URL || ""
 
 // Map icon name strings from the API to Lucide components
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   search: Search,
   "map-pin": MapPin,
   "book-open": BookOpen,
@@ -339,7 +340,7 @@ export default function SourcesPage() {
                           : "border-border bg-background"
                       }`}
                     >
-                      <IconComponent className="size-4 text-muted-foreground shrink-0" />
+                      <SourceLogo id={source.id} fallback={IconComponent} />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">
                           {source.name}

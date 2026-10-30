@@ -1,3 +1,4 @@
+import { fetchProviderSettings } from "@/features/settings/provider-client"
 import { getActiveWorkspace } from "./auth"
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
@@ -387,28 +388,12 @@ export function useSSE(url = "/api/events") {
 
 // ── Providers ───────────────────────────────────────────────────
 
-export interface Provider {
-  id: string
-  name: string
-  icon: string
-  configured: boolean
-  api_key_masked: string
-  base_url: string
-  model: string
-  default_model: string
-  docs_url: string
-  free_tier: string
-  is_default: boolean
-  openai_compatible: boolean
-}
+export type { Provider } from "@/features/settings/provider-client"
 
 export function useProviders() {
   return useQuery({
     queryKey: queryKeys.providers,
-    queryFn: async (): Promise<{ providers: Provider[]; default_provider: string }> => {
-      const res = await fetch("/api/settings/providers")
-      return res.json()
-    },
+    queryFn: ({ signal }) => fetchProviderSettings(signal),
     staleTime: 60 * 1000,
   })
 }

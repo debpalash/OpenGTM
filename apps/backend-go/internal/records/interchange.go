@@ -57,42 +57,47 @@ func headerKey(s string) string {
 	}, strings.TrimPrefix(s, "\ufeff"))
 }
 func SuggestedField(header string, k Kind) string {
+	target, _ := suggestedField(header, k)
+	return target
+}
+
+func suggestedField(header string, k Kind) (string, bool) {
 	if strings.HasPrefix(header, "company.") || strings.HasPrefix(header, "person.") || strings.HasPrefix(header, "employment.") {
-		return header
+		return header, true
 	}
 	h := headerKey(header)
 	if h == "id" {
-		return "external_id"
+		return "external_id", true
 	}
 	shared := map[string]string{"company": "company.name", "companyname": "company.name", "companyemail": "company.email", "companyphone": "company.phone", "organization": "company.name", "organizationname": "company.name", "companydomain": "company.domain", "domain": "company.domain", "website": "company.website", "companywebsite": "company.website", "industry": "company.industry", "employees": "company.employee_count_exact", "employeecount": "company.employee_count_exact", "companysize": "company.company_size", "companylinkedinurl": "company.linkedin_url", "companydescription": "company.description", "companyid": "company_id", "opengtmcompanyid": "company_id", "personid": "person_id", "opengtmpersonid": "person_id", "rowid": "external_id", "clayrowid": "external_id", "externalid": "external_id", "companyexternalid": "company_external_id", "companysource": "company_source"}
 	if v := shared[h]; v != "" {
-		return v
+		return v, true
 	}
 	if h == "opengtmid" {
 		if k == Person {
-			return "person_id"
+			return "person_id", true
 		}
-		return "company_id"
+		return "company_id", true
 	}
 	if k == Person {
 		personal := map[string]string{"name": "person.full_name", "fullname": "person.full_name", "contactperson": "person.full_name", "firstname": "person.first_name", "lastname": "person.last_name", "email": "person.email", "workemail": "person.email", "emailaddress": "person.email", "personalemail": "person.personal_email", "phone": "person.phone", "phonenumber": "person.phone", "mobilephone": "person.mobile_phone", "linkedin": "person.linkedin_url", "linkedinurl": "person.linkedin_url", "linkedinprofile": "person.linkedin_url", "personlinkedinurl": "person.linkedin_url", "title": "employment.title", "jobtitle": "employment.title", "contacttitle": "employment.title", "seniority": "employment.seniority", "department": "employment.department"}
 		if v := personal[h]; v != "" {
-			return v
+			return v, true
 		}
 	} else {
 		if h == "name" {
-			return "company.name"
+			return "company.name", true
 		}
 		if h == "email" || h == "phone" || h == "linkedinurl" || h == "description" {
-			return "company." + map[string]string{"email": "email", "phone": "phone", "linkedinurl": "linkedin_url", "description": "description"}[h]
+			return "company." + map[string]string{"email": "email", "phone": "phone", "linkedinurl": "linkedin_url", "description": "description"}[h], true
 		}
 	}
 	for _, f := range []string{"city", "state", "country", "address", "technologies", "funding_stage", "revenue_range"} {
 		if h == headerKey(f) {
-			return "company." + f
+			return "company." + f, true
 		}
 	}
-	return string(k) + "." + strings.TrimPrefix(header, "\ufeff")
+	return string(k) + "." + strings.TrimPrefix(header, "\ufeff"), false
 }
 
 // FlatWrite adapts existing lead-shaped connector payloads while retaining
@@ -136,7 +141,7 @@ func cellValue(s string) any {
 	}
 	return s
 }
-func (r *ImportRequest) prepare() ([]map[string]any, map[string]string, error) {
+func (r *ImportRequest) sourceRows() ([]map[string]any, []string, error) {
 	if !r.Kind.Valid() {
 		return nil, nil, errors.New("record_type must be company or person")
 	}
@@ -149,6 +154,7 @@ func (r *ImportRequest) prepare() ([]map[string]any, map[string]string, error) {
 	}
 	rows := r.Rows
 	headers := map[string]bool{}
+	var ordered []string
 	if r.CSV != "" {
 		reader := csv.NewReader(strings.NewReader(strings.TrimPrefix(r.CSV, "\ufeff")))
 		reader.ReuseRecord = true
@@ -165,6 +171,7 @@ func (r *ImportRequest) prepare() ([]map[string]any, map[string]string, error) {
 				return nil, nil, errors.New("CSV headers must be nonempty and unique")
 			}
 			headers[name] = true
+			ordered = append(ordered, name)
 		}
 		for {
 			values, err := reader.Read()
@@ -191,13 +198,29 @@ func (r *ImportRequest) prepare() ([]map[string]any, map[string]string, error) {
 		if len(row) > 256 {
 			return nil, nil, errors.New("a row has more than 256 columns")
 		}
+		keys := make([]string, 0, len(row))
 		for key := range row {
-			headers[key] = true
+			keys = append(keys, key)
 		}
+		sort.Strings(keys)
+		for _, key := range keys {
+			if !headers[key] {
+				ordered = append(ordered, key)
+				headers[key] = true
+			}
+		}
+	}
+	return rows, ordered, nil
+}
+
+func (r *ImportRequest) prepare() ([]map[string]any, map[string]string, error) {
+	rows, headers, err := r.sourceRows()
+	if err != nil {
+		return nil, nil, err
 	}
 	mapping := map[string]string{}
 	targets := map[string]string{}
-	for header := range headers {
+	for _, header := range headers {
 		target, ok := r.Mapping[header]
 		if !ok {
 			target = SuggestedField(header, r.Kind)
@@ -288,6 +311,14 @@ func (s Store) Import(ctx context.Context, ws string, req ImportRequest, preview
 	sum := sha256.Sum256(raw)
 	hash := hex.EncodeToString(sum[:])
 	err = tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
+		// A fresh import can grow a tenant from zero to thousands of records in
+		// one transaction. Reusing generic plans selected for the empty tables
+		// can turn point lookups inside the record functions into tenant scans.
+		// Plan with the actual row values; LOCAL restores the pool connection's
+		// setting on commit or rollback, including preview rollback.
+		if _, e := tx.Exec(ctx, `SET LOCAL plan_cache_mode = force_custom_plan`); e != nil {
+			return e
+		}
 		if !preview {
 			if _, e := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, ws+"|import|"+req.IdempotencyKey); e != nil {
 				return e

@@ -1,0 +1,266 @@
+{
+  "duckduckgo": {
+    "file": "duckduckgo.svg"
+  },
+  "google_maps": {
+    "file": "google_maps.svg"
+  },
+  "linkedin": {
+    "file": "linkedin.svg"
+  },
+  "indiamart": {
+    "file": "indiamart.svg"
+  },
+  "justdial": {
+    "file": "justdial.svg"
+  },
+  "tradeindia": {
+    "file": "tradeindia.svg"
+  },
+  "sulekha": {
+    "file": "sulekha.svg"
+  },
+  "exportersindia": {
+    "file": "exportersindia.svg"
+  },
+  "ambitionbox": {
+    "file": "ambitionbox.svg"
+  },
+  "glassdoor_in": {
+    "file": "glassdoor_in.svg"
+  },
+  "naukri": {
+    "file": "naukri.svg"
+  },
+  "zaubacorp": {
+    "file": "zaubacorp.svg"
+  },
+  "tofler": {
+    "file": "tofler.svg"
+  },
+  "yourstory": {
+    "file": "yourstory.svg"
+  },
+  "inc42": {
+    "file": "inc42.svg"
+  },
+  "clutch": {
+    "file": "clutch.svg"
+  },
+  "goodfirms": {
+    "file": "goodfirms.svg"
+  },
+  "g2": {
+    "file": "g2.svg"
+  },
+  "softwaresuggest": {
+    "file": "softwaresuggest.svg"
+  },
+  "techbehemoths": {
+    "file": "techbehemoths.svg"
+  },
+  "yellowpages": {
+    "file": "yellowpages.svg"
+  },
+  "yelp": {
+    "file": "yelp.svg"
+  },
+  "bbb": {
+    "file": "bbb.svg"
+  },
+  "thomasnet": {
+    "file": "thomasnet.svg"
+  },
+  "crunchbase": {
+    "file": "crunchbase.svg"
+  },
+  "tracxn": {
+    "file": "tracxn.svg"
+  },
+  "angellist": {
+    "file": "angellist.svg"
+  },
+  "linkedin_companies": {
+    "file": "linkedin_companies.svg"
+  },
+  "facebook_pages": {
+    "file": "facebook_pages.svg"
+  },
+  "indeed": {
+    "file": "indeed.svg"
+  },
+  "glassdoor": {
+    "file": "glassdoor.svg"
+  },
+  "europages": {
+    "file": "europages.svg"
+  },
+  "kompass": {
+    "file": "kompass.svg"
+  },
+  "capterra": {
+    "file": "capterra.svg"
+  },
+  "getapp": {
+    "file": "getapp.svg"
+  },
+  "producthunt": {
+    "file": "producthunt.svg"
+  },
+  "sourceforge": {
+    "file": "sourceforge.svg"
+  },
+  "alternativeto": {
+    "file": "alternativeto.svg"
+  },
+  "saashub": {
+    "file": "saashub.svg"
+  },
+  "stackshare": {
+    "file": "stackshare.svg"
+  },
+  "appsumo": {
+    "file": "appsumo.svg"
+  },
+  "trustpilot": {
+    "file": "trustpilot.svg"
+  },
+  "tripadvisor": {
+    "file": "tripadvisor.svg"
+  },
+  "google_reviews": {
+    "file": "google_reviews.svg"
+  },
+  "mouthshut": {
+    "file": "mouthshut.svg"
+  },
+  "upwork": {
+    "file": "upwork.svg"
+  },
+  "fiverr": {
+    "file": "fiverr.svg"
+  },
+  "toptal": {
+    "file": "toptal.svg"
+  },
+  "freelancer": {
+    "file": "freelancer.svg"
+  },
+  "bark": {
+    "file": "bark.svg"
+  },
+  "github_orgs": {
+    "file": "github_orgs.svg"
+  },
+  "stackoverflow_jobs": {
+    "file": "stackoverflow_jobs.svg"
+  },
+  "hackernews": {
+    "file": "hackernews.svg"
+  },
+  "devto": {
+    "file": "devto.svg"
+  },
+  "google_news": {
+    "file": "google_news.svg"
+  },
+  "economic_times": {
+    "file": "economic_times.svg"
+  },
+  "business_standard": {
+    "file": "business_standard.svg"
+  },
+  "livemint": {
+    "file": "livemint.svg"
+  },
+  "techcrunch": {
+    "file": "techcrunch.svg"
+  },
+  "forbes": {
+    "file": "forbes.svg"
+  },
+  "yellowpages_in": {
+    "file": "yellowpages_in.svg"
+  },
+  "grotal": {
+    "file": "grotal.svg"
+  },
+  "urbanpro": {
+    "file": "urbanpro.svg"
+  },
+  "dial4trade": {
+    "file": "dial4trade.svg"
+  },
+  "fundoodata": {
+    "file": "fundoodata.svg"
+  },
+  "startup_india": {
+    "file": "startup_india.svg"
+  },
+  "nasscom": {
+    "file": "nasscom.svg"
+  },
+  "shine": {
+    "file": "shine.svg"
+  },
+  "monsterindia": {
+    "file": "monsterindia.svg"
+  },
+  "manta": {
+    "file": "manta.svg"
+  },
+  "dnb": {
+    "file": "dnb.svg"
+  },
+  "opencorporates": {
+    "file": "opencorporates.svg"
+  },
+  "companieshouse": {
+    "file": "companieshouse.svg"
+  },
+  "dealroom": {
+    "file": "dealroom.svg"
+  },
+  "cbinsights": {
+    "file": "cbinsights.svg"
+  },
+  "foursquare": {
+    "file": "foursquare.svg"
+  },
+  "hotfrog": {
+    "file": "hotfrog.svg"
+  },
+  "brownbook": {
+    "file": "brownbook.svg"
+  },
+  "cylex": {
+    "file": "cylex.svg"
+  },
+  "twitter_companies": {
+    "file": "twitter_companies.svg"
+  },
+  "instagram_business": {
+    "file": "instagram_business.svg"
+  },
+  "reddit_companies": {
+    "file": "reddit_companies.svg"
+  },
+  "quora_companies": {
+    "file": "quora_companies.svg"
+  },
+  "amazon_sellers": {
+    "file": "amazon_sellers.svg"
+  },
+  "flipkart_sellers": {
+    "file": "flipkart_sellers.svg"
+  },
+  "shopify_stores": {
+    "file": "shopify_stores.svg"
+  },
+  "firecrawl": {
+    "file": "firecrawl.svg"
+  },
+  "spicrawl": {
+    "file": "spicrawl.svg"
+  }
+}

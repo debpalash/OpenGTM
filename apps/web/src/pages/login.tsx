@@ -222,11 +222,11 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </div>
           <nav aria-label="OpenGTM on the web" className="flex items-center gap-2">
             <a href={`https://github.com/${GITHUB_REPO}`} target="_blank" rel="noreferrer"
-              aria-label={stars === null ? "Star OpenGTM on GitHub" : `Star OpenGTM on GitHub, ${stars} stars`}
               className="flex h-9 items-center gap-2 rounded-full bg-white/80 pr-1 pl-3 text-[13px] font-medium text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
               <GitHubMark className="size-4" />
               <span>Star</span>
               <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] tabular-nums [corner-shape:round]">{stars === null ? "GitHub" : formatStars(stars)}</span>
+              <span className="sr-only">OpenGTM on GitHub (opens in a new tab)</span>
             </a>
             {X_URL && (
               <a href={X_URL} target="_blank" rel="noreferrer" aria-label="OpenGTM on X"

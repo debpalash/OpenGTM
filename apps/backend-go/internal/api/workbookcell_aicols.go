@@ -5,10 +5,8 @@ import (
 	"log/slog"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/browserclient"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
@@ -42,12 +40,9 @@ func aiColumns(d Deps, log *slog.Logger) *workbook.AIColumns {
 	app := &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: getenv}
 	httpc := egress.NewOperatorClient(d.EgressAllowHosts)
 	appEnv, allow := d.Config.AppEnv, d.EgressAllowHosts
-	var web *leadweb.Web
-	var bc *browserclient.Client
-	if b := d.browser(); b.Configured() {
-		bc, web = b, d.leadweb() // the process's one leadweb (rate limits, breaker, search cache)
-	} else {
-		log.Warn("cell run: BROWSER_SERVICE_URL is not set; research cells run without web search and page fetch")
+	bc, web := d.browser(), d.leadweb()
+	if !bc.Configured() {
+		log.Warn("cell run: BROWSER_SERVICE_URL is not set; browser rendering is unavailable; configured web API providers remain available")
 	}
 	return &workbook.AIColumns{For: func(_ context.Context, ws string) aicol.Deps {
 		cd := aicol.Deps{
@@ -57,8 +52,15 @@ func aiColumns(d Deps, log *slog.Logger) *workbook.AIColumns {
 			URLCheck: func(u string) error { return egress.CheckURLFor(appEnv, allow, u, true) },
 		}
 		if web != nil {
-			cd.Search = aicol.WebSearch{Searcher: web.Search, Workspace: ws}
-			cd.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
+			if bc.Configured() || web.Search.KeyedConfigured() {
+				cd.Search = aicol.WebSearch{Searcher: web.Search, Workspace: ws}
+			}
+			if bc.Configured() {
+				cd.Pages = aicol.WebPages{Fetcher: web.Fetch, Extractor: bc}
+			}
+			if web.Spicrawl != nil {
+				cd.Pages = web.Spicrawl
+			}
 		}
 		return cd
 	}}

@@ -250,6 +250,21 @@ try:
         page.evaluate('document.documentElement.style.fontSize="200%"')
         expect(page.get_by_role("heading", name="Workspace overview")).to_be_visible()
         assert page.evaluate("document.documentElement.scrollWidth<=innerWidth")
+        text_fit = page.evaluate("""() => {
+          const contained = (inner, outer) => inner.top >= outer.top - 1 && inner.bottom <= outer.bottom + 1;
+          const crowded = [...document.querySelectorAll('nav [data-sidebar="menu-button"]')].filter(row => {
+            const bounds = row.getBoundingClientRect();
+            return [...row.children].some(child => !contained(child.getBoundingClientRect(), bounds));
+          }).map(row => row.textContent.trim());
+          const workspace = document.querySelector('[title="Switch workspace"]');
+          const breadcrumb = document.querySelector('.gtm-breadcrumb').getBoundingClientRect();
+          const toolbar = document.querySelector('.gtm-topbar').getBoundingClientRect();
+          return {crowdedNavigation: crowded,
+            workspaceFits: contained(workspace.querySelector('.grid').getBoundingClientRect(), workspace.getBoundingClientRect()),
+            breadcrumbFits: contained(breadcrumb, toolbar)};
+        }""")
+        assert not text_fit["crowdedNavigation"] and text_fit["workspaceFits"] and text_fit["breadcrumbFits"], text_fit
+        log("enlarged_text_fits_navigation_and_workspace", text_fit)
         page.screenshot(path=str(out / "text-zoom-200.png"))
         log("overview_text_zoom_200")
         page.evaluate('document.documentElement.style.fontSize=""')

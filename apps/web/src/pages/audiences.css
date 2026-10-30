@@ -3,7 +3,7 @@
 }
 .audiences-layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 224px minmax(0, 1fr);
   flex: 1;
   min-height: 0;
 }
@@ -11,8 +11,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 12px;
-  padding: 24px 16px;
+  gap: 6px;
+  padding: 12px;
   border-right: 1px solid var(--border);
   background: var(--gtm-canvas);
   overflow: auto;
@@ -22,8 +22,15 @@
 }
 .audiences-detail {
   min-width: 0;
-  padding: 24px;
+  padding: 12px 16px;
   overflow: auto;
+}
+.audiences-list-item {
+  padding: 8px;
+}
+.audiences-list-item > p {
+  margin-top: 4px;
+  line-height: 1.4;
 }
 .audiences-receipt {
   display: flex;
@@ -54,10 +61,10 @@
 }
 @media (max-width: 1100px) {
   .audiences-layout {
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 208px minmax(0, 1fr);
   }
   .audiences-detail {
-    padding: 20px;
+    padding: 12px;
   }
 }
 @media (max-width: 850px) {

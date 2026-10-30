@@ -74,6 +74,11 @@ func audienceGoPatterns(t *testing.T) map[string]bool {
 	RegisterDestinations(r, d)
 	out := map[string]bool{}
 	for _, p := range r.Patterns() {
+		// This Go-only UI permission endpoint has dedicated role/override/tenant
+		// integration coverage. It does not replace any of the 25 parity routes.
+		if p == "GET /api/audience-destinations/access" {
+			continue
+		}
 		out[p] = true
 	}
 	// Plan 15 WP-ROUTES-A: the two capability catalogs moved from the retained list into Go.

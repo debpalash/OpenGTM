@@ -31,6 +31,7 @@ var audiencePatterns = map[string]bool{
 }
 
 var destinationPatterns = map[string]bool{
+	"GET /api/audience-destinations/access":                            true, // Workbench extension; effective permission, not a Python parity route.
 	"GET /api/audience-destinations/types":                             true,
 	"GET /api/audience-destinations":                                   true,
 	"POST /api/audience-destinations":                                  true,
@@ -101,8 +102,8 @@ func TestAudienceRoutePatterns(t *testing.T) {
 }
 
 func TestDestinationRoutePatterns(t *testing.T) {
-	if len(destinationPatterns) != 16 {
-		t.Fatalf("pattern table has %d entries, want 16", len(destinationPatterns))
+	if len(destinationPatterns) != 17 {
+		t.Fatalf("pattern table has %d entries, want 17", len(destinationPatterns))
 	}
 	r := httpx.NewRouter()
 	RegisterDestinations(r, audDeps(true, true, nil))

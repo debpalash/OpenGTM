@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
+import { useLeaveGuard } from "@/features/navigation/leave-guard-provider"
 import {
   Building2,
   Users,
@@ -8,37 +9,55 @@ import {
   Check,
   ArrowUpRight,
   Link2,
-  Loader2,
-  Plus,
-  ShieldCheck
+  ShieldCheck,
+  RefreshCw
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import {
+  Button,
+  Input,
+  Textarea,
+  Field,
+  IconButton,
+  NativeSelect,
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription
-} from "@/components/ui/sheet"
+  SheetDescription,
+  Modal as Dialog,
+  ModalContent as DialogContent,
+  ModalHeader as DialogHeader,
+  ModalTitle as DialogTitle,
+  ModalDescription as DialogDescription,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent
+} from "@/design-system/primitives"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription
-} from "@/components/ui/dialog"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+  createRecordDraft,
+  isRecordDraftDirty,
+  recordDraftWrite,
+  addDraftField,
+  currentTitle,
+  fieldType,
+  DraftFieldError
+} from "@/features/records/record-draft"
+import { RecordConflictReview } from "@/features/records/conflict-review"
+import { CustomFieldCreator } from "@/features/records/custom-field-creator"
+import { CompanyPicker } from "@/features/records/company-picker"
+import { CompanyPeople } from "@/features/records/company-people"
 import { StatusBadge, ErrorState } from "@/design-system/patterns/workbench"
 import { getActiveWorkspace } from "@/lib/auth"
 import { relativeTime, recordTimestamp } from "@/lib/record-overview"
 import {
   displayField,
   recordAPI,
+  fetchSharedRecord,
+  validateSharedRecord,
+  RecordRequestError,
   type RecordKind,
-  type SharedRecord,
-  type RecordPage
+  type SharedRecord
 } from "@/lib/records"
 import "./record-inspector.css"
 
@@ -83,38 +102,35 @@ export function RecordEditor({
   record,
   onClose,
   onSaved,
-  readOnly = false
+  readOnly = false,
+  refreshing = false,
+  refreshError,
+  onRetry
 }: {
   kind: RecordKind
   record?: SharedRecord
   onClose: () => void
   onSaved: () => void
   readOnly?: boolean
+  refreshing?: boolean
+  refreshError?: Error
+  onRetry?: () => void
 }) {
-  const [fields, setFields] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      Object.entries({
-        ...(kind === "company"
-          ? { name: "", domain: "", industry: "", city: "", description: "" }
-          : { full_name: "", email: "", linkedin_url: "", phone: "" }),
-        ...record?.fields
-      }).map(([key, value]) => [key, displayField(value)])
-    )
-  )
-  const [companyID, setCompanyID] = useState(record?.company_id ?? "")
-  const oldTitle = displayField(
-    record?.employments?.find((item) => item.current)?.fields.title
-  )
-  const [title, setTitle] = useState(oldTitle)
+  const [baseline, setBaseline] = useState(record)
+  const [draft, setDraft] = useState(() => createRecordDraft(kind, record))
   const [tab, setTab] = useState("overview")
   const [editing, setEditing] = useState(!record)
   const [confirmClose, setConfirmClose] = useState(false)
-  const [custom, setCustom] = useState("")
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
+  const [conflict, setConflict] = useState<SharedRecord | null>(null)
+  const pendingSave = useRef(false)
+  const dirty = isRecordDraftDirty(draft, baseline)
+  const releaseDraft = useLeaveGuard({ dirty: editing && dirty, busy })
   const workspace = getActiveWorkspace()
   const history = useQuery({
-    queryKey: ["record-history", workspace, kind, record?.id],
+    queryKey: ["record-history", workspace, kind, record?.id, record?.version],
     queryFn: ({ signal }) =>
       recordAPI<Observation[]>(
         `records/${kind}/${record!.id}/history`,
@@ -124,98 +140,172 @@ export function RecordEditor({
       ),
     enabled: !!record && (tab === "sources" || tab === "history")
   })
-  const companies = useQuery({
-    queryKey: ["record-companies-picker", workspace],
-    queryFn: ({ signal }) =>
-      recordAPI<RecordPage>(
-        "records/company?limit=500",
-        undefined,
-        "GET",
-        signal
-      ),
-    enabled: kind === "person" && editing
-  })
-  const dirty =
-    Object.entries(fields).some(
-      ([key, value]) => value !== displayField(record?.fields[key])
-    ) ||
-    companyID !== (record?.company_id ?? "") ||
-    title !== oldTitle
+  const shown = editing ? baseline : record
+  const oldTitle = currentTitle(shown)
   const requestClose = () => {
-    if (busy) return
+    if (pendingSave.current) return
     if (dirty && editing) setConfirmClose(true)
-    else onClose()
+    else {
+      releaseDraft()
+      onClose()
+    }
+  }
+  const keepEditing = () => {
+    setConfirmClose(false)
+  }
+  const discard = () => {
+    if (pendingSave.current) return
+    releaseDraft()
+    setConfirmClose(false)
+    onClose()
+  }
+  function startEditing() {
+    setBaseline(record)
+    setDraft(createRecordDraft(kind, record))
+    setEditing(true)
+    setError("")
+    setFieldErrors({})
+  }
+  function changeField(key: string, value: string) {
+    setDraft((previous) => ({
+      ...previous,
+      fields: { ...previous.fields, [key]: value }
+    }))
+    setFieldErrors((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).filter(([field]) => field !== key)
+      )
+    )
+    setError("")
   }
   const Icon = kind === "company" ? Building2 : Users
   const name =
-    displayField(record?.fields.name || record?.fields.full_name) ||
-    `New ${kind}`
+    displayField(
+      shown?.fields.name ||
+        shown?.fields.full_name ||
+        shown?.fields.domain ||
+        shown?.fields.email
+    ) || (record ? `Unnamed ${kind}` : `New ${kind}`)
+  async function reviewCurrent() {
+    if (!baseline) return
+    recordDraftWrite(kind, draft, baseline)
+    const latest = await fetchSharedRecord(kind, baseline.id)
+    if (latest.version < baseline.version)
+      throw new Error(
+        "The current response is older than the reviewed draft. Your draft is kept; load the current version again."
+      )
+    if (latest.version === baseline.version) {
+      setError(
+        "The shared version has not changed. Review email, profile, domain and source identifiers before retrying. Your draft is kept."
+      )
+      return
+    }
+    setConflict(latest)
+    setTab("overview")
+    setError("")
+  }
   async function save() {
+    if (pendingSave.current || conflict) return
     if (readOnly) {
       setError("You have view access. Your draft is kept.")
       return
     }
+    let body: ReturnType<typeof recordDraftWrite>
+    try {
+      body = recordDraftWrite(kind, draft, baseline)
+    } catch (cause) {
+      if (cause instanceof DraftFieldError) {
+        setFieldErrors({ [cause.field]: cause.message })
+        setTab("overview")
+        requestAnimationFrame(() =>
+          document
+            .getElementById(
+              cause.field === "$employment"
+                ? "record-current-company"
+                : cause.field === "$custom"
+                  ? "record-custom-name"
+                  : `record-field-${encodeURIComponent(cause.field)}`
+            )
+            ?.focus()
+        )
+      }
+      setError(
+        cause instanceof Error ? cause.message : "Check the draft values."
+      )
+      return
+    }
+    if (baseline && record && record.version > baseline.version) {
+      setConflict(record)
+      setTab("overview")
+      return
+    }
+    pendingSave.current = true
     setBusy(true)
     setError("")
+    setFieldErrors({})
     try {
-      const data: Record<string, unknown> = {}
-      for (const [key, value] of Object.entries(fields)) {
-        const old = record?.fields[key]
-        if (record && value === displayField(old)) continue
-        if (typeof old === "number") {
-          const number = value === "" ? null : Number(value)
-          if (number !== null && !Number.isFinite(number))
-            throw new Error(`${fieldLabel(key)} must be a number.`)
-          data[key] = number
-        } else if (typeof old === "boolean") data[key] = value === "true"
-        else if (typeof old === "object" && old !== null) {
-          try {
-            data[key] = JSON.parse(value)
-          } catch {
-            throw new Error(
-              `${fieldLabel(key)} must contain valid JSON. Your draft is kept.`
-            )
-          }
-        } else data[key] = value
-      }
-      const relation =
-        companyID !== (record?.company_id ?? "")
-          ? companyID
-            ? { company_id: companyID }
-            : { end_employment: true }
-          : {}
-      const body =
-        kind === "company"
-          ? { company: data }
-          : {
-              person: data,
-              ...relation,
-              ...(title !== oldTitle ? { employment: { title } } : {})
-            }
-      await recordAPI(
-        `records/${kind}${record ? `/${record.id}` : ""}`,
-        record ? { ...body, version: record.version } : body,
-        record ? "PATCH" : "POST"
+      const result = await recordAPI<unknown>(
+        `records/${kind}${baseline ? `/${baseline.id}` : ""}`,
+        baseline ? { ...body, version: baseline.version } : body,
+        baseline ? "PATCH" : "POST"
       )
+      const id =
+        baseline?.id ||
+        (result &&
+        typeof result === "object" &&
+        "id" in result &&
+        typeof result.id === "string"
+          ? result.id
+          : "")
+      validateSharedRecord(result, kind, id)
+      releaseDraft()
       onSaved()
       onClose()
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Could not save record. Your draft is kept."
-      )
+      if (
+        cause instanceof RecordRequestError &&
+        cause.status === 409 &&
+        baseline
+      ) {
+        try {
+          await reviewCurrent()
+        } catch {
+          setError(
+            "The record conflicted, and the current version could not be loaded. Your draft is kept. Try reviewing the current version again."
+          )
+        }
+      } else
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Could not confirm the save. Your draft is kept."
+        )
     } finally {
+      pendingSave.current = false
       setBusy(false)
     }
   }
   function useValue(observation: Observation) {
-    setFields((previous) => ({
-      ...previous,
-      [observation.field]: displayField(observation.value)
-    }))
+    const next = editing ? draft : createRecordDraft(kind, record)
+    if (!editing) setBaseline(record)
+    setDraft({
+      ...next,
+      fields: {
+        ...next.fields,
+        [observation.field]: displayField(observation.value)
+      },
+      types: {
+        ...next.types,
+        [observation.field]: fieldType(observation.value)
+      },
+      added: Object.hasOwn(next.fields, observation.field)
+        ? next.added
+        : [...next.added, observation.field]
+    })
     setEditing(true)
+    setConflict(null)
     setTab("overview")
+    setError("")
   }
   return (
     <>
@@ -241,14 +331,59 @@ export function RecordEditor({
                 : displayField(record?.company?.name) ||
                   "Independent person, connected history"}
             </SheetDescription>
+            {readOnly && (
+              <p className="record-access-note" role="status">
+                View only. Editing shared facts requires an editor or admin
+                role.{editing && dirty ? " Your draft is kept." : ""}
+              </p>
+            )}
             {record && (
               <div className="record-inspector-meta">
                 <StatusBadge tone="positive">
                   <ShieldCheck aria-hidden="true" className="size-3" />
                   Shared record
                 </StatusBadge>
-                <span>Version {record.version}</span>
+                <span>
+                  {editing ? "Editing version" : "Version"} {shown?.version}
+                </span>
+                {onRetry && (
+                  <IconButton
+                    className="record-refresh"
+                    label="Refresh record"
+                    title="Refresh record"
+                    size="icon-sm"
+                    variant="ghost"
+                    disabled={refreshing || busy}
+                    aria-busy={refreshing || undefined}
+                    onClick={onRetry}
+                  >
+                    <RefreshCw aria-hidden="true" className="size-3.5" />
+                  </IconButton>
+                )}
               </div>
+            )}
+            {editing &&
+              baseline &&
+              record &&
+              record.version > baseline.version && (
+                <p role="status" className="text-xs text-muted-foreground">
+                  A newer shared version is available. Saving will open a
+                  review; your draft is kept.
+                </p>
+              )}
+            {refreshing && (
+              <p role="status" className="text-xs text-muted-foreground">
+                Checking current record… Your draft is kept.
+              </p>
+            )}
+            {refreshError && (
+              <p role="alert" className="text-xs text-destructive">
+                Refresh failed. Showing the last loaded version; your draft is
+                kept.{" "}
+                <button type="button" onClick={onRetry}>
+                  Try again
+                </button>
+              </p>
             )}
           </SheetHeader>
           <Tabs
@@ -256,8 +391,15 @@ export function RecordEditor({
             onValueChange={(value) => setTab(String(value))}
             className="record-inspector-tabs"
           >
-            <TabsList variant="line" className="record-inspector-tablist">
+            <TabsList
+              variant="line"
+              aria-label="Record views"
+              className="record-inspector-tablist"
+            >
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              {kind === "company" && record && (
+                <TabsTrigger value="people">People</TabsTrigger>
+              )}
               {kind === "person" && record && (
                 <TabsTrigger value="employment">Employment</TabsTrigger>
               )}
@@ -270,7 +412,24 @@ export function RecordEditor({
             </TabsList>
             <div className="record-inspector-scroll">
               <TabsContent value="overview">
-                {!editing && record ? (
+                {conflict && baseline ? (
+                  <RecordConflictReview
+                    key={conflict.version}
+                    kind={kind}
+                    baseline={baseline}
+                    draft={draft}
+                    latest={conflict}
+                    label={fieldLabel}
+                    onResolved={(resolved) => {
+                      setBaseline(conflict)
+                      setDraft(resolved)
+                      setConflict(null)
+                      setError("")
+                      setFieldErrors({})
+                    }}
+                    onCancel={() => setConflict(null)}
+                  />
+                ) : !editing && record ? (
                   <>
                     <div className="record-inspector-section-heading">
                       <h2>Accepted facts</h2>
@@ -278,7 +437,7 @@ export function RecordEditor({
                         size="sm"
                         variant="outline"
                         disabled={readOnly}
-                        onClick={() => setEditing(true)}
+                        onClick={startEditing}
                       >
                         <Pencil />
                         Edit record
@@ -322,8 +481,7 @@ export function RecordEditor({
                         <p>{oldTitle || "Role not provided"}</p>
                         {record.company_id && (
                           <Link
-                            to={`/companies?q=${encodeURIComponent(displayField(record.company?.domain || record.company?.name))}`}
-                            onClick={onClose}
+                            to={`/companies?record=${encodeURIComponent(record.company_id)}`}
                           >
                             View company
                             <ArrowUpRight aria-hidden="true" />
@@ -355,131 +513,158 @@ export function RecordEditor({
                           : "Create a shared record"}
                       </h2>
                     </div>
-                    {Object.entries(fields).map(([key, value]) => (
-                      <label key={key} className="record-edit-field">
-                        <span>{fieldLabel(key)}</span>
-                        {typeof record?.fields[key] === "boolean" ? (
-                          <select
-                            value={value}
-                            onChange={(event) =>
-                              setFields({
-                                ...fields,
-                                [key]: event.target.value
-                              })
-                            }
-                            disabled={busy}
-                          >
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                          </select>
-                        ) : key === "description" ||
-                          value.length > 120 ||
-                          (typeof record?.fields[key] === "object" &&
-                            record?.fields[key] !== null) ? (
-                          <Textarea
-                            value={value}
-                            disabled={busy}
-                            onChange={(event) =>
-                              setFields({
-                                ...fields,
-                                [key]: event.target.value
-                              })
-                            }
-                          />
-                        ) : (
-                          <Input
-                            value={value}
-                            disabled={busy}
-                            onChange={(event) =>
-                              setFields({
-                                ...fields,
-                                [key]: event.target.value
-                              })
-                            }
-                          />
-                        )}
-                      </label>
-                    ))}
-                    <div className="record-custom-field">
-                      <Input
-                        aria-label="Custom field name"
-                        placeholder="Custom field name"
-                        value={custom}
-                        onChange={(event) => setCustom(event.target.value)}
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        aria-label="Add custom field"
-                        disabled={!custom.trim() || custom.trim() in fields}
-                        onClick={() => {
-                          setFields({ ...fields, [custom.trim()]: "" })
-                          setCustom("")
-                        }}
-                      >
-                        <Plus />
-                      </Button>
-                    </div>
+                    {Object.entries(draft.fields).map(([key, value]) => {
+                      const type = draft.types[key]
+                      return (
+                        <Field
+                          key={key}
+                          id={`record-field-${encodeURIComponent(key)}`}
+                          label={fieldLabel(key)}
+                          error={fieldErrors[key]}
+                          className="record-edit-field"
+                          description={
+                            type === "json"
+                              ? "JSON value; leave empty to clear."
+                              : type === "number"
+                                ? "Number; leave empty to clear. Store long identifiers as text."
+                                : undefined
+                          }
+                        >
+                          {(control) =>
+                            type === "boolean" ? (
+                              <NativeSelect
+                                {...control}
+                                value={value}
+                                disabled={busy || readOnly}
+                                onChange={(event) =>
+                                  changeField(key, event.target.value)
+                                }
+                              >
+                                <option value="">Not provided</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                              </NativeSelect>
+                            ) : type === "json" ||
+                              key === "description" ||
+                              value.length > 120 ? (
+                              <Textarea
+                                {...control}
+                                value={value}
+                                disabled={busy || readOnly}
+                                spellCheck={type !== "json"}
+                                onChange={(event) =>
+                                  changeField(key, event.target.value)
+                                }
+                              />
+                            ) : (
+                              <Input
+                                {...control}
+                                value={value}
+                                inputMode={
+                                  type === "number" ? "decimal" : undefined
+                                }
+                                disabled={busy || readOnly}
+                                onChange={(event) =>
+                                  changeField(key, event.target.value)
+                                }
+                              />
+                            )
+                          }
+                        </Field>
+                      )
+                    })}
+                    <CustomFieldCreator
+                      disabled={busy || readOnly}
+                      pending={draft.pendingField}
+                      onPendingChange={(pendingField) => {
+                        setDraft((previous) => ({ ...previous, pendingField }))
+                        setError("")
+                        setFieldErrors((previous) =>
+                          Object.fromEntries(
+                            Object.entries(previous).filter(
+                              ([key]) => key !== "$custom"
+                            )
+                          )
+                        )
+                      }}
+                      onAdd={(name, type) =>
+                        setDraft(addDraftField(draft, name, type))
+                      }
+                    />
                     {kind === "person" && (
                       <div className="record-employment-form">
                         <h3>Employment relationship</h3>
-                        <label className="record-edit-field">
-                          <span>Current company</span>
-                          <select
-                            value={companyID}
-                            onChange={(event) =>
-                              setCompanyID(event.target.value)
-                            }
-                            disabled={busy}
-                          >
-                            <option value="">
-                              Company unknown / end current employment
-                            </option>
-                            {record?.company_id &&
-                              !companies.data?.records.some(
-                                (company) => company.id === record.company_id
-                              ) && (
-                                <option value={record.company_id}>
-                                  {displayField(record.company?.name) ||
-                                    "Current company"}
-                                </option>
-                              )}
-                            {companies.data?.records.map((company) => (
-                              <option key={company.id} value={company.id}>
-                                {displayField(company.fields.name)} ·{" "}
-                                {displayField(company.fields.domain)}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        {companies.isError && (
-                          <p role="alert">
-                            Could not load companies.{" "}
-                            <button
-                              type="button"
-                              onClick={() => void companies.refetch()}
-                            >
-                              Try again
-                            </button>
+                        <CompanyPicker
+                          value={draft.companyId}
+                          name={draft.companyName}
+                          knownEmployer={!!baseline?.company_id}
+                          disabled={busy || readOnly || draft.endEmployment}
+                          onChange={(companyId, companyName) =>
+                            setDraft((previous) => ({
+                              ...previous,
+                              companyId,
+                              companyName
+                            }))
+                          }
+                        />
+                        <Field label="Current role">
+                          {(control) => (
+                            <Input
+                              {...control}
+                              value={draft.title}
+                              disabled={busy || readOnly || draft.endEmployment}
+                              onChange={(event) =>
+                                setDraft((previous) => ({
+                                  ...previous,
+                                  title: event.target.value
+                                }))
+                              }
+                            />
+                          )}
+                        </Field>
+                        {(baseline?.company_id ||
+                          baseline?.employments?.some(
+                            (item) => item.current
+                          )) && (
+                          <label className="record-end-employment">
+                            <input
+                              type="checkbox"
+                              checked={draft.endEmployment}
+                              disabled={busy || readOnly}
+                              onChange={(event) =>
+                                setDraft((previous) => ({
+                                  ...previous,
+                                  endEmployment: event.target.checked
+                                }))
+                              }
+                            />
+                            End current employment when saving
+                          </label>
+                        )}
+                        {draft.endEmployment ? (
+                          <p role="status">
+                            Saving ends the current employment. The person and
+                            previous history remain. Uncheck this option to keep
+                            editing the employer or role.
+                          </p>
+                        ) : (
+                          <p>
+                            Changing employer keeps this person’s identity and
+                            previous employment. A role can be stored before the
+                            employer is known.
                           </p>
                         )}
-                        <label className="record-edit-field">
-                          <span>Current role</span>
-                          <Input
-                            value={title}
-                            disabled={busy}
-                            onChange={(event) => setTitle(event.target.value)}
-                          />
-                        </label>
-                        <p>
-                          Changing employer keeps this person's identity and
-                          previous employment. A role can be stored before the
-                          employer is known.
-                        </p>
+                        {fieldErrors.$employment && (
+                          <p role="alert">{fieldErrors.$employment}</p>
+                        )}
                       </div>
                     )}
                   </form>
+                )}
+              </TabsContent>
+              <TabsContent value="people">
+                {tab === "people" && kind === "company" && record && (
+                  <CompanyPeople companyId={record.id} />
                 )}
               </TabsContent>
               <TabsContent value="employment">
@@ -583,7 +768,7 @@ export function RecordEditor({
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  disabled={readOnly}
+                                  disabled={readOnly || busy}
                                   onClick={() => useValue(observation)}
                                 >
                                   Review value
@@ -595,11 +780,13 @@ export function RecordEditor({
                     ))}
                   </div>
                 )}
-                {!history.isPending && !history.data?.length && (
-                  <p className="record-inspector-empty">
-                    No field observations are available yet.
-                  </p>
-                )}
+                {!history.isPending &&
+                  !history.isError &&
+                  !history.data?.length && (
+                    <p className="record-inspector-empty">
+                      No field observations are available yet.
+                    </p>
+                  )}
                 {!!record?.external_ids?.length && (
                   <section className="record-source-identities">
                     <h3>Connected source rows</h3>
@@ -643,7 +830,32 @@ export function RecordEditor({
             </div>
           </Tabs>
           <div className="record-inspector-footer">
-            {error && <p role="alert">{error} Your draft is kept.</p>}
+            {error && (
+              <div className="record-save-error">
+                <p role="alert">{error}</p>
+                {baseline && Object.keys(fieldErrors).length === 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={busy}
+                    onClick={async () => {
+                      setBusy(true)
+                      try {
+                        await reviewCurrent()
+                      } catch {
+                        setError(
+                          "The current version could not be loaded. Your draft is kept; try again."
+                        )
+                      } finally {
+                        setBusy(false)
+                      }
+                    }}
+                  >
+                    Review current version
+                  </Button>
+                )}
+              </div>
+            )}
             {editing ? (
               <>
                 <span>
@@ -659,10 +871,14 @@ export function RecordEditor({
                   </Button>
                   <Button
                     type="button"
+                    variant="solid"
+                    loading={busy}
                     onClick={() => void save()}
-                    disabled={readOnly || busy || (!!record && !dirty)}
+                    disabled={
+                      readOnly || busy || !!conflict || (!!record && !dirty)
+                    }
                   >
-                    {busy ? <Loader2 className="animate-spin" /> : <Check />}
+                    <Check />
                     Save shared record
                   </Button>
                 </div>
@@ -678,19 +894,35 @@ export function RecordEditor({
           </div>
         </SheetContent>
       </Sheet>
-      <Dialog open={confirmClose} onOpenChange={setConfirmClose}>
+      <Dialog
+        open={confirmClose}
+        onOpenChange={(open) => {
+          if (!open) keepEditing()
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Discard your changes?</DialogTitle>
+            <DialogTitle>
+              {pendingSave.current
+                ? "Save in progress"
+                : "Discard your changes?"}
+            </DialogTitle>
             <DialogDescription>
-              Your changes have not been saved to the shared record.
+              {pendingSave.current
+                ? "The save is still in progress. Stay here until its result is confirmed; changes cannot be discarded while saving."
+                : "Your changes have not been saved to the shared record."}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setConfirmClose(false)}>
+            <Button variant="outline" onClick={keepEditing}>
               Keep editing
             </Button>
-            <Button variant="destructive" onClick={onClose}>
+            <Button
+              variant="solid"
+              color="danger"
+              disabled={busy}
+              onClick={discard}
+            >
               Discard changes
             </Button>
           </div>

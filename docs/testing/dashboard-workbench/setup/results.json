@@ -1,0 +1,39 @@
+{
+  "working_tree_head": "a1be0e08e603e03f62e021ef288321cb9809e006",
+  "uncommitted_working_tree": true,
+  "setup_phase_index_sha256": "8c4e5dea4e18e214b4bd2b8b5df011157024e4edc5c5a226f496e0dd958d8fb4",
+  "entry_phase_index_sha256": "7294e6c33bd7a05627c9bc840d7e3e7ff17f3ec0b1df8bc5a0446dc7d53d2ef3",
+  "entry_phase_served_equals_built": true,
+  "frontend": {
+    "tests": 143,
+    "assertions": 441,
+    "lint": "pass",
+    "build": "pass"
+  },
+  "setup_phase_axe_states": 120,
+  "entry_phase_axe_states": 4,
+  "setup_phase_reopen_cycles": 100,
+  "source_sha256": {
+    "apps/web/src/features/activation/audience-subject.ts": "564aaf0cbbdd401e32dfa6b08504c107f616d7d7c65ef924d8ad1a2c8fded461",
+    "apps/web/src/features/activation/destination-setup.tsx": "bd79ac76996e0a65528861d7ee99b92e70780a49e6b1765705c968919880aa73",
+    "apps/web/src/features/activation/audience-controls.tsx": "c468b210f99fbbc505ee759995585f172a18fed236fefa7b4824048d4a141a78",
+    "apps/web/src/features/activation/destination-workbench.css": "196c4fb2b636e69656f72ce19d912363cec7290db9c684c7411d91bdf8b87f72",
+    "apps/web/src/features/activation/destination-client.ts": "8da3bc64a723cda92d105be2ef4965420c878dac298170d56def4dbdd263b3ba",
+    "apps/web/src/features/activation/destination-workbench.tsx": "60775061160a0547a6e64ab710df705c6f18d6a918ef5a28981f57462b37d780",
+    "apps/web/src/features/activation/destination-setup.css": "b74c3bb2e3725da7b415084134a2add8b452b6a9506ee42f3bb8a60e0f29e0aa",
+    "apps/web/src/features/activation/use-activation-access.ts": "69a005588c175ce1a1fe63775b8437b2f083028cacd6ddf70671f7c5f70aaf97",
+    "apps/web/src/features/activation/inbound-client.ts": "af57ec2e49365a0d6dc58a0bc0de34aeb206ef0c21f8515f615b711fe813dfbc",
+    "apps/web/src/features/activation/inbound-setup.tsx": "8fafd2352828966c5ca42e44feeab441667b51ce17581fe6e01616533adf3bbd",
+    "apps/web/src/features/activation/destination-history.tsx": "c027f910ec48fa6aa1ff5d0764a72ff83064c38d24481e7e754f23abd58dfa83",
+    "apps/web/src/features/activation/destination-catalog.ts": "88b04eb176e1afbba4333517f76c33dc3331d0817f20a6fc9329d3a3df6702ad",
+    "apps/web/src/features/activation/destination-setup-client.ts": "e87133aaa2742b86c4f52b88370dedbdce6ad3b1402ac44b99fc45ebe2ec1475",
+    "apps/web/src/features/activation/audience-member.tsx": "7d1615d5e6179920ea39f15f0e4c915560f76eeb52e950d4c31d80cc240fb1a8",
+    "scripts/qa/dashboard_destination_setup.py": "8d866c1c8fe0ca424a919a42cd688ef39b13dbdb6d9d67e6a0c0e14319919be3",
+    "scripts/qa/dashboard_entry.py": "277951e2ad68cb9a32c211943939eceb45b944a2239e7fee05e31528b6688e02",
+    "apps/web/src/App.tsx": "e8ea7e77480814e4083e17b96e251cdc89aef0cdf24211eaf8c6bbccfc4b8f65",
+    "apps/web/src/pages/login.tsx": "82d2ff88f12abb63da4cf18468832b95512e57bbecdc4d2fcbfb660f81a2d76e",
+    "apps/backend-go/internal/db/queries/destinations.sql": "1c9ac462fb5b9eab223923984779771053c772f3b0a54b6f1884bd5e83f274a5",
+    "apps/backend-go/internal/api/destsclock_integration_test.go": "df794745d16d9db9304277981b141b3c0e67acbc82abe6651695c9fa1b56b9ee"
+  },
+  "patch_sha256": "736c8e5505c231ded87423878cbc419dd03af56d578264e7f2ed948c88ca8f03"
+}

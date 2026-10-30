@@ -4,13 +4,14 @@
   flex-direction: column;
   min-height: 100%;
   background: var(--gtm-surface);
+  container-type: inline-size;
 }
 .workbench-page-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 8px var(--gtm-content-inset);
+  padding: 4px var(--gtm-content-inset);
   min-height: var(--gtm-page-header-height);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
@@ -56,8 +57,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  min-height: 44px;
-  padding: 6px var(--gtm-content-inset);
+  min-height: 40px;
+  padding: 4px var(--gtm-content-inset);
   border-bottom: 1px solid var(--border);
   background: var(--gtm-surface);
   flex-shrink: 0;
@@ -214,7 +215,7 @@
 .workbench-panel {
   background: var(--gtm-surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--gtm-shadow-card);
 }
@@ -251,6 +252,19 @@
   outline: 2px solid var(--ring);
   outline-offset: 1px;
 }
+/* A single heading line gives wide work areas back to records and tools.
+ * Wrapping remains intrinsic, including with larger text and long titles. */
+@container (min-width: 900px) {
+  .workbench-heading:not(:has(.workbench-eyebrow)) {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+  .workbench-heading:not(:has(.workbench-eyebrow)) .workbench-description {
+    margin: 0;
+  }
+}
 @media (max-width: 767px) {
   .workbench-page-header {
     align-items: flex-start;
@@ -284,6 +298,10 @@
   }
 }
 @media (pointer: coarse) {
+  :root {
+    --gtm-toolbar-height: max(48px, 3rem);
+    --gtm-page-header-height: 56px;
+  }
   [data-slot="button"] {
     min-height: 44px;
   }

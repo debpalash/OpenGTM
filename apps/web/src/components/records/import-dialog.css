@@ -125,35 +125,6 @@
   line-height: 1.6;
   margin-top: 6px;
 }
-.record-import-mapping {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-.record-import-mapping > div {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1.2fr);
-  gap: 12px;
-  padding: 8px 12px;
-  align-items: center;
-  font-size: 0.8125rem;
-}
-.record-import-mapping > div + div {
-  border-top: 1px solid var(--border);
-}
-.record-import-mapping > div > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.record-import-mapping > div > svg {
-  width: 14px;
-  color: var(--muted-foreground);
-}
-.record-import-mapping-heading {
-  background: var(--gtm-canvas);
-  color: var(--muted-foreground);
-  font-size: 0.75rem !important;
-}
 .record-import-result-title {
   display: flex;
   align-items: center;
@@ -286,9 +257,5 @@
   }
   .record-import-totals > div {
     padding: 12px;
-  }
-  .record-import-mapping > div {
-    gap: 6px;
-    padding-inline: 8px;
   }
 }

@@ -40,6 +40,7 @@ func registerDestsRuns(r *httpx.Router, d Deps) {
 	h := destRuns{audCrud: audCrud{d: d}}
 	read := []httpx.Middleware{identity.Authenticate(d.Signer, d.Identity), identity.Workspace(d.Identity)}
 	write := append(append([]httpx.Middleware{}, read...), identity.RequireRole("activation.write", "editor", "admin"))
+	r.Handle("GET "+drPrefix+"/access", http.HandlerFunc(h.access), read...)
 	r.Handle("GET "+drPrefix+"/runs/{run_id}/deliveries", http.HandlerFunc(h.deliveries), read...)
 	r.Handle("POST "+drPrefix+"/runs/{run_id}/retry", http.HandlerFunc(h.retry), write...)
 	r.Handle("POST "+drPrefix+"/runs/{run_id}/cancel", http.HandlerFunc(h.cancel), write...)
@@ -91,7 +92,7 @@ type drDelivery struct {
 	ID            int     `json:"id"`
 	RunID         string  `json:"run_id"`
 	DestinationID string  `json:"destination_id"`
-	LeadID        int     `json:"lead_id"`
+	LeadID        *int    `json:"lead_id"`
 	Operation     string  `json:"operation"`
 	Status        string  `json:"status"`
 	Attempts      int     `json:"attempts"`
@@ -100,12 +101,36 @@ type drDelivery struct {
 	Error         *string `json:"error"`
 	DeliveredAt   *string `json:"delivered_at"`
 	CreatedAt     string  `json:"created_at"`
+	CompanyID     string  `json:"company_id,omitempty"`
+	PersonID      string  `json:"person_id,omitempty"`
 }
 
 func drDeliveryOf(d deststore.Delivery) drDelivery {
-	return drDelivery{ID: d.ID, RunID: d.RunID, DestinationID: d.DestinationID, LeadID: d.LeadID, Operation: d.Operation, Status: d.Status,
+	var leadID *int
+	var companyID, personID string
+	if d.LeadID > 0 {
+		id := d.LeadID
+		leadID = &id
+	} else {
+		// Legacy delivery rows may carry compatibility aliases. Keep their
+		// existing shape; canonical-only rows need their actual record identity.
+		companyID, personID = d.CompanyID, d.PersonID
+	}
+	return drDelivery{ID: d.ID, RunID: d.RunID, DestinationID: d.DestinationID, LeadID: leadID, Operation: d.Operation, Status: d.Status,
 		Attempts: d.Attempts, ExternalID: d.ExternalID, Summary: d.Summary, Error: d.Error, DeliveredAt: drTime(d.DeliveredAt),
-		CreatedAt: *drTime(&d.CreatedAt)}
+		CreatedAt: *drTime(&d.CreatedAt), CompanyID: companyID, PersonID: personID}
+}
+
+// access exposes the same effective workspace permission used by every mutation,
+// including explicit member overrides. Workspace role labels alone are insufficient.
+func (h destRuns) access(w http.ResponseWriter, r *http.Request) {
+	wc := h.ws(r)
+	allowed, err := h.d.Identity.HasPermission(r.Context(), wc.WorkspaceID, wc.User.ID, "activation.write", "editor", "admin")
+	if err != nil {
+		httpx.Detail(w, http.StatusInternalServerError, "Could not check activation permissions")
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]bool{"can_write": allowed})
 }
 
 // drFloat renders a Python float: shortest repr, with ".0" on an integral value.

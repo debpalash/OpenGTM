@@ -4,9 +4,12 @@
 -- Timestamps are naive UTC columns.
 
 -- name: DestInsert :one
-INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map)
+-- Pin both naive timestamps to UTC, just like DestUpdate. The baseline defaults
+-- use now(), whose cast to timestamp otherwise follows the session TimeZone.
+INSERT INTO audience_destinations (id, workspace_id, audience_id, name, destination_type, enabled, config, field_map, created_at, updated_at)
 VALUES (sqlc.arg(id)::text, sqlc.arg(workspace_id)::text, sqlc.arg(audience_id)::text, sqlc.arg(name)::text,
-        sqlc.arg(destination_type)::text, sqlc.arg(enabled)::boolean, sqlc.arg(config)::json, sqlc.arg(field_map)::json)
+        sqlc.arg(destination_type)::text, sqlc.arg(enabled)::boolean, sqlc.arg(config)::json, sqlc.arg(field_map)::json,
+        (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
 RETURNING *;
 
 -- name: DestGet :one

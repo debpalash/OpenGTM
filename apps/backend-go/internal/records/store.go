@@ -375,8 +375,8 @@ func get(ctx context.Context, tx pgx.Tx, ws string, k Kind, id string, details b
 }
 
 type ListOptions struct {
-	Search, Filter, Sort, Direction string
-	Limit, Offset                   int
+	Search, Filter, Sort, Direction, CompanyID string
+	Limit, Offset                              int
 }
 
 func (s Store) List(ctx context.Context, ws string, k Kind, search string, limit, offset int) (List, error) {
@@ -390,6 +390,9 @@ func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options List
 	}
 	if limit < 1 || limit > 500 || offset < 0 {
 		return out, errors.New("invalid pagination")
+	}
+	if options.CompanyID != "" && k != Person {
+		return out, errors.New("company relationship filter requires people")
 	}
 	table := "company_entities"
 	name := "canonical_name"
@@ -435,14 +438,21 @@ func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options List
 	}
 	err := tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
 		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR accepted_fields::text ILIKE '%'||$2||'%')` + filter
-		if e := tx.QueryRow(ctx, `SELECT count(*) FROM `+table+` WHERE `+where, ws, search).Scan(&out.Total); e != nil {
+		args := []any{ws, search}
+		if options.CompanyID != "" {
+			args = append(args, options.CompanyID)
+			where += fmt.Sprintf(" AND company_entity_id=$%d", len(args))
+		}
+		if e := tx.QueryRow(ctx, `SELECT count(*) FROM `+table+` WHERE `+where, args...).Scan(&out.Total); e != nil {
 			return e
 		}
 		companyExpr := "NULL::varchar, NULL::jsonb, '[]'::jsonb"
 		if k == Person {
 			companyExpr = "company_entity_id, (SELECT c.accepted_fields FROM company_entities c WHERE c.workspace_id=$1 AND c.id=" + table + ".company_entity_id), (SELECT coalesce(jsonb_agg(jsonb_build_object('id',e.id,'company_id',e.company_entity_id,'company_name',e.company_name,'fields',e.accepted_fields,'current',true,'first_observed_at',e.first_observed_at::text,'last_observed_at',e.last_observed_at::text)),'[]') FROM person_employments e WHERE e.workspace_id=$1 AND e.person_id=" + table + ".id AND e.is_current<>0)"
 		}
-		rows, e := tx.Query(ctx, `SELECT id,accepted_fields,record_version,`+companyExpr+`,last_seen::text FROM `+table+` WHERE `+where+` ORDER BY `+order+direction+` NULLS LAST,id LIMIT $3 OFFSET $4`, ws, search, limit, offset)
+		paging := fmt.Sprintf(" NULLS LAST,id LIMIT $%d OFFSET $%d", len(args)+1, len(args)+2)
+		args = append(args, limit, offset)
+		rows, e := tx.Query(ctx, `SELECT id,accepted_fields,record_version,`+companyExpr+`,last_seen::text FROM `+table+` WHERE `+where+` ORDER BY `+order+direction+paging, args...)
 		if e != nil {
 			return e
 		}

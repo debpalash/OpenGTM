@@ -125,27 +125,20 @@ func (p *Providers) Update(ctx context.Context, id string, u ProviderUpdate) (fo
 	if !ok {
 		return false, nil
 	}
+	values := map[string]string{}
 	if u.APIKey != nil {
-		if err := p.App.Set(ctx, prov.EnvKey, *u.APIKey); err != nil {
-			return true, err
-		}
+		values[prov.EnvKey] = *u.APIKey
 	}
 	if u.BaseURL != nil && prov.EnvURL != "" {
-		if err := p.App.Set(ctx, prov.EnvURL, *u.BaseURL); err != nil {
-			return true, err
-		}
+		values[prov.EnvURL] = *u.BaseURL
 	}
 	if u.Model != nil && prov.EnvModel != "" {
-		if err := p.App.Set(ctx, prov.EnvModel, *u.Model); err != nil {
-			return true, err
-		}
+		values[prov.EnvModel] = *u.Model
 	}
 	if u.SetDefault {
-		if err := p.App.Set(ctx, "LLM_DEFAULT_PROVIDER", id); err != nil {
-			return true, err
-		}
+		values["LLM_DEFAULT_PROVIDER"] = id
 	}
-	return true, nil
+	return true, p.App.SetMany(ctx, values)
 }
 
 func errResult(msg string) map[string]any { return map[string]any{"status": "error", "error": msg} }

@@ -119,9 +119,9 @@ try:
             expect(
                 dialog().get_by_role(
                     "heading",
-                    name="Import companies"
+                    name="Import companies · Choose file"
                     if path == "/companies"
-                    else "Import people",
+                    else "Import people · Choose file",
                     exact=True,
                 )
             ).to_be_visible()
@@ -142,7 +142,7 @@ try:
                 timeout=30000
             )
             d.get_by_role("button", name="Validate rows", exact=True).click()
-            expect(d.get_by_role("heading", name="Ready to import?")).to_be_visible(
+            expect(d.get_by_role("heading", name="Review your import")).to_be_visible(
                 timeout=30000
             )
             assert d.locator("dd").all_text_contents() == [
@@ -161,9 +161,9 @@ try:
             0,
         )
         axe("import-review")
-        d.get_by_role("button", name="Import 2 records").click()
+        d.get_by_role("button", name="Import 2 rows").click()
         expect(
-            d.get_by_role("heading", name="Your records are connected")
+            d.get_by_role("heading", name="Import complete")
         ).to_be_visible(timeout=30000)
         d.get_by_role("button", name="Done", exact=True).click()
         log("guided_csv_import")
@@ -227,10 +227,12 @@ try:
             )
 
         page.route("**/api/record-imports", lost_response)
-        d.get_by_role("button", name="Import 2 records").click()
+        d.get_by_role("button", name="Import 2 rows").click()
         expect(d.get_by_role("alert")).to_contain_text("Simulated lost response")
         page.unroute("**/api/record-imports", lost_response)
         d.get_by_role("button", name="Cancel", exact=True).click()
+        dialog().get_by_role("button", name="Discard changes", exact=True).click()
+        expect(page.get_by_role("dialog")).to_have_count(0)
         page.reload()
         page.get_by_role("button", name="Import from Clay", exact=True).click()
         d = dialog()

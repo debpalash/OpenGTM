@@ -167,6 +167,9 @@ try:
             and response.url.endswith("/refresh")
         ) as refresh:
             page.get_by_role("button", name="Refresh now", exact=True).click()
+            page.get_by_role(
+                "dialog", name="Review audience refresh", exact=True
+            ).get_by_role("button", name="Confirm refresh", exact=True).click()
         counts = refresh.value.json()
         expect(page.get_by_text("Membership refreshed", exact=True)).to_be_visible()
         for key in ["entered", "exited", "changed", "unchanged"]:

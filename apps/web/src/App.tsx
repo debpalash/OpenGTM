@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, Outlet, Routes, Route, Navigate, Link, useLocation } from "react-router-dom"
 import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
@@ -17,6 +17,7 @@ import { NotificationRow } from "@/components/notifications/notification-row"
 import { useNotifications } from "@/lib/notifications"
 import LoginPage from "@/pages/login"
 import SetupPage from "@/pages/setup"
+import { LeaveGuardProvider } from "@/features/navigation/leave-guard-provider"
 
 // Pages
 const OverviewPage = lazy(() => import("@/pages/overview"))
@@ -236,7 +237,7 @@ function FullScreenSpinner({ label }: { label?: string }) {
 function Shell() {
   return (
     <QuickLookProvider>
-      <div className="h-screen w-full overflow-hidden flex">
+      <div className="gtm-dashboard h-screen w-full overflow-hidden flex">
         <a href="#main-content" className="gtm-skip-link">Skip to main content</a>
         <SidebarProvider>
           <AppSidebar />
@@ -268,19 +269,41 @@ function LoginRoute() {
   return <LoginPage />
 }
 
+// A data router lets editors block Back/Forward and application navigation
+// before their draft is unmounted. Existing shell routes remain unchanged.
+function AuthRoot() {
+  return (
+    <LeaveGuardProvider>
+      <AuthProvider>
+        <Outlet />
+        <Toaster />
+      </AuthProvider>
+    </LeaveGuardProvider>
+  )
+}
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AuthRoot />,
+    children: [
+      { index: true, element: <Navigate to="/overview" replace /> },
+      { path: "login", element: <LoginRoute /> },
+      { path: "setup", element: <SetupPage /> },
+      {
+        path: "*",
+        element: (
+          <RequireAuth>
+            <Shell />
+          </RequireAuth>
+        )
+      }
+    ]
+  }
+])
 export default function App() {
   return (
     <TooltipProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<LoginRoute />} />
-            <Route path="/setup" element={<SetupPage />} />
-            <Route path="/*" element={<RequireAuth><Shell /></RequireAuth>} />
-          </Routes>
-          <Toaster />
-        </AuthProvider>
-      </BrowserRouter>
+      <RouterProvider router={router} />
     </TooltipProvider>
   )
 }

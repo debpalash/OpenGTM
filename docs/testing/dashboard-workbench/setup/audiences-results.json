@@ -1,0 +1,63 @@
+{
+  "workspace_id": "c9626a2e-3779-4f83-988a-c9f90dec3c89",
+  "company_audience": "6f4e3ffb-548e-443e-8597-73d998d90c56",
+  "people_audience": "e59cbd4b-a9ba-499b-b54b-0a3a435e3f8a",
+  "company_id": "ead6c8de-66ca-468b-9a58-b00cd8a5ad5d",
+  "person_id": "981e1b2d-0017-46f0-a30b-dc55a265bad1",
+  "canonical_identity_and_shareable_inspectors": "pass",
+  "refresh_receipt": {
+    "status": "pass",
+    "counts": {
+      "audience": {
+        "id": "e59cbd4b-a9ba-499b-b54b-0a3a435e3f8a",
+        "name": "People ready for review",
+        "description": "",
+        "filters": {
+          "_record_type": "person",
+          "record_ids": [
+            "981e1b2d-0017-46f0-a30b-dc55a265bad1",
+            "56988128-8827-4479-976c-1e84a70c1911"
+          ]
+        },
+        "member_count": 2,
+        "created_at": "2026-10-29T11:01:00.740020",
+        "updated_at": "2026-10-29T11:01:07.719274",
+        "refreshed_at": "2026-10-29T11:01:07.719249",
+        "refresh_enabled": true,
+        "refresh_interval_minutes": 60,
+        "next_refresh_at": null,
+        "refresh_health": "healthy",
+        "last_refresh_error": null,
+        "consecutive_refresh_failures": 0
+      },
+      "entered": 0,
+      "exited": 0,
+      "unchanged": 0,
+      "changed": 2
+    }
+  },
+  "members_error_and_retry": "pass",
+  "scans": [
+    {
+      "state": "company",
+      "violations": []
+    },
+    {
+      "state": "person",
+      "violations": []
+    },
+    {
+      "state": "people-320",
+      "violations": []
+    },
+    {
+      "state": "people-390",
+      "violations": []
+    },
+    {
+      "state": "people-768",
+      "violations": []
+    }
+  ],
+  "page_errors": []
+}

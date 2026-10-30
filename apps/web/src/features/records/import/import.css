@@ -1,0 +1,204 @@
+.import-column-task {
+  min-width: 0;
+}
+.import-mapping-summary,
+.import-mapping-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--gtm-space-2);
+  font-size: var(--t-font-size-xs);
+}
+.import-mapping-summary {
+  color: var(--muted-foreground);
+  margin-bottom: var(--gtm-space-3);
+}
+.import-mapping-search {
+  flex: 1;
+  min-width: 10rem;
+}
+.import-mapping-group {
+  border: 1px solid var(--border);
+  border-radius: var(--t-border-radius-md);
+  margin-top: var(--gtm-space-3);
+}
+.import-mapping-group h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--gtm-space-2);
+  padding: var(--gtm-space-2) var(--gtm-space-3);
+  font-size: var(--t-font-size-sm);
+  font-weight: 600;
+  background: var(--gtm-canvas);
+  border-radius: var(--t-border-radius-md) var(--t-border-radius-md) 0 0;
+}
+.import-mapping-group h3 span {
+  color: var(--muted-foreground);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+.import-mapping-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--gtm-space-4);
+  padding: var(--gtm-space-2) var(--gtm-space-3);
+  border-top: 1px solid var(--border);
+  font-size: var(--t-font-size-sm);
+}
+.import-source-column,
+.import-target-column {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.import-source-column strong {
+  display: block;
+  font-weight: 500;
+}
+.import-source-preview {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--gtm-font-mono);
+  font-size: var(--t-font-size-xs);
+}
+.import-match-kind,
+.import-target-column label {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: var(--t-font-size-xs);
+  margin-bottom: var(--gtm-space-1);
+}
+.import-source-column details {
+  margin-top: var(--gtm-space-1);
+  font-size: var(--t-font-size-xs);
+}
+.import-source-column summary {
+  cursor: pointer;
+  color: var(--gtm-link);
+  width: fit-content;
+  padding-block: var(--gtm-space-1);
+}
+.import-source-column summary:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--t-border-radius-xs);
+}
+.import-source-column details p {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gtm-space-1);
+  padding-top: var(--gtm-space-2);
+}
+.import-source-column details p > span {
+  color: var(--muted-foreground);
+}
+.import-source-column code {
+  white-space: pre-wrap;
+  font-family: var(--gtm-font-mono);
+}
+.import-mapping-issue {
+  color: var(--gtm-danger);
+  font-size: var(--t-font-size-xs);
+  margin-top: var(--gtm-space-1);
+}
+.import-connected-records {
+  display: grid;
+  gap: var(--gtm-space-3);
+  border-top: 1px solid var(--border);
+  margin-top: var(--gtm-space-4);
+  padding-top: var(--gtm-space-4);
+}
+.import-connected-records h3,
+.import-rejection-title {
+  font-size: var(--t-font-size-sm);
+  font-weight: 600;
+}
+.import-connected-records > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--gtm-space-2);
+}
+.import-connected-records > button {
+  justify-self: start;
+}
+.import-connected-records > p {
+  color: var(--muted-foreground);
+  font-size: var(--t-font-size-xs);
+}
+.import-rejection-title {
+  margin-top: var(--gtm-space-4);
+}
+.record-import-dialog {
+  max-width: 860px !important;
+}
+.record-import-dialog > [data-slot="dialog-header"] {
+  padding: var(--gtm-space-4) var(--gtm-space-5);
+}
+.record-import-steps {
+  padding: 0 var(--gtm-space-5) var(--gtm-space-3);
+  flex-shrink: 0;
+}
+.record-import-body {
+  padding: var(--gtm-space-4) var(--gtm-space-5);
+}
+.record-import-section {
+  margin-bottom: var(--gtm-space-3);
+}
+.record-import-footer {
+  padding: var(--gtm-space-3) var(--gtm-space-5);
+  flex-shrink: 0;
+}
+.record-import-footer > div {
+  flex-wrap: wrap;
+}
+.record-import-totals {
+  margin-top: var(--gtm-space-4);
+}
+.record-import-warning,
+.record-import-error {
+  margin-top: var(--gtm-space-3);
+  padding: var(--gtm-space-2) var(--gtm-space-3);
+}
+.record-import-dialog [data-slot="dialog-title"] {
+  padding-right: var(--gtm-space-6);
+}
+@media (max-width: 600px) {
+  .record-import-dialog > [data-slot="dialog-header"],
+  .record-import-body,
+  .record-import-footer {
+    padding: var(--gtm-space-3) var(--gtm-space-4);
+  }
+  .record-import-steps {
+    padding-inline: var(--gtm-space-4);
+  }
+  .import-mapping-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--gtm-space-2);
+  }
+  .record-import-dialog input {
+    font-size: 16px;
+  }
+  .record-import-footer > span {
+    width: 100%;
+  }
+  .record-import-footer > div {
+    width: 100%;
+    gap: var(--gtm-space-1);
+  }
+  .record-import-footer > div > button {
+    flex: 1;
+    padding-inline: var(--gtm-space-2);
+  }
+}
+@media (pointer: coarse) {
+  .record-import-dialog button,
+  .record-import-dialog input,
+  .import-source-column summary {
+    min-height: 44px;
+  }
+  .record-import-dialog input {
+    font-size: 16px;
+  }
+}

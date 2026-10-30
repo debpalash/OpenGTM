@@ -1,8 +1,18 @@
 {
-  "version": 2,
-  "status": "implemented foundation; compact workstation revision",
-  "purpose": "Design contract for the dashboard transformation. Layout values reflect the user’s compact workstation direction of 2026-10-29.",
+  "version": 5,
+  "status": "implemented foundation; dense workstation revision",
+  "purpose": "Design contract for the dashboard transformation. Layout values reflect the user\u2019s compact workstation direction of 2026-10-29.",
   "units": "CSS pixels unless stated otherwise",
+  "displayScale": {
+    "preferences": ["auto", "85", "100"],
+    "default": "auto",
+    "compactPercent": 85,
+    "minimumDesktopViewport": 1024,
+    "autoCompactMaximumWindowWidth": 1600,
+    "autoCompactMaximumWindowHeight": 900,
+    "touchPercent": 100,
+    "notes": "Auto compacts desktop windows at or below either logical window threshold. Touch and viewports below 1024px use 100%. Browser page zoom and physical Retina resolution do not determine the profile."
+  },
   "color": {
     "light": {
       "canvas": "#F6F8FB",
@@ -30,9 +40,9 @@
       "canvas": "#11151C",
       "surface": "#181F2B",
       "raised": "#1E2838",
-      "textPrimary": "#EFF3FA",
-      "textSecondary": "#AFBDD1",
-      "borderSubtle": "#303D52",
+      "textPrimary": "#DFE5EE",
+      "textSecondary": "#A0ADBF",
+      "borderSubtle": "#26303E",
       "borderControl": "#72829B",
       "actionFill": "#9BB4FF",
       "actionText": "#102044",
@@ -115,23 +125,25 @@
     12
   ],
   "layout": {
-    "sidebarExpanded": 208,
+    "sidebarExpanded": 192,
     "sidebarCollapsed": 52,
-    "globalBar": 44,
-    "pageHeaderMin": 64,
-    "resourceToolbarMin": 44,
+    "globalBar": 36,
+    "pageHeaderMin": 44,
+    "resourceToolbarMin": 40,
     "tableHeader": 32,
-    "rowDefault": 34,
-    "rowCompact": 34,
+    "rowDefault": 28,
+    "rowCompact": 28,
     "rowComfortable": 48,
     "controlDefault": 32,
     "controlCompact": 28,
     "controlTouch": 44,
     "inspectorDesktop": 400,
-    "insetDesktop": 16,
+    "insetDesktop": 12,
     "insetMobile": 12,
-    "overviewMaxWidth": 1600,
-    "rowStandard": 40
+    "overviewMaxWidth": null,
+    "rowStandard": 40,
+    "globalBarTouch": 48,
+    "textScaling": "Global chrome and navigation grow with the root text size; listed dimensions are normal-text defaults."
   },
   "motion": {
     "interactionDurationMs": [

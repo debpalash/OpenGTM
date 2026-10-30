@@ -1,0 +1,219 @@
+{
+  "engine": "webkit",
+  "checks": [
+    {
+      "name": "retina-laptop",
+      "geometry": {
+        "scale": "auto:85",
+        "height": 832,
+        "main": {
+          "x": 163.1875,
+          "y": 0,
+          "width": 1116.8125,
+          "height": 832,
+          "top": 0,
+          "right": 1280,
+          "bottom": 832,
+          "left": 163.1875
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 163.1875,
+          "height": 832,
+          "top": 0,
+          "right": 163.1875,
+          "bottom": 832,
+          "left": 0
+        },
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "name": "retina-laptop-light",
+      "violations": []
+    },
+    {
+      "name": "retina-laptop-dark",
+      "violations": []
+    },
+    {
+      "name": "import-dialog-85",
+      "violations": []
+    },
+    {
+      "name": "workbook-resize-85",
+      "visual_drag": 51,
+      "layout_delta": 60
+    },
+    {
+      "name": "large-desktop",
+      "geometry": {
+        "scale": "auto:100",
+        "height": 1080,
+        "main": {
+          "x": 192,
+          "y": 0,
+          "width": 1728,
+          "height": 1080,
+          "top": 0,
+          "right": 1920,
+          "bottom": 1080,
+          "left": 192
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 192,
+          "height": 1080,
+          "top": 0,
+          "right": 192,
+          "bottom": 1080,
+          "left": 0
+        },
+        "width": 1920,
+        "scroll": 1920
+      }
+    },
+    {
+      "name": "large-desktop-light",
+      "violations": []
+    },
+    {
+      "name": "large-desktop-dark",
+      "violations": []
+    },
+    {
+      "name": "narrow-window",
+      "geometry": {
+        "scale": "auto:100",
+        "height": 700,
+        "main": {
+          "x": 192,
+          "y": 0,
+          "width": 708,
+          "height": 700,
+          "top": 0,
+          "right": 900,
+          "bottom": 700,
+          "left": 192
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 192,
+          "height": 700,
+          "top": 0,
+          "right": 192,
+          "bottom": 700,
+          "left": 0
+        },
+        "width": 900,
+        "scroll": 900
+      }
+    },
+    {
+      "name": "narrow-window-light",
+      "violations": []
+    },
+    {
+      "name": "narrow-window-dark",
+      "violations": []
+    },
+    {
+      "name": "touch-laptop",
+      "geometry": {
+        "scale": "auto:100",
+        "height": 832,
+        "main": {
+          "x": 192,
+          "y": 0,
+          "width": 1088,
+          "height": 832,
+          "top": 0,
+          "right": 1280,
+          "bottom": 832,
+          "left": 192
+        },
+        "sidebar": {
+          "x": 0,
+          "y": 0,
+          "width": 192,
+          "height": 832,
+          "top": 0,
+          "right": 192,
+          "bottom": 832,
+          "left": 0
+        },
+        "width": 1280,
+        "scroll": 1280
+      }
+    },
+    {
+      "name": "touch-laptop-light",
+      "violations": []
+    },
+    {
+      "name": "touch-laptop-dark",
+      "violations": []
+    },
+    {
+      "name": "phone",
+      "geometry": {
+        "scale": "auto:100",
+        "height": 844,
+        "main": {
+          "x": 0,
+          "y": 0,
+          "width": 390,
+          "height": 844,
+          "top": 0,
+          "right": 390,
+          "bottom": 844,
+          "left": 0
+        },
+        "sidebar": null,
+        "width": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "name": "phone-light",
+      "violations": []
+    },
+    {
+      "name": "phone-dark",
+      "violations": []
+    },
+    {
+      "name": "reflow",
+      "geometry": {
+        "scale": "auto:100",
+        "height": 700,
+        "main": {
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 700,
+          "top": 0,
+          "right": 320,
+          "bottom": 700,
+          "left": 0
+        },
+        "sidebar": null,
+        "width": 320,
+        "scroll": 320
+      }
+    },
+    {
+      "name": "reflow-light",
+      "violations": []
+    },
+    {
+      "name": "reflow-dark",
+      "violations": []
+    }
+  ],
+  "page_errors": []
+}

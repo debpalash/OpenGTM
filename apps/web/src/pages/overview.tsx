@@ -10,7 +10,6 @@ import {
   Clock3,
   FileSpreadsheet,
   MailCheck,
-  MoreHorizontal,
   RefreshCw,
   Sparkles,
   Table2,
@@ -62,17 +61,26 @@ export default function OverviewPage() {
     <div className="workbench-page overview-page">
       <PageHeader
         title="Workspace overview"
-        description="Your accounts, people, and enrichment work. All connected."
         actions={
-          <Button
-            onClick={() => void query.refetch()}
-            variant="outline"
-            size="icon"
-            aria-label="Refresh workspace overview"
-            disabled={query.isFetching}
-          >
-            <RefreshCw className={query.isFetching ? "animate-spin" : ""} />
-          </Button>
+          <>
+            <Link
+              to="/companies?import=1"
+              className="overview-primary-link"
+              aria-label="Import records"
+            >
+              <Upload aria-hidden="true" />
+              Import
+            </Link>
+            <Button
+              onClick={() => void query.refetch()}
+              variant="outline"
+              size="icon"
+              aria-label="Refresh workspace overview"
+              disabled={query.isFetching}
+            >
+              <RefreshCw className={query.isFetching ? "animate-spin" : ""} />
+            </Button>
+          </>
         }
       />
       {!data && query.isError ? (
@@ -116,14 +124,12 @@ export default function OverviewPage() {
                 label: "Companies",
                 value: data.companies,
                 icon: Building2,
-                sub: "Accounts in your warehouse",
                 to: "/companies"
               },
               {
                 label: "People",
                 value: data.people,
                 icon: Users,
-                sub: "Independent, connected records",
                 to: "/people"
               },
               {
@@ -132,17 +138,14 @@ export default function OverviewPage() {
                 icon: MailCheck,
                 sub:
                   coverage === null
-                    ? "Add people to measure coverage"
-                    : `${coverage}% of people · explicit verification`,
+                    ? "No people yet"
+                    : `${coverage}% of ${number.format(data.people)} people`,
                 to: "/people"
               },
               {
                 label: "Running workbooks",
                 value: data.running_workbooks,
                 icon: Table2,
-                sub: data.running_workbooks
-                  ? "Work is progressing in the background"
-                  : "Ready when you are",
                 to: "/workbooks"
               }
             ].map((metric) => (
@@ -155,110 +158,113 @@ export default function OverviewPage() {
                   <span>{metric.label}</span>
                   <metric.icon aria-hidden="true" />
                 </div>
-                <strong>{number.format(metric.value)}</strong>
-                <div className="overview-metric-foot">
-                  <span>{metric.sub}</span>
-                  <ArrowUpRight aria-hidden="true" />
+                <div className="overview-metric-value">
+                  <strong>{number.format(metric.value)}</strong>
+                  {metric.sub && <span>{metric.sub}</span>}
                 </div>
               </Link>
             ))}
           </div>
-          <section
-            className="overview-next-step"
-            aria-labelledby="next-step-heading"
-          >
-            <div className="overview-next-step-icon">
-              <FileSpreadsheet aria-hidden="true" />
-            </div>
-            <div>
-              <h2 id="next-step-heading">
-                {data.companies
-                  ? "Add your next company list."
-                  : "Bring your first company list."}
-              </h2>
-              <p>
-                Import a Clay table or CSV. Keep your companies, people, and
-                their history connected.
-              </p>
-            </div>
-            <Link to="/companies?import=1" className="overview-primary-link">
-              <Upload aria-hidden="true" />
-              Import records
-              <ArrowRight aria-hidden="true" />
-            </Link>
-          </section>
           <div className="overview-columns">
-            <section className="workbench-panel overview-workbooks">
-              <SectionHeading
-                title="Recent workbooks"
-                description="Your recent enrichment and research workbooks."
-                action={
-                  <Link to="/workbooks" className="workbench-text-action">
-                    View all
-                    <ArrowUpRight />
-                  </Link>
-                }
-              />
-              {data.workbooks.length ? (
-                <div className="overview-workbook-list">
-                  {data.workbooks.map((workbook) => (
-                    <Link
-                      to={`/workbooks/${workbook.id}`}
-                      className="overview-workbook"
-                      key={workbook.id}
-                    >
-                      <span className="overview-workbook-icon">
-                        <Table2 aria-hidden="true" />
-                      </span>
-                      <div>
-                        <strong>{workbook.name}</strong>
-                        <span>
-                          {number.format(workbook.total_rows)} records{" "}
-                          <span aria-hidden="true">·</span>{" "}
-                          {relativeTime(workbook.updated_at)}
-                        </span>
-                      </div>
-                      <StatusBadge tone={executionTone(workbook.status)} dot>
-                        {workbook.status === "complete"
-                          ? "Complete"
-                          : workbook.status.charAt(0).toUpperCase() +
-                            workbook.status.slice(1)}
-                      </StatusBadge>
-                      <ArrowUpRight aria-hidden="true" />
+            <div className="overview-main">
+              <section className="workbench-panel overview-workbooks">
+                <SectionHeading
+                  title="Recent workbooks"
+                  action={
+                    <Link to="/workbooks" className="workbench-text-action">
+                      View all
+                      <ArrowUpRight />
                     </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="overview-workbook-empty">
-                  <Table2 aria-hidden="true" />
-                  <h3>Make your first workbook</h3>
-                  <p>
-                    Select companies or people, choose the facts you need, and
-                    run a small enrichment sample.
-                  </p>
-                  <Link to="/companies" className="workbench-text-action">
-                    Start with companies
-                    <ArrowRight />
-                  </Link>
-                </div>
+                  }
+                />
+                {data.workbooks.length ? (
+                  <div className="overview-workbook-list">
+                    {data.workbooks.map((workbook) => (
+                      <Link
+                        to={`/workbooks/${workbook.id}`}
+                        className="overview-workbook"
+                        key={workbook.id}
+                      >
+                        <span className="overview-workbook-icon">
+                          <Table2 aria-hidden="true" />
+                        </span>
+                        <div>
+                          <strong>{workbook.name}</strong>
+                          <span>
+                            {number.format(workbook.total_rows)} records{" "}
+                            <span aria-hidden="true">·</span>{" "}
+                            {relativeTime(workbook.updated_at)}
+                          </span>
+                        </div>
+                        <StatusBadge tone={executionTone(workbook.status)} dot>
+                          {workbook.status === "complete"
+                            ? "Complete"
+                            : workbook.status.charAt(0).toUpperCase() +
+                              workbook.status.slice(1)}
+                        </StatusBadge>
+                        <ArrowUpRight aria-hidden="true" />
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="overview-workbook-empty">
+                    <Table2 aria-hidden="true" />
+                    <h3>No workbooks yet</h3>
+                    <p>Select records to start enrichment.</p>
+                    <Link to="/companies" className="workbench-text-action">
+                      Start with companies
+                      <ArrowRight />
+                    </Link>
+                  </div>
+                )}
+              </section>
+              {data.imports.length > 0 && (
+                <section className="workbench-panel overview-imports">
+                  <SectionHeading title="Recent imports" />
+                  <div className="overview-import-list">
+                    {data.imports.map((batch, index) => (
+                      <div
+                        className="overview-import"
+                        key={`${batch.source}:${batch.created_at}:${index}`}
+                      >
+                        <span className="overview-import-icon">
+                          <Check aria-hidden="true" />
+                        </span>
+                        <div>
+                          <strong>
+                            {batch.source.replace(/^import:/, "")}
+                          </strong>
+                          <span>
+                            {number.format(batch.imported)} accepted
+                            {batch.rejected
+                              ? ` · ${number.format(batch.rejected)} rejected`
+                              : ""}
+                          </span>
+                        </div>
+                        <time dateTime={batch.created_at}>
+                          {relativeTime(batch.created_at)}
+                        </time>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               )}
-            </section>
+            </div>
             <aside className="overview-sidebar">
               <section className="workbench-panel overview-attention">
                 <SectionHeading title="Needs attention" />
                 {data.failed_workbooks > 0 && (
                   <Link
-                    to="/workbooks"
+                    to="/workbooks?status=failed"
                     className="overview-attention-item"
                     data-tone="warning"
                   >
                     <Clock3 aria-hidden="true" />
                     <span>
                       <strong>
-                        {number.format(data.failed_workbooks)} workbooks need
-                        review
+                        {number.format(data.failed_workbooks)} failed{" "}
+                        {data.failed_workbooks === 1 ? "workbook" : "workbooks"}
                       </strong>
-                      <span>Inspect the run before trying again.</span>
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                   </Link>
@@ -271,9 +277,9 @@ export default function OverviewPage() {
                     <Users aria-hidden="true" />
                     <span>
                       <strong>
-                        {number.format(gaps)} people need a work email
+                        {number.format(gaps)} {gaps === 1 ? "person" : "people"}{" "}
+                        without email
                       </strong>
-                      <span>Find the missing connection.</span>
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                   </Link>
@@ -286,10 +292,12 @@ export default function OverviewPage() {
                     <Building2 aria-hidden="true" />
                     <span>
                       <strong>
-                        {number.format(data.companies_needing_domain)} companies
-                        need a domain
+                        {number.format(data.companies_needing_domain)}{" "}
+                        {data.companies_needing_domain === 1
+                          ? "company"
+                          : "companies"}{" "}
+                        without domain
                       </strong>
-                      <span>Give research a reliable starting point.</span>
                     </span>
                     <ArrowUpRight aria-hidden="true" />
                   </Link>
@@ -299,11 +307,9 @@ export default function OverviewPage() {
                   !data.companies_needing_domain && (
                     <div className="overview-all-clear">
                       <CheckCircle2 aria-hidden="true" />
-                      <strong>You’re up to date.</strong>
-                      <p>
-                        No missing domains, work-email gaps, or failed workbooks
-                        in this summary.
-                      </p>
+                      <strong>
+                        No missing domains/emails or failed workbooks.
+                      </strong>
                     </div>
                   )}
               </section>
@@ -311,55 +317,22 @@ export default function OverviewPage() {
                 <SectionHeading title="Workspace tools" />
                 <Link to="/sources">
                   <Sparkles aria-hidden="true" />
-                  <span>Connect your data sources</span>
+                  <span>Data sources</span>
                   <ArrowUpRight aria-hidden="true" />
                 </Link>
                 <Link to="/templates">
                   <FileSpreadsheet aria-hidden="true" />
-                  <span>Explore workbook templates</span>
+                  <span>Templates</span>
                   <ArrowUpRight aria-hidden="true" />
                 </Link>
                 <Link to="/chat">
                   <CircleHelp aria-hidden="true" />
-                  <span>Work with your assistant</span>
+                  <span>Assistant</span>
                   <ArrowUpRight aria-hidden="true" />
                 </Link>
               </section>
             </aside>
           </div>
-          {data.imports.length > 0 && (
-            <section className="workbench-panel overview-imports">
-              <SectionHeading
-                title="Recently brought into your workspace"
-                description="Source-scoped imports keep your records connected on the next update."
-              />
-              <div className="overview-import-list">
-                {data.imports.map((batch, index) => (
-                  <div
-                    className="overview-import"
-                    key={`${batch.source}:${batch.created_at}:${index}`}
-                  >
-                    <span className="overview-import-icon">
-                      <Check aria-hidden="true" />
-                    </span>
-                    <div>
-                      <strong>{batch.source.replace(/^import:/, "")}</strong>
-                      <span>
-                        {number.format(batch.imported)} accepted
-                        {batch.rejected
-                          ? ` · ${number.format(batch.rejected)} rejected`
-                          : " · no rejected rows"}
-                      </span>
-                    </div>
-                    <time dateTime={batch.created_at}>
-                      {relativeTime(batch.created_at)}
-                    </time>
-                    <MoreHorizontal aria-hidden="true" />
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
       )}
     </div>

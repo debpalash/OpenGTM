@@ -1,4 +1,6 @@
+import { validateDestinationCatalog } from "@/features/activation/destination-catalog"
 import { validateAnalytics } from "./analytics-contract"
+import { validateDestinationList } from "@/features/activation/destination-client"
 import { getToken, getActiveWorkspace } from "./auth"
 
 const API_BASE = ""
@@ -210,13 +212,13 @@ export interface DestinationType {
 export async function fetchDestinationTypes(): Promise<DestinationType[]> {
   const res = await fetch(`${API_BASE}/api/audience-destinations/types`)
   if (!res.ok) throw new Error(`Could not load destination types (${res.status})`)
-  return (await res.json()).types
+  return validateDestinationCatalog(await res.json())
 }
 
 export async function fetchAudienceDestinations(audienceId: string, signal?:AbortSignal): Promise<AudienceDestination[]> {
   const res = await fetch(`${API_BASE}/api/audience-destinations?audience_id=${encodeURIComponent(audienceId)}`,{signal})
   if (!res.ok) throw new Error(`Could not load destinations (${res.status})`)
-  return res.json()
+  return validateDestinationList(await res.json(),audienceId)
 }
 
 export async function createAudienceDestination(data: {

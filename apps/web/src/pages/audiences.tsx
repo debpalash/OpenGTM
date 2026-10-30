@@ -1,3 +1,7 @@
+import { DestinationSetup } from "@/features/activation/destination-setup"
+import { AudienceControls } from "@/features/activation/audience-controls"
+import { DestinationWorkbench } from "@/features/activation/destination-workbench"
+import { useActivationAccess } from "@/features/activation/use-activation-access"
 import { AudienceMemberItem } from "@/features/activation/audience-member"
 import { Link, useSearchParams } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
@@ -21,36 +25,21 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Building2,
-  Copy,
-  KeyRound,
-  Plus,
-  RefreshCw,
   Send,
-  StopCircle,
   Users
 } from "lucide-react"
-import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   useAudienceDestinations,
   useAudienceEvents,
   useAudienceMembers,
   useAudiences,
-  useCancelAudienceDestination,
-  useCreateAudienceDestination,
-  useDestinationTypes,
-  useRefreshAudience,
-  useRetryAudienceDestination,
-  useSyncAudienceDestination,
-  useUpdateAudience
+  useDestinationTypes
 } from "@/lib/hooks"
-import type { AudienceDestination } from "@/lib/api"
-import { NativeSelect } from "@/components/ui/native-select"
 
 const ago = (value: string | null) => (value ? relativeTime(value) : "Never")
 
@@ -68,19 +57,6 @@ interface AudienceAccount {
   signal_count: number
   signal_weight: number
   profiles: { lead_id: number; name: string; title: string; email: string }[]
-}
-interface InboundReceipt {
-  id: string
-  destination_id: string
-  provider: string
-  external_event_id: string
-  lead_id: number | null
-  status: string
-  conflict_policy: string
-  applied_fields: string[]
-  ignored_fields: string[]
-  error: string | null
-  created_at: string
 }
 
 export default function AudiencesPage() {
@@ -112,48 +88,11 @@ export default function AudiencesPage() {
   )
   const members = useAudienceMembers(selectedId, offset)
   const events = useAudienceEvents(selectedId)
-  const refresh = useRefreshAudience()
-  const update = useUpdateAudience()
   const destinations = useAudienceDestinations(selectedId)
   const destinationTypes = useDestinationTypes()
-  const createDestination = useCreateAudienceDestination()
-  const syncDestination = useSyncAudienceDestination(selectedId)
-  const retryDestination = useRetryAudienceDestination(selectedId)
-  const cancelDestination = useCancelAudienceDestination(selectedId)
-  const [destinationType, setDestinationType] =
-    useState<AudienceDestination["destination_type"]>("webhook")
-  const [destinationName, setDestinationName] = useState("")
-  const [webhookUrl, setWebhookUrl] = useState("")
-  const [platformListId, setPlatformListId] = useState("")
-  const [googleCustomerId, setGoogleCustomerId] = useState("")
-  const [consentSource, setConsentSource] = useState("")
-  const [warehouseUrl, setWarehouseUrl] = useState("")
-  const [warehouseSecretRef, setWarehouseSecretRef] = useState("")
-  const [warehouseDataset, setWarehouseDataset] = useState("opengtm_audience")
-  const [campaignId, setCampaignId] = useState("")
-  const [spreadsheetId, setSpreadsheetId] = useState("")
-  const [sheetRange, setSheetRange] = useState("Sheet1!A:ZZ")
-  const [sheetColumns, setSheetColumns] = useState(
-    "company,email,phone,website"
-  )
-  const [airtableBase, setAirtableBase] = useState("")
-  const [airtableTable, setAirtableTable] = useState("")
-  const [airtableKeyField, setAirtableKeyField] = useState("OpenGTM ID")
-  const [slackSecretRef, setSlackSecretRef] = useState("")
-  const [slackTemplate, setSlackTemplate] = useState(
-    "New audience member: {company} {contact_person} {email}"
-  )
-  const [inboundPolicy, setInboundPolicy] = useState("fill_missing")
-  const [inboundSetup, setInboundSetup] = useState<{
-    destinationId: string
-    token?: string
-    receipts: InboundReceipt[]
-    nextCursor: string | null
-  } | null>(null)
-  const [loadingInboundMore, setLoadingInboundMore] = useState(false)
-  const selectedDestinationType = destinationTypes.data?.find(
-    (item) => item.id === destinationType
-  )
+  const activationAccess = useActivationAccess()
+  const canActivate =
+    activationAccess.data?.can_write === true && !activationAccess.isError
   const accountQuery = useQuery({
     queryKey: [
       "audience-accounts",
@@ -186,187 +125,8 @@ export default function AudiencesPage() {
     exited: number
     changed: number
     unchanged: number
+    refreshed_at: string | null
   } | null>(null)
-  const runRefresh = async () => {
-    if (!selectedId) return
-    try {
-      const result = await refresh.mutateAsync(selectedId)
-      setRefreshReceipt({
-        id: selectedId,
-        entered: result.entered,
-        exited: result.exited,
-        changed: result.changed,
-        unchanged: result.unchanged
-      })
-      toast.success(
-        `Audience refreshed: +${result.entered} entered, −${result.exited} exited, ${result.changed} changed`
-      )
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Could not refresh audience"
-      )
-    }
-  }
-
-  const addDestination = async () => {
-    if (!selectedId || !destinationName.trim()) return
-    try {
-      const adConfig =
-        destinationType === "meta_ads"
-          ? { custom_audience_id: platformListId.trim() }
-          : destinationType === "linkedin_ads"
-            ? { segment_id: platformListId.trim() }
-            : destinationType === "google_ads"
-              ? {
-                  customer_id: googleCustomerId.trim(),
-                  user_list_id: platformListId.trim()
-                }
-              : {}
-      await createDestination.mutateAsync({
-        audience_id: selectedId,
-        name: destinationName.trim(),
-        destination_type: destinationType,
-        config:
-          destinationType === "webhook"
-            ? { url: webhookUrl.trim(), method: "POST" }
-            : destinationType.endsWith("_ads")
-              ? {
-                  ...adConfig,
-                  consent_attested: true,
-                  consent_source: consentSource.trim()
-                }
-              : destinationType === "hubspot" ||
-                  destinationType === "salesforce"
-                ? { inbound_conflict_policy: inboundPolicy }
-                : destinationType === "instantly"
-                  ? {
-                      campaign_id: campaignId.trim(),
-                      skip_if_in_campaign: true
-                    }
-                  : destinationType === "smartlead"
-                    ? { campaign_id: campaignId.trim() }
-                    : destinationType === "google_sheets"
-                      ? {
-                          spreadsheet_id: spreadsheetId.trim(),
-                          range: sheetRange.trim(),
-                          columns: sheetColumns
-                            .split(",")
-                            .map((value) => value.trim())
-                            .filter(Boolean)
-                        }
-                      : destinationType === "airtable"
-                        ? {
-                            base_id: airtableBase.trim(),
-                            table: airtableTable.trim(),
-                            idempotency_field: airtableKeyField.trim(),
-                            typecast: true
-                          }
-                        : destinationType === "slack"
-                          ? {
-                              webhook_secret_ref: slackSecretRef.trim(),
-                              message_template: slackTemplate.trim()
-                            }
-                          : destinationType === "warehouse_http"
-                            ? {
-                                url: warehouseUrl.trim(),
-                                header_secret_ref: warehouseSecretRef.trim(),
-                                dataset: warehouseDataset.trim(),
-                                mode: "snapshot"
-                              }
-                            : {}
-      })
-      setDestinationName("")
-      setWebhookUrl("")
-      setPlatformListId("")
-      setGoogleCustomerId("")
-      setConsentSource("")
-      setWarehouseUrl("")
-      setWarehouseSecretRef("")
-      setCampaignId("")
-      setSpreadsheetId("")
-      setAirtableBase("")
-      setAirtableTable("")
-      setSlackSecretRef("")
-      toast.success("Destination added")
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Could not add destination"
-      )
-    }
-  }
-
-  const showInbound = async (
-    destination: AudienceDestination,
-    rotate = false
-  ) => {
-    try {
-      let token: string | undefined
-      if (rotate) {
-        const response = await fetch(
-          `/api/audience-destinations/${destination.id}/inbound-token`,
-          { method: "POST" }
-        )
-        if (!response.ok)
-          throw new Error(`Could not create inbound token (${response.status})`)
-        token = (await response.json()).token
-      }
-      const response = await fetch(
-        `/api/audience-destinations/${destination.id}/inbound-receipts`
-      )
-      if (!response.ok)
-        throw new Error(`Could not load inbound history (${response.status})`)
-      const page = await response.json()
-      setInboundSetup({
-        destinationId: destination.id,
-        token,
-        receipts: page.receipts || [],
-        nextCursor: page.next_cursor || null
-      })
-      if (token) toast.success("Inbound token rotated; copy it now")
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Could not configure inbound sync"
-      )
-    }
-  }
-
-  const loadMoreInbound = async () => {
-    if (!inboundSetup?.nextCursor) return
-    setLoadingInboundMore(true)
-    try {
-      const query = new URLSearchParams({ cursor: inboundSetup.nextCursor })
-      const response = await fetch(
-        `/api/audience-destinations/${inboundSetup.destinationId}/inbound-receipts?${query}`
-      )
-      if (!response.ok)
-        throw new Error(`Could not load inbound history (${response.status})`)
-      const page = await response.json()
-      setInboundSetup((current) =>
-        current && current.destinationId === inboundSetup.destinationId
-          ? {
-              ...current,
-              receipts: [
-                ...current.receipts,
-                ...(page.receipts || []).filter(
-                  (receipt: InboundReceipt) =>
-                    !current.receipts.some((item) => item.id === receipt.id)
-                )
-              ],
-              nextCursor: page.next_cursor || null
-            }
-          : current
-      )
-    } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Could not load inbound history"
-      )
-    }
-    setLoadingInboundMore(false)
-  }
 
   return (
     <div className="workbench-page audiences-page">
@@ -510,77 +270,35 @@ export default function AudiencesPage() {
                     </p>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-2 audience-schedule-actions">
-                  <NativeSelect
-                    aria-label="Audience refresh interval"
-                    value={selected.refresh_interval_minutes}
-                    disabled={!selected.refresh_enabled || update.isPending}
-                    onChange={(event) =>
-                      update.mutate({
-                        id: selected.id,
-                        data: {
-                          refresh_interval_minutes: Number(event.target.value)
-                        }
-                      })
-                    }
-                  >
-                    <option value={15}>Every 15 minutes</option>
-                    <option value={60}>Hourly</option>
-                    <option value={360}>Every 6 hours</option>
-                    <option value={1440}>Daily</option>
-                    <option value={10080}>Weekly</option>
-                  </NativeSelect>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={update.isPending}
-                    onClick={() =>
-                      update.mutate({
-                        id: selected.id,
-                        data: { refresh_enabled: !selected.refresh_enabled }
-                      })
-                    }
-                  >
-                    {selected.refresh_enabled
-                      ? "Pause schedule"
-                      : "Resume schedule"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    onClick={runRefresh}
-                    disabled={refresh.isPending}
-                  >
-                    <RefreshCw
-                      className={`mr-2 size-4 ${refresh.isPending ? "animate-spin" : ""}`}
-                    />{" "}
-                    Refresh now
-                  </Button>
-                </div>
+                <AudienceControls
+                  key={selected.id}
+                  audience={selected}
+                  onRefreshed={(result) =>
+                    setRefreshReceipt({
+                      id: result.audience.id,
+                      entered: result.entered,
+                      exited: result.exited,
+                      changed: result.changed,
+                      unchanged: result.unchanged,
+                      refreshed_at: result.audience.refreshed_at
+                    })
+                  }
+                />
               </div>
 
-              {refresh.isError && refresh.variables === selected.id && (
-                <ErrorState
-                  error={refresh.error}
-                  retry={() => void runRefresh()}
-                />
-              )}
               {refreshReceipt?.id === selected.id && (
                 <div role="status" className="audiences-receipt">
                   <strong>Membership refreshed</strong>
+                  <span>
+                    Last confirmed refresh ·{" "}
+                    {relativeTime(refreshReceipt.refreshed_at)}
+                  </span>
                   <span>
                     {refreshReceipt.entered} entered · {refreshReceipt.exited}{" "}
                     exited · {refreshReceipt.changed} changed ·{" "}
                     {refreshReceipt.unchanged} unchanged
                   </span>
                 </div>
-              )}
-              {update.isError && update.variables?.id === selected.id && (
-                <ErrorState
-                  error={update.error}
-                  retry={() => {
-                    if (update.variables) update.mutate(update.variables)
-                  }}
-                />
               )}
               {accountQuery.isError && (
                 <ErrorState
@@ -815,528 +533,65 @@ export default function AudiencesPage() {
                       retry={() => void destinations.refetch()}
                     />
                   )}
-                  <div className="flex flex-wrap items-center gap-2 rounded-md border p-2">
-                    <NativeSelect
-                      aria-label="Destination type"
-                      value={destinationType}
-                      onChange={(event) =>
-                        setDestinationType(
-                          event.target
-                            .value as AudienceDestination["destination_type"]
-                        )
-                      }
-                    >
-                      <option value="webhook">Webhook</option>
-                      <option value="slack">Slack</option>
-                      <option value="hubspot">HubSpot</option>
-                      <option value="salesforce">Salesforce</option>
-                      <option value="warehouse_http">Warehouse HTTP</option>
-                      <option value="google_sheets">Google Sheets</option>
-                      <option value="airtable">Airtable</option>
-                      <option value="instantly">Instantly</option>
-                      <option value="smartlead">Smartlead</option>
-                      <option value="meta_ads">Meta Ads</option>
-                      <option value="google_ads">Google Ads</option>
-                      <option value="linkedin_ads">LinkedIn Ads</option>
-                    </NativeSelect>
-                    <Badge
-                      variant={
-                        selectedDestinationType?.maturity === "supported"
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {selectedDestinationType?.maturity ?? "beta"}
-                    </Badge>
-                    <Input
-                      value={destinationName}
-                      onChange={(event) =>
-                        setDestinationName(event.target.value)
-                      }
-                      placeholder="Destination name"
-                      className="h-8 min-w-40 flex-1"
-                    />
-                    {(destinationType === "hubspot" ||
-                      destinationType === "salesforce") && (
-                      <NativeSelect
-                        aria-label="Inbound sync policy"
-                        value={inboundPolicy}
-                        onChange={(event) =>
-                          setInboundPolicy(event.target.value)
-                        }
+                  {destinationTypes.isError && (
+                    <div role="alert" className="destination-error">
+                      <p>Integration status could not be checked.</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => void destinationTypes.refetch()}
                       >
-                        <option value="fill_missing">
-                          Inbound: fill missing fields
-                        </option>
-                        <option value="crm_wins">Inbound: CRM wins</option>
-                      </NativeSelect>
-                    )}
-                    {destinationType === "warehouse_http" && (
-                      <>
-                        <Input
-                          value={warehouseUrl}
-                          onChange={(event) =>
-                            setWarehouseUrl(event.target.value)
-                          }
-                          placeholder="HTTPS ingestion endpoint"
-                          className="h-8 min-w-64 flex-[2]"
-                        />
-                        <Input
-                          value={warehouseSecretRef}
-                          onChange={(event) =>
-                            setWarehouseSecretRef(event.target.value)
-                          }
-                          placeholder="Workspace secret key"
-                          className="h-8 min-w-40"
-                        />
-                        <Input
-                          value={warehouseDataset}
-                          onChange={(event) =>
-                            setWarehouseDataset(event.target.value)
-                          }
-                          placeholder="Dataset"
-                          className="h-8 min-w-36"
-                        />
-                      </>
-                    )}
-                    {destinationType === "webhook" && (
-                      <Input
-                        value={webhookUrl}
-                        onChange={(event) => setWebhookUrl(event.target.value)}
-                        placeholder="https://…"
-                        className="h-8 min-w-64 flex-[2]"
-                      />
-                    )}
-                    {(destinationType === "instantly" ||
-                      destinationType === "smartlead") && (
-                      <Input
-                        value={campaignId}
-                        onChange={(event) => setCampaignId(event.target.value)}
-                        placeholder={`${destinationType === "instantly" ? "Instantly" : "Smartlead"} campaign ID`}
-                        className="h-8 min-w-52"
-                      />
-                    )}
-                    {destinationType === "google_sheets" && (
-                      <>
-                        <Input
-                          value={spreadsheetId}
-                          onChange={(event) =>
-                            setSpreadsheetId(event.target.value)
-                          }
-                          placeholder="Spreadsheet ID"
-                          className="h-8 min-w-52"
-                        />
-                        <Input
-                          value={sheetRange}
-                          onChange={(event) =>
-                            setSheetRange(event.target.value)
-                          }
-                          placeholder="Sheet1!A:ZZ"
-                          className="h-8 min-w-40"
-                        />
-                        <Input
-                          value={sheetColumns}
-                          onChange={(event) =>
-                            setSheetColumns(event.target.value)
-                          }
-                          placeholder="company,email,phone"
-                          className="h-8 min-w-56"
-                        />
-                      </>
-                    )}
-                    {destinationType === "airtable" && (
-                      <>
-                        <Input
-                          value={airtableBase}
-                          onChange={(event) =>
-                            setAirtableBase(event.target.value)
-                          }
-                          placeholder="Base ID"
-                          className="h-8 min-w-40"
-                        />
-                        <Input
-                          value={airtableTable}
-                          onChange={(event) =>
-                            setAirtableTable(event.target.value)
-                          }
-                          placeholder="Table name or ID"
-                          className="h-8 min-w-44"
-                        />
-                        <Input
-                          value={airtableKeyField}
-                          onChange={(event) =>
-                            setAirtableKeyField(event.target.value)
-                          }
-                          placeholder="OpenGTM ID field"
-                          className="h-8 min-w-44"
-                        />
-                      </>
-                    )}
-                    {destinationType === "slack" && (
-                      <>
-                        <Input
-                          value={slackSecretRef}
-                          onChange={(event) =>
-                            setSlackSecretRef(event.target.value)
-                          }
-                          placeholder="Workspace secret containing webhook URL"
-                          className="h-8 min-w-64"
-                        />
-                        <Input
-                          value={slackTemplate}
-                          onChange={(event) =>
-                            setSlackTemplate(event.target.value)
-                          }
-                          placeholder="Message template"
-                          className="h-8 min-w-72 flex-[2]"
-                        />
-                      </>
-                    )}
-                    {destinationType.endsWith("_ads") && (
-                      <>
-                        <Input
-                          value={platformListId}
-                          onChange={(event) =>
-                            setPlatformListId(event.target.value)
-                          }
-                          placeholder={
-                            destinationType === "meta_ads"
-                              ? "Custom audience ID"
-                              : destinationType === "linkedin_ads"
-                                ? "Segment ID"
-                                : "User list ID"
-                          }
-                          className="h-8 min-w-40"
-                        />
-                        {destinationType === "google_ads" && (
-                          <Input
-                            value={googleCustomerId}
-                            onChange={(event) =>
-                              setGoogleCustomerId(event.target.value)
-                            }
-                            placeholder="Customer ID"
-                            className="h-8 min-w-36"
-                          />
-                        )}
-                        <Input
-                          value={consentSource}
-                          onChange={(event) =>
-                            setConsentSource(event.target.value)
-                          }
-                          placeholder="Consent source / policy"
-                          className="h-8 min-w-48"
-                        />
-                      </>
-                    )}
-                    <Button
-                      size="sm"
-                      onClick={addDestination}
-                      disabled={
-                        createDestination.isPending ||
-                        !destinationName.trim() ||
-                        (destinationType === "webhook" && !webhookUrl.trim()) ||
-                        (destinationType === "slack" &&
-                          !slackSecretRef.trim()) ||
-                        (destinationType === "warehouse_http" &&
-                          (!warehouseUrl.trim() ||
-                            !warehouseSecretRef.trim() ||
-                            !warehouseDataset.trim())) ||
-                        (destinationType === "google_sheets" &&
-                          (!spreadsheetId.trim() ||
-                            !sheetRange.trim() ||
-                            !sheetColumns.trim())) ||
-                        (destinationType === "airtable" &&
-                          (!airtableBase.trim() ||
-                            !airtableTable.trim() ||
-                            !airtableKeyField.trim())) ||
-                        ((destinationType === "instantly" ||
-                          destinationType === "smartlead") &&
-                          !campaignId.trim()) ||
-                        (destinationType.endsWith("_ads") &&
-                          (!platformListId.trim() ||
-                            !consentSource.trim() ||
-                            (destinationType === "google_ads" &&
-                              !googleCustomerId.trim())))
-                      }
-                    >
-                      <Plus className="mr-1 size-3" /> Add
-                    </Button>
-                  </div>
-                  {destinationType.endsWith("_ads") && (
-                    <p className="text-xs text-muted-foreground">
-                      Adding this destination attests that the audience has
-                      valid advertising consent. OpenGTM SHA-256 hashes
-                      identifiers before upload; platform API approval may be
-                      required.
-                    </p>
-                  )}
-                  {selectedDestinationType?.maturity !== "supported" && (
-                    <p className="text-xs text-amber-700 dark:text-amber-300">
-                      Beta integration: this deployment has no current
-                      controlled-live certification. Test with a limited
-                      audience before production use.
-                    </p>
-                  )}
-                  {destinationType === "warehouse_http" && (
-                    <p className="text-xs text-muted-foreground">
-                      Exports one checksum-manifested JSONL snapshot per run.
-                      Configure the referenced encrypted secret under Settings →
-                      Integrations first.
-                    </p>
-                  )}
-                  {destinationType === "google_sheets" && (
-                    <p className="text-xs text-muted-foreground">
-                      The first sheet column is reserved for OpenGTM’s stable
-                      delivery key, allowing retries to update rather than
-                      duplicate rows.
-                    </p>
-                  )}
-                  {destinationType === "airtable" && (
-                    <p className="text-xs text-muted-foreground">
-                      Create the merge field in Airtable first. OpenGTM uses
-                      Airtable’s atomic upsert API so retries update one record.
-                    </p>
-                  )}
-                  {destinationType === "slack" && (
-                    <p className="text-xs text-muted-foreground">
-                      Store the incoming-webhook URL under Settings → Secrets.
-                      Only its secret reference is saved here.
-                    </p>
-                  )}
-                  {destinations.data?.map((destination) => (
-                    <div
-                      key={destination.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">
-                            {destination.name}
-                          </span>
-                          <Badge variant="outline">
-                            {destination.destination_type}
-                          </Badge>
-                          <Badge
-                            variant={
-                              destinationTypes.data?.find(
-                                (item) =>
-                                  item.id === destination.destination_type
-                              )?.maturity === "supported"
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {destinationTypes.data?.find(
-                              (item) => item.id === destination.destination_type
-                            )?.maturity ?? "beta"}
-                          </Badge>
-                          <Badge
-                            variant={
-                              destination.health_status === "healthy"
-                                ? "default"
-                                : "secondary"
-                            }
-                          >
-                            {destination.health_status}
-                          </Badge>
-                        </div>
-                        <p className="mt-1 text-xs text-muted-foreground">
-                          {destination.last_error ||
-                            (destination.last_success_at
-                              ? `Last synced ${ago(destination.last_success_at)}`
-                              : "Not synced yet")}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {(destination.destination_type === "hubspot" ||
-                          destination.destination_type === "salesforce") && (
-                          <>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => showInbound(destination)}
-                            >
-                              <Activity className="mr-1 size-3" /> Inbound
-                              history
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => showInbound(destination, true)}
-                            >
-                              <KeyRound className="mr-1 size-3" /> Rotate token
-                            </Button>
-                          </>
-                        )}
-                        {destination.latest_run &&
-                          ["pending", "running", "cancelling"].includes(
-                            destination.latest_run.status
-                          ) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              disabled={
-                                cancelDestination.isPending ||
-                                destination.latest_run.status === "cancelling"
-                              }
-                              onClick={() =>
-                                cancelDestination.mutate(
-                                  destination.latest_run!.id,
-                                  {
-                                    onSuccess: (run) =>
-                                      toast.success(
-                                        run.status === "cancelled"
-                                          ? "Sync cancelled"
-                                          : "Cancellation requested"
-                                      ),
-                                    onError: (error) =>
-                                      toast.error(error.message)
-                                  }
-                                )
-                              }
-                            >
-                              <StopCircle className="mr-1 size-3" />{" "}
-                              {destination.latest_run.status === "cancelling"
-                                ? "Cancelling…"
-                                : "Cancel sync"}
-                            </Button>
-                          )}
-                        {destination.latest_run &&
-                          ["failed", "completed_with_errors"].includes(
-                            destination.latest_run.status
-                          ) && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              disabled={retryDestination.isPending}
-                              onClick={() =>
-                                retryDestination.mutate(
-                                  destination.latest_run!.id,
-                                  {
-                                    onSuccess: () =>
-                                      toast.success(
-                                        "Retrying failed deliveries"
-                                      ),
-                                    onError: (error) =>
-                                      toast.error(error.message)
-                                  }
-                                )
-                              }
-                            >
-                              <RefreshCw className="mr-1 size-3" /> Retry failed
-                            </Button>
-                          )}
-                        {!destination.latest_run ||
-                        !["pending", "running", "cancelling"].includes(
-                          destination.latest_run.status
-                        ) ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={syncDestination.isPending}
-                            onClick={() =>
-                              syncDestination.mutate(destination.id, {
-                                onSuccess: (run) =>
-                                  toast.success(
-                                    `Sync queued: ${run.id.slice(0, 8)}`
-                                  ),
-                                onError: (error) => toast.error(error.message)
-                              })
-                            }
-                          >
-                            <Send className="mr-1 size-3" /> Sync audience
-                          </Button>
-                        ) : null}
-                      </div>
+                        Try integration status again
+                      </Button>
                     </div>
-                  ))}
-                  {inboundSetup && (
-                    <div className="space-y-3 rounded-md border border-primary/30 bg-primary/5 p-3">
-                      <div>
-                        <p className="text-xs font-medium">
-                          CRM → OpenGTM callback
-                        </p>
-                        <code className="mt-1 block break-all text-xs text-muted-foreground">
-                          POST {window.location.origin}
-                          /api/audience-destinations/inbound/
-                          {inboundSetup.destinationId}
-                        </code>
-                      </div>
-                      {inboundSetup.token && (
-                        <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-2">
-                          <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
-                            Shown once. Store this Bearer token in your CRM
-                            webhook secret manager.
-                          </p>
-                          <div className="mt-1 flex items-center gap-2">
-                            <code className="min-w-0 flex-1 truncate text-xs">
-                              {inboundSetup.token}
-                            </code>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7"
-                              onClick={() => {
-                                navigator.clipboard.writeText(
-                                  inboundSetup.token || ""
-                                )
-                                toast.success("Token copied")
-                              }}
-                            >
-                              <Copy className="size-3" /> Copy
-                            </Button>
-                          </div>
-                        </div>
-                      )}
-                      <p className="text-xs text-muted-foreground">
-                        Send external_event_id, optional external_record_id or
-                        lead_id, and fields. Only allowlisted lead fields are
-                        accepted; retries are idempotent.
+                  )}
+                  {activationAccess.isPending && (
+                    <p role="status" className="text-xs text-muted-foreground">
+                      Checking activation permissions…
+                    </p>
+                  )}
+                  {activationAccess.isError && (
+                    <div role="alert" className="text-xs text-destructive">
+                      Activation permissions could not be checked.{" "}
+                      <button
+                        type="button"
+                        className="underline"
+                        onClick={() => void activationAccess.refetch()}
+                      >
+                        Try permissions again
+                      </button>
+                    </div>
+                  )}
+                  {!activationAccess.isPending &&
+                    !activationAccess.isError &&
+                    !canActivate && (
+                      <p
+                        role="status"
+                        className="text-xs text-muted-foreground"
+                      >
+                        View only. Activation write permission is required to
+                        change destinations or send records.
                       </p>
-                      <div className="max-h-64 space-y-1 overflow-y-auto">
-                        {inboundSetup.receipts.map((receipt) => (
-                          <div
-                            key={receipt.id}
-                            className="flex items-center justify-between rounded border bg-background px-2 py-1.5 text-xs"
-                          >
-                            <span className="truncate">
-                              {receipt.external_event_id} · lead{" "}
-                              {receipt.lead_id ?? "unmatched"} ·{" "}
-                              {receipt.applied_fields.length} fields
-                            </span>
-                            <Badge
-                              variant={
-                                receipt.status === "unmatched"
-                                  ? "destructive"
-                                  : "outline"
-                              }
-                            >
-                              {receipt.status}
-                            </Badge>
-                          </div>
-                        ))}
-                        {inboundSetup.nextCursor && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="w-full"
-                            disabled={loadingInboundMore}
-                            onClick={loadMoreInbound}
-                          >
-                            {loadingInboundMore && (
-                              <RefreshCw className="mr-1 size-3 animate-spin" />
-                            )}
-                            Load older callbacks
-                          </Button>
-                        )}
-                        {!inboundSetup.receipts.length && (
-                          <p className="text-xs text-muted-foreground">
-                            No inbound callbacks received yet.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                    )}
+                  <DestinationSetup
+                    key={`${selected.id}:${params.toString()}`}
+                    audience={selected}
+                  />
+                  {destinations.data?.map((destination) => (
+                    <DestinationWorkbench
+                      key={destination.id}
+                      destination={destination}
+                      audience={selected}
+                      maturity={
+                        destinationTypes.data?.find(
+                          (type) => type.id === destination.destination_type
+                        )?.maturity ??
+                        (destinationTypes.isPending
+                          ? "Checking status"
+                          : "Status unavailable")
+                      }
+                    />
+                  ))}
                   {!destinations.isLoading &&
                     !destinations.isError &&
                     !destinations.data?.length && (

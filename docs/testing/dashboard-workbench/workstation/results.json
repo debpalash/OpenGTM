@@ -1,0 +1,1178 @@
+{
+  "generated_at": "2026-10-29T09:43:16.485585+00:00",
+  "source": {
+    "base_commit": "a1be0e08e603e03f62e021ef288321cb9809e006",
+    "branch": "feat/dashboard-workbench",
+    "uncommitted_working_tree": true,
+    "changed_source_sha256": {
+      "apps/backend-go/internal/api/audience_coverage_test.go": "12ba4443bf4b35d7dafcf2fbf4cda68cb624d9872e40a09d6ffcaf933d80b463",
+      "apps/backend-go/internal/api/audscaffold_test.go": "1c9c352bbf68ded37eb870b4fc208fcec8c0c710da398d89247f312b0520e256",
+      "apps/backend-go/internal/api/destsruns.go": "b4198d3d27deb78cb820fee47fe3969aed2af8f4a9093c9d505d0b6271fd0ec8",
+      "apps/backend-go/internal/api/destsworkbench_integration_test.go": "3ee1b98208bf8c2361e4209799d886ca5632af4b23f82b7bd87c3db8a1d3cd23",
+      "apps/backend-go/internal/api/recordsroutes.go": "d75ec27c49b28de2124c4593b3807bfacf61d62726eb784959f0b4562ecf461c",
+      "apps/backend-go/internal/records/people_filter_integration_test.go": "56621d9d489817d8b70b5aa2576b91c132b75af4b785be87a262c235f700be78",
+      "apps/backend-go/internal/records/store.go": "925968988266af47f2df7ba7194ce271dcca2f9d2ad994af5dab416fd07ceee0",
+      "apps/web/patches/README.md": "b9814974d81ff26b17e3b01795e2c507722b6007abd1611c26cd9a473c2bdb2e",
+      "apps/web/src/App.tsx": "c40b54ec35f8867e8ba79244b5b4ee85f233bf936a359ca65e30f62fc7a56dec",
+      "apps/web/src/components/app-shell/app-sidebar.tsx": "7805c3f5820d812979ab07e978edf28bf87549049d47ba4b1c87c1b30884a47b",
+      "apps/web/src/components/app-shell/shell.css": "cbbfbebb843aadeac59636a6d80373e296f96827cf320c75308da6ed509e2a9f",
+      "apps/web/src/components/records/record-editor.tsx": "5a46729a85a2c185f1c5ef8e4ddb1215311e121a88d524c2999f95dc93664ff8",
+      "apps/web/src/components/records/record-inspector.css": "fc1a79ca4355bfc36084f741a5475eeb673e0302d8fe53126d30158ce89fd364",
+      "apps/web/src/components/ui/sidebar.tsx": "5a323b3737e61f0e93a3869f6857e0ac1dd4ee8edd485da69e7f67a68de64f62",
+      "apps/web/src/components/ui/table.tsx": "01454830039e104b7ff6ffed777ccd9699311b5423132dbe166cf7daa66b38f0",
+      "apps/web/src/components/workbooks/workbook-toolbar.css": "543c68306400515a211cc5a43aa3ead10953e06234e8011eb92789b4ec9fda9c",
+      "apps/web/src/components/workbooks/workbooks.css": "7e2e65dbf22b1fd6090006594cabb101e3ef828599e5e9f4c98d3439e14704e3",
+      "apps/web/src/design-system/patterns/workbench.css": "5f7d69e15ba5b2c15fce61afef42eed809b7d530093f071741956e47c14897fc",
+      "apps/web/src/design-system/theme/tokens.css": "662918fb661f9e983697bfb609f870d83aa30b6ee3e3c6f36ab1ddc2c377fc9a",
+      "apps/web/src/features/activation/audience-controls.tsx": "c468b210f99fbbc505ee759995585f172a18fed236fefa7b4824048d4a141a78",
+      "apps/web/src/features/activation/destination-client.ts": "8da3bc64a723cda92d105be2ef4965420c878dac298170d56def4dbdd263b3ba",
+      "apps/web/src/features/activation/destination-history.tsx": "c027f910ec48fa6aa1ff5d0764a72ff83064c38d24481e7e754f23abd58dfa83",
+      "apps/web/src/features/activation/destination-workbench.css": "196c4fb2b636e69656f72ce19d912363cec7290db9c684c7411d91bdf8b87f72",
+      "apps/web/src/features/activation/destination-workbench.tsx": "19822acc11a615411b78e9ab9855bfd9b721406d6dda81d8f84d1c443b0578a6",
+      "apps/web/src/features/activation/inbound-client.ts": "af57ec2e49365a0d6dc58a0bc0de34aeb206ef0c21f8515f615b711fe813dfbc",
+      "apps/web/src/features/activation/inbound-setup.tsx": "8fafd2352828966c5ca42e44feeab441667b51ce17581fe6e01616533adf3bbd",
+      "apps/web/src/features/activation/use-activation-access.ts": "69a005588c175ce1a1fe63775b8437b2f083028cacd6ddf70671f7c5f70aaf97",
+      "apps/web/src/features/navigation/leave-guard-provider.tsx": "ed60cc29be557ddc1d8c6e756f20837ebb2cad8e3454ca43f0a1c95aeba44190",
+      "apps/web/src/features/navigation/leave-guard.ts": "6e22ccc89eae11e554d39e0aec34dbe0dcadcae0868bf556b6d54d4952e2ed6e",
+      "apps/web/src/features/records/company-people.tsx": "3699b768b02448d31224339ea62c4f145e3287b65e15b521e1cc104905102953",
+      "apps/web/src/features/records/company-picker.tsx": "7517072a3263779c50a645d73b4c49355adf9c38dec7f96d514e40ed55d8e452",
+      "apps/web/src/features/records/conflict-review.tsx": "d3114d270ccee36cb675e9243967e39ba3473f727f93ff02cf690a269f1f73c3",
+      "apps/web/src/features/records/custom-field-creator.tsx": "ffc5df90e3721aad5997226e8ade07574bae77b602218e0562ed066b0dea58d3",
+      "apps/web/src/features/records/record-draft.ts": "6e066796fd57589851095d8dcfb22807d4935136f9d39d8157c2edd881c64c4c",
+      "apps/web/src/lib/api.ts": "01a2f107e550c8f4324eb63a57b30b757f41965cfd19309546d2a4061c19b08e",
+      "apps/web/src/lib/auth-context.tsx": "b92b20545b6e0e712dc4e3d1051a2ea755379ac8fa14c4a6d447cb059d20f4ad",
+      "apps/web/src/lib/auth.ts": "ae757738c9de0db1842766f9b9690b7f0ebafdd4091a9aee4b2045df17f9ed93",
+      "apps/web/src/lib/hooks.ts": "fb70154d26c50c26bd96fb205d558d7abece9e86ac2a4c16d189fbe46fbe17b7",
+      "apps/web/src/lib/records.ts": "830d59c480ab9b93d428dd7d46ab9b7353ffb72c21aa630e03e8a696130c5d29",
+      "apps/web/src/pages/audiences.css": "e9ff8beed8d83019bb67d63adea77cb09c55a4903b599b43c2716150c4385bb3",
+      "apps/web/src/pages/audiences.tsx": "7a8ea9c7508461694b86b4c77ae61e914814f149e01a51e3da65ef582b60d1de",
+      "apps/web/src/pages/overview.css": "66ee87eb8610fdb772651145c9c960fc224acd3c9820ea0d0dac29aaae57e6ee",
+      "apps/web/src/pages/overview.tsx": "ecfafbf90186949a0f38262ceb2d9046d5ce648b8553ec8e9c534fead7def9ab",
+      "apps/web/src/pages/records.css": "b26e2cf0b2f6ac7468060179972de3a6825db48680b4c8211dcdb4d7518a0f46",
+      "apps/web/src/pages/records.tsx": "5c2cd0687bde63bf8e104ff8cb65b945fa33d0760c4b7168f3c247f17d0d9efa",
+      "apps/web/src/pages/settings.tsx": "39ebd8303f71985de5a8ed16866b34a0b417da3830a7f0c861c31ab8be2a1c1f",
+      "apps/web/src/pages/workbook-editor.tsx": "444bdf18925878fb8d69fc6ac61a115b469ab438e725e248e6e083aa9527ded9",
+      "apps/web/src/pages/workbooks.tsx": "706881b2804a7bd9c31893553719615aa9c36c7d9b1ed96f7432f22f68734581",
+      "apps/web/src/pages/workspaces-manager.tsx": "a1cda1d6eb9d893d1d4261b0abfb28c97aa71a559aade29791579a7e86aecea7",
+      "apps/web/tests/destination-client.test.ts": "4864c4970c748a6136386b8fafa568d98bb8cc12b68fee29a477697fab87aafe",
+      "apps/web/tests/inbound-client.test.ts": "a72220ed25af8c7a7ffcb48c7cf02bc4390c731de0929c9cc915fdb41ba67bb1",
+      "apps/web/tests/leave-guard.test.ts": "36c42b4f05ed151343b83063548b34f79f1d7f1cb7a83755e6fb4f2c9f1c5e2a",
+      "apps/web/tests/record-draft.test.ts": "5babca5855d2407149a51558610038f51342ec811feba38a7e583f9ea7cce49d",
+      "apps/web/tests/records-response.test.ts": "ff249a05a45d91d4b3aa73fa4e87200348a1dd0de46e3e3bfd46e9f92d60d191",
+      "scripts/qa/dashboard_activation_trust.py": "6b6eb9c45e37bcaf7cd6d79cf5d6ff97bb8c4c1d0c4105921e62371ddbeba8a1",
+      "scripts/qa/dashboard_audiences.py": "68afaa907e3447ab796650b547ba563e271917f8265c35e5694f2750ce85a1ce",
+      "scripts/qa/dashboard_context.py": "b842ad5225499803e67a57e6c920a0d1fad0e8cade607fa234921fafbc8328b3",
+      "scripts/qa/dashboard_density.py": "58b83f642982b66d5680e6c0317c811b891cd2cf3e353c80f2d9269dda60ca33",
+      "scripts/qa/dashboard_destination_runs.py": "fa434599a7aa85b095febd1031003fb5435405e65a4b56b5d33bd27d8e5c4f4a",
+      "scripts/qa/dashboard_inspector.py": "871c90c3200d430c4d3d8bb6f7d95e0606dc3a6c0f0ea627ff15a80dca6cbda4",
+      "scripts/qa/dashboard_states.py": "82a103efc4f4e3e779d3fb6e8ae05a90b8e0eabad9c94fdebca237a604259786"
+    }
+  },
+  "runtime": {
+    "url": "http://localhost:8002",
+    "served_index_matches_build": true,
+    "index_sha256": "a8f46d61087530e289e413818fd4a50a8678c404adfdeb4b5eb555717ab4e0bc",
+    "api_binary_sha256": "afe79d82bea383c203ab1b7a0f8fc15cb0b0a6894f7706cd3c38a2b3849667b1",
+    "assets_sha256": {
+      ".vite/manifest.json": "36f5d79d4ae2a188105a69b8a494766376ec8aade0a5bda6838eed347beb7f3a",
+      "assets/AreaChart-CBUDYpM6.js": "fe44ef5621c074cf5523fae217f96ff00d80b88402436e1daeeb783aab29db6d",
+      "assets/BarChart-BI4sUJGY.js": "75594c6c1579c79f25c5108f930725ca33139c1f86ec1237745d56a16a244c7d",
+      "assets/PieChart-BwOBxD8b.js": "0261fcd0002439cf62c366845563afa99a9cf86f2ba688f5fbcbf58bda81b1ba",
+      "assets/agents-CDH3FfDJ.js": "e73b8bbb4ea11287f40ec5ca16199a4d0a1ab1d48d4b0f7fccf3c2596f264bfa",
+      "assets/analytics-r08RhTVX.js": "176caca49181b96cfce686015677d0b77ba6f6e24cfbdd79935d22dd86db83fa",
+      "assets/app-BVhlg9SY.js": "b429ac67e84b194d519c926b9963c6d167811294e751afee3d95f6c0d4d68df0",
+      "assets/app-i6l0pzK6.css": "2214d88ea341dadecb9592451fdfe77024cad3d14e777bcfc5fcc251ccbe114a",
+      "assets/audiences-CVJn6mhM.js": "1485bebb0ee3f28ea8cddacf4d2768dabdf431085f08fdec41d76a621ad0ef00",
+      "assets/audiences-CfTAX8X0.css": "e32f2fb6c4a5525df7b68a85c3bed7751b4d89c3b7f3e64fd8d33f8e1749a048",
+      "assets/auth-DtAzrqfB.js": "611b0e12d4882d18a4243fcce93e76a6925ba3fcca88b84cbec533e1c370ef8a",
+      "assets/automations-OPjXYq8v.js": "a09712fbe38dfb10ecb9f89a7a5f728ab6302b67380cb66d7a487e37fd4b1398",
+      "assets/badge-BE-0zy7A.js": "d03c38472135d6f5fadbc0fa8e46a7bf89c5471b82d1da01fe30e8f3e5a62d54",
+      "assets/button-DFVboWVs.js": "eb832bc2efbf823d3b53c63558d83c4a0f7ba72c29661798585f74c1722d088f",
+      "assets/campaigns-0NIqKkt4.js": "060636a35c33e5a06224d6ae2992c46e4d5056c36eb65f389dd6682b53e897af",
+      "assets/card-BNUMOu4b.js": "d2c621bd352012ae33894223f8f8786041f38ff82f366bdde013b34b143d4c25",
+      "assets/chat-Bfc0Z677.css": "50407b87b5a5bf702f1e1e7d01c4b87b24dfdda3177149ca3d9ee95122ef34c8",
+      "assets/chat-D1XtZAjW.js": "fb900982305000bf3c67007dc02eb30b14e45e838be9a66fdfea524ed32f6589",
+      "assets/checkbox-Bpnc5n0c.js": "919e0ae8c5372f252fa85aa9cc244a904f251a39f3773d0333e1968e931d423c",
+      "assets/command-menu-content-C6YUx1Dc.js": "0e43a65d587af6a72d5f669dcf9965b47e9bb7e08c9579b91ca145d94b4cc6da",
+      "assets/editable-cell-CL7sir17.js": "2794762a91ca96916abd19d0a78f8e14150c3b0e9b6e2b220a570c5c0bdd4ed5",
+      "assets/feature-disabled-CSNM8Nat.js": "46469ffb53c316758da678dcf1db5749098b0b465f5eeba95cbc197b6a9709ad",
+      "assets/gate-4Zn7d7AH.js": "f30b721efd39381caca379753d48b314eb0c1ecc008e8dbbb304dfd51de908c7",
+      "assets/inter-latin-400-normal-C38fXH4l.woff2": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+      "assets/inter-latin-400-normal-CyCys3Eg.woff": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+      "assets/inter-latin-500-normal-BL9OpVg8.woff": "9b42c108da48b5ed55a3072e815ffee2d271562e6c0dd6998910e8f9c09e0a3d",
+      "assets/inter-latin-500-normal-Cerq10X2.woff2": "f3779f1efccc4bdcdf9c0a02ab95bf6bd092ed09c48c08cedc725889edd1d19f",
+      "assets/inter-latin-600-normal-CiBQ2DWP.woff": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+      "assets/inter-latin-600-normal-LgqL8muc.woff2": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+      "assets/label-BBfR26hn.js": "a1cfe9fbcfa5f2c2112eac5e2a783a84cb876a3e323716f7c1ecb9299790c814",
+      "assets/lead-detail-CCloGNur.js": "5908cf80b4cc369059381a69cb32040d3c26567e07ae29d8c3603f33629dc520",
+      "assets/lead-detail-vh-t_kPv.css": "86d3d093fad979e1d185c8a93258f5f124d863fd13ca894c0b9f50bb68b66997",
+      "assets/leads-Dy7SWrHc.js": "9e60fd268896b0d076019bbcadb249bc7b1d9679dd5e1d1912a9810db86ca4d3",
+      "assets/leave-guard-provider-DtvSzc9t.js": "7a78c9283d8452dc952d6d7c63e870da5ab50129d8c5fd4d54688bc3ff5ee256",
+      "assets/manrope-latin-600-normal-4f0koTD-.woff2": "f7ac6258da20ab7541939b59851155753d1d24f1b30cbcb949077a3faa3d1593",
+      "assets/manrope-latin-600-normal-BqgrALkZ.woff": "8d1f509774bca963fa02faf674678ce9244474306361ca2798583fa600346df6",
+      "assets/markdown-content-PIl_HLLs.js": "f9f2fde40d985e87ce2f589c3b2bccdedfff3b5c3247404e87e2e41325741cc8",
+      "assets/native-select-DmKh6uNA.js": "315d28ac848e3e7d873778499ad5291b979f6e2b490982a374488e2b47dae796",
+      "assets/notifications-vcCNh-nk.js": "69669d6039068ac3735a5eace4854587e2f7f0409aefd97393b66293db6c80eb",
+      "assets/outreach-BtCEHeWd.js": "9b1a7bc66dbbb12e7916456ffcffd55699425f3d59143d3277739c10dcb8f5fb",
+      "assets/overview-DAsSAg9V.js": "99b1484f70a883f9ed94fbb79d49b55db1db69b6995dbf76798f38505bfcee16",
+      "assets/overview-Dybf138s.css": "e7957c973d049636295e5241ab29d5e846698c80313a2030abb8d63035a8d7b3",
+      "assets/papaparse.min-CHENVd_W.js": "0dcaa223a85327f6faf3b9f264af1df336b19d5b10afe9d89f90f9c6723764dc",
+      "assets/primitives-C-JSLS21.js": "f2d31eefe75535476bf1b287cd4bdd7bf0e166be90d32e2d6ab66020451f7a6a",
+      "assets/primitives-CCxpJD_d.css": "f0552acfbc579fcdec6d8ca8a4eda45de0f63d1aadf8e8a11a4633565f7d89fb",
+      "assets/query-client-BBmiERiS.js": "ddca9d5f942f526bdc3fcf113db2d292b55f490a0a8a307f38ad7503d52537fe",
+      "assets/records-C2lWGQeu.js": "34e1cf8dbd6b5199560a11d029583dbc8849c1e04fd59e19268459a73f16d308",
+      "assets/records-Ctj0wYUd.css": "3a2572dba9ead38b9d1d0fd129b796baea48e24b584bfda36e3459a332460496",
+      "assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+      "assets/scene-motion-Bi7wPNvE.js": "5f7e94e59775d93c3325a9baf2f9c90b98be2881fa537e2de4f365f280578a2a",
+      "assets/scroll-area-DRDGix9D.js": "27e6aa2151218a13b1845219013ecceafed2989b0373e2f3b490b2d57d76d23f",
+      "assets/search-Cq9rj6NA.js": "9bafdebce846ae2d9cd79f8e51f1dfe6367df49d1912f2b43df37fc5706478b1",
+      "assets/select-C4pjWIsK.js": "567889ddd321ac1702f9f996acc52dc68147609874a961ce87e50e594a7631ad",
+      "assets/semantic-icons-CXUEGqf9.js": "8b6aa512a51b9e14dcef4bc11d653188c92494cbb44481627984378b6e733ffe",
+      "assets/settings-B8AfghwT.js": "a89f4cb585ce681a745964ea7d481cafe41db8d32eb830cc9094c107bdc9901c",
+      "assets/signals-ct7sG61W.js": "a785267002007336994eab4ca72175a333393daa26c91bc7c0f36edeab92cc33",
+      "assets/source-engine-panel-OeN45rQ9.js": "0c260d658b3421b8d3a8730f81e56ef685f3fd44551180c59fe4befb04a79626",
+      "assets/sources-C8B9sJ2k.js": "c50647639e6d49a6e252c7e0c3ce57b215830d502279b6c4bec3f2b95c612b8a",
+      "assets/src-9pAX-mh3.css": "51483b69bcdc75a40cffed3f05499d6912a323b2c1f4c8bfec3fa1a95ca65809",
+      "assets/src-B8uLnJnh.js": "86cb491364b8c2d82f5c7b3280d3229a6f5664b57cac3ac2135c7d0cc8803fe0",
+      "assets/status-dot-LPI00rGY.js": "7fa597c5cbf3d2d8275e2cd34365af8d428f60c20fc6483b723ece7e909c6755",
+      "assets/surfaces-CJtMfSRY-xXoeloNp.js": "d09500703693e4373b0327306634e8a1113c9386708fa9bb67f495a7d980b5c3",
+      "assets/switch-Bsu--Cjb.js": "990fe150c1e5031b1141101318925996ee21e35680ed10f0d44462ece1eea74c",
+      "assets/table-CASCzv0i.js": "0bf1784d58f64c4f2acf9145f234ea46e97434371ac5f11d28bd332539a4b3de",
+      "assets/tabs-BbxuqoAb.js": "b2829bc98cdd24a261fe19e0fe15b2cc6a8e5df082afe64036410e6168703e53",
+      "assets/task-detail-card-nh3xcINI.js": "20dfeec8fe969f9c9aaa54125e56f1f93168a39d95e0f24d92dec09b41509556",
+      "assets/task-detail-vKHGR3v0.js": "84e0317cb9c366b8fc239c4cd4ef0e01a8cc67e3006697f39a42a776843f4b82",
+      "assets/templates-o1RY8rro.js": "d2ab2bb9d913355f4cbe27aa7559e07a27f92e9e3babe674b3ff57586a29cf38",
+      "assets/textarea-D9gn43_1.js": "7d0f985612be9cea50f3b067fb58be1bd30da4fc38b9e49e024811ca6b0ec831",
+      "assets/ui-preview-BfOjI_dw.js": "db4e6353dcdf895b58e543af98c2d7407265e1713dc8faab8b7f175a302f3e8c",
+      "assets/ui-preview-C1sTnO6N.css": "036ca60bf8ade9d0fd9d6f906e6c15faec954750b5df04badb722693aff859c5",
+      "assets/utils-FYLWdumP.js": "18ff3afc25f98958e28bb53fd5310d42d011bad18044f4c671eb06309aa55056",
+      "assets/vendor-data-9O8QiYJE.js": "6b9b7b85d7e0ceb10c9cfa54e1264154c26ac6c522d1e8a900bd51fa31514582",
+      "assets/vendor-react-B1FcVRHm.js": "9d2c52fcfe7b65f4f8f147abfe6911c5dbbcd162d557447dd77a6a1eb9f47e61",
+      "assets/vendor-ui-BTkEQQrC.js": "670dac337967e218c1dc1c1be98209cdbfbc54ba0b7fafad5679e08f41e716a4",
+      "assets/watches-BgpzkvOn.js": "250675d929a2eb159fbff8982ef2f0861290cbaeab30d2c6221cb41046af7ff7",
+      "assets/workbench-mq2RZC0J.js": "32d33c3289a08d983bab94ebc52814df3ca97adf2e7a62f6a34a65ccf5ea569b",
+      "assets/workbook-editor-DGVxxqrQ.css": "13694fbb6be6971f63f8b00434c295b03013d251ac7d0a9c9b846bbad5d6a9eb",
+      "assets/workbook-editor-DRPZ0SXQ.js": "58c7f07e697d11157aa3771a5c9d6e6154dfad068acb8a47b67efd14f6f84b42",
+      "assets/workbook-hooks-DE3xY283.js": "9a74e560a6c0074ca73b41b145e06f2febbe693d76348fbb6519923e6457483c",
+      "assets/workbooks-Bp9ix5hm.css": "1a996661fe6c35d4317cbf8924f6735b69dfaed54e9b9f95a5d938f9d25bda5b",
+      "assets/workbooks-Cb4W08vy.js": "4d68e94023cd23e41664ab7a6cb22d8ff16274b2a7098a2fe03de8a3f8feefe6",
+      "assets/workspaces-manager-m0jrq__G.js": "ae106e2948213585d240a77ed372537929599fe07e414ef2666d484173c78642",
+      "favicon.svg": "558c4e001c5b00854dcbd70c370c3d45c59bcf4a5fe43ec956827fd845aef7ef",
+      "icons.svg": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+      "index.html": "a8f46d61087530e289e413818fd4a50a8678c404adfdeb4b5eb555717ab4e0bc",
+      "logo.svg": "c07e96dfa6d41068555277fc8f6d01f9535f0493c583e7090357f83679ad1fb2",
+      "opengtm-lockup.svg": "3300d1c2c22ba4b33cd37a490ede2b4f4554e55eab920989b4101ec0c2942185",
+      "opengtm-mark-v2.svg": "6019293fc2051d3fd9af5d063298c87384bf3aadfc1c631881eae432f89a6fb0",
+      "opengtm-mark-v3.svg": "69c3661ace6236653d81a92af4ff38e8d55580367f561ebf785d4effc0e8e141",
+      "opengtm-mark-v4.svg": "79b677a82421a386f693ce5f5005da9503b84b54fca417a743a29c06e98162e8",
+      "opengtm-mark-v5.svg": "54d476204d84d502e70fe7b6f5584d3b4d5ffd6ee9eda34b44c50f426d486a9e",
+      "opengtm-mark-v6.svg": "283df5eb76dbf7e96dbb7c7cf0d1e4473da961ed665362c96bcc035b2d22fa94",
+      "opengtm-mark-v7.svg": "1325218d81567342640a1bed9583193eeabda370d008968a02a0fe0f186f420e",
+      "opengtm-mark-v8.svg": "becffec1496f84862c59a6f60f7abd82f8372249a16b9564600e3e89460ed18b",
+      "opengtm-mark.png": "8ccd131dba68d75cd9a59678415196be85d8f6857df2ae3092729a01c1157ac0",
+      "theme.js": "4f557e0f50bb4b18a711ed2cc2eee5e716b271ae3d2e75bfa1b94f9994ed5351",
+      "ui-preview.html": "c5740c924d5812239b31aed3b52ce96789ed7f583e445cdae17abfb91901a26d"
+    }
+  },
+  "verification": {
+    "frontend_tests": 131,
+    "frontend_assertions": 331,
+    "lint": "pass",
+    "typescript_and_production_build": "pass",
+    "embedded_go_api_build": "pass",
+    "browser_pipeline": [
+      {
+        "name": "density-chromium",
+        "exit_code": 0
+      },
+      {
+        "name": "density-webkit",
+        "exit_code": 0
+      },
+      {
+        "name": "journey",
+        "exit_code": 0
+      },
+      {
+        "name": "inspector",
+        "exit_code": 0
+      },
+      {
+        "name": "states",
+        "exit_code": 0
+      },
+      {
+        "name": "matrix",
+        "exit_code": 0
+      }
+    ],
+    "axe_states": 111,
+    "axe_violations": 0,
+    "page_errors": [],
+    "webkit_keyboard_note": "Native macOS WebKit link traversal uses Option+Tab; reproduced on a minimal plain HTML page before adjusting the harness."
+  },
+  "baseline": {
+    "engine": "chromium",
+    "measurements": {
+      "compact": {
+        "rowHeight": 32,
+        "fullyVisibleRows": 24,
+        "topbar": 40,
+        "header": 52,
+        "toolbar": 41,
+        "sidebar": 192,
+        "documentWidth": 1440
+      },
+      "desktop-1366-768": {
+        "rowHeight": 32,
+        "fullyVisibleRows": 17,
+        "topbar": 40,
+        "header": 52,
+        "toolbar": 41,
+        "sidebar": 192,
+        "documentWidth": 1366
+      },
+      "desktop-1280-720": {
+        "rowHeight": 32,
+        "fullyVisibleRows": 16,
+        "topbar": 40,
+        "header": 52,
+        "toolbar": 41,
+        "sidebar": 192,
+        "documentWidth": 1280
+      },
+      "desktop-1920-1080": {
+        "rowHeight": 32,
+        "fullyVisibleRows": 27,
+        "topbar": 40,
+        "header": 52,
+        "toolbar": 41,
+        "sidebar": 192,
+        "documentWidth": 1920
+      }
+    },
+    "checks": [
+      {
+        "name": "compact",
+        "violations": []
+      },
+      {
+        "name": "saved-navigation-rail",
+        "violations": []
+      },
+      {
+        "name": "desktop-1366-768",
+        "violations": []
+      },
+      {
+        "name": "desktop-1280-720",
+        "violations": []
+      },
+      {
+        "name": "desktop-1920-1080",
+        "violations": []
+      },
+      {
+        "name": "light-menu-default",
+        "violations": []
+      },
+      {
+        "name": "light-menu-comfortable",
+        "violations": []
+      },
+      {
+        "name": "light-menu-compact",
+        "violations": []
+      },
+      {
+        "name": "dark-menu-default",
+        "violations": []
+      },
+      {
+        "name": "dark-menu-comfortable",
+        "violations": []
+      },
+      {
+        "name": "dark-menu-compact",
+        "violations": []
+      },
+      {
+        "name": "touch-320",
+        "violations": []
+      },
+      {
+        "name": "touch-390",
+        "violations": []
+      },
+      {
+        "name": "touch-768",
+        "violations": []
+      }
+    ],
+    "page_errors": []
+  },
+  "density": {
+    "chromium": {
+      "engine": "chromium",
+      "measurements": {
+        "compact": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 28,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1440
+        },
+        "desktop-1366-768": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 20,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1366
+        },
+        "desktop-1280-720": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 18,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1280
+        },
+        "desktop-1920-1080": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 31,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1920
+        },
+        "workbookToolbarHeight": 77
+      },
+      "checks": [
+        {
+          "name": "compact",
+          "violations": []
+        },
+        {
+          "name": "saved-navigation-rail",
+          "violations": []
+        },
+        {
+          "name": "desktop-1366-768",
+          "violations": []
+        },
+        {
+          "name": "desktop-1280-720",
+          "violations": []
+        },
+        {
+          "name": "desktop-1920-1080",
+          "violations": []
+        },
+        {
+          "name": "light-menu-default",
+          "violations": []
+        },
+        {
+          "name": "light-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "light-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-default",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "overview-keyboard",
+          "violations": []
+        },
+        {
+          "name": "workbooks-desktop",
+          "violations": []
+        },
+        {
+          "name": "workbook-desktop",
+          "violations": []
+        },
+        {
+          "name": "touch-320",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-320",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-320",
+          "violations": []
+        },
+        {
+          "name": "touch-390",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-390",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-390",
+          "violations": []
+        },
+        {
+          "name": "touch-768",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-768",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-768",
+          "violations": []
+        }
+      ],
+      "page_errors": []
+    },
+    "webkit": {
+      "engine": "webkit",
+      "measurements": {
+        "compact": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 28,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1440
+        },
+        "desktop-1366-768": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 20,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1366
+        },
+        "desktop-1280-720": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 18,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1280
+        },
+        "desktop-1920-1080": {
+          "rowHeight": 28,
+          "fullyVisibleRows": 31,
+          "topbar": 36,
+          "header": 44,
+          "toolbar": 41,
+          "sidebar": 192,
+          "documentWidth": 1920
+        },
+        "workbookToolbarHeight": 77
+      },
+      "checks": [
+        {
+          "name": "compact",
+          "violations": []
+        },
+        {
+          "name": "saved-navigation-rail",
+          "violations": []
+        },
+        {
+          "name": "desktop-1366-768",
+          "violations": []
+        },
+        {
+          "name": "desktop-1280-720",
+          "violations": []
+        },
+        {
+          "name": "desktop-1920-1080",
+          "violations": []
+        },
+        {
+          "name": "light-menu-default",
+          "violations": []
+        },
+        {
+          "name": "light-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "light-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-default",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-comfortable",
+          "violations": []
+        },
+        {
+          "name": "dark-menu-compact",
+          "violations": []
+        },
+        {
+          "name": "overview-keyboard",
+          "violations": []
+        },
+        {
+          "name": "workbooks-desktop",
+          "violations": []
+        },
+        {
+          "name": "workbook-desktop",
+          "violations": []
+        },
+        {
+          "name": "touch-320",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-320",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-320",
+          "violations": []
+        },
+        {
+          "name": "touch-390",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-390",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-390",
+          "violations": []
+        },
+        {
+          "name": "touch-768",
+          "violations": []
+        },
+        {
+          "name": "workbooks-touch-768",
+          "violations": []
+        },
+        {
+          "name": "workbook-touch-768",
+          "violations": []
+        }
+      ],
+      "page_errors": []
+    }
+  },
+  "journey": {
+    "workspace_id": "84f3d9d9-7e08-4e27-af76-ff5498d43165",
+    "import-upload-axe": [],
+    "import-review-axe": [],
+    "guided_csv_import": "pass",
+    "rapid_search_input": "pass",
+    "company-inspector-axe": [],
+    "company-provenance-axe": [],
+    "inspector_edit_and_provenance": "pass",
+    "dirty_draft_and_focus_return": "pass",
+    "partial_rejection_and_lost_response_recovery": "pass",
+    "person-employment-axe": [],
+    "large_identifier_display_and_edit_precision": "pass",
+    "workflow_configuration": "pass",
+    "enrichment-review-axe": [],
+    "workbook-identity-axe": [],
+    "reviewed_native_enrichment_and_grid_identity": "cd016057-0fad-4e77-99bc-c36910c564d4",
+    "csv_export_precision": "pass",
+    "backup_precision": "pass",
+    "overview-populated-axe": [],
+    "canonical_overview_counts": "pass",
+    "inspector-mobile-390-axe": [],
+    "inspector-mobile-320-axe": [],
+    "mobile_320_390_reflow": "pass",
+    "page_errors": []
+  },
+  "journey_scans": [
+    {
+      "name": "company-inspector-axe",
+      "violations": []
+    },
+    {
+      "name": "company-provenance-axe",
+      "violations": []
+    },
+    {
+      "name": "enrichment-review-axe",
+      "violations": []
+    },
+    {
+      "name": "import-review-axe",
+      "violations": []
+    },
+    {
+      "name": "import-upload-axe",
+      "violations": []
+    },
+    {
+      "name": "inspector-mobile-320-axe",
+      "violations": []
+    },
+    {
+      "name": "inspector-mobile-390-axe",
+      "violations": []
+    },
+    {
+      "name": "overview-populated-axe",
+      "violations": []
+    },
+    {
+      "name": "person-employment-axe",
+      "violations": []
+    },
+    {
+      "name": "workbook-identity-axe",
+      "violations": []
+    }
+  ],
+  "inspector": {
+    "workspace_id": "99c87f51-6757-48c2-8ff4-8d811dedb5b1",
+    "company_id": "0c9b885d-6d43-4a65-8272-f4a794206d6a",
+    "person_id": "a2baf17b-403a-47c2-a0ca-160930b0aec0",
+    "axe": [
+      {
+        "name": "invalid-number",
+        "violations": []
+      },
+      {
+        "name": "invalid-json",
+        "violations": []
+      },
+      {
+        "name": "conflict-light",
+        "violations": []
+      },
+      {
+        "name": "conflict-dark",
+        "violations": []
+      },
+      {
+        "name": "blocked-back",
+        "violations": []
+      },
+      {
+        "name": "company-people",
+        "violations": []
+      },
+      {
+        "name": "people-error",
+        "violations": []
+      },
+      {
+        "name": "sources-error",
+        "violations": []
+      },
+      {
+        "name": "people-320",
+        "violations": []
+      },
+      {
+        "name": "people-390",
+        "violations": []
+      },
+      {
+        "name": "typed-form-320",
+        "violations": []
+      },
+      {
+        "name": "typed-form-390",
+        "violations": []
+      },
+      {
+        "name": "view-only",
+        "violations": []
+      }
+    ],
+    "refetch_keeps_the_typed_draft": "pass",
+    "real_conflicts_and_retry_preserve_remote_and_typed_values": "pass",
+    "pending_save_cannot_be_discarded_by_back": "pass",
+    "back_and_native_reload_keep_drafts": "pass",
+    "company_people_pagination_and_guarded_navigation": "pass",
+    "explicit_employment_end_unknown_role_and_employer_change": "pass",
+    "people_and_sources_failures_are_not_empty_success": "pass",
+    "staged_custom_field_survives_tabs_and_close_guard": "pass",
+    "view_only_inspector_explains_role": "pass",
+    "page_errors": []
+  },
+  "states": {
+    "overview_stale_data_after_503": "pass",
+    "malformed_summary_and_retry": "pass",
+    "analytics_503_and_retry": "pass",
+    "record_view_only_state": "pass",
+    "grid_keyboard_roving_and_checkbox": "pass",
+    "pinned_column_widths": [
+      36,
+      50,
+      240
+    ],
+    "keyboard_column_resize": "pass",
+    "keyboard_column_reorder": "pass",
+    "import_keyboard_trap_and_escape": "pass",
+    "responsive_geometry": [
+      {
+        "width": 320,
+        "document": 320,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 390,
+        "document": 390,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 768,
+        "document": 768,
+        "header": 56,
+        "toolbar": 81
+      },
+      {
+        "width": 1024,
+        "document": 1024,
+        "header": 53.1875,
+        "toolbar": 41
+      },
+      {
+        "width": 1280,
+        "document": 1280,
+        "header": 44,
+        "toolbar": 41
+      },
+      {
+        "width": 1440,
+        "document": 1440,
+        "header": 44,
+        "toolbar": 41
+      },
+      {
+        "width": 1920,
+        "document": 1920,
+        "header": 44,
+        "toolbar": 41
+      }
+    ],
+    "enlarged_text_fits_navigation_and_workspace": {
+      "crowdedNavigation": [],
+      "workspaceFits": true,
+      "breadcrumbFits": true
+    },
+    "overview_text_zoom_200": "pass",
+    "forced_colors_rendered": "pass",
+    "reduced_motion": 0,
+    "page_errors": []
+  },
+  "matrix": {
+    "page_errors": [],
+    "states": [
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/chat",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/workbooks",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/audiences",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/signals",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/outreach",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/analytics",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/settings",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/sources",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/automations",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/chat",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/workbooks",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/audiences",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/signals",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/outreach",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/analytics",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/settings",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/sources",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/automations",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "documentWidth": 1440,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 320,
+          "height": 844
+        },
+        "documentWidth": 320,
+        "violations": []
+      },
+      {
+        "url": "/companies",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/people",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/overview",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      },
+      {
+        "url": "/workbooks/a7e3920f-3826-4b4d-a4a2-d069a2d337f2",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "documentWidth": 390,
+        "violations": []
+      }
+    ]
+  }
+}

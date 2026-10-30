@@ -95,16 +95,37 @@
 }
 
 /* Workbench shell: quiet chrome, predictable targets, one navigation rhythm. */
+/* Zoom the document so portals share the same coordinate system. Viewport
+   heights need compensation: 100vh itself is not enlarged by CSS zoom. */
+html:has(.gtm-dashboard) {
+  zoom: var(--gtm-ui-scale, 1);
+  --gtm-viewport-height: calc(100dvh / var(--gtm-ui-scale, 1));
+}
+/* Give floating UI a scaled offset parent so anchor measurements and portal
+   positions agree. Fixed dialogs still use the full browser viewport. */
+html:has(.gtm-dashboard) body {
+  position: relative;
+}
+.gtm-dashboard,
+.gtm-dashboard #main-content {
+  height: var(--gtm-viewport-height);
+}
+.gtm-dashboard [data-slot="sidebar-wrapper"] {
+  min-height: var(--gtm-viewport-height);
+}
+.gtm-dashboard [data-slot="sidebar-container"] {
+  height: var(--gtm-viewport-height);
+}
 [data-slot="sidebar-inner"].gtm-material-sidebar { background-image:none; }
 [data-slot="sidebar-content"] { padding:8px; }
 [data-sidebar="group"] { padding:4px 0; }
-[data-sidebar="group-label"] { min-height:24px; font-size:.75rem; color:var(--muted-foreground); font-weight:500; padding-inline:12px; }
-[data-sidebar="menu-button"] { min-height:var(--gtm-sidebar-row); height:var(--gtm-sidebar-row); padding-inline:10px; gap:8px; border-radius:7px; font-size:.8125rem; }
+[data-sidebar="group-label"] { min-height:max(24px, 1.5rem); font-size:.75rem; color:var(--muted-foreground); font-weight:500; padding-inline:12px; }
+[data-sidebar="menu-button"] { min-height:var(--gtm-sidebar-row); height:var(--gtm-sidebar-row); padding-inline:10px; gap:8px; border-radius:7px; font-size:.8125rem; color:var(--muted-foreground); }
 [data-sidebar="menu-button"][data-active=true] { color:var(--gtm-link); background:var(--gtm-selection); font-weight:600; }
 [data-sidebar="menu-action"] { min-width:28px; min-height:28px; top:4px; right:4px; }
 [data-sidebar="menu-action"]~[data-sidebar="menu-button"] { padding-right:36px; }
 [data-slot="sidebar-header"] { padding:8px 10px 6px; }
-[data-slot="sidebar-footer"] { padding:8px; border-top:1px solid var(--sidebar-border); }
+[data-slot="sidebar-footer"] { padding:8px; }
 .gtm-breadcrumb { display:flex; align-items:center; min-width:0; gap:12px; font-size:.8125rem; }
 .gtm-breadcrumb>span:first-child { color:var(--muted-foreground); }
 .gtm-breadcrumb>span:last-child { color:var(--foreground); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -114,10 +135,32 @@
 .gtm-notification-trigger:hover { transform:none; box-shadow:none; }
 @media(max-width:767px) { .gtm-topbar { padding-inline:16px; } .gtm-breadcrumb>span:first-child,.gtm-breadcrumb>span:nth-child(2) { display:none; } }
 
-[data-sidebar="menu-button"][data-size="lg"] { height:44px; min-height:44px; }
+[data-sidebar="menu-button"][data-size="lg"] { height:max(44px, 2.75rem); min-height:max(44px, 2.75rem); }
 .gtm-topbar { min-height:var(--gtm-toolbar-height); }
-.gtm-notification-trigger { width:28px; height:28px; }
+.gtm-notification-trigger { width:max(28px, 1.75rem); height:max(28px, 1.75rem); }
 [data-sidebar="menu-action"] { top:1px; right:2px; }
 [data-sidebar="menu"] { gap:0; }
 
-[data-sidebar="group-label"] { height:24px; }
+[data-sidebar="group-label"] { height:max(24px, 1.5rem); }
+
+/* Keep desktop navigation dense enough to leave recent conversations in view. */
+@media (min-width:768px) and (pointer:fine) {
+  .gtm-dashboard [data-slot="sidebar-content"] { padding:4px 8px; }
+  .gtm-dashboard [data-sidebar="group"] { padding-block:2px; }
+  .gtm-dashboard [data-sidebar="group-label"] {
+    height:max(22px, 1.375rem);
+    min-height:max(22px, 1.375rem);
+  }
+  .gtm-dashboard [data-sidebar="menu-button"]:not([data-size="lg"]) {
+    height:max(24px, 1.5rem);
+    min-height:max(24px, 1.5rem);
+    padding-block:2px;
+  }
+  .gtm-dashboard [data-sidebar="menu-action"] {
+    top:0;
+    min-width:24px;
+    min-height:24px;
+    width:24px;
+    height:24px;
+  }
+}

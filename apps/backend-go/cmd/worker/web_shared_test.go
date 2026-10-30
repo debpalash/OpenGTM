@@ -27,3 +27,28 @@ func TestWorkerLeadwebIsShared(t *testing.T) {
 		t.Fatal("a different browser-service configuration must not reuse the instance")
 	}
 }
+
+func TestWorkerLeadwebSeparatesProviderCredentials(t *testing.T) {
+	env := map[string]string{"FIRECRAWL_API_KEY": "fc-account-a", "SPICRAWL_API_KEY": "sp-account-a"}
+	get := func(k string) string { return env[k] }
+	cfg := config.Config{AppEnv: "test"}
+	a, err := workerLeadweb(cfg, get)
+	if err != nil || !a.Web.Search.KeyedConfigured() || a.Web.Spicrawl == nil {
+		t.Fatal("API-only web not configured", err)
+	}
+	env["FIRECRAWL_API_KEY"] = "fc-account-b"
+	b, err := workerLeadweb(cfg, get)
+	if err != nil || b.Web == a.Web {
+		t.Fatal("different search credentials reused a cached client", err)
+	}
+	env["SPICRAWL_API_KEY"] = "sp-account-b"
+	c, err := workerLeadweb(cfg, get)
+	if err != nil || c.Web == b.Web {
+		t.Fatal("different scrape credentials reused a cached client", err)
+	}
+	env["SPICRAWL_API_KEY"] = "sp-account-a"
+	d, err := workerLeadweb(cfg, get)
+	if err != nil || d.Web != b.Web {
+		t.Fatal("same credentials did not share the process client", err)
+	}
+}

@@ -1,7 +1,10 @@
+import { RecordTable } from "@/features/records/collection/record-table"
+import { ColumnConfiguration } from "@/features/records/collection/column-configuration"
+import { useColumnLayout } from "@/features/records/collection/use-column-layout"
 import { useUrlSearchInput } from "@/lib/use-url-search-input"
 import { useDeferredValue, useState, useRef } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import {
   Upload,
   Download,
@@ -9,12 +12,10 @@ import {
   Sparkles,
   Settings2,
   Search,
-  ArrowUpRight,
   Loader2,
   ListFilter,
   MoreHorizontal,
   ChevronDown,
-  CheckCircle2,
   ArrowRight,
   SlidersHorizontal
 } from "lucide-react"
@@ -37,8 +38,7 @@ import { WorkflowDialog } from "@/components/records/workflow-dialog"
 import {
   PageHeader,
   ErrorState,
-  ViewState,
-  StatusBadge
+  ViewState
 } from "@/design-system/patterns/workbench"
 import {
   DropdownMenu,
@@ -49,20 +49,21 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem
 } from "@/components/ui/dropdown-menu"
-import { relativeTime } from "@/lib/record-overview"
 import "./records.css"
 import { getActiveWorkspace } from "@/lib/auth"
 import {
   displayField,
+  fetchSharedRecord,
+  fetchRecordPage,
   downloadData,
   recordAPI,
   type RecordKind,
-  type RecordPage,
   type SharedRecord,
   type RecordWorkflow
 } from "@/lib/records"
 
 export default function RecordsPage({ kind }: { kind: RecordKind }) {
+  const columns = useColumnLayout(kind)
   const navigate = useNavigate()
   const client = useQueryClient()
   const workspace = getActiveWorkspace()
@@ -137,13 +138,7 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   const recordID = params.get("record")
   const inspected = useQuery({
     queryKey: ["record-inspect", workspace, kind, recordID],
-    queryFn: ({ signal }) =>
-      recordAPI<SharedRecord>(
-        `records/${kind}/${encodeURIComponent(recordID!)}`,
-        undefined,
-        "GET",
-        signal
-      ),
+    queryFn: ({ signal }) => fetchSharedRecord(kind, recordID!, signal),
     enabled: !!recordID,
     staleTime: 0,
     retry: false,
@@ -156,10 +151,16 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   const query = useQuery({
     queryKey: ["records", workspace, kind, deferred, offset, filter, sort],
     queryFn: ({ signal }) =>
-      recordAPI<RecordPage>(
-        `records/${kind}?limit=100&offset=${offset}&search=${encodeURIComponent(deferred)}&filter=${filter}&sort=${sort}&direction=${sort === "name" ? "asc" : "desc"}`,
-        undefined,
-        "GET",
+      fetchRecordPage(
+        kind,
+        {
+          limit: 100,
+          offset,
+          search: deferred,
+          filter,
+          sort,
+          direction: sort === "name" ? "asc" : "desc"
+        },
         signal
       ),
     refetchInterval: 20_000
@@ -189,11 +190,13 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
   const rows = query.data?.records ?? []
   const changed = () => {
     void client.invalidateQueries({ queryKey: ["records"] })
+    void client.invalidateQueries({ queryKey: ["record-history"] })
+    void client.invalidateQueries({ queryKey: ["company-people"] })
     void client.invalidateQueries({ queryKey: ["record-companies-picker"] })
     void client.invalidateQueries({ queryKey: ["record-overview"] })
   }
-  function edit(record: SharedRecord) {
-    returnFocus.current = document.activeElement as HTMLElement
+  function edit(record: SharedRecord, trigger: HTMLButtonElement) {
+    returnFocus.current = trigger
     setEditor(null)
     setParams((previous) => {
       const next = new URLSearchParams(previous)
@@ -311,15 +314,6 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
     })
   }
   const checkedOnPage = rows.filter((row) => selected.has(row.id)).length
-  const fitLabel = (record: SharedRecord) =>
-    ({
-      hot: "High fit",
-      warm: "Potential fit",
-      cold: "Low fit",
-      unqualified: "Unqualified"
-    })[String(record.fields.score_tier)] || "Not scored"
-  const currentRole = (record: SharedRecord) =>
-    displayField(record.employments?.find((item) => item.current)?.fields.title)
   return (
     <div className="workbench-page records-page">
       <PageHeader
@@ -429,6 +423,7 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
         </span>
         <div className="workbench-toolbar-spacer" />
         <div className="records-view-options">
+          <ColumnConfiguration kind={kind} layout={columns.layout} temporary={columns.temporary} onApply={columns.apply} />
           <label className="sr-only" htmlFor="records-sort">
             Sort records
           </label>
@@ -472,6 +467,7 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
           </DropdownMenu>
         </div>
       </div>
+      {columns.temporary && <p role="status" className="record-column-preference-notice">Column changes apply to this view. This browser could not save the preference for your next visit.</p>}
       {selected.size > 0 && (
         <div
           className="records-selection"
@@ -602,185 +598,24 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
             }
           />
         ) : (
-          <div
-            className="records-table-scroll"
-            role="region"
-            aria-label={`${plural} table, scroll for more columns`}
-            tabIndex={0}
-          >
-            <table className="records-table" data-density={density}>
-              <caption className="sr-only">
-                {plural}, {query.data.total.toLocaleString()} matching records.
-                Select a name to inspect shared facts and history.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col" className="records-check">
-                    <label className="gtm-checkbox-target">
-                      <input
-                        type="checkbox"
-                        aria-label="Select all records on this page"
-                        checked={
-                          checkedOnPage === rows.length && rows.length > 0
-                        }
-                        ref={(element) => {
-                          if (element)
-                            element.indeterminate =
-                              checkedOnPage > 0 && checkedOnPage < rows.length
-                        }}
-                        onChange={(event) =>
-                          setSelected((previous) => {
-                            const next = new Set(previous)
-                            for (const record of rows) {
-                              if (event.target.checked) next.add(record.id)
-                              else next.delete(record.id)
-                            }
-                            return next
-                          })
-                        }
-                      />
-                    </label>
-                  </th>
-                  <th scope="col" className="records-identity">
-                    {kind === "company" ? "Company" : "Person"}
-                  </th>
-                  <th scope="col">
-                    {kind === "company" ? "Domain" : "Company & role"}
-                  </th>
-                  <th scope="col">
-                    {kind === "company" ? "Industry" : "Work email"}
-                  </th>
-                  <th scope="col">Fit</th>
-                  <th scope="col">
-                    {kind === "company" ? "Location" : "Phone"}
-                  </th>
-                  <th scope="col">Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((record) => (
-                  <tr key={record.id} data-selected={selected.has(record.id)}>
-                    <td className="records-check">
-                      <label className="gtm-checkbox-target">
-                        <input
-                          type="checkbox"
-                          aria-label={`Select ${displayField(record.fields.name || record.fields.full_name) || "unnamed record"}`}
-                          checked={selected.has(record.id)}
-                          onChange={() => toggle(record.id)}
-                        />
-                      </label>
-                    </td>
-                    <td className="records-identity">
-                      <button
-                        className="records-name"
-                        onClick={() => void edit(record)}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="records-avatar"
-                          data-person={kind === "person"}
-                        >
-                          {displayField(
-                            record.fields.name || record.fields.full_name
-                          )
-                            .split(/\s+/)
-                            .slice(0, 2)
-                            .map((part) => part[0])
-                            .join("")
-                            .toUpperCase() || "?"}
-                        </span>
-                        <span>
-                          {displayField(
-                            record.fields.name || record.fields.full_name
-                          ) || "Unnamed record"}
-                        </span>
-                        <ArrowUpRight aria-hidden="true" />
-                      </button>
-                    </td>
-                    <td>
-                      {kind === "company" ? (
-                        <span className="records-domain">
-                          {displayField(record.fields.domain) || (
-                            <span className="records-missing">No domain</span>
-                          )}
-                        </span>
-                      ) : (
-                        <div className="records-two-line">
-                          <Link
-                            to={`/companies?q=${encodeURIComponent(displayField(record.company?.domain || record.company?.name))}`}
-                          >
-                            {displayField(record.company?.name) ||
-                              "Company unknown"}
-                          </Link>
-                          {currentRole(record) && (
-                            <span>{currentRole(record)}</span>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      {kind === "company" ? (
-                        <span>
-                          {displayField(
-                            record.fields.industry ||
-                              record.fields.specialization
-                          ) || <span className="records-missing">—</span>}
-                        </span>
-                      ) : (
-                        <span className="records-email">
-                          {displayField(record.fields.email) || (
-                            <span className="records-missing">Not found</span>
-                          )}
-                          {["valid", "verified", "deliverable"].includes(
-                            String(
-                              record.fields.email_verify_status ||
-                                record.fields.email_verify
-                            ).toLowerCase()
-                          ) && (
-                            <CheckCircle2 aria-label="Verified work email" />
-                          )}
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <StatusBadge
-                        tone={
-                          record.fields.score_tier === "hot"
-                            ? "positive"
-                            : record.fields.score_tier === "warm"
-                              ? "accent"
-                              : "neutral"
-                        }
-                      >
-                        {fitLabel(record)}
-                        {record.fields.score != null && (
-                          <span className="records-score">
-                            {displayField(record.fields.score)}
-                          </span>
-                        )}
-                      </StatusBadge>
-                    </td>
-                    <td>
-                      <span className="records-secondary">
-                        {displayField(
-                          kind === "company"
-                            ? record.fields.city
-                            : record.fields.phone
-                        ) || "—"}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="records-secondary">
-                        {record.updated_at
-                          ? relativeTime(record.updated_at)
-                          : "—"}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <RecordTable
+            kind={kind}
+            records={rows}
+            total={query.data.total}
+            density={density}
+            layout={columns.layout}
+            selected={selected}
+            onToggle={toggle}
+            onInspect={edit}
+            onTogglePage={checked => setSelected(previous => {
+              const next = new Set(previous)
+              for (const record of rows) {
+                if (checked) next.add(record.id)
+                else next.delete(record.id)
+              }
+              return next
+            })}
+          />
         )}
       </div>
       <footer className="records-footer">
@@ -837,6 +672,7 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
       )}
       {importOpen && canWrite && (
         <RecordImportDialog
+          key={`${workspace}:${kind}`}
           kind={kind}
           onClose={() => {
             setImportOpen(false)
@@ -850,6 +686,25 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
             )
           }}
           onImported={changed}
+          onOpenRecord={(id) => {
+            setImportOpen(false)
+            setParams((previous) => {
+              const next = new URLSearchParams(previous)
+              next.delete("import")
+              next.set("record", id)
+              return next
+            })
+          }}
+          onSelectImported={(ids) => {
+            setSelected(new Set(ids))
+            setImportOpen(false)
+            setParams((previous) => {
+              const next = new URLSearchParams(previous)
+              next.delete("import")
+              return next
+            }, { replace: true })
+            toast.success(`${ids.length.toLocaleString()} records selected. Review enrichment in a linked workbook.`)
+          }}
         />
       )}
       {editor && (
@@ -863,7 +718,8 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
       )}
       {recordID &&
         !editor &&
-        (inspected.isFetching || inspected.isPending || inspected.isError) && (
+        !inspected.data &&
+        (inspected.isPending || inspected.isError) && (
           <Sheet
             open
             onOpenChange={(open) => {
@@ -892,20 +748,19 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
             </SheetContent>
           </Sheet>
         )}
-      {recordID &&
-        !editor &&
-        inspected.data &&
-        !inspected.isFetching &&
-        !inspected.isError && (
-          <RecordEditor
-            key={`${inspected.data.id}:${inspected.data.version}`}
-            kind={kind}
-            readOnly={!canWrite}
-            record={inspected.data}
-            onClose={closeEditor}
-            onSaved={changed}
-          />
-        )}
+      {recordID && !editor && inspected.data && (
+        <RecordEditor
+          key={`${workspace}:${kind}:${inspected.data.id}`}
+          kind={kind}
+          readOnly={!canWrite}
+          record={inspected.data}
+          refreshing={inspected.isFetching}
+          refreshError={inspected.isError ? inspected.error : undefined}
+          onRetry={() => void inspected.refetch()}
+          onClose={closeEditor}
+          onSaved={changed}
+        />
+      )}
       {workflowOpen && workflow.data && (
         <WorkflowDialog
           kind={kind}

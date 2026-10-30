@@ -1,0 +1,53 @@
+/* Two deliberate tool rows keep the grid close to its working context. */
+.workbook-editor {
+  container-type: inline-size;
+  container-name: workbook;
+}
+.workbook-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  padding: 4px var(--gtm-content-inset);
+  border-bottom: 1px solid var(--border);
+  background: var(--gtm-surface);
+  flex-shrink: 0;
+}
+.workbook-toolbar-heading {
+  flex: 1;
+  min-width: 180px;
+}
+.workbook-toolbar-heading h1 {
+  font-size: var(--gtm-page-title-size);
+  line-height: 1.5rem;
+}
+.workbook-toolbar-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-basis: 100%;
+  gap: 4px;
+  min-width: 0;
+}
+@container workbook (min-width: 900px) {
+  .workbook-toolbar-heading {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0 12px;
+  }
+}
+@container workbook (max-width: 600px) {
+  .workbook-toolbar-heading {
+    flex-basis: calc(100% - 52px);
+  }
+}
+@media (pointer: coarse) {
+  .workbook-toolbar button,
+  .workbook-toolbar input {
+    min-height: 44px;
+  }
+  .workbook-toolbar > button {
+    min-width: 44px;
+  }
+}

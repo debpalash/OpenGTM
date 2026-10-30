@@ -53,8 +53,11 @@
   min-height: var(--gtm-row-height);
 }
 .records-table[data-density="compact"] td {
-  height: 34px;
+  height: var(--gtm-row-height);
   padding-block: 0;
+}
+.records-table[data-density="compact"] .gtm-checkbox-target {
+  height: 24px;
 }
 .records-table[data-density="comfortable"] td {
   height: 48px;
@@ -190,8 +193,8 @@
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  padding: 6px 16px;
-  min-height: 44px;
+  padding: 4px var(--gtm-content-inset);
+  min-height: 36px;
   border-top: 1px solid var(--border);
   font-size: 0.75rem;
   color: var(--muted-foreground);
@@ -209,7 +212,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 24px;
+  padding: 6px var(--gtm-content-inset);
   background: var(--gtm-selection);
   border-bottom: 1px solid var(--border);
   font-size: 0.8125rem;
@@ -308,7 +311,7 @@
   line-height: 16px;
 }
 .records-table[data-density="compact"] .records-name {
-  min-height: 28px;
+  min-height: 24px;
 }
 .records-table[data-density="compact"] .records-avatar {
   width: 24px;
@@ -350,9 +353,6 @@
   }
 }
 
-.records-table[data-density="compact"] .records-name {
-  min-height: 28px;
-}
 .records-table[data-density="compact"] .records-two-line {
   line-height: 14px;
   gap: 0;
@@ -361,6 +361,9 @@
   height: 32px;
 }
 @media (pointer: coarse) {
+  .records-table[data-density="compact"] .gtm-checkbox-target {
+    height: 44px;
+  }
   .records-table .records-check {
     width: 52px;
     min-width: 52px;

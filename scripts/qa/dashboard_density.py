@@ -19,6 +19,7 @@ parser.add_argument(
     "--baseline-url", help="Optional previous build for the same fixture"
 )
 parser.add_argument("--workspace-id", required=True)
+parser.add_argument("--workbook-id", help="Also verify overview and workbook tool density and touch targets")
 parser.add_argument(
     "--engine", choices=["chromium", "webkit", "firefox"], default="chromium"
 )
@@ -127,22 +128,51 @@ try:
             page.screenshot(path=str(out / (label + ".png")))
             audit(page, label)
         compact = report["measurements"]["compact"]
-        assert compact["rowHeight"] == 34, compact
+        assert compact["rowHeight"] == 28, compact
         assert (
-            compact["topbar"] == 44
-            and compact["header"] == 64
-            and compact["sidebar"] == 208
+            compact["topbar"] == 36
+            and compact["header"] == 44
+            and compact["sidebar"] == 192
         ), compact
         if "before" in report["measurements"]:
             before = report["measurements"]["before"]
             assert compact["fullyVisibleRows"] > before["fullyVisibleRows"]
+
+        # The narrow rail must survive route changes and full reloads, without
+        # making navigation inaccessible. Keyboard expansion returns focus.
+        toggle = page.locator('.gtm-topbar [data-sidebar="trigger"]')
+        toggle.click()
+        page.wait_for_function(
+            "document.querySelector('[data-slot=sidebar-gap]').getBoundingClientRect().width===52"
+        )
+        page.reload()
+        expect(page.locator("tbody tr")).to_have_count(100)
+        assert geometry(page)["sidebar"] == 52
+        audit(page, "saved-navigation-rail")
+        page.screenshot(path=str(out / "navigation-rail.png"))
+        page.keyboard.press("[")
+        page.wait_for_function(
+            "document.querySelector('[data-slot=sidebar-gap]').getBoundingClientRect().width===192"
+        )
+        page.reload()
+        expect(page.locator("tbody tr")).to_have_count(100)
+        assert geometry(page)["sidebar"] == 192
+        for width, height in [(1366, 768), (1280, 720), (1920, 1080)]:
+            page.set_viewport_size({"width": width, "height": height})
+            assert page.evaluate("document.documentElement.scrollWidth===innerWidth")
+            measurements = geometry(page)
+            assert measurements["fullyVisibleRows"] >= 15, measurements
+            report["measurements"][f"desktop-{width}-{height}"] = measurements
+            audit(page, f"desktop-{width}-{height}")
+            page.screenshot(path=str(out / f"desktop-{width}-{height}.png"))
+        page.set_viewport_size({"width": 1440, "height": 1000})
 
         for theme in ["light", "dark"]:
             page.evaluate("theme=>window.OpenGTMTheme.setPreference(theme)", theme)
             for name, value, height in [
                 ("Standard rows", "default", 40),
                 ("Comfortable rows", "comfortable", 48),
-                ("Compact rows", "compact", 34),
+                ("Compact rows", "compact", 28),
             ]:
                 page.get_by_role("button", name="Table density", exact=True).click()
                 item = page.get_by_role("menuitemradio", name=name, exact=True)
@@ -173,6 +203,28 @@ try:
             "data-density", "compact"
         )
         page.evaluate('localStorage.removeItem("opengtm-record-density")')
+
+        if args.workbook_id:
+            page.goto(base + "/overview")
+            metrics = page.locator(".overview-metric")
+            expect(metrics).to_have_count(4)
+            metrics.first.focus()
+            # WebKit's default macOS setting skips links with plain Tab.
+            # Option+Tab traverses links without changing their native semantics.
+            page.keyboard.press("Alt+Tab" if args.engine == "webkit" else "Tab")
+            expect(metrics.nth(1)).to_be_focused()
+            audit(page, "overview-keyboard")
+            page.screenshot(path=str(out / "overview-keyboard.png"))
+            page.goto(base + "/workbooks")
+            expect(page.locator(".gtm-workbook-link").first).to_be_visible()
+            audit(page, "workbooks-desktop")
+            page.goto(base + "/workbooks/" + urllib.parse.quote(args.workbook_id, safe=""))
+            expect(page.get_by_role("grid")).to_be_visible()
+            toolbar = page.locator(".workbook-toolbar").bounding_box()
+            assert toolbar["height"] <= 80, toolbar
+            report["measurements"]["workbookToolbarHeight"] = toolbar["height"]
+            audit(page, "workbook-desktop")
+            page.screenshot(path=str(out / "workbook.png"))
 
         touch = browser.new_context(
             viewport={"width": 390, "height": 844},
@@ -209,6 +261,24 @@ try:
             )
             phone.keyboard.press("Escape")
             phone.screenshot(path=str(out / ("touch-" + str(width) + ".png")))
+            if args.workbook_id:
+                phone.goto(base + "/workbooks")
+                link = phone.locator(".gtm-workbook-link").first
+                expect(link).to_be_visible()
+                assert link.bounding_box()["height"] >= 44
+                assert phone.evaluate("document.documentElement.scrollWidth<=innerWidth")
+                audit(phone, "workbooks-touch-" + str(width))
+                phone.goto(base + "/workbooks/" + urllib.parse.quote(args.workbook_id, safe=""))
+                back = phone.get_by_role("button", name="Back to workbooks", exact=True)
+                expect(back).to_be_visible()
+                back_box = back.bounding_box()
+                title = phone.locator(".workbook-toolbar-heading").bounding_box()
+                assert back_box["height"] >= 44 and back_box["width"] >= 44
+                # The title belongs alongside Back, including with touch targets.
+                assert title["y"] < back_box["y"] + back_box["height"], (title, back_box)
+                assert phone.evaluate("document.documentElement.scrollWidth<=innerWidth")
+                audit(phone, "workbook-touch-" + str(width))
+                phone.screenshot(path=str(out / ("workbook-touch-" + str(width) + ".png")))
         browser.close()
     assert not report["page_errors"], report["page_errors"]
 finally:

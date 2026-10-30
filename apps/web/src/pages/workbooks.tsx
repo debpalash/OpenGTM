@@ -123,7 +123,7 @@ export default function WorkbooksPage() {
             <td>{workbook.total_rows.toLocaleString()}</td><td>{workbook.columns_config.length}</td>
             <td>{workbook.completed_rows.toLocaleString()} / {workbook.total_rows.toLocaleString()}</td>
             <td>{Number.isFinite(Date.parse(workbook.updated_at)) ? <time dateTime={workbook.updated_at} title={new Date(workbook.updated_at).toLocaleString()}>{new Date(workbook.updated_at).toLocaleDateString()}</time> : "—"}</td>
-            <td><Button variant="ghost" aria-label={`Delete ${workbook.name}`} onClick={event => { deleteTrigger.current = event.currentTarget; setDeleteError(""); setDeleting(workbook) }}><Trash2 aria-hidden="true" className="size-4" /></Button></td>
+            <td><Button variant="ghost" size="sm" aria-label={`Delete ${workbook.name}`} onClick={event => { deleteTrigger.current = event.currentTarget; setDeleteError(""); setDeleting(workbook) }}><Trash2 aria-hidden="true" className="size-4" /></Button></td>
           </tr>)}</tbody>
         </table>
       </div>}

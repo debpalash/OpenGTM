@@ -34,6 +34,7 @@ func RegisterRecords(r *httpx.Router, d Deps) {
 	r.Handle("POST /api/records/{kind}", http.HandlerFunc(h.create), write...)
 	r.Handle("PATCH /api/records/{kind}/{id}", http.HandlerFunc(h.patch), write...)
 	r.Handle("POST /api/record-imports/preview", http.HandlerFunc(h.preview), write...)
+	r.Handle("POST /api/record-imports/inspect", http.HandlerFunc(h.inspectImport), write...)
 	r.Handle("POST /api/record-imports", http.HandlerFunc(h.importRecords), write...)
 	r.Handle("GET /api/record-imports/{key}", http.HandlerFunc(h.importReceipt), read...)
 	r.Handle("GET /api/record-snapshots", http.HandlerFunc(h.snapshot), read...)
@@ -140,7 +141,7 @@ func (h recordRoutes) list(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	out, e := h.s.ListFiltered(r.Context(), ws, k, records.ListOptions{Search: r.URL.Query().Get("search"), Filter: r.URL.Query().Get("filter"), Sort: r.URL.Query().Get("sort"), Direction: r.URL.Query().Get("direction"), Limit: limit, Offset: offset})
+	out, e := h.s.ListFiltered(r.Context(), ws, k, records.ListOptions{CompanyID: r.URL.Query().Get("company_id"), Search: r.URL.Query().Get("search"), Filter: r.URL.Query().Get("filter"), Sort: r.URL.Query().Get("sort"), Direction: r.URL.Query().Get("direction"), Limit: limit, Offset: offset})
 	if e != nil {
 		h.fail(w, e)
 		return
@@ -194,7 +195,20 @@ func (h recordRoutes) patch(w http.ResponseWriter, r *http.Request) {
 	}
 	httpx.WriteJSON(w, 200, out)
 }
-func (h recordRoutes) preview(w http.ResponseWriter, r *http.Request)       { h.importRun(w, r, true) }
+func (h recordRoutes) preview(w http.ResponseWriter, r *http.Request) { h.importRun(w, r, true) }
+
+func (h recordRoutes) inspectImport(w http.ResponseWriter, r *http.Request) {
+	var input records.ImportRequest
+	if !recordBody(w, r, &input) {
+		return
+	}
+	inspection, err := records.InspectImport(input)
+	if err != nil {
+		h.fail(w, err)
+		return
+	}
+	httpx.WriteJSON(w, 200, inspection)
+}
 func (h recordRoutes) importRecords(w http.ResponseWriter, r *http.Request) { h.importRun(w, r, false) }
 func (h recordRoutes) importRun(w http.ResponseWriter, r *http.Request, preview bool) {
 	var b records.ImportRequest

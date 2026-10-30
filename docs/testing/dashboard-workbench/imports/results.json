@@ -1,0 +1,69 @@
+{
+  "working_tree_head": "a1be0e08e603e03f62e021ef288321cb9809e006",
+  "uncommitted_working_tree": true,
+  "embedded_index_sha256": "745c07f90b8435b0731722089095e96dad862d60e21134e166b5e7d7f905ceba",
+  "frontend_tests": 169,
+  "frontend_assertions": 565,
+  "lint": "pass",
+  "build": "pass",
+  "go_unit_race": "records and api passed",
+  "records_integration_race": "pass with explicit TestTenThousandRowImportPreviewCommitAndReplay exclusion",
+  "large_import_regression": {
+    "status": "timeout",
+    "timeout_seconds": 360,
+    "test": "TestTenThousandRowImportPreviewCommitAndReplay",
+    "disposable_database_cleaned": true
+  },
+  "checks": {
+    "chromium": {
+      "axe_states": 13,
+      "page_errors": [],
+      "checks": [
+        "inspection-is-stateless-and-duplicate-suggestions-remain-editable",
+        "keyboard-input-focus-and-back-navigation-preserve-mapping",
+        "lost-response-missing-receipt-and-reload-recovery-keep-one-batch-without-reposting",
+        "accepted-row-opens-canonical-record-with-custom-fields-and-exact-source-id",
+        "numeric-json-preview-errors-and-separate-enrichment-selection-preserve-data-without-running-jobs",
+        "blocked-browser-storage-discloses-recovery-limit-and-in-memory-receipt-clears-warning",
+        "short-height-and-320px-dark-dialogs-keep-footer-visible-and-guard-escape",
+        "touch-controls-44px-and-text-spacing-reflow",
+        "no-page-errors"
+      ]
+    },
+    "webkit": {
+      "axe_states": 13,
+      "page_errors": [],
+      "checks": [
+        "inspection-is-stateless-and-duplicate-suggestions-remain-editable",
+        "keyboard-input-focus-and-back-navigation-preserve-mapping",
+        "lost-response-missing-receipt-and-reload-recovery-keep-one-batch-without-reposting",
+        "accepted-row-opens-canonical-record-with-custom-fields-and-exact-source-id",
+        "numeric-json-preview-errors-and-separate-enrichment-selection-preserve-data-without-running-jobs",
+        "blocked-browser-storage-discloses-recovery-limit-and-in-memory-receipt-clears-warning",
+        "short-height-and-320px-dark-dialogs-keep-footer-visible-and-guard-escape",
+        "touch-controls-44px-and-text-spacing-reflow",
+        "no-page-errors"
+      ]
+    }
+  },
+  "journey_axe_states": 10,
+  "source_sha256": {
+    "apps/backend-go/internal/api/recordsroutes.go": "657b4cf5e58fc01fb86f8b209ae863f04043764273bf6204ee86d8a296b7b1e9",
+    "apps/backend-go/internal/records/import_inspect.go": "f11f0ea1fdc1ca92c4edbc628f88daa3e29c3405fe5136f7b8ddb95ca614efbb",
+    "apps/backend-go/internal/records/import_inspect_test.go": "1306dc3c61efa82f1a10c8ecc1b1353b396e9ac3c694298a34f00f20e1fe5236",
+    "apps/backend-go/internal/records/interchange.go": "0d23f4a995434b6072cb06cced41eaf07466cd3542dbf4e5a1b19e7b21473e66",
+    "apps/web/src/components/records/import-dialog.css": "86e8302a638bc31ae74ca01f259355f9bb10d81e454f30a69fbdeb931f2daf23",
+    "apps/web/src/components/records/import-dialog.tsx": "1b26ebe81816a3a55e6b1f28d41c7b492e3fc9aa84296c22557f37e322c641b9",
+    "apps/web/src/features/records/import/column-mapping.tsx": "a3e60440bce51b024a166a41b7c7512aa35f5d789a0c285b599174b28874331f",
+    "apps/web/src/features/records/import/import-review.tsx": "98d31e8987247848e834c9a84ee5c7d3ce2af6a2a60af795318e1aada590687a",
+    "apps/web/src/features/records/import/import.css": "8fe439cd4f66e55dd075645414ec89b72e8ac1391299c4fac23284b1fd042713",
+    "apps/web/src/features/records/import/mapping.ts": "51ff5fe4e88b73e554f1642e137eb36436415f24d7c6765bcc076271e13fcbc5",
+    "apps/web/src/features/records/import/recovery.ts": "320553f2343b093bf99c1a59b0e82f967114d88c00be44af934a60080262ec7e",
+    "apps/web/src/features/records/import/use-import-task.ts": "9f3883f49a333e12db032fd91aa4af0914e56eba46540b66a8668f9beb66d744",
+    "apps/web/src/lib/record-import.ts": "bd711a8932964caafda63f074e025049d72f1c5cbc03ab282c93d9ed7cb6d370",
+    "apps/web/src/lib/records.ts": "d0bed6290cef1d9cfae232650b2a93885c2e6ae949a8aba84f93a0d6c1f7a25b",
+    "apps/web/src/pages/records.tsx": "3371151844bc1b05cb63709c1a319d5be253ca9692754f89769be0706141fa40",
+    "scripts/qa/dashboard_import_mapping.py": "44956a2db7a75e56a14b41ce0e2ea16ffcc85dcfa393ce73ad5130bf0c2fc151",
+    "scripts/qa/dashboard_journey.py": "4d5746e6ee9b3dfd76cbd9594f6b937e7ad9b873e9d128fcef0e57d69c5d8e43"
+  }
+}

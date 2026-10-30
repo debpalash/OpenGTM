@@ -21,13 +21,14 @@ import (
 
 // Web bundles the process-wide pieces.
 type Web struct {
-	Search  *Searcher
-	Fetch   *Fetcher
-	GMaps   *GMaps
-	Limiter *RateLimiter
-	Pool    *ProxyPool
-	Proxies *ProxyManager
-	browser *browserclient.Client
+	Search   *Searcher
+	Fetch    *Fetcher
+	GMaps    *GMaps
+	Limiter  *RateLimiter
+	Pool     *ProxyPool
+	Proxies  *ProxyManager
+	Spicrawl *Spicrawl
+	browser  *browserclient.Client
 }
 
 // New wires leadweb from settings. bc is the browser-service client; appEnv
@@ -54,7 +55,7 @@ func newWeb(cfg config.LeadwebSettings, b Browser, bc *browserclient.Client, pub
 	}
 	return &Web{
 		Search: s, Fetch: NewFetcher(b, limiter, pool, appEnv, allowHosts), GMaps: NewGMaps(cfg.GMapsScraperURL, nil),
-		Limiter: limiter, Pool: pool, Proxies: mgr, browser: bc,
+		Limiter: limiter, Pool: pool, Proxies: mgr, browser: bc, Spicrawl: NewSpicrawl(cfg, public),
 	}
 }
 

@@ -1,0 +1,108 @@
+.destination-setup-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.destination-setup-heading h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.destination-setup-heading p {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: 4px;
+}
+.destination-setup-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  min-width: 0;
+}
+.destination-setup-field {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  align-content: start;
+}
+.destination-setup-field label {
+  font-weight: 500;
+}
+.destination-setup-wide {
+  grid-column: 1 / -1;
+}
+.destination-setup-field > [data-slot="native-select"] {
+  width: 100%;
+}
+.destination-setup-field textarea {
+  resize: vertical;
+  min-height: 72px;
+  padding: 8px;
+  border: 1px solid var(--input);
+  border-radius: 6px;
+  background: var(--background);
+}
+.destination-setup-field textarea[aria-invalid="true"] {
+  border-color: var(--gtm-danger);
+}
+.destination-setup-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 32px;
+  padding-block: 4px;
+  cursor: pointer;
+}
+.destination-setup-check input {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  margin-top: 2px;
+  accent-color: var(--gtm-accent);
+}
+.destination-setup-check span {
+  line-height: 1.5;
+}
+.destination-endpoint-review {
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+}
+.destination-endpoint-review > label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.destination-endpoint-review > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.destination-endpoint-review input {
+  flex: 1 1 200px;
+}
+@media (max-width: 600px) {
+  .destination-setup-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .destination-setup-dialog [data-slot="dialog-footer"] {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .destination-setup-dialog [data-slot="dialog-footer"] > button {
+    flex-grow: 1;
+  }
+  .destination-setup-field input,
+  .destination-setup-field textarea,
+  .destination-setup-field select {
+    font-size: 16px;
+  }
+}
+@media (pointer: coarse) {
+  .destination-setup-check {
+    min-height: 44px;
+  }
+  .destination-setup-field textarea {
+    min-height: 88px;
+  }
+}

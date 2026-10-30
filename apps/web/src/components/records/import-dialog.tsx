@@ -1,531 +1,259 @@
-import { useEffect, useState } from "react"
+import { useId, useLayoutEffect, useRef } from "react"
 import {
   ArrowRight,
   ArrowLeft,
   CheckCircle2,
   FileSpreadsheet,
-  Loader2,
-  Download
+  Loader2
 } from "lucide-react"
-import { toast } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription
-} from "@/components/ui/dialog"
-import { getActiveWorkspace } from "@/lib/auth"
-import {
-  recordImportAPI,
-  downloadData,
-  type RecordKind,
-  type RecordImport,
-  type ImportResult
-} from "@/lib/records"
+  Button,
+  Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalTitle,
+  ModalDescription
+} from "@/design-system/primitives"
+import type { RecordKind } from "@/lib/records"
+import { ColumnMapping } from "@/features/records/import/column-mapping"
+import { ImportReview } from "@/features/records/import/import-review"
+import { useImportTask } from "@/features/records/import/use-import-task"
 import "./import-dialog.css"
-interface Draft {
-  key: string
-  hash: string
-  filename: string
-  source: string
-  mapping: Record<string, string>
-}
-function readDraft(key: string): Draft | null {
-  try {
-    const d = JSON.parse(sessionStorage.getItem(key) || "null")
-    return d &&
-      typeof d.key === "string" &&
-      typeof d.hash === "string" &&
-      typeof d.filename === "string" &&
-      typeof d.source === "string" &&
-      d.mapping &&
-      typeof d.mapping === "object"
-      ? d
-      : null
-  } catch {
-    return null
-  }
-}
+import "@/features/records/import/import.css"
+
 export function RecordImportDialog({
   kind,
   onClose,
-  onImported
+  onImported,
+  onOpenRecord,
+  onSelectImported
 }: {
   kind: RecordKind
   onClose: () => void
   onImported: () => void
+  onOpenRecord: (id: string) => void
+  onSelectImported: (ids: string[]) => void
 }) {
-  const storageKey = `opengtm-import:${getActiveWorkspace()}:${kind}`
-  const [recovery, setRecovery] = useState(() => readDraft(storageKey))
-  const [request, setRequest] = useState<RecordImport>({
-    record_type: kind,
-    source: recovery?.source || "clay:prospects",
-    idempotency_key: recovery?.key || crypto.randomUUID()
-  })
-  const [rawRows, setRawRows] = useState("")
-  const [filename, setFilename] = useState("")
-  const [hash, setHash] = useState("")
-  const [result, setResult] = useState<ImportResult | null>(null)
-  const [mapping, setMapping] = useState<Record<string, string>>({})
-  const [step, setStep] = useState(0)
-  const [busy, setBusy] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-  const [error, setError] = useState("")
-  useEffect(() => {
-    if (!busy) return
-    const started = Date.now()
-    const timer = setInterval(
-      () => setElapsed(Math.floor((Date.now() - started) / 1000)),
-      1000
-    )
-    return () => clearInterval(timer)
-  }, [busy])
-  const complete = step === 3
-  function forget() {
-    setRecovery(null)
-    try {
-      sessionStorage.removeItem(storageKey)
-    } catch {
-      /* Storage may be unavailable. */
-    }
-  }
-  async function load(file?: File) {
-    if (!file) return
-    setError("")
-    setResult(null)
-    setFilename("")
-    setRawRows("")
-    setMapping({})
-    setStep(0)
-    if (file.size > 15 * 1024 * 1024) {
-      setError(
-        "Use files up to 15 MB and 10,000 rows. Split larger exports into batches."
-      )
-      return
-    }
-    try {
-      const text = await file.text()
-      const data = file.name.toLowerCase().endsWith(".json")
-        ? { rows: JSON.parse(text) as Record<string, unknown>[] }
-        : { csv: text }
-      if (
-        "rows" in data &&
-        (!Array.isArray(data.rows) ||
-          data.rows.some(
-            (row) => !row || typeof row !== "object" || Array.isArray(row)
-          ))
-      )
-        throw new Error("JSON must be an array of row objects.")
-      const digest = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(text)
-      )
-      const fingerprint = Array.from(new Uint8Array(digest), (v) =>
-        v.toString(16).padStart(2, "0")
-      ).join("")
-      const same = recovery?.hash === fingerprint
-      setHash(fingerprint)
-      setRawRows("rows" in data ? text : "")
-      setFilename(file.name)
-      setMapping(same ? recovery.mapping : {})
-      setRequest({
-        record_type: kind,
-        source: same ? recovery.source : request.source,
-        idempotency_key: same ? recovery.key : crypto.randomUUID(),
-        ...data
-      })
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Could not read the file."
-      )
-    }
-  }
-  async function preview(next: number) {
-    setBusy(true)
-    setElapsed(0)
-    setError("")
-    try {
-      const output = await recordImportAPI(
-        { ...request, ...(Object.keys(mapping).length ? { mapping } : {}) },
-        true,
-        rawRows
-      )
-      setResult(output)
-      setMapping(output.mapping)
-      setStep(next)
-    } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Could not validate this file. Your selections are kept."
-      )
-    } finally {
-      setBusy(false)
-    }
-  }
-  async function commit() {
-    const draft = {
-      key: request.idempotency_key,
-      hash,
-      filename,
-      source: request.source,
-      mapping
-    }
-    setRecovery(draft)
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(draft))
-    } catch {
-      /* In-memory retry retains this key. */
-    }
-    setBusy(true)
-    setElapsed(0)
-    setError("")
-    try {
-      const output = await recordImportAPI(
-        { ...request, mapping },
-        false,
-        rawRows
-      )
-      setResult(output)
-      setStep(3)
-      forget()
-      onImported()
-      toast.success(
-        `${output.imported.toLocaleString()} records imported${output.replayed ? " (completed batch recovered)" : ""}`
-      )
-    } catch (cause) {
-      setError(
-        `${cause instanceof Error ? cause.message : "The response was lost."} Check the batch status or retry. This batch keeps the same import key.`
-      )
-    } finally {
-      setBusy(false)
-    }
-  }
-  async function recover() {
-    if (!recovery) return
-    setBusy(true)
-    setElapsed(0)
-    setError("")
-    try {
-      const response = await fetch(
-        `/api/record-imports/${encodeURIComponent(recovery.key)}`
-      )
-      if (response.status === 404)
-        throw new Error(
-          `No completed receipt is available yet. Reselect ${recovery.filename} and retry with the same batch key. An import may still be running.`
-        )
-      if (!response.ok)
-        throw new Error("Could not check this batch. Try again.")
-      setFilename(recovery.filename)
-      setResult({ ...((await response.json()) as ImportResult), replayed: true })
-      setStep(3)
-      forget()
-      onImported()
-    } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Could not check this batch."
-      )
-    } finally {
-      setBusy(false)
-    }
-  }
-  const targets = [
-    "external_id",
-    "company_id",
-    "company_external_id",
-    "company_source",
-    "company.name",
-    "company.domain",
-    "company.website",
-    "company.industry",
-    "company.city",
-    "company.country",
-    "company.employee_count_exact",
-    ...(kind === "person"
-      ? [
-          "person.full_name",
-          "person.first_name",
-          "person.last_name",
-          "person.email",
-          "person.phone",
-          "person.linkedin_url",
-          "employment.title",
-          "employment.department",
-          "employment.seniority"
-        ]
-      : ["company.email", "company.phone", "company.linkedin_url"])
-  ]
+  const task = useImportTask(kind, onImported, onClose)
+  const id = useId()
+  const title = useRef<HTMLHeadingElement>(null),
+    previousStep = useRef(task.step)
+  useLayoutEffect(() => {
+    if (previousStep.current !== task.step)
+      title.current?.focus({ preventScroll: true })
+    previousStep.current = task.step
+  }, [task.step])
+  const steps = ["Choose file", "Map columns", "Review", "Results"]
   return (
-    <Dialog
+    <Modal
       open
-      onOpenChange={(open) => {
-        if (!open && !busy) onClose()
+      onOpenChange={(open, details) => {
+        if (!open) {
+          details.cancel()
+          void task.close()
+        }
       }}
     >
-      <DialogContent className="record-import-dialog">
-        <DialogHeader>
-          <DialogTitle>
-            Import {kind === "company" ? "companies" : "people"}
-          </DialogTitle>
-          <DialogDescription>
-            Bring a Clay table or CSV into your shared record library.
-          </DialogDescription>
-        </DialogHeader>
+      <ModalContent
+        className="record-import-dialog"
+        showCloseButton={!task.busy}
+      >
+        <ModalHeader>
+          <ModalTitle ref={title} tabIndex={-1}>
+            Import {kind === "company" ? "companies" : "people"} ·{" "}
+            {steps[task.step]}
+          </ModalTitle>
+          <ModalDescription>
+            CSV or JSON into your shared record library.
+          </ModalDescription>
+        </ModalHeader>
         <ol className="record-import-steps" aria-label="Import progress">
-          {["Choose file", "Map columns", "Review", "Results"].map(
-            (label, index) => (
-              <li
-                key={label}
-                aria-current={step === index ? "step" : undefined}
-                data-complete={step > index}
-              >
-                <span>
-                  {step > index ? (
-                    <CheckCircle2 aria-hidden="true" />
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-                {label}
-              </li>
-            )
-          )}
+          {steps.map((label, index) => (
+            <li
+              key={label}
+              aria-current={task.step === index ? "step" : undefined}
+              data-complete={task.step > index}
+            >
+              <span>
+                {task.step > index ? (
+                  <CheckCircle2 aria-hidden="true" />
+                ) : (
+                  index + 1
+                )}
+              </span>
+              {label}
+            </li>
+          ))}
         </ol>
-        <div className="record-import-body" aria-busy={busy}>
-          {recovery && !complete && (
+        <div className="record-import-body" aria-busy={task.busy}>
+          {task.recovery && !task.complete && (
             <div className="record-import-recovery">
-              <strong>Recover your last batch</strong>
+              <strong>Check your last batch</strong>
               <p>
-                {recovery.filename} · No file contents are stored in this
+                {task.recovery.filename} · No file contents are stored in this
                 browser.
+              </p>
+              <p>
+                Keep its source and mapping unchanged while the outcome is
+                unknown.
               </p>
               <Button
                 size="sm"
                 variant="outline"
-                disabled={busy}
-                onClick={() => void recover()}
+                disabled={task.busy}
+                onClick={() => void task.recover()}
               >
                 Check batch status
               </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={task.busy}
+                onClick={() => void task.startAnother()}
+              >
+                Start another batch
+              </Button>
             </div>
           )}
-          {step === 0 && (
+          {task.step === 0 && (
             <>
               <label className="record-import-dropzone">
                 <FileSpreadsheet aria-hidden="true" />
-                <strong>{filename || "Choose a CSV or JSON file"}</strong>
-                <span>Up to 15 MB · 10,000 rows per batch · UTF-8</span>
-                <span>{filename ? "Change file" : "Choose file"}</span>
+                <strong>{task.filename || "Choose a CSV or JSON file"}</strong>
+                <span>
+                  Up to 15 MB · 10,000 rows · 256 columns per row · UTF-8
+                </span>
+                <span>{task.filename ? "Change file" : "Choose file"}</span>
                 <input
                   aria-label="Import file"
                   type="file"
                   accept=".csv,.json,text/csv,application/json"
                   className="sr-only"
-                  disabled={busy}
-                  onChange={(event) => void load(event.target.files?.[0])}
+                  disabled={task.busy}
+                  onChange={(event) => {
+                    void task.load(event.target.files?.[0])
+                    event.target.value = ""
+                  }}
                 />
               </label>
-              <label className="record-import-field">
-                <span>Source table name</span>
+              <div className="record-import-field">
+                <label htmlFor={`${id}-source`}>Source table name</label>
                 <Input
-                  value={request.source}
-                  disabled={busy}
-                  onChange={(event) =>
-                    setRequest({ ...request, source: event.target.value })
-                  }
+                  id={`${id}-source`}
+                  aria-describedby={`${id}-source-help`}
+                  value={task.request.source}
+                  maxLength={200}
+                  disabled={task.busy || task.locked}
+                  onChange={(event) => task.setSource(event.target.value)}
                 />
-                <small>
-                  Keep this name when updating the same table. Source row IDs
-                  reconnect to existing records.
+                <small id={`${id}-source-help`}>
+                  Keep this name for updates to the same source table. Source
+                  row IDs reconnect to existing records.
                 </small>
-              </label>
-              <p className="record-import-hint">
-                Company, Person, and Employment fields stay separate. Custom
-                fields and JSON values come with you.
-              </p>
-            </>
-          )}
-          {step === 1 && (
-            <>
-              <div className="record-import-section">
-                <h2>Match your columns</h2>
-                <p>
-                  Suggested fields are filled in. Use company.*, person.*, or
-                  employment.* for custom fields. Clear a field to skip it.
-                </p>
-              </div>
-              <datalist id="record-mapping-fields">
-                {targets.map((target) => (
-                  <option key={target} value={target} />
-                ))}
-              </datalist>
-              <div className="record-import-mapping">
-                <div className="record-import-mapping-heading">
-                  <span>Source column</span>
-                  <span />
-                  <span>OpenGTM field</span>
-                </div>
-                {Object.entries(mapping).map(([header, target]) => (
-                  <div key={header}>
-                    <span title={header}>{header}</span>
-                    <ArrowRight aria-hidden="true" />
-                    <Input
-                      aria-label={`Map ${header}`}
-                      list="record-mapping-fields"
-                      value={target}
-                      placeholder="Skip column"
-                      disabled={busy}
-                      onChange={(event) =>
-                        setMapping({ ...mapping, [header]: event.target.value })
-                      }
-                    />
-                  </div>
-                ))}
               </div>
             </>
           )}
-          {(step === 2 || step === 3) && result && (
-            <>
-              <div className="record-import-result-title">
-                {complete ? (
-                  <CheckCircle2 aria-hidden="true" />
-                ) : (
-                  <FileSpreadsheet aria-hidden="true" />
-                )}
-                <div>
-                  <h2>
-                    {complete
-                      ? result.replayed
-                        ? "Completed batch recovered"
-                        : "Your records are connected"
-                      : "Ready to import?"}
-                  </h2>
-                  <p>
-                    {filename} · {request.source}
-                  </p>
-                </div>
-              </div>
-              <dl className="record-import-totals">
-                <div>
-                  <dt>{complete ? "Imported" : "Accepted in preview"}</dt>
-                  <dd>{result.imported.toLocaleString()}</dd>
-                </div>
-                <div>
-                  <dt>Rejected rows</dt>
-                  <dd>{result.rejected.toLocaleString()}</dd>
-                </div>
-                <div>
-                  <dt>Total rows</dt>
-                  <dd>{result.total.toLocaleString()}</dd>
-                </div>
-              </dl>
-              <p className="record-import-hint">
-                {complete
-                  ? "Accepted facts are available in your record library and linked workbooks."
-                  : "Accepted rows update matching identities or create records. Rejected rows are skipped. Source ownership protects manually reviewed facts."}
-              </p>
-              {result.warnings.map((warning) => (
-                <p key={warning} className="record-import-warning">
-                  {warning}
-                </p>
-              ))}
-              {result.rejected > 0 && (
-                <div
-                  className="record-import-errors"
-                  role="region"
-                  aria-label="Rejected rows"
-                  tabIndex={0}
-                >
-                  {result.rows
-                    .filter((row) => row.error)
-                    .map((row) => (
-                      <p key={row.row}>
-                        <strong>Row {row.row}</strong> · {row.error}
-                      </p>
-                    ))}
-                </div>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() =>
-                  downloadData(
-                    JSON.stringify(result, null, 2),
-                    "import-report.json"
-                  )
-                }
-              >
-                <Download aria-hidden="true" />
-                Download row report
-              </Button>
-            </>
+          {task.step === 1 && task.inspection && (
+            <ColumnMapping
+              inspection={task.inspection}
+              mapping={task.mapping}
+              kind={kind}
+              disabled={task.busy || task.locked}
+              onChange={task.setTarget}
+            />
           )}
-          {error && (
+          {(task.step === 2 || task.complete) && task.result && (
+            <ImportReview
+              result={task.result}
+              complete={task.complete}
+              filename={task.filename}
+              source={task.request.source}
+              kind={kind}
+              onOpenRecord={onOpenRecord}
+              onSelectImported={onSelectImported}
+            />
+          )}
+          {task.storageError && (
+            <p role="status" className="record-import-warning">
+              {task.storageError}
+            </p>
+          )}
+          {task.error && (
             <p role="alert" className="record-import-error">
-              {error}
+              {task.error}
             </p>
           )}
         </div>
         <div className="record-import-footer">
           <span role="status">
-            {busy ? (
+            {task.busy ? (
               <>
                 <Loader2 aria-hidden="true" className="animate-spin" />
-                {step === 2 ? "Importing" : "Validating"}…{" "}
-                {elapsed ? `${elapsed}s` : ""}
+                {
+                  {
+                    reading: "Reading file",
+                    inspecting: "Inspecting columns",
+                    validating: "Validating rows",
+                    importing: "Importing",
+                    recovering: "Checking batch",
+                    ready: ""
+                  }[task.phase]
+                }
+                … {task.elapsed ? `${task.elapsed}s` : ""}
               </>
-            ) : complete ? (
-              "Import receipt saved"
+            ) : task.complete ? (
+              "Import confirmed"
             ) : (
-              filename || "No file selected"
+              task.filename || "No file selected"
             )}
           </span>
           <div>
-            {step > 0 && !complete && (
-              <Button
-                variant="ghost"
-                disabled={busy}
-                onClick={() => {
-                  setError("")
-                  setStep(step - 1)
-                }}
-              >
-                <ArrowLeft />
+            {task.step > 0 && !task.complete && (
+              <Button variant="ghost" disabled={task.busy} onClick={task.back}>
+                <ArrowLeft aria-hidden="true" />
                 Back
               </Button>
             )}
-            <Button variant="outline" disabled={busy} onClick={onClose}>
-              {complete ? "Done" : "Cancel"}
+            <Button
+              variant="outline"
+              disabled={task.busy}
+              onClick={() => void task.close()}
+            >
+              {task.complete ? "Done" : "Cancel"}
             </Button>
-            {step === 0 && (
+            {task.step === 0 && (
               <Button
-                disabled={busy || !filename || !request.source.trim()}
-                onClick={() => void preview(1)}
+                disabled={
+                  task.busy || !task.filename || !task.request.source.trim()
+                }
+                onClick={() => void task.inspect()}
               >
                 Map columns
-                <ArrowRight />
+                <ArrowRight aria-hidden="true" />
               </Button>
             )}
-            {step === 1 && (
-              <Button disabled={busy} onClick={() => void preview(2)}>
-                Validate rows
-                <ArrowRight />
-              </Button>
-            )}
-            {step === 2 && (
+            {task.step === 1 && (
               <Button
-                disabled={busy || !result?.imported}
-                onClick={() => void commit()}
+                disabled={task.busy || task.issueCount > 0}
+                onClick={() => void task.preview()}
               >
-                Import {result?.imported.toLocaleString()} records
+                Validate rows
+                <ArrowRight aria-hidden="true" />
+              </Button>
+            )}
+            {task.step === 2 && (
+              <Button
+                disabled={task.busy || !task.result?.imported}
+                onClick={() => void task.commit()}
+              >
+                Import {task.result?.imported.toLocaleString()}{" "}
+                {task.result?.imported === 1 ? "row" : "rows"}
               </Button>
             )}
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ModalContent>
+    </Modal>
   )
 }

@@ -12,3 +12,8 @@ it before the frozen install. Keep it until the upstream guards provide an
 accessible name. Verify it when updating Base UI with the open-menu light/dark
 and touch cases in `scripts/qa/dashboard_density.py --engine webkit`. Automated
 WebKit results do not replace a VoiceOver/Safari check.
+
+After applying or changing the patch in an existing development checkout, restart
+Vite with `--force` before checking dialogs and menus. Its optimized dependency
+cache can still contain the earlier, unpatched focus guards even when the installed
+module and production bundle contain the accessible names.

@@ -16,6 +16,7 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { parseClipboardTable, serializeClipboardTable } from "@/lib/workbook-clipboard"
 import { workbookColumnWindow } from "@/lib/workbook-column-window"
+import { documentScale } from "@/lib/ui-scale"
 import { loadedCellProgress, isExecutableColumn } from "@/lib/workbook-progress"
 import {
   useWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
@@ -51,6 +52,7 @@ import { useColumnMovement } from "@/features/workbooks/use-column-movement"
 import { DeleteColumnDialog } from "@/components/workbooks/delete-column-dialog"
 import { Dialog, Button as DesignButton, Input as DesignInput } from "@/design-system/primitives"
 import "@/components/workbooks/column-settings.css"
+import "@/components/workbooks/workbook-toolbar.css"
 import { normalizeWorkbookColumns } from "@/lib/workbook-columns"
 import { selectedWorkbookRowIds, type WorkbookDeleteScope } from "@/lib/workbook-selection"
 import { ActivityDrawer } from "@/components/activity-drawer"
@@ -438,7 +440,9 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
   } = useSortable({ id })
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Transform.toString(transform ? {
+      ...transform, x: transform.x / documentScale(), y: transform.y / documentScale(),
+    } : null),
     transition,
     opacity: isDragging ? 0.5 : 1,
     width: w,
@@ -762,11 +766,12 @@ export default function WorkbookEditorPage() {
     e.preventDefault()
     e.stopPropagation()
     const startW = columnWidthsRef.current[colId] || 180
+    const scale = documentScale()
     resizeRef.current = { colId, startX: e.clientX, startW }
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!resizeRef.current) return
-      const diff = ev.clientX - resizeRef.current.startX
+      const diff = (ev.clientX - resizeRef.current.startX) / scale
       const newW = Math.max(80, Math.min(600, resizeRef.current.startW + diff))
       columnWidthsRef.current[resizeRef.current.colId] = newW
       // Direct DOM update — zero React re-renders during drag
@@ -880,7 +885,8 @@ export default function WorkbookEditorPage() {
                 title={col.name}
                 onContextMenu={(e) => {
                   e.preventDefault()
-                  setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
+                  const scale = documentScale()
+                  setCtxMenu({ x: e.clientX / scale, y: e.clientY / scale, colId: col.id })
                 }}
               >
                 <ColumnDragHandle name={col.name} />
@@ -1471,7 +1477,7 @@ export default function WorkbookEditorPage() {
     : "All leads"
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="workbook-editor flex flex-col h-full overflow-hidden">
       {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
         <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
         <div><p className="font-medium">Run needs attention</p>
@@ -1492,7 +1498,7 @@ export default function WorkbookEditorPage() {
         onDelete={handleDeleteSelected} />
 
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center gap-3 px-3 py-2 border-b bg-background/95 backdrop-blur-sm shrink-0">
+      <div className="workbook-toolbar">
         <button
           onClick={() => navigate("/workbooks")}
           aria-label="Back to workbooks" className="size-8 inline-flex items-center justify-center rounded-md hover:bg-muted transition-colors"
@@ -1500,7 +1506,7 @@ export default function WorkbookEditorPage() {
           <ArrowLeft className="size-4" />
         </button>
 
-        <div className="flex-1 min-w-48">
+        <div className="workbook-toolbar-heading">
           <h1 tabIndex={-1} data-page-title className="text-lg font-semibold truncate">{workbook.name}</h1>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
@@ -1591,7 +1597,7 @@ export default function WorkbookEditorPage() {
         )}
 
         {/* Actions */}
-        <div className="flex max-w-full flex-wrap items-center gap-1.5" role="group" aria-label="Workbook actions">
+        <div className="workbook-toolbar-actions" role="group" aria-label="Workbook actions">
           <input
             ref={fileInputRef}
             type="file"

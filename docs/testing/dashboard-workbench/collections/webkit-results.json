@@ -1,0 +1,251 @@
+{
+  "engine": "webkit",
+  "axe": [
+    {
+      "name": "native-complete-record-definition",
+      "violations": []
+    },
+    {
+      "name": "default-company-columns",
+      "violations": []
+    },
+    {
+      "name": "optional-company-fields-retain-zero-and-safe-profile-link",
+      "violations": []
+    },
+    {
+      "name": "column-preview-and-pinned-identity",
+      "violations": []
+    },
+    {
+      "name": "column-reorder-retains-keyboard-focus",
+      "violations": []
+    },
+    {
+      "name": "people-owned-facts-and-email-verification",
+      "violations": []
+    },
+    {
+      "name": "identity-and-selection-remain-when-all-optional-columns-are-hidden",
+      "violations": []
+    },
+    {
+      "name": "large-server-filter-and-explicit-page-selection",
+      "violations": []
+    },
+    {
+      "name": "final-company-layout",
+      "violations": []
+    },
+    {
+      "name": "column-controls-dark-320x740",
+      "violations": []
+    },
+    {
+      "name": "column-controls-dark-390x600",
+      "violations": []
+    },
+    {
+      "name": "column-controls-dark-768x1000",
+      "violations": []
+    },
+    {
+      "name": "column-controls-dark-1280x360",
+      "violations": []
+    },
+    {
+      "name": "blocked-preference-storage-keeps-current-layout",
+      "violations": []
+    }
+  ],
+  "checks": [
+    "native-10000-company-fixture-reused",
+    "native-10000-person-fixture-reused",
+    "coverage-is-accepted-core-fact-presence-and-not-a-quality-claim",
+    "column-preview-cancel-apply-order-selection-and-reload",
+    "column-changes-preserve-inspector-and-server-query-state",
+    "people-preferences-relationships-verification-and-unknown-employer",
+    "workspace-switch-scopes-columns-and-clears-old-record-selection",
+    "cross-tab-layout-preferences-update-without-reloading-records",
+    "10000-record-pagination-selection-and-server-filter-remain-bounded",
+    "touch-short-height-dark-controls-scroll-and-identity-remains-pinned",
+    "blocked-browser-storage-is-honest-and-does-not-block-column-use"
+  ],
+  "page_errors": [],
+  "collection_requests": [
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "qualified",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "qualified",
+        "sort": "score",
+        "direction": "desc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "score",
+        "direction": "desc"
+      }
+    },
+    {
+      "path": "/api/records/person",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/person",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "100",
+        "filter": "all",
+        "sort": "name",
+        "direction": "asc"
+      }
+    },
+    {
+      "path": "/api/records/company",
+      "query": {
+        "limit": "100",
+        "offset": "0",
+        "filter": "qualified",
+        "sort": "name",
+        "direction": "asc"
+      }
+    }
+  ],
+  "workspace_id": "cd5dd6ac-0148-406b-b6c4-c6908de0ddac",
+  "workspace_name": "Columns Alpha 1793277042977430000",
+  "second_workspace_id": "1cc16f3c-adea-4036-9f69-e394828a47a0",
+  "second_workspace_name": "Columns Bravo 1793277042977430000",
+  "company_id": "27cdadd9-d2a6-4579-a9f4-3c5afebb6f69",
+  "person_id": "f41f975a-36d0-4c29-9377-a8ef4b2c1c7f",
+  "fixture_stamp": "1793277042977430000",
+  "company_ready_ms": [
+    848.8,
+    841.0,
+    885.3,
+    844.4,
+    859.0
+  ]
+}

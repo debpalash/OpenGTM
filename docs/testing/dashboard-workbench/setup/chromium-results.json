@@ -1,0 +1,126 @@
+{
+  "engine": "chromium",
+  "axe": [
+    {
+      "name": "inline-validation-and-retained-draft",
+      "violations": []
+    },
+    {
+      "name": "configuration-webhook",
+      "violations": []
+    },
+    {
+      "name": "configuration-warehouse_http",
+      "violations": []
+    },
+    {
+      "name": "configuration-hubspot",
+      "violations": []
+    },
+    {
+      "name": "configuration-salesforce",
+      "violations": []
+    },
+    {
+      "name": "configuration-instantly",
+      "violations": []
+    },
+    {
+      "name": "configuration-smartlead",
+      "violations": []
+    },
+    {
+      "name": "configuration-google_sheets",
+      "violations": []
+    },
+    {
+      "name": "configuration-airtable",
+      "violations": []
+    },
+    {
+      "name": "configuration-slack",
+      "violations": []
+    },
+    {
+      "name": "configuration-meta_ads",
+      "violations": []
+    },
+    {
+      "name": "configuration-google_ads",
+      "violations": []
+    },
+    {
+      "name": "configuration-linkedin_ads",
+      "violations": []
+    },
+    {
+      "name": "catalog-failure-keeps-draft",
+      "violations": []
+    },
+    {
+      "name": "empty-catalog-is-not-available-destinations",
+      "violations": []
+    },
+    {
+      "name": "changed-scope-requires-new-review",
+      "violations": []
+    },
+    {
+      "name": "advertising-and-automatic-activation-review",
+      "violations": []
+    },
+    {
+      "name": "pending-creation-protects-context",
+      "violations": []
+    },
+    {
+      "name": "confirmed-configuration-survives-list-failure",
+      "violations": []
+    },
+    {
+      "name": "lost-response-recovered-without-second-post",
+      "violations": []
+    },
+    {
+      "name": "server-refusal-keeps-editable-configuration",
+      "violations": []
+    },
+    {
+      "name": "touch-dark-review-320",
+      "violations": []
+    },
+    {
+      "name": "touch-dark-review-390",
+      "violations": []
+    },
+    {
+      "name": "touch-dark-review-768",
+      "violations": []
+    },
+    {
+      "name": "view-only-can-read-but-cannot-create",
+      "violations": []
+    },
+    {
+      "name": "saved-destinations-do-not-invent-catalog-status",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "workspace_id": "78351e18-0ea8-44ce-a914-2c3577db4107",
+  "audience_id": "b5d6c114-5a6f-4ca0-94be-5352989bc414",
+  "rapid_reopen_keeps_field_identity_and_keyboard_focus": 8,
+  "validation_cancel_and_focus_return_send_nothing": true,
+  "all_twelve_destination_forms_have_visible_labels": true,
+  "failed_malformed_and_empty_catalogs_keep_drafts_and_recover": true,
+  "audience_navigation_keeps_or_explicitly_discards_owned_draft": true,
+  "scope_and_schedule_changes_block_the_preflight_without_post": true,
+  "permission_change_blocks_creation_before_post": true,
+  "advertising_and_enablement_acknowledgements_reset_on_review_change": true,
+  "one_native_creation_has_no_run_and_retains_receipt_when_list_read_fails": true,
+  "lost_response_and_failed_recovery_read_keep_draft_without_reposting": true,
+  "server_refusal_and_existing_name_never_silently_repost": true,
+  "touch_review_reflows_and_keeps_large_acknowledgement_targets": true,
+  "view_only_keeps_saved_configuration_readable": true,
+  "saved_destinations_handle_malformed_catalog_without_fake_beta_or_page_error": true
+}
