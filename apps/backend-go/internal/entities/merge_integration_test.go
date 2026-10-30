@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
@@ -20,8 +21,7 @@ import (
 
 const vecWS = "ws-vec"
 
-var cleanOrder = []string{"entity_review_pairs", "entity_merge_log", "person_employments", "person_entities", "watch_subscriptions",
-	"workbook_rows", "entity_blocking_keys", "company_identifiers", "company_entities", "workbooks"}
+var cleanOrder = []string{"entity_review_pairs", "entity_merge_log", "workbook_rows", "person_employments", "person_entities", "watch_subscriptions", "entity_blocking_keys", "company_identifiers", "company_entities", "workbooks"}
 
 func clean(t testing.TB, pool *pgxpool.Pool, ws string) {
 	t.Helper()
@@ -79,11 +79,45 @@ func normalize(t *testing.T, raw []byte) map[string]any {
 	if err := json.Unmarshal(raw, &m); err != nil {
 		t.Fatal(err)
 	}
+	stripCanonicalMetadata(m)
 	for _, e := range m["company_entities"].([]any) {
 		srcs := e.(map[string]any)["sources"].([]any)
 		sort.Slice(srcs, func(i, j int) bool { return srcs[i].(string) < srcs[j].(string) })
 	}
 	return m
+}
+
+// These recordings assert the historical graph contract. Accepted facts and
+// their merge undo data have separate coverage in internal/records.
+func stripCanonicalMetadata(value any) {
+	switch v := value.(type) {
+	case map[string]any:
+		if _, ok := v["workspace_id"]; ok {
+			if _, company := v["canonical_name"]; company {
+				delete(v, "accepted_fields")
+				delete(v, "record_version")
+				delete(v, "record_name_key")
+			}
+			if _, person := v["full_name"]; person {
+				delete(v, "accepted_fields")
+				delete(v, "record_version")
+			}
+			if _, employment := v["company_key"]; employment {
+				delete(v, "accepted_fields")
+				delete(v, "ended_at")
+			}
+		}
+		if snapshot, ok := v["snapshot"].(map[string]any); ok {
+			delete(snapshot, "shared_records")
+		}
+		for _, child := range v {
+			stripCanonicalMetadata(child)
+		}
+	case []any:
+		for _, child := range v {
+			stripCanonicalMetadata(child)
+		}
+	}
 }
 
 func want(t *testing.T, state map[string]json.RawMessage) map[string]any {
@@ -529,7 +563,9 @@ func TestSplitRacingMergeSameKeptNoDeadlock(t *testing.T) {
 		go func() { defer wg.Done(); <-start; _, mergeErr = st.Merge(ctx, vecWS, "e-keep", "e-other", "manual") }()
 		close(start)
 		wg.Wait()
-		if splitErr != nil || mergeErr != nil {
+		var conflict *pgconn.PgError
+		guarded := errors.As(splitErr, &conflict) && conflict.Code == "40001"
+		if (splitErr != nil && !guarded) || mergeErr != nil {
 			t.Fatalf("round %d: split=%v merge=%v", round, splitErr, mergeErr)
 		}
 		// Consistent end state: e-gone restored, e-other merged away, one log reverted and one open.
@@ -540,7 +576,11 @@ func TestSplitRacingMergeSameKeptNoDeadlock(t *testing.T) {
 			_ = tx.QueryRow(ctx, `SELECT count(*) FILTER (WHERE reverted=1), count(*) FILTER (WHERE reverted=0) FROM entity_merge_log WHERE workspace_id=$1`, vecWS).Scan(&reverted, &open)
 			return nil
 		})
-		if gone != 1 || other != 0 || reverted != 1 || open != 1 {
+		wantGone, wantReverted, wantOpen := 1, 1, 1
+		if guarded {
+			wantGone, wantReverted, wantOpen = 0, 0, 2
+		}
+		if gone != wantGone || other != 0 || reverted != wantReverted || open != wantOpen {
 			t.Fatalf("round %d: gone=%d other=%d reverted=%d open=%d", round, gone, other, reverted, open)
 		}
 	}

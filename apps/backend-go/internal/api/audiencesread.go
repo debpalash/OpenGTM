@@ -227,6 +227,9 @@ func (h audRead) members(w http.ResponseWriter, r *http.Request) {
 			RowOffset: p.offset, RowLimit: p.limit})
 		out := make([]audMemberOut, 0, len(rows))
 		for _, m := range rows {
+			if m.LeadID.Valid && m.LeadID.Int32 > 0 {
+				m.CompanyEntityID.Valid, m.PersonEntityID.Valid = false, false
+			}
 			out = append(out, audMemberOut{CompanyID: nullableText(m.CompanyEntityID), PersonID: nullableText(m.PersonEntityID), ID: m.ID, LeadID: nullableLeadID(m.LeadID), Snapshot: audSnapshot(m.Snapshot),
 				JoinedAt: audReadISO(m.JoinedAt), LastSeenAt: audReadISO(m.LastSeenAt)})
 		}
@@ -239,6 +242,9 @@ func (h audRead) events(w http.ResponseWriter, r *http.Request) {
 		rows, err := q.AudReadEvents(r.Context(), gen.AudReadEventsParams{WorkspaceID: ws, AudienceID: id, BeforeID: p.before, RowLimit: p.limit})
 		out := make([]audEventOut, 0, len(rows))
 		for _, e := range rows {
+			if e.LeadID.Valid && e.LeadID.Int32 > 0 {
+				e.CompanyEntityID.Valid, e.PersonEntityID.Valid = false, false
+			}
 			out = append(out, audEventOut{CompanyID: nullableText(e.CompanyEntityID), PersonID: nullableText(e.PersonEntityID), ID: e.ID, AudienceID: e.AudienceID, LeadID: nullableLeadID(e.LeadID), EventType: e.EventType,
 				Snapshot: audSnapshot(e.Snapshot), CreatedAt: audReadISO(e.CreatedAt)})
 		}

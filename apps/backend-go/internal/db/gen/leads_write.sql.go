@@ -185,7 +185,7 @@ func (q *Queries) InsertLeadCreateOnly(ctx context.Context, arg InsertLeadCreate
 }
 
 const leadExists = `-- name: LeadExists :one
-SELECT EXISTS (SELECT 1 FROM record_leads
+SELECT EXISTS (SELECT 1 FROM leads
   WHERE workspace_id = current_setting('app.workspace_id', true) AND id = $1::int4)
 `
 
@@ -197,7 +197,7 @@ func (q *Queries) LeadExists(ctx context.Context, id int32) (bool, error) {
 }
 
 const leadIDByKey = `-- name: LeadIDByKey :one
-SELECT id FROM record_leads
+SELECT id FROM leads
 WHERE workspace_id = $1::text AND company = $2::text AND city = $3::text
 `
 

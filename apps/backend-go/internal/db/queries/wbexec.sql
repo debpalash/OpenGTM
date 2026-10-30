@@ -8,7 +8,7 @@ WHERE id = sqlc.arg(id)::int AND type = 'run_workbook' AND workspace_id = sqlc.a
 
 -- name: LockLeadFieldProvenance :one
 -- Read-modify-write of leads.field_provenance (merge_field_provenance) under a row lock.
-SELECT field_provenance FROM record_leads
+SELECT field_provenance FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = sqlc.arg(id)::int
 FOR UPDATE;
 

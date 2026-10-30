@@ -828,6 +828,9 @@ func Reconcile(ctx context.Context, tx pgx.Tx, dest Destination, body InboundBod
 
 // MarshalJSON renders created_at like FastAPI's naive datetime.
 func (r Receipt) MarshalJSON() ([]byte, error) {
+	if r.LeadID != nil && *r.LeadID > 0 {
+		r.CompanyID, r.PersonID = nil, nil
+	}
 	type plain Receipt
 	return json.Marshal(struct {
 		plain

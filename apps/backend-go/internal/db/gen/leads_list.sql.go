@@ -14,7 +14,7 @@ import (
 const listLeads = `-- name: ListLeads :many
 
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
-FROM record_leads
+FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($1::bool IS NULL
        OR $1::bool = (email IS NOT NULL AND email <> ''))

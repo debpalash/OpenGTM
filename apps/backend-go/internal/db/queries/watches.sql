@@ -50,7 +50,7 @@ WHERE type = 'watch_poll' AND starts_with(fire_key, sqlc.arg(prefix)::text) AND 
 ORDER BY id;
 
 -- name: WatchSvcLeadExists :one
-SELECT EXISTS (SELECT 1 FROM record_leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text) AS found;
+SELECT EXISTS (SELECT 1 FROM leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text) AS found;
 
 -- name: WatchSvcSignalsPage :many
 -- SignalStore.get_signals_page with the account-group identity filter
@@ -104,10 +104,10 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 FOR UPDATE;
 
 -- name: PollEngineLeadCompanies :many
-SELECT id, company FROM record_leads WHERE workspace_id = sqlc.arg(workspace_id)::text;
+SELECT id, company FROM leads WHERE workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: PollEngineLeadWebsite :one
-SELECT website FROM record_leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
+SELECT website FROM leads WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: PollEngineSaveSource :exec
 -- One source's outcome: merged cursor, resolved_cik and last_error (all computed

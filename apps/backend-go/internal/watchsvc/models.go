@@ -159,10 +159,10 @@ func (w Watch) Obj() *wbcrud.Obj {
 	o := wbcrud.NewObj()
 	o.Set("id", w.ID)
 	o.Set("workspace_id", w.WorkspaceID)
-	if w.CompanyID != nil {
+	if w.CompanyID != nil && (w.LeadID == nil || *w.LeadID <= 0) {
 		o.Set("company_id", *w.CompanyID)
 	}
-	if w.PersonID != nil {
+	if w.PersonID != nil && (w.LeadID == nil || *w.LeadID <= 0) {
 		o.Set("person_id", *w.PersonID)
 	}
 	o.Set("kind", w.Kind)

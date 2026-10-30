@@ -38,7 +38,7 @@ SELECT company, website, email, phone, contact_person, contact_title, city, stat
        specialization, company_size, employee_count_exact, description, revenue_range, founded_year,
        industry_tags, technologies, funding_stage, linkedin_url, twitter_url, facebook_url,
        secondary_emails, secondary_phones, decision_makers, status, notes
-FROM record_leads
+FROM leads
 WHERE workspace_id = $1::text AND id = $2::bigint
 FOR UPDATE
 `
@@ -112,7 +112,7 @@ func (q *Queries) DestInboundLeadLock(ctx context.Context, arg DestInboundLeadLo
 }
 
 const destInboundLeadsByEmail = `-- name: DestInboundLeadsByEmail :many
-SELECT id FROM record_leads
+SELECT id FROM leads
 WHERE workspace_id = $1::text AND email = $2::text
 ORDER BY id
 LIMIT 2

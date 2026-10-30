@@ -8,12 +8,29 @@ Clay/CSV interchange, dashboard navigation, record inspection, activation review
 adaptive UI scaling, and local source-logo assets into the same source build.
 
 The account menu contains radio choices for Light, Dark, and System, plus the
-existing UI-scale choices. The separate Appearance footer row is removed.
-Recent chats starts expanded. Fine-pointer desktop navigation uses 24px rows
-and smaller group spacing; touch layouts retain their previous target sizes.
+existing UI-scale choices in a submenu. The separate Appearance footer row is
+removed. Recent chats starts expanded. Fine-pointer desktop navigation uses 28px
+rows with space between groups. The account popup has padded items and a single
+row of theme choices; touch layouts retain their previous target sizes.
 
 The development server deduplicates React and allows the repository's shared
 node_modules assets, avoiding duplicate-hook failures and blocked bundled fonts.
+
+## Data compatibility
+
+Legacy Lead APIs and untyped workbooks retain their source observations, response
+shapes, and JSON field order. Companies, People, and typed workbooks read accepted
+shared facts. Accepting a new fact does not rewrite the original observation.
+The legacy create endpoint retains its company/city duplicate behavior; independent
+people at a company are created through the People API.
+
+Import identities are removed with deleted records. Historical invalid scores,
+email addresses, and employee counts remain observations without becoming accepted
+facts. Shared role mailboxes identify the company rather than merging people, and
+social-profile websites do not become company-domain identity keys.
+
+Schema 5 requires stopping older writers during the upgrade; see the
+[migration runbook](../../go-port/runbooks/migrations.md#upgrading-to-schema-5).
 
 ## Verification
 

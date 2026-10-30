@@ -42,7 +42,7 @@ CREATE TABLE record_imports (
 CREATE TABLE legacy_record_links (
  workspace_id varchar NOT NULL, lead_id integer NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
  company_id varchar REFERENCES company_entities(id), person_id varchar REFERENCES person_entities(id),
- employment_id integer REFERENCES person_employments(id), PRIMARY KEY(workspace_id,lead_id)
+ employment_id integer REFERENCES person_employments(id) ON DELETE SET NULL, PRIMARY KEY(workspace_id,lead_id)
 );
 
 -- +goose StatementBegin
@@ -160,17 +160,12 @@ BEGIN
  END LOOP;
  IF changed THEN
   IF kind='company' THEN
-   UPDATE company_entities SET accepted_fields=result,record_version=record_version+1,
-    canonical_name=coalesce(nullif(result->>'name',''),canonical_name),primary_domain=coalesce(nullif(result->>'domain',''),primary_domain),
-    primary_phone=CASE WHEN result?'phone' THEN result->>'phone' ELSE primary_phone END,
-    primary_email=CASE WHEN result?'email' THEN result->>'email' ELSE primary_email END,
-    primary_city=CASE WHEN result?'city' THEN result->>'city' ELSE primary_city END,last_seen=now() AT TIME ZONE 'UTC'
+   UPDATE company_entities SET accepted_fields=result,record_version=record_version+1,last_seen=now() AT TIME ZONE 'UTC'
     WHERE id=rid AND workspace_id=ws;
   ELSIF kind='person' THEN
-   UPDATE person_entities SET accepted_fields=result,record_version=record_version+1,
-    full_name=coalesce(nullif(result->>'full_name',''),full_name),last_seen=now() AT TIME ZONE 'UTC' WHERE id=rid AND workspace_id=ws;
+   UPDATE person_entities SET accepted_fields=result,record_version=record_version+1,last_seen=now() AT TIME ZONE 'UTC' WHERE id=rid AND workspace_id=ws;
   ELSE
-   UPDATE person_employments SET accepted_fields=result,title=CASE WHEN result?'title' THEN result->>'title' ELSE title END WHERE id::text=rid AND workspace_id=ws;
+   UPDATE person_employments SET accepted_fields=result WHERE id::text=rid AND workspace_id=ws;
    UPDATE person_entities SET record_version=record_version+1 WHERE workspace_id=ws AND id=parent_person;
   END IF;
  END IF;
@@ -183,7 +178,7 @@ CREATE FUNCTION opengtm_record_upsert(ws text,kind text,payload jsonb,src text,e
 #variable_conflict use_column
 DECLARE subject_type ALIAS FOR $2; company_data jsonb; person_data jsonb; employment_data jsonb; cid text; pid text; eid integer;
  domain text; company_linkedin text; company_name text; person_name text; email text; linkedin text; identity_value text; identity_kind text;
- owner_id text; explicit_company text; explicit_person text; company_source text; company_external text; old_current text;
+ owner_id text; explicit_company text; explicit_person text; company_source text; company_external text; old_current text; employment_key text;
  result_fields jsonb; current_version bigint; candidate_count integer; relationship_priority integer; relationship_time timestamptz;prior_observed text; inherited_relationship boolean:=false; can_move boolean:=true; obs timestamptz:=now(); source_name text:=coalesce(nullif(src,''),'manual');
 BEGIN
  PERFORM opengtm_record_workspace(ws);
@@ -194,9 +189,21 @@ BEGIN
  IF jsonb_typeof(company_data)<>'object' OR jsonb_typeof(person_data)<>'object' OR jsonb_typeof(employment_data)<>'object' THEN RAISE EXCEPTION 'record fields must be objects' USING ERRCODE='22023'; END IF;
  explicit_company:=nullif(payload->>'company_id','');explicit_person:=nullif(payload->>'person_id','');
  company_name:=nullif(trim(company_data->>'name'),'');domain:=nullif(opengtm_record_domain(coalesce(company_data->>'domain',company_data->>'website')),'');
+ -- Keep inferred domains consistent with entities.IdentityDomain: a shared
+ -- profile/directory host identifies a platform, not the company using it.
+ IF NOT(company_data?'domain') AND EXISTS (
+  SELECT 1 FROM unnest(string_to_array('facebook.com fb.com fb.me instagram.com linkedin.com twitter.com x.com youtube.com youtu.be tiktok.com pinterest.com threads.net wa.me whatsapp.com t.me linktr.ee linkin.bio beacons.ai carrd.co bio.link google.com goo.gl g.page bit.ly tinyurl.com ow.ly yelp.com tripadvisor.com justdial.com indiamart.com zomato.com swiggy.com amazon.com etsy.com ebay.com github.com medium.com substack.com notion.site crunchbase.com glassdoor.com indeed.com clutch.co g2.com wikipedia.org yellowpages.com angi.com houzz.com',' ')) shared(host)
+  WHERE domain=host OR domain LIKE '%.'||host
+ ) THEN domain:=NULL;END IF;
  company_linkedin:=nullif(lower(regexp_replace(regexp_replace(trim(company_data->>'linkedin_url'),'^https?://(www\.)?','','i'),'[/?#]+$','')),'');
  IF coalesce(company_linkedin,'') !~ '^linkedin\.com/(company|school|showcase)/[^/?#]+$' THEN company_linkedin:=NULL;END IF;
  company_source:=coalesce(nullif(payload->>'company_source',''),source_name);company_external:=nullif(payload->>'company_external_id','');
+ -- Privileged legacy maintenance can bypass deletion triggers. Never resolve
+ -- an import key to a record that no longer exists in this workspace.
+ DELETE FROM record_external_identities r WHERE r.workspace_id=ws
+  AND ((r.source=source_name AND r.external_id=external_key) OR (r.source=company_source AND r.external_id=company_external))
+  AND ((r.record_type='company' AND NOT EXISTS(SELECT 1 FROM company_entities c WHERE c.workspace_id=ws AND c.id=r.record_id))
+    OR (r.record_type='person' AND NOT EXISTS(SELECT 1 FROM person_entities p WHERE p.workspace_id=ws AND p.id=r.record_id)));
  IF company_external IS NOT NULL THEN
   SELECT record_id INTO cid FROM record_external_identities WHERE workspace_id=ws AND record_type='company' AND source=company_source AND external_id=company_external;
   IF cid IS NULL AND explicit_company IS NULL AND company_name IS NULL AND domain IS NULL THEN
@@ -266,7 +273,9 @@ BEGIN
   person_name:=nullif(trim(coalesce(person_data->>'full_name',concat_ws(' ',person_data->>'first_name',person_data->>'last_name'))),'');
   email:=nullif(lower(trim(person_data->>'email')),'');linkedin:=nullif(lower(regexp_replace(regexp_replace(trim(person_data->>'linkedin_url'),'^https?://(www\.)?','','i'),'[/?#]+$','')),'');
   IF email IS NOT NULL AND email !~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$' THEN
- IF source_name LIKE 'migration%' THEN email:=NULL; ELSE RAISE EXCEPTION 'invalid person email' USING ERRCODE='22023'; END IF;END IF;
+ IF source_name LIKE 'migration%' OR source_name IN ('import:legacy-leads','provider:legacy') OR source_name LIKE 'provider:collect:%' THEN
+  email:=NULL;person_data:=person_data-'email';
+ ELSE RAISE EXCEPTION 'invalid person email' USING ERRCODE='22023'; END IF;END IF;
   IF explicit_person IS NOT NULL THEN
    SELECT id INTO pid FROM person_entities WHERE workspace_id=ws AND id=explicit_person;
    IF NOT FOUND THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
@@ -339,9 +348,12 @@ BEGIN
    SELECT company_entity_id INTO old_current FROM person_entities WHERE workspace_id=ws AND id=pid FOR UPDATE;
    SELECT priority,updated_at INTO relationship_priority,relationship_time FROM record_field_owners WHERE workspace_id=ws AND record_type='person' AND record_id=pid AND field_name='current_employment';
    can_move:=replace_values OR (old_current IS NULL AND relationship_priority IS NULL) OR old_current=cid OR (coalesce(relationship_priority,0)<=opengtm_record_priority(source_name) AND obs>=coalesce(relationship_time,obs));
+   SELECT company_key INTO employment_key FROM person_employments WHERE workspace_id=ws AND person_id=pid
+    AND (company_entity_id=cid OR (company_entity_id IS NULL AND (company_domain=domain OR lower(trim(company_name))=lower(trim(company_data->>'name')))))
+    ORDER BY is_current DESC,last_observed_at DESC,id DESC LIMIT 1;
    INSERT INTO person_employments(workspace_id,person_id,company_key,company_entity_id,company_name,company_domain,title,titles,source,first_observed_at,last_observed_at,is_current)
-    VALUES(ws,pid,'record:'||cid,cid,company_name,domain,employment_data->>'title','[]',source_name,obs AT TIME ZONE 'UTC',obs AT TIME ZONE 'UTC',CASE WHEN can_move THEN 1 ELSE 0 END)
-    ON CONFLICT(workspace_id,person_id,company_key) DO UPDATE SET last_observed_at=greatest(person_employments.last_observed_at,excluded.last_observed_at),first_observed_at=least(person_employments.first_observed_at,excluded.first_observed_at),is_current=excluded.is_current,ended_at=CASE WHEN excluded.is_current=1 THEN NULL ELSE person_employments.ended_at END
+    VALUES(ws,pid,coalesce(employment_key,'record:'||cid),cid,company_name,domain,employment_data->>'title','[]',source_name,obs AT TIME ZONE 'UTC',obs AT TIME ZONE 'UTC',CASE WHEN can_move THEN 1 ELSE 0 END)
+    ON CONFLICT(workspace_id,person_id,company_key) DO UPDATE SET company_entity_id=excluded.company_entity_id,last_observed_at=greatest(person_employments.last_observed_at,excluded.last_observed_at),first_observed_at=least(person_employments.first_observed_at,excluded.first_observed_at),is_current=excluded.is_current,ended_at=CASE WHEN excluded.is_current=1 THEN NULL ELSE person_employments.ended_at END
     RETURNING id INTO eid;
    IF can_move THEN
     UPDATE person_employments SET is_current=0,ended_at=coalesce(ended_at,obs) WHERE workspace_id=ws AND person_id=pid AND id<>eid AND is_current<>0;
@@ -383,6 +395,9 @@ BEGIN
   ELSIF entry.key='company_linkedin_url' THEN cd:=cd||jsonb_build_object('linkedin_url',entry.value);
   ELSIF entry.key='company_email' THEN cd:=cd||jsonb_build_object('email',entry.value);
   ELSIF entry.key='company_phone' THEN cd:=cd||jsonb_build_object('phone',entry.value);
+  ELSIF subject='person' AND entry.key='email' AND (source LIKE 'provider:collect:%' OR source IN ('import:legacy-leads','provider:legacy'))
+    AND lower(split_part(coalesce(entry.value#>>'{}',''),'@',1)) IN ('info','sales','contact','hello','hr','support','admin','careers','team','office','jobs','enquiries','enquiry')
+    THEN cd:=cd||jsonb_build_object('email',entry.value);
   ELSIF subject='person' AND entry.key=ANY(ARRAY['contact_title','title','department','seniority']) THEN ed:=ed||jsonb_build_object(CASE WHEN entry.key='contact_title' THEN 'title' ELSE entry.key END,entry.value);
   ELSIF subject='person' AND entry.key=ANY(personal) THEN pd:=pd||jsonb_build_object(CASE WHEN entry.key='contact_person' THEN 'full_name' ELSE entry.key END,entry.value);
   ELSIF subject='company' OR entry.key=ANY(corporate) THEN cd:=cd||jsonb_build_object(entry.key,entry.value);
@@ -419,6 +434,10 @@ CREATE FUNCTION opengtm_record_lead_write() RETURNS trigger LANGUAGE plpgsql AS 
 DECLARE links jsonb;changes jsonb;src text;subject text;
 BEGIN
  PERFORM opengtm_record_workspace(NEW.workspace_id);IF current_setting('opengtm.record_repointing',true)='true' THEN RETURN NEW; END IF;changes:=to_jsonb(NEW);
+ -- Historical Lead observations may predate canonical validation. Preserve the
+ -- observation without admitting an invalid value into accepted record facts.
+ IF NEW.score IS NULL OR NEW.score<0 OR NEW.score>100 THEN changes:=changes-'score';END IF;
+ IF NEW.employee_count_exact IS NULL OR NEW.employee_count_exact<0 OR NEW.employee_count_exact>1000000000 THEN changes:=changes-'employee_count_exact';END IF;
  IF TG_OP='INSERT' THEN
   IF coalesce(NEW.score,0)=0 THEN changes:=changes-'score';IF coalesce(NEW.score_tier,'unqualified')='unqualified' THEN changes:=changes-'score_tier'; END IF;END IF;
   IF coalesce(NEW.employee_count_exact,0)=0 THEN changes:=changes-'employee_count_exact';END IF;
@@ -452,7 +471,7 @@ BEGIN
  patch:=nullif(current_setting('opengtm.record_patches',true),'')::jsonb->NEW.id::text;
  IF NEW.lead_id IS NOT NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL THEN
   SELECT * INTO oldlead FROM leads WHERE id=NEW.lead_id AND workspace_id=NEW.workspace_id;
-  IF NOT FOUND AND coalesce(current_setting('opengtm.record_source',true),'') NOT LIKE 'migration%' AND NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RAISE EXCEPTION 'linked lead not found' USING ERRCODE='P0002'; END IF;
+  IF NOT FOUND AND subject IS NOT NULL AND coalesce(current_setting('opengtm.record_source',true),'') NOT LIKE 'migration%' AND NOT EXISTS(SELECT 1 FROM pg_roles WHERE rolname=current_user AND (rolsuper OR rolbypassrls)) THEN RAISE EXCEPTION 'linked lead not found' USING ERRCODE='P0002'; END IF;
   NEW.company_entity_id:=coalesce(NEW.company_entity_id,oldlead.company_entity_id);NEW.person_entity_id:=coalesce(NEW.person_entity_id,oldlead.person_entity_id);
  END IF;
  IF NEW.person_entity_id IS NULL AND nullif(d->>'canonical_person_id','') IS NOT NULL THEN
@@ -479,6 +498,11 @@ BEGIN
  END IF;
  IF subject IS NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL AND EXISTS(SELECT 1 FROM jsonb_each(d) e WHERE e.key IN ('company','website','contact_person','full_name','email') AND jsonb_typeof(e.value) NOT IN ('string','null')) THEN RETURN NEW; END IF;
  IF NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL AND nullif(d->>'company','') IS NULL AND nullif(d->>'website','') IS NULL AND nullif(d->>'contact_person','') IS NULL AND nullif(d->>'full_name','') IS NULL AND nullif(d->>'email','') IS NULL THEN RETURN NEW; END IF;
+ -- An untyped legacy snapshot can contain only a weak name. Preserve that
+ -- observation for review rather than selecting one of several real companies.
+ IF subject IS NULL AND NEW.company_entity_id IS NULL AND NEW.person_entity_id IS NULL
+  AND nullif(d->>'website','') IS NULL AND nullif(d->>'domain','') IS NULL
+  AND (SELECT count(*) FROM company_entities WHERE workspace_id=NEW.workspace_id AND record_name_key=lower(trim(d->>'company')))>1 THEN RETURN NEW;END IF;
  src:=coalesce(nullif(current_setting('opengtm.record_source',true),''),CASE WHEN TG_OP='INSERT' THEN 'import:workbook' WHEN patch IS NOT NULL THEN 'manual' ELSE 'provider:workbook' END);
  links:=opengtm_record_ingest_flat(NEW.workspace_id,subject,d,src,'row:'||NEW.id,NEW.company_entity_id,NEW.person_entity_id,src='manual');
  NEW.company_entity_id:=links->>'company_id';IF subject IS NOT NULL THEN NEW.canonical_entity_id:=coalesce(NEW.canonical_entity_id,NEW.company_entity_id); END IF;NEW.person_entity_id:=links->>'person_id';NEW.employment_id:=(links->>'employment_id')::integer;RETURN NEW;
@@ -527,15 +551,6 @@ DECLARE c text;p text;links jsonb;person_name text;BEGIN
   IF NEW.lead_id=0 THEN NEW.lead_id:=NULL; END IF;
  END IF;
  END IF;
- IF TG_TABLE_NAME='watch_subscriptions' THEN
- IF NEW.company_entity_id IS NULL AND NEW.kind IN ('company','funding','hiring') THEN
-  SELECT id INTO c FROM company_entities WHERE workspace_id=NEW.workspace_id AND (lower(canonical_name)=lower(NEW.target) OR primary_domain=opengtm_record_domain(NEW.target)) ORDER BY id LIMIT 1;
-  IF c IS NULL THEN
-   links:=opengtm_record_upsert(NEW.workspace_id,'company',jsonb_build_object('company',CASE WHEN NEW.target ~ '^[A-Za-z0-9.-]+\.[A-Za-z]{2,}$' THEN jsonb_build_object('name',NEW.target,'domain',NEW.target) ELSE jsonb_build_object('name',NEW.target) END),'monitor','watch:'||NEW.id,false);c:=links->>'company_id';
-  END IF;
-  NEW.company_entity_id:=c;
- END IF;
- END IF;
  IF NEW.company_entity_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM company_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.company_entity_id) THEN RAISE EXCEPTION 'company not found' USING ERRCODE='P0002'; END IF;
  IF NEW.person_entity_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM person_entities WHERE workspace_id=NEW.workspace_id AND id=NEW.person_entity_id) THEN RAISE EXCEPTION 'person not found' USING ERRCODE='P0002'; END IF;
  RETURN NEW;
@@ -568,6 +583,20 @@ DECLARE item record;v jsonb;field text;src text;BEGIN
 END $$;
 -- +goose StatementEnd
 CREATE TRIGGER record_graph_observation AFTER INSERT OR UPDATE ON company_entities FOR EACH ROW EXECUTE FUNCTION opengtm_record_graph_observation();
+
+-- Polymorphic import identities cannot use a simple foreign key. Remove them
+-- with their record so a later import cannot resolve a deleted UUID.
+-- +goose StatementBegin
+CREATE FUNCTION opengtm_record_identity_delete() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE kind text:=CASE WHEN TG_TABLE_NAME='company_entities' THEN 'company' ELSE 'person' END;
+BEGIN
+ DELETE FROM record_external_identities WHERE workspace_id=OLD.workspace_id AND record_type=kind AND record_id=OLD.id;
+ DELETE FROM record_field_owners WHERE workspace_id=OLD.workspace_id AND record_type=kind AND record_id=OLD.id;
+ RETURN OLD;
+END $$;
+-- +goose StatementEnd
+CREATE TRIGGER record_identity_delete AFTER DELETE ON company_entities FOR EACH ROW EXECUTE FUNCTION opengtm_record_identity_delete();
+CREATE TRIGGER record_identity_delete AFTER DELETE ON person_entities FOR EACH ROW EXECUTE FUNCTION opengtm_record_identity_delete();
 
 -- Privileged maintenance/fixture writers may seed multiple tenants without an
 -- application GUC. Only SUPERUSER/BYPASSRLS sessions get a temporary row scope;
@@ -754,6 +783,23 @@ DECLARE result jsonb:=coalesce(overlays,'{}');col jsonb;key text;field text;cell
 END $$;
 -- +goose StatementEnd
 
+-- Merge editable row fields atomically while retaining the original key order.
+-- JSONB concatenation alone reorders every key in legacy workbook snapshots.
+-- +goose StatementBegin
+CREATE FUNCTION opengtm_record_merge_data(base json,patch json) RETURNS json LANGUAGE sql IMMUTABLE AS $$
+ WITH args AS (
+  SELECT CASE WHEN json_typeof(base)='object' THEN base ELSE '{}'::json END AS b,
+         CASE WHEN json_typeof(patch)='object' THEN patch ELSE '{}'::json END AS p
+ ), entries AS (
+  SELECT old.key,CASE WHEN a.p::jsonb?old.key THEN a.p::jsonb->old.key ELSE old.value::jsonb END AS value,old.ord
+  FROM args a,json_each(a.b) WITH ORDINALITY old(key,value,ord)
+  UNION ALL
+  SELECT added.key,added.value::jsonb,added.ord+2147483647
+  FROM args a,json_each(a.p) WITH ORDINALITY added(key,value,ord) WHERE NOT(a.b::jsonb?added.key)
+ ) SELECT coalesce(json_object_agg(key,value ORDER BY ord),'{}'::json) FROM entries
+$$;
+-- +goose StatementEnd
+
 CREATE VIEW record_leads WITH (security_invoker=true) AS SELECT
  r."id" AS "id",
  r."workspace_id" AS "workspace_id",
@@ -821,8 +867,8 @@ CREATE VIEW record_workbook_rows WITH (security_invoker=true) AS SELECT
  r."id" AS "id",
  r."workbook_id" AS "workbook_id",
  r."position" AS "position",
- opengtm_record_row_data(r.workspace_id,r.workbook_id,r.data::jsonb,r.company_entity_id,r.person_entity_id,r.employment_id,f.fields)::json AS "data",
- opengtm_record_overlays(r.workspace_id,r.workbook_id,r.enrichments::jsonb,f.fields)::json AS "enrichments",
+ CASE WHEN (SELECT record_type FROM workbooks WHERE id=r.workbook_id AND workspace_id=r.workspace_id) IS NULL THEN r.data ELSE opengtm_record_row_data(r.workspace_id,r.workbook_id,r.data::jsonb,r.company_entity_id,r.person_entity_id,r.employment_id,f.fields)::json END AS "data",
+ CASE WHEN (SELECT record_type FROM workbooks WHERE id=r.workbook_id AND workspace_id=r.workspace_id) IS NULL THEN r.enrichments ELSE opengtm_record_overlays(r.workspace_id,r.workbook_id,r.enrichments::jsonb,f.fields)::json END AS "enrichments",
  r."lead_id" AS "lead_id",
  r."canonical_entity_id" AS "canonical_entity_id",
  r."corroboration_count" AS "corroboration_count",

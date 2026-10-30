@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"sync/atomic"
+	"sync"
 	"testing"
 	"time"
 
@@ -119,11 +119,11 @@ func holdAudienceLock(t *testing.T, id string) (release func()) {
 	if _, err := tx.Exec(ctx, `SELECT 1 FROM audiences WHERE id = $1 FOR UPDATE`, id); err != nil {
 		t.Fatal(err)
 	}
-	var done atomic.Bool
+	var done sync.Once
 	return func() {
-		if done.CompareAndSwap(false, true) {
+		done.Do(func() {
 			_ = tx.Rollback(ctx)
-		}
+		})
 	}
 }
 

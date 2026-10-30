@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/entities"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -156,7 +157,9 @@ func normalize(w *Write) error {
 			} else {
 				w.Company[key] = u.String()
 				if existing, ok := w.Company["domain"]; !ok || existing == nil || existing == "" {
-					w.Company["domain"] = strings.TrimPrefix(host, "www.")
+					if domain := entities.IdentityDomain(u.String()); domain != "" {
+						w.Company["domain"] = domain
+					}
 				}
 			}
 		}
@@ -395,10 +398,10 @@ func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options List
 		return out, errors.New("company relationship filter requires people")
 	}
 	table := "company_entities"
-	name := "canonical_name"
+	name := "coalesce(accepted_fields->>'name',canonical_name)"
 	if k == Person {
 		table = "person_entities"
-		name = "full_name"
+		name = "coalesce(accepted_fields->>'full_name',full_name)"
 	}
 	filter := ""
 	switch options.Filter {

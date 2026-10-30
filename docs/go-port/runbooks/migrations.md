@@ -51,15 +51,41 @@ Each version runs in its own transaction (goose); a failure rolls that version b
 ## Startup check
 
 api, worker and mcp (Go) refuse to start unless `goose_db_version` is at least
-`config.RequiredGoSchemaVersion` (currently `1`). They no longer read `alembic_version`. A database
-newer than the binary is accepted (migrations are additive), so a rolling deploy may keep old replicas
-running. Error texts: `goose_db_version is missing ... run opengtm-migrate` (never migrated by Go, e.g. an
+`config.RequiredGoSchemaVersion` (currently `5`). They no longer read `alembic_version`. A database
+newer than the binary is accepted by this startup check, but compatibility must be
+verified for each migration. Schema 5 requires the stopped-writer procedure below.
+Error texts: `goose_db_version is missing ... run opengtm-migrate` (never migrated by Go, e.g. an
 Alembic database not yet adopted) and `schema version N is below required M; run opengtm-migrate`.
 
 `config.RequiredGoSchemaRevision` (`e7b2c4d6f8a0`) is now only the Alembic revision the baseline
 reproduces and stamps; it stays equal to Python's `REQUIRED_GO_SCHEMA_REVISION`.
 
+## Upgrading to schema 5
+
+Schema 5 introduces shared Companies and People and changes legacy Lead uniqueness.
+Older writers using `ON CONFLICT (workspace_id, company, city)` cannot write against
+that schema. Do not perform a rolling upgrade with Go schema-4 binaries or Python
+writers still running.
+
+1. Back up the database and verify restoration in a disposable database. Record the
+   current application commit and schema version.
+2. Stop API, worker, scheduler, MCP, and any external jobs that write to this database.
+   Keep them stopped while migrating and replacing binaries.
+3. Run the schema-5 migration binary with owner credentials. A failed migration
+   rolls back its transaction; inspect the error before restarting writers.
+4. Deploy the matching schema-5 API, worker, scheduler, and MCP binaries together.
+   Start them and check readiness, existing Lead/workbook reads, and a test import
+   into Companies/People before reopening traffic.
+
+There is no down migration. To roll back this upgrade, stop all new writers,
+restore the verified pre-upgrade backup, and restart the matching old application.
+Production staging and release acceptance remain tracked in
+[release readiness](https://github.com/debpalash/OpenGTM/issues/120).
+
 ## Python during the canary
+
+This canary procedure applies through Go schema 4. Schema 5 ends simultaneous
+Python/older-Go writes; follow the stopped-writer upgrade above.
 
 The Python API, worker and scheduler still run against the same database. They read
 `alembic_version` (readiness head check, `go_executor`), which the runner keeps at `e7b2c4d6f8a0` on

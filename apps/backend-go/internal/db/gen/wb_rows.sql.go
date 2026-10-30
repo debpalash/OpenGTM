@@ -178,7 +178,7 @@ func (q *Queries) MaxWorkbookRowPosition(ctx context.Context, workbookID string)
 
 const patchWorkbookRowsData = `-- name: PatchWorkbookRowsData :execrows
 UPDATE workbook_rows AS r
-SET data = (coalesce(r.data::jsonb,'{}') || u.d::jsonb)::json, updated_at = (now() AT TIME ZONE 'utc')
+SET data = opengtm_record_merge_data(r.data,u.d::json), updated_at = (now() AT TIME ZONE 'utc')
 FROM (SELECT a.id, b.d FROM
         (SELECT v AS id, ord FROM unnest($2::bigint[]) WITH ORDINALITY AS x(v, ord)) AS a
         JOIN (SELECT v AS d, ord FROM unnest($3::text[]) WITH ORDINALITY AS y(v, ord)) AS b USING (ord)) AS u

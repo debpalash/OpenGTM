@@ -144,7 +144,7 @@ func (q *Queries) ScanInsertSignal(ctx context.Context, arg ScanInsertSignalPara
 }
 
 const scanLeadScore = `-- name: ScanLeadScore :one
-SELECT score FROM record_leads
+SELECT score FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = $1::int4
 `
 

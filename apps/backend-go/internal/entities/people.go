@@ -173,6 +173,64 @@ func ResolvePerson(ctx context.Context, tx pgx.Tx, ws string, o PersonObservatio
 		}
 	}
 
+	row, err := q.LockPersonEntity(ctx, gen.LockPersonEntityParams{ID: personID, WorkspaceID: ws})
+	if err != nil {
+		return "", false, fmt.Errorf("entities: lock person: %w", err)
+	}
+	identity := objOr(row.IdentityKeys).Clone()
+	add := func(key, value string) {
+		if value == "" {
+			return
+		}
+		lst, _ := asList(getOr(identity, key, []any{}))
+		for _, e := range lst {
+			if e == value {
+				return
+			}
+		}
+		identity.Set(key, append(append([]any{}, lst...), value))
+	}
+	add("linkedin", li)
+	add("emails", em)
+	add("name_variants", pyStrip(o.Name))
+	fullName := row.FullName
+	if (fullName == "" || fullName == "(unknown)") && pyStrip(o.Name) != "" {
+		fullName = pyStrip(o.Name)
+	}
+	fields := objOr(row.Fields).Clone()
+	sources, _ := asList(getOr(fields, "sources", []any{}))
+	if !truthy(getOr(fields, "sources", nil)) {
+		sources = []any{}
+	}
+	sources = append([]any{}, sources...)
+	present := false
+	for _, s := range sources {
+		if s == o.Source {
+			present = true
+		}
+	}
+	if o.Source != "" && !present {
+		sources = append(sources, o.Source)
+	}
+	fields.Set("sources", sources)
+
+	var companyEntity pgtype.Text
+	var protected bool
+	if err := tx.QueryRow(ctx, `SELECT company_entity_id,EXISTS(SELECT 1 FROM record_field_owners WHERE workspace_id=$1 AND record_type='person' AND record_id=$2 AND field_name='current_employment' AND (priority>20 OR updated_at>$3)) FROM person_entities WHERE workspace_id=$1 AND id=$2`, ws, personID, observed).Scan(&companyEntity, &protected); err != nil {
+		return "", false, err
+	}
+	if !protected {
+		companyEntity, err = recordEmployment(ctx, tx, ws, personID, o, observed)
+		if err != nil {
+			return "", false, err
+		}
+	}
+	if err := q.UpdatePersonEntity(ctx, gen.UpdatePersonEntityParams{FullName: fullName, IdentityKeys: MarshalJSON(identity),
+		Fields: MarshalJSON(fields), CorroborationCount: int32(len(sources)), CompanyEntityID: companyEntity,
+		ID: personID, WorkspaceID: ws}); err != nil {
+		return "", false, fmt.Errorf("entities: update person: %w", err)
+	}
+
 	company := map[string]any{}
 	if o.Company != "" {
 		company["name"] = o.Company
@@ -198,6 +256,9 @@ func ResolvePerson(ctx context.Context, tx pgx.Tx, ws string, o PersonObservatio
 		employment["evidence_url"] = o.EvidenceURL
 	}
 	payload := map[string]any{"company": company, "person": person, "employment": employment, "person_id": personID, "observed_at": observed.Format(time.RFC3339Nano)}
+	if companyEntity.Valid && !protected {
+		payload["company_id"] = companyEntity.String
+	}
 	raw, e := json.Marshal(payload)
 	if e != nil {
 		return "", false, e
@@ -207,9 +268,7 @@ func ResolvePerson(ctx context.Context, tx pgx.Tx, ws string, o PersonObservatio
 	if e != nil {
 		return "", false, e
 	}
-	// Keep the graph's source list as observations, independent of accepted facts.
-	_, e = tx.Exec(ctx, `UPDATE person_entities SET fields=jsonb_set(fields::jsonb,'{sources}',(SELECT coalesce(jsonb_agg(DISTINCT x),'[]') FROM jsonb_array_elements(coalesce(fields::jsonb->'sources','[]')||to_jsonb(ARRAY[$3::text])) x),true) WHERE id=$1 AND workspace_id=$2`, personID, ws, o.Source)
-	return personID, created, e
+	return personID, created, nil
 }
 
 func checkEmailConflict(ctx context.Context, q *gen.Queries, ws, personID, li, name string) error {

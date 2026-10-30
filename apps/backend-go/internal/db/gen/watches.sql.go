@@ -62,7 +62,7 @@ func (q *Queries) PollEngineGet(ctx context.Context, arg PollEngineGetParams) (P
 }
 
 const pollEngineLeadCompanies = `-- name: PollEngineLeadCompanies :many
-SELECT id, company FROM record_leads WHERE workspace_id = $1::text
+SELECT id, company FROM leads WHERE workspace_id = $1::text
 `
 
 type PollEngineLeadCompaniesRow struct {
@@ -91,7 +91,7 @@ func (q *Queries) PollEngineLeadCompanies(ctx context.Context, workspaceID strin
 }
 
 const pollEngineLeadWebsite = `-- name: PollEngineLeadWebsite :one
-SELECT website FROM record_leads WHERE id = $1::int4 AND workspace_id = $2::text
+SELECT website FROM leads WHERE id = $1::int4 AND workspace_id = $2::text
 `
 
 type PollEngineLeadWebsiteParams struct {
@@ -430,7 +430,7 @@ func (q *Queries) WatchSvcInsertWebhookRule(ctx context.Context, arg WatchSvcIns
 }
 
 const watchSvcLeadExists = `-- name: WatchSvcLeadExists :one
-SELECT EXISTS (SELECT 1 FROM record_leads WHERE id = $1::int4 AND workspace_id = $2::text) AS found
+SELECT EXISTS (SELECT 1 FROM leads WHERE id = $1::int4 AND workspace_id = $2::text) AS found
 `
 
 type WatchSvcLeadExistsParams struct {

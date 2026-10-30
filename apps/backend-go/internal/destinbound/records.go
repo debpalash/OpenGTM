@@ -77,6 +77,13 @@ func reconcileRecords(ctx context.Context, tx pgx.Tx, d Destination, body Inboun
 	}
 	if !explicit && cid == "" && pid == "" {
 		if email, ok := mapped["email"].(string); ok && strings.TrimSpace(email) != "" {
+			var legacyMatch bool
+			if e := tx.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM leads WHERE workspace_id=$1 AND lower(email)=lower(trim($2)))`, ws, email).Scan(&legacyMatch); e != nil {
+				return Receipt{}, false, true, e
+			}
+			if legacyMatch {
+				return Receipt{}, false, false, nil
+			}
 			rows, e := tx.Query(ctx, `SELECT p.id,p.company_entity_id FROM person_entities p JOIN person_identifiers i ON i.person_id=p.id AND i.workspace_id=p.workspace_id WHERE p.workspace_id=$1 AND i.kind='email' AND i.value=lower(trim($2)) LIMIT 2`, ws, email)
 			if e != nil {
 				return Receipt{}, false, true, e

@@ -123,7 +123,7 @@ ON CONFLICT DO NOTHING
 RETURNING id;
 
 -- name: LeadIDByKey :one
-SELECT id FROM record_leads
+SELECT id FROM leads
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND company = sqlc.arg(company)::text AND city = sqlc.arg(city)::text;
 
 -- name: UpdateLeadStatus :execrows
@@ -135,5 +135,5 @@ DELETE FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = sqlc.arg(id)::int4;
 
 -- name: LeadExists :one
-SELECT EXISTS (SELECT 1 FROM record_leads
+SELECT EXISTS (SELECT 1 FROM leads
   WHERE workspace_id = current_setting('app.workspace_id', true) AND id = sqlc.arg(id)::int4);

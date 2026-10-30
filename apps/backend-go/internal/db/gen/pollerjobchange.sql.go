@@ -14,7 +14,7 @@ import (
 const pollContactLead = `-- name: PollContactLead :one
 
 SELECT contact_person, company, linkedin_url
-FROM record_leads
+FROM leads
 WHERE id = $1 AND workspace_id = $2
 `
 

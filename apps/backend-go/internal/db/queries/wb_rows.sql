@@ -42,7 +42,7 @@ FOR UPDATE;
 -- name: PatchWorkbookRowsData :execrows
 -- Set data for several rows of one workbook in a single statement.
 UPDATE workbook_rows AS r
-SET data = (coalesce(r.data::jsonb,'{}') || u.d::jsonb)::json, updated_at = (now() AT TIME ZONE 'utc')
+SET data = opengtm_record_merge_data(r.data,u.d::json), updated_at = (now() AT TIME ZONE 'utc')
 FROM (SELECT a.id, b.d FROM
         (SELECT v AS id, ord FROM unnest(sqlc.arg(row_ids)::bigint[]) WITH ORDINALITY AS x(v, ord)) AS a
         JOIN (SELECT v AS d, ord FROM unnest(sqlc.arg(datas)::text[]) WITH ORDINALITY AS y(v, ord)) AS b USING (ord)) AS u

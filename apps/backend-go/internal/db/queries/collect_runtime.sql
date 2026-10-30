@@ -41,13 +41,13 @@ WHERE id = sqlc.arg(id)::text AND workspace_id = current_setting('app.workspace_
 
 -- name: CollectWorkspaceCompanies :many
 -- Cross-job dedup source (fix: legacy compared against get_leads(limit=10000), the top leads by score).
-SELECT DISTINCT company FROM record_leads
+SELECT DISTINCT company FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND company IS NOT NULL AND company <> '';
 
 -- name: CollectLeadsForBulk :many
 SELECT id, company, website, email, email_confidence, phone, contact_person, city, description, linkedin_url,
        twitter_url
-FROM record_leads
+FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = ANY(sqlc.arg(ids)::int[]);
 
 -- name: SourceStatsRecord :exec

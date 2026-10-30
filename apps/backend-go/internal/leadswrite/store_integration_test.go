@@ -101,10 +101,13 @@ func TestCreateMatchesPythonRow(t *testing.T) {
 	}
 	for k, v := range r {
 		if v == nil {
+			if k == "person_entity_id" || k == "employment_id" || k == "company_entity_id" {
+				continue
+			}
 			t.Errorf("column %s is NULL; the Python Lead dataclass writes every column", k)
 			continue
 		}
-		if k == "id" || k == "created_at" || k == "updated_at" {
+		if k == "id" || k == "created_at" || k == "updated_at" || k == "company_entity_id" || k == "person_entity_id" || k == "employment_id" {
 			continue
 		}
 		w, ok := want[k]
@@ -115,8 +118,8 @@ func TestCreateMatchesPythonRow(t *testing.T) {
 			t.Errorf("column %s = %q, want %q", k, *v, w)
 		}
 	}
-	if len(r) != 56 {
-		t.Errorf("columns = %d, want 56 (all but search_tsv)", len(r))
+	if len(r) != 59 {
+		t.Errorf("columns = %d, want 59 (legacy columns plus three canonical references)", len(r))
 	}
 	// Python isoformat(): 2026-01-02T03:04:05[.ffffff]+00:00
 	for _, k := range []string{"created_at", "updated_at"} {
@@ -214,8 +217,8 @@ func TestUpdateFieldsIgnoresImmutable(t *testing.T) {
 	}
 	after := e.row(t, id)
 	for k, v := range before {
-		if *after[k] != *v {
-			t.Errorf("%s changed: %q -> %q", k, *v, *after[k])
+		if (after[k] == nil) != (v == nil) || (v != nil && after[k] != nil && *after[k] != *v) {
+			t.Errorf("%s changed: %v -> %v", k, v, after[k])
 		}
 	}
 }
@@ -267,7 +270,7 @@ func TestUpdateFieldsTypeError(t *testing.T) {
 		}
 		after := e.row(t, id)
 		for k, v := range before {
-			if *after[k] != *v {
+			if (after[k] == nil) != (v == nil) || (v != nil && after[k] != nil && *after[k] != *v) {
 				t.Errorf("%s: partial write, %s changed", field, k)
 			}
 		}
@@ -343,7 +346,7 @@ func TestWritesTenantIsolation(t *testing.T) {
 	}
 	after := e.row(t, id)
 	for k, v := range before {
-		if *after[k] != *v {
+		if (after[k] == nil) != (v == nil) || (v != nil && after[k] != nil && *after[k] != *v) {
 			t.Errorf("cross-tenant write changed %s", k)
 		}
 	}

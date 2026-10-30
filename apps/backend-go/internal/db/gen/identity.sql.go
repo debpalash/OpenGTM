@@ -61,7 +61,7 @@ func (q *Queries) ClaimOwnerlessWorkspaces(ctx context.Context, ownerID int32) e
 }
 
 const countLeads = `-- name: CountLeads :one
-SELECT count(*)::bigint FROM record_leads
+SELECT count(*)::bigint FROM leads
 `
 
 func (q *Queries) CountLeads(ctx context.Context) (int64, error) {

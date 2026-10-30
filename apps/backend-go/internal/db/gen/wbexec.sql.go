@@ -45,7 +45,7 @@ func (q *Queries) GetOutputCellClaim(ctx context.Context, arg GetOutputCellClaim
 }
 
 const lockLeadFieldProvenance = `-- name: LockLeadFieldProvenance :one
-SELECT field_provenance FROM record_leads
+SELECT field_provenance FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = $1::int
 FOR UPDATE
 `

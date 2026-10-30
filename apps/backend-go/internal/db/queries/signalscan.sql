@@ -20,7 +20,7 @@ ON CONFLICT (id) DO NOTHING
 RETURNING id;
 
 -- name: ScanLeadScore :one
-SELECT score FROM record_leads
+SELECT score FROM leads
 WHERE workspace_id = current_setting('app.workspace_id', true) AND id = sqlc.arg(id)::int4;
 
 -- name: ListEnabledSignalTriggers :many

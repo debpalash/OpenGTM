@@ -660,7 +660,7 @@ func TestReconcileReplayIsIdempotent(t *testing.T) {
 	b, _ := json.Marshal(r1)
 	var shape map[string]any
 	_ = json.Unmarshal(b, &shape)
-	if len(shape) != 13 || shape["company_id"] == nil || shape["applied_fields"] == nil {
+	if len(shape) != 12 || shape["lead_id"] != float64(1) || shape["company_id"] != nil || shape["applied_fields"] == nil {
 		t.Fatalf("receipt JSON: %s", b)
 	}
 }

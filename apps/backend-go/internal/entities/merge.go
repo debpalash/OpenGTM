@@ -89,6 +89,10 @@ func mergeTx(ctx context.Context, q *gen.Queries, ws, keptID, mergedID, reason s
 		pairs[i] = []any{id.Kind, id.Value}
 	}
 	snap.Set("identifiers", pairs)
+	prefs, err := peopleReferences(ctx, q, ws, mergedID)
+	if err != nil {
+		return MergeResult{}, err
+	}
 	shared, err := q.MergeSharedCompanyRecords(ctx, gen.MergeSharedCompanyRecordsParams{WorkspaceID: ws, KeptID: keptID, MergedID: mergedID})
 	if err != nil {
 		return MergeResult{}, err
@@ -99,7 +103,7 @@ func mergeTx(ctx context.Context, q *gen.Queries, ws, keptID, mergedID, reason s
 		return MergeResult{}, err
 	}
 	snap.Set("references", refs)
-	prefs, err := repointPeople(ctx, q, ws, mergedID, keptID)
+	_, err = repointPeople(ctx, q, ws, mergedID, keptID)
 	if err != nil {
 		return MergeResult{}, err
 	}
