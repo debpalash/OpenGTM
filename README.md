@@ -14,7 +14,8 @@
   <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
     <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="220" />
   </a><br />
-  Our recommended API for clean page and PDF content in research columns.<br />
+  Our recommended web scraping API for AI agents.<br />
+  Scrape pages, automate browsers, and batch URLs into clean Markdown or structured JSON via API, CLI, or MCP.<br />
   <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Start free — 1,000 credits/month during beta</strong></a> ·
   <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing and limits</a>
 </p>
