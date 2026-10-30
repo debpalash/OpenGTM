@@ -19,6 +19,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/destinbound"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/records"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/testpg"
 )
@@ -55,6 +56,12 @@ func (e *env) clean() {
 		`DELETE FROM audience_destinations WHERE workspace_id LIKE 'p10t10-%'`,
 		`DELETE FROM audiences WHERE workspace_id LIKE 'p10t10-%'`,
 		`DELETE FROM leads WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM person_employments WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM person_entities WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM company_entities WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM record_external_identities WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM record_field_owners WHERE workspace_id LIKE 'p10t10-%'`,
+		`DELETE FROM record_observations WHERE workspace_id LIKE 'p10t10-%'`,
 		`DELETE FROM workspaces WHERE id LIKE 'p10t10-%'`,
 	} {
 		if _, err := e.owner.Exec(ctx, s); err != nil {
@@ -530,7 +537,7 @@ func TestReconcileMatchesFixtures(t *testing.T) {
 	ctx := context.Background()
 	for _, c := range fx.Cases {
 		t.Run(c.Name, func(t *testing.T) {
-			for _, s := range []string{`DELETE FROM destination_inbound_receipts`, `DELETE FROM destination_deliveries`, `DELETE FROM leads WHERE workspace_id LIKE 'p10t10-%'`} {
+			for _, s := range []string{`DELETE FROM destination_inbound_receipts`, `DELETE FROM destination_deliveries`, `DELETE FROM leads WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM person_employments WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM person_entities WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM company_entities WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM record_external_identities WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM record_field_owners WHERE workspace_id LIKE 'p10t10-%'`, `DELETE FROM record_observations WHERE workspace_id LIKE 'p10t10-%'`} {
 				mustExec(t, e.owner, s)
 			}
 			for _, l := range fx.Fixtures.Leads {
@@ -653,7 +660,7 @@ func TestReconcileReplayIsIdempotent(t *testing.T) {
 	b, _ := json.Marshal(r1)
 	var shape map[string]any
 	_ = json.Unmarshal(b, &shape)
-	if len(shape) != 12 || shape["applied_fields"] == nil {
+	if len(shape) != 12 || shape["lead_id"] != float64(1) || shape["company_id"] != nil || shape["applied_fields"] == nil {
 		t.Fatalf("receipt JSON: %s", b)
 	}
 }
@@ -783,7 +790,7 @@ func TestEmployeeCountCoercion(t *testing.T) {
 		want any // nil -> ignored
 	}{
 		{`"42"`, 42}, {`42.9`, 42}, {`true`, 1}, {`" 7 "`, 7}, {`"1_0"`, 10}, {`"many"`, nil}, {`"4.2"`, nil},
-		{`null`, nil}, {`[1]`, nil}, {`99999999999`, nil}, {`"99999999999"`, nil}, {`-3`, -3},
+		{`null`, nil}, {`[1]`, nil}, {`99999999999`, nil}, {`"99999999999"`, nil}, {`-3`, nil},
 	}
 	for i, c := range cases {
 		mustExec(t, e.owner, `UPDATE leads SET employee_count_exact=0 WHERE id=1`)
@@ -833,5 +840,40 @@ func TestEmailMatchRequiresUnique(t *testing.T) {
 	r, _ = e.reconcile(t, hub(""), `{"external_event_id":"m3","fields":{"email":"solo-b@x.test","city":"Q"}}`)
 	if r.Status != "unmatched" {
 		t.Fatalf("foreign-workspace email matched: %+v", r)
+	}
+}
+
+func TestCanonicalCallbackWithoutLeadAndSharedProjection(t *testing.T) {
+	e := newEnv(t)
+	ctx := context.Background()
+	s := records.Store{Pool: e.app}
+	c, err := s.Upsert(ctx, wsA, records.Company, records.Write{Company: map[string]any{"name": "Canonical", "domain": "canonical.test", "industry": "N/A"}}, "import:clay", "company-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := s.Upsert(ctx, wsA, records.Person, records.Write{CompanyID: c.ID, Person: map[string]any{"email": "person@canonical.test", "full_name": "Person"}}, "import:clay", "person-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	d := hub("crm_wins")
+	body := fmt.Sprintf(`{"external_event_id":"canonical-update","person_id":%q,"fields":{"company.industry":"Robotics","person.phone":"555","employment.title":"Director"}}`, p.ID)
+	r, replay := e.reconcile(t, d, body)
+	if replay || r.Status != "applied" || r.LeadID != nil || r.PersonID == nil || *r.PersonID != p.ID {
+		t.Fatalf("canonical receipt %+v", r)
+	}
+	again, replay := e.reconcile(t, d, body)
+	if !replay || again.ID != r.ID {
+		t.Fatal("canonical callback replay duplicated receipt")
+	}
+	current, err := s.Get(ctx, wsA, records.Person, p.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if current.Fields["phone"] != "555" || len(current.Employments) != 1 || current.Employments[0].Fields["title"] != "Director" {
+		t.Fatalf("person facts %+v", current)
+	}
+	corp, err := s.Get(ctx, wsA, records.Company, c.ID)
+	if err != nil || corp.Fields["industry"] != "Robotics" {
+		t.Fatalf("company facts %+v: %v", corp, err)
 	}
 }

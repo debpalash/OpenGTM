@@ -1,0 +1,67 @@
+{
+  "engine": "webkit",
+  "axe": [
+    {
+      "name": "unknown-multi-field-save",
+      "violations": []
+    },
+    {
+      "name": "read-only-reconciliation-retains-unverifiable-key",
+      "violations": []
+    },
+    {
+      "name": "pending-provider-write-protects-section",
+      "violations": []
+    },
+    {
+      "name": "confirmed-receipt-survives-followup-read-failure",
+      "violations": []
+    },
+    {
+      "name": "lost-model-receipt-reconciles-without-write",
+      "violations": []
+    },
+    {
+      "name": "refused-save-retains-editable-draft",
+      "violations": []
+    },
+    {
+      "name": "filtered-provider-draft-survives",
+      "violations": []
+    },
+    {
+      "name": "default-recovery-keeps-focus-on-receipt",
+      "violations": []
+    },
+    {
+      "name": "dark-touch-reflow-320",
+      "violations": []
+    },
+    {
+      "name": "dark-touch-reflow-390",
+      "violations": []
+    },
+    {
+      "name": "dark-touch-reflow-768",
+      "violations": []
+    },
+    {
+      "name": "explicit-provider-draft-discard",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "checks": [
+    "partial-or-unknown-write-recovery-keeps-draft-without-reposting",
+    "confirmed-save-settles-draft-independently-of-refresh",
+    "lost-committed-model-response-reconciles-on-read-only",
+    "wrong-success-receipt-and-validation-refusal-never-settle-draft",
+    "search-empty-and-configuration-filters-preserve-owned-drafts",
+    "empty-model-confirmation-uses-effective-default-without-refresh",
+    "lost-default-response-reconciles-without-second-write-and-keeps-focus",
+    "tests-use-saved-settings-and-never-invent-success-or-retain-stale-result",
+    "narrow-dark-touch-forms-reflow-with-readable-inputs-and-44px-targets",
+    "explicit-draft-discard-never-sends-or-claims-to-undo-a-save",
+    "instance-viewer-cannot-write-provider-settings"
+  ]
+}

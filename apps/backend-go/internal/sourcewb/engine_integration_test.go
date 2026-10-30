@@ -54,8 +54,7 @@ type scenario struct {
 
 var seedOrder = []string{"workbooks", "company_entities", "company_identifiers", "entity_blocking_keys", "workbook_rows",
 	"collection_jobs", "collection_job_stages", "leads"}
-var cleanOrder = []string{"jobs", "entity_review_pairs", "person_employments", "person_identifiers", "person_entities",
-	"workbook_rows", "entity_blocking_keys", "company_identifiers", "company_entities",
+var cleanOrder = []string{"jobs", "entity_review_pairs", "leads", "workbook_rows", "person_employments", "person_identifiers", "person_entities", "entity_blocking_keys", "company_identifiers", "company_entities",
 	"collection_job_stages", "collection_jobs", "leads", "workbooks"}
 
 const dumpSQL = `
@@ -65,11 +64,11 @@ SELECT json_build_object(
           'lead_id', lead_id, 'canonical_entity_id', canonical_entity_id, 'corroboration_count', corroboration_count,
           'source_provider', source_provider, 'source_record_id', source_record_id, 'workspace_id', workspace_id) ORDER BY id), '[]')
           FROM workbook_rows WHERE workspace_id = $2),
- 'company_entities', (SELECT coalesce(json_agg(to_jsonb(t) - 'first_seen' - 'last_seen' ORDER BY canonical_name, id), '[]') FROM company_entities t WHERE workspace_id = $2),
+ 'company_entities', (SELECT coalesce(json_agg(to_jsonb(t) - 'first_seen' - 'last_seen' - 'accepted_fields' - 'record_version' - 'record_name_key' ORDER BY canonical_name, id), '[]') FROM company_entities t WHERE workspace_id = $2),
  'company_identifiers', (SELECT coalesce(json_agg(json_build_object('kind', kind, 'value', value, 'entity_id', entity_id) ORDER BY kind, value), '[]') FROM company_identifiers WHERE workspace_id = $2),
  'blocking_keys', (SELECT coalesce(json_agg(json_build_object('key', key, 'entity_id', entity_id) ORDER BY key, entity_id), '[]') FROM entity_blocking_keys WHERE workspace_id = $2),
  'review_pairs', (SELECT coalesce(json_agg(json_build_object('entity_id', entity_id, 'candidate', candidate, 'score', score, 'reason', reason, 'status', status) ORDER BY id), '[]') FROM entity_review_pairs WHERE workspace_id = $2),
- 'person_entities', (SELECT coalesce(json_agg(to_jsonb(t) - 'first_seen' - 'last_seen' ORDER BY full_name, id), '[]') FROM person_entities t WHERE workspace_id = $2),
+ 'person_entities', (SELECT coalesce(json_agg(to_jsonb(t) - 'first_seen' - 'last_seen' - 'accepted_fields' - 'record_version' - 'record_name_key' ORDER BY full_name, id), '[]') FROM person_entities t WHERE workspace_id = $2),
  'person_identifiers', (SELECT coalesce(json_agg(json_build_object('kind', kind, 'value', value, 'person_id', person_id) ORDER BY kind, value), '[]') FROM person_identifiers WHERE workspace_id = $2),
  'person_employments', (SELECT coalesce(json_agg(to_jsonb(t) - 'id' ORDER BY person_id, company_key), '[]') FROM person_employments t WHERE workspace_id = $2),
  'jobs', (SELECT coalesce(json_agg(json_build_object('job_type', type, 'payload', payload, 'executor', executor, 'status', status) ORDER BY id), '[]') FROM jobs WHERE workspace_id = $2)
@@ -411,6 +410,26 @@ func TestSourceScenarioVectors(t *testing.T) {
 			for _, tb := range seedOrder {
 				testpg.FreeRecordIDs(t, tb, sc.Seed[tb]...) // recorded serial ids sit below testpg.SeqFloor
 				for _, r := range sc.Seed[tb] {
+					if tb == "leads" {
+						// Replay the historical collection snapshot verbatim. The
+						// shared-record Lead adapter has its own integration coverage;
+						// running it during fixture load changes the graph under test.
+						tx, err := owner.Begin(ctx)
+						if err != nil {
+							t.Fatal(err)
+						}
+						if _, err = tx.Exec(ctx, `SET LOCAL session_replication_role=replica`); err == nil {
+							_, err = tx.Exec(ctx, "INSERT INTO leads SELECT * FROM json_populate_record(NULL::leads,$1::json)", string(r))
+						}
+						if err != nil {
+							_ = tx.Rollback(ctx)
+							t.Fatal(err)
+						}
+						if err = tx.Commit(ctx); err != nil {
+							t.Fatal(err)
+						}
+						continue
+					}
 					if _, err := owner.Exec(ctx, "INSERT INTO "+tb+" SELECT * FROM json_populate_record(NULL::"+tb+", $1::json)", string(r)); err != nil {
 						t.Fatalf("seed %s: %v", tb, err)
 					}
@@ -499,6 +518,9 @@ func TestSourceScenarioVectors(t *testing.T) {
 			diff(t, sc.Name, "emits", emits, wantEmits)
 			for k, want := range sc.State {
 				w := rawGeneric(t, want)
+				if sharedWarehouseState(t, sc, k, state, l) {
+					continue
+				}
 				if k == "jobs" { // Python's recorded executor; every job is go since the plan 15 cutover
 					if js, ok := w.([]any); ok {
 						for _, j := range js {
@@ -528,6 +550,111 @@ func TestSourceScenarioVectors(t *testing.T) {
 			diff(t, sc.Name, "calls", gotCalls, wantCalls)
 		})
 	}
+}
+
+// People/CRM sources now populate the shared warehouse, where the Python
+// recording had no companies (and no CRM people). Assert those new facts and
+// links against the recorded source rows; retain exact replay for row contents,
+// events, provider calls, and the historical person/employment observations.
+func sharedWarehouseState(t *testing.T, sc scenario, key string, state map[string]any, l labeler) bool {
+	t.Helper()
+	if sc.Name != "people_basic" && sc.Name != "people_from_column" && sc.Name != "people_budget" && sc.Name != "crm_hubspot" && sc.Name != "crm_salesforce_inline" {
+		return false
+	}
+	if key != "company_entities" && key != "company_identifiers" && key != "person_entities" && key != "person_identifiers" && key != "person_employments" {
+		return false
+	}
+	wantCompanies, wantPeople := map[string]bool{}, map[string]bool{}
+	rows, _ := rawGeneric(t, sc.State["rows"]).([]any)
+	for _, item := range rows {
+		r, _ := item.(map[string]any)
+		data, _ := r["data"].(map[string]any)
+		if name, ok := data["company"].(string); ok && name != "" {
+			wantCompanies[strings.ToLower(strings.TrimSpace(name))] = true
+		}
+		for _, field := range []string{"contact_person", "full_name"} {
+			if name, ok := data[field].(string); ok && name != "" {
+				wantPeople[name] = true
+			}
+		}
+	}
+	companies, people := map[string]string{}, map[string]string{}
+	companyNames, personNames := map[string]bool{}, map[string]bool{}
+	for _, item := range state["company_entities"].([]any) {
+		r := item.(map[string]any)
+		name := r["canonical_name"].(string)
+		companies[r["id"].(string)] = name
+		companyNames[strings.ToLower(strings.TrimSpace(name))] = true
+	}
+	for _, item := range state["person_entities"].([]any) {
+		r := item.(map[string]any)
+		name := r["full_name"].(string)
+		people[r["id"].(string)] = name
+		personNames[name] = true
+		if id, ok := r["company_entity_id"].(string); ok && companies[id] == "" {
+			t.Fatalf("%s: person links a missing company", sc.Name)
+		}
+	}
+	switch key {
+	case "company_entities":
+		if !reflect.DeepEqual(companyNames, wantCompanies) || len(companies) != len(wantCompanies) {
+			t.Fatalf("%s: company facts got %v want recorded %v", sc.Name, companyNames, wantCompanies)
+		}
+	case "company_identifiers", "person_identifiers":
+		for _, item := range state[key].([]any) {
+			r := item.(map[string]any)
+			if key == "company_identifiers" && companies[r["entity_id"].(string)] == "" {
+				t.Fatal("identifier links a missing company")
+			}
+			if key == "person_identifiers" && people[r["person_id"].(string)] == "" {
+				t.Fatal("identifier links a missing person")
+			}
+		}
+		if key == "person_identifiers" && strings.HasPrefix(sc.Name, "people_") {
+			diff(t, sc.Name, "state."+key, l.walk(state[key], key), rawGeneric(t, sc.State[key]))
+		}
+	case "person_entities":
+		want := rawGeneric(t, sc.State[key]).([]any)
+		if len(want) == 0 {
+			if !reflect.DeepEqual(personNames, wantPeople) || len(people) != len(wantPeople) {
+				t.Fatalf("%s: people got %v want recorded %v", sc.Name, personNames, wantPeople)
+			}
+		} else {
+			got := l.walk(state[key], key).([]any)
+			for _, list := range [][]any{got, want} {
+				for _, item := range list {
+					delete(item.(map[string]any), "company_entity_id")
+				}
+			}
+			diff(t, sc.Name, "state.historical people", got, want)
+		}
+	case "person_employments":
+		for _, item := range state[key].([]any) {
+			r := item.(map[string]any)
+			if people[r["person_id"].(string)] == "" {
+				t.Fatal("employment links a missing person")
+			}
+			if id, ok := r["company_entity_id"].(string); ok && companies[id] != r["company_name"] {
+				t.Fatalf("employment links wrong company: %v", r)
+			}
+		}
+		want := rawGeneric(t, sc.State[key]).([]any)
+		if len(want) > 0 {
+			got := l.walk(state[key], key).([]any)
+			for _, list := range [][]any{got, want} {
+				for _, item := range list {
+					r := item.(map[string]any)
+					delete(r, "company_entity_id")
+					delete(r, "accepted_fields")
+					delete(r, "ended_at")
+				}
+			}
+			diff(t, sc.Name, "state.historical employments", got, want)
+		} else if len(state[key].([]any)) != len(wantPeople) {
+			t.Fatalf("%s: CRM employment count differs from recorded people", sc.Name)
+		}
+	}
+	return true
 }
 
 func sortCalls(c []any) {

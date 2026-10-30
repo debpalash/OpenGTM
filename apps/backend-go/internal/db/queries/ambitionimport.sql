@@ -89,7 +89,7 @@ WHERE id = sqlc.arg(run_id)::text AND workspace_id = sqlc.arg(workspace_id)::tex
 -- name: AICountRows :one
 SELECT count(*)::int AS total,
        count(*) FILTER (WHERE source_provider = 'ambitionbox')::int AS ambitionbox
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: AISetRunOutcome :execrows

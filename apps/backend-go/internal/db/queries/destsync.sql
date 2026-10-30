@@ -73,19 +73,14 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id):
 -- the lead has no membership row any more. Keyset by delivery id.
 -- name: DSExitCandidates :many
 WITH latest AS (
-  SELECT lead_id, max(id) AS delivery_id FROM destination_deliveries
-  WHERE workspace_id = sqlc.arg(workspace_id)::text AND destination_id = sqlc.arg(destination_id)::text AND status = 'success'
-  GROUP BY lead_id
+ SELECT DISTINCT ON (coalesce('person:'||person_entity_id,'company:'||company_entity_id,'lead:'||lead_id::text)) * FROM destination_deliveries
+ WHERE workspace_id=sqlc.arg(workspace_id)::text AND destination_id=sqlc.arg(destination_id)::text AND status='success'
+ ORDER BY coalesce('person:'||person_entity_id,'company:'||company_entity_id,'lead:'||lead_id::text),id DESC
 )
-SELECT d.id, d.lead_id, d.payload
-FROM destination_deliveries d
-JOIN latest l ON d.id = l.delivery_id
-LEFT JOIN audience_members m ON m.workspace_id = sqlc.arg(workspace_id)::text
-  AND m.audience_id = sqlc.arg(audience_id)::text AND m.lead_id = d.lead_id
-WHERE d.workspace_id = sqlc.arg(workspace_id)::text AND d.operation = 'upsert' AND m.id IS NULL
-  AND d.id > sqlc.arg(after_id)::int
-ORDER BY d.id
-LIMIT sqlc.arg(page_limit)::int;
+SELECT d.id,d.lead_id,d.company_entity_id,d.person_entity_id,d.payload
+FROM latest d WHERE d.operation='upsert' AND d.id>sqlc.arg(after_id)::int
+AND NOT EXISTS(SELECT 1 FROM audience_members m WHERE m.workspace_id=sqlc.arg(workspace_id)::text AND m.audience_id=sqlc.arg(audience_id)::text AND (m.lead_id=d.lead_id OR (d.person_entity_id IS NOT NULL AND m.person_entity_id=d.person_entity_id) OR (d.person_entity_id IS NULL AND m.person_entity_id IS NULL AND m.company_entity_id=d.company_entity_id)))
+ORDER BY d.id LIMIT sqlc.arg(page_limit)::int;
 
 -- A removal row that failed (or was cancelled) earlier is queued again where it is: it
 -- keeps its run (as Python does), error cleared.

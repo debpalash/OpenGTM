@@ -279,6 +279,8 @@ func wcrudVolatilePaths(body json.RawMessage) (ids, ts []string) {
 	walk = func(p string, v any) {
 		switch x := v.(type) {
 		case map[string]any:
+			// Canonical subject references extend the legacy response contract.
+			ids = append(ids, p+".company_id", p+".person_id")
 			for k, c := range x {
 				walk(p+"."+k, c)
 			}

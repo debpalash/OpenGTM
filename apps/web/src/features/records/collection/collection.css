@@ -1,0 +1,202 @@
+.record-columns-dialog {
+  width: min(440px, calc(100vw - 24px));
+  max-width: min(440px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
+}
+.record-columns-scroll {
+  min-height: 0;
+  overflow-y: auto;
+}
+.record-columns-meta,
+.record-columns-notice {
+  margin: 0 0 8px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+.record-columns-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.record-columns-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  border-bottom: 1px solid var(--border);
+}
+.record-column-choice {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+  min-height: 36px;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.record-column-choice input {
+  accent-color: var(--primary);
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+.record-column-choice > span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.record-columns-pinned {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.record-columns-pinned svg {
+  width: 12px;
+  height: 12px;
+}
+.record-column-move {
+  display: flex;
+  gap: 2px;
+}
+.record-completeness {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 24px;
+  padding-inline: 2px;
+  border-radius: 4px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+.record-completeness:hover {
+  color: var(--foreground);
+}
+.record-completeness:focus-visible,
+.record-column-choice input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.record-completeness-meter {
+  display: inline-flex;
+  gap: 2px;
+}
+.record-completeness-meter > span {
+  width: 6px;
+  height: 12px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  border-radius: 1px;
+}
+.record-completeness-meter > span[data-present="true"] {
+  background: var(--gtm-accent);
+  border-color: var(--gtm-accent);
+}
+.record-completeness-popover {
+  max-width: calc(100vw - 24px);
+  max-height: min(440px, var(--available-height));
+  overflow-y: auto;
+}
+.record-completeness-popover ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.record-completeness-popover li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-block: 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.75rem;
+}
+.record-completeness-popover li > span:last-child {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+}
+.record-completeness-popover li svg {
+  width: 12px;
+  height: 12px;
+}
+.record-email-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.record-email-state[data-state="verified"] {
+  color: var(--gtm-success);
+}
+.record-email-state[data-state="invalid"] {
+  color: var(--gtm-danger);
+}
+.record-email-state[data-state="risky"] {
+  color: var(--gtm-warning);
+}
+.record-cell-description {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+  color: var(--muted-foreground);
+}
+.record-external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--gtm-link);
+}
+.record-external-link:hover {
+  text-decoration: underline;
+}
+.record-external-link svg {
+  width: 12px;
+  height: 12px;
+}
+.records-two-line > .records-employer {
+  font-size: inherit;
+  color: var(--foreground);
+}
+.record-column-preference-notice {
+  margin: 0;
+  padding: 6px 12px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+@media (pointer: coarse) {
+  .record-column-choice,
+  .record-column-move button,
+  .record-completeness {
+    min-height: 44px;
+  }
+  .record-column-move button {
+    min-width: 44px;
+  }
+  .record-columns-list li {
+    min-height: 48px;
+  }
+}
+@media (max-width: 380px) {
+  .record-columns-dialog {
+    padding: 12px;
+  }
+  .record-column-move {
+    gap: 0;
+  }
+  .record-columns-list li {
+    gap: 4px;
+  }
+}

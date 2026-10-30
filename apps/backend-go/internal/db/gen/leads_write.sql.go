@@ -137,7 +137,7 @@ INSERT INTO leads (
   '',
   ''
 )
-ON CONFLICT (workspace_id, company, city) DO NOTHING
+ON CONFLICT DO NOTHING
 RETURNING id
 `
 

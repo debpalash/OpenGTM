@@ -22,8 +22,37 @@
 }
 
 @media (max-width: 640px) {
-  .gtm-column-settings { width: 100vw; }
-  .gtm-column-settings button, .gtm-column-settings input, .gtm-column-settings select {
+  .gtm-column-settings {
+    width: 100vw;
+  }
+  .gtm-column-settings button,
+  .gtm-column-settings input:not([type="checkbox"]),
+  .gtm-column-settings select {
     min-height: 44px;
   }
+  .gtm-column-settings button {
+    min-width: 44px;
+  }
+  .gtm-column-settings input:not([type="checkbox"]),
+  .gtm-column-settings select,
+  .gtm-column-settings textarea {
+    font-size: 16px;
+  }
+  .gtm-column-settings label:has(input[type="checkbox"]) {
+    min-height: 44px;
+  }
+}
+
+/* All three header actions retain separate targets at the supported 80px minimum. */
+.workbook-column-head[data-narrow="true"] {
+  padding-inline: 0;
+  gap: 0;
+}
+.workbook-column-head[data-narrow="true"] .workbook-column-sort {
+  min-width: 24px;
+  justify-content: center;
+  gap: 0;
+}
+.workbook-column-head[data-narrow="true"] .workbook-column-sort > span {
+  display: none;
 }

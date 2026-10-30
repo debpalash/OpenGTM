@@ -52,12 +52,12 @@ export default function ScraperPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="p-4 border-b border-border space-y-2">
+      <div className="p-3 border-b border-border space-y-2">
         <h2 className="text-sm font-semibold flex items-center gap-2">
           <Globe size={16} className="text-primary" />
           Web Scraper
         </h2>
-        <p className="text-[11px] text-muted-foreground">Extract text, emails, and links from any URL. Uses httpx fast path with Playwright fallback.</p>
+        <p className="text-xs text-muted-foreground">Extract text, emails, and links from any URL. Uses httpx fast path with Playwright fallback.</p>
         <div className="flex gap-2">
           <Input
             value={url}
@@ -66,7 +66,7 @@ export default function ScraperPage() {
             placeholder="https://example.com"
             className="h-9 bg-card font-mono text-xs"
           />
-          <Button onClick={handleScrape} disabled={isLoading} className="h-9 px-4">
+          <Button onClick={handleScrape} disabled={isLoading} className="h-9 px-3">
             {isLoading ? <Loader2 size={14} className="animate-spin mr-1.5" /> : <Globe size={14} className="mr-1.5" />}
             Scrape
           </Button>
@@ -75,7 +75,7 @@ export default function ScraperPage() {
 
       {/* Results */}
       <ScrollArea className="flex-1">
-        <div className="p-4">
+        <div className="p-3">
           {!result && !isLoading && (
             <div className="text-center py-20 text-muted-foreground">
               <Globe className="mx-auto mb-3 opacity-20" size={48} />
@@ -92,24 +92,24 @@ export default function ScraperPage() {
           )}
 
           {result && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {/* Header card */}
               <Card className="p-3">
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-xs font-semibold">{result.title || result.url}</h3>
-                    <a href={result.url} target="_blank" rel="noreferrer" className="text-[10px] text-primary hover:underline flex items-center gap-1 mt-0.5">
+                    <a href={result.url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-0.5">
                       <ExternalLink size={9} /> {result.url}
                     </a>
                   </div>
-                  <Badge variant={result.status === "error" ? "destructive" : "secondary"} className="text-[9px]">
+                  <Badge variant={result.status === "error" ? "destructive" : "secondary"} className="text-xs">
                     {result.status}
                   </Badge>
                 </div>
                 {result.error && <p className="text-xs text-destructive mt-2">{result.error}</p>}
 
                 {/* Stats row */}
-                <div className="flex gap-4 mt-3 text-[10px] text-muted-foreground">
+                <div className="flex gap-3 mt-3 text-xs text-muted-foreground">
                   {result.text && <span><FileText size={10} className="inline mr-1" />{result.text.length.toLocaleString()} chars</span>}
                   {result.emails && <span><Mail size={10} className="inline mr-1" />{result.emails.length} emails</span>}
                   {result.links && <span><Globe size={10} className="inline mr-1" />{result.links.length} links</span>}
@@ -137,7 +137,7 @@ export default function ScraperPage() {
 
               {/* Content */}
               {viewTab === "text" && result.text && (
-                <Card className="p-4 relative">
+                <Card className="p-3 relative">
                   <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => copyText(result.text || "")}>
                     <Copy size={12} />
                   </Button>
@@ -148,7 +148,7 @@ export default function ScraperPage() {
               )}
 
               {viewTab === "markdown" && result.markdown && (
-                <Card className="p-4 relative">
+                <Card className="p-3 relative">
                   <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => copyText(result.markdown || "")}>
                     <Copy size={12} />
                   </Button>
@@ -178,13 +178,13 @@ export default function ScraperPage() {
                 <div className="space-y-1 max-h-[500px] overflow-auto">
                   {result.links.slice(0, 100).map((link, i) => (
                     <Card key={i} className="px-3 py-2">
-                      <a href={link} target="_blank" rel="noreferrer" className="text-[11px] text-primary hover:underline truncate block font-mono">
+                      <a href={link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline truncate block font-mono">
                         {link}
                       </a>
                     </Card>
                   ))}
                   {result.links.length === 0 && <p className="text-xs text-muted-foreground text-center py-8">No links found</p>}
-                  {result.links.length > 100 && <p className="text-[10px] text-muted-foreground text-center py-2">+ {result.links.length - 100} more</p>}
+                  {result.links.length > 100 && <p className="text-xs text-muted-foreground text-center py-2">+ {result.links.length - 100} more</p>}
                 </div>
               )}
             </div>

@@ -11,10 +11,11 @@ import (
 
 // AudienceEvent is one AudienceMembershipEvent row: Type is "entered" or "exited".
 type AudienceEvent struct {
-	ID         int64
-	Type       string
-	AudienceID string
-	LeadID     int64
+	ID                  int64
+	Type                string
+	AudienceID          string
+	LeadID              int64
+	CompanyID, PersonID string
 }
 
 // AudienceEvents is events.emit_audience_membership.
@@ -44,7 +45,7 @@ func (h *hook) AudienceEvents(ctx context.Context, tx pgx.Tx, workspaceID string
 				if len(ids) > 0 && !ids[ev.AudienceID] {
 					continue
 				}
-				targets, err := h.rowTargets(ctx, q, workspaceID, ev.LeadID, scopeList(rule.ScopeWorkbookIds))
+				targets, err := h.subjectTargets(ctx, sp, workspaceID, ev.LeadID, ev.CompanyID, ev.PersonID, scopeList(rule.ScopeWorkbookIds))
 				if err != nil {
 					return 0, err
 				}

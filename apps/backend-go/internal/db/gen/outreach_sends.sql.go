@@ -168,13 +168,37 @@ type OutreachSendGetByIdemParams struct {
 	IdempotencyKey string
 }
 
+type OutreachSendGetByIdemRow struct {
+	ID             int32
+	WorkspaceID    string
+	SequenceID     pgtype.Text
+	EnrollmentID   pgtype.Int4
+	LeadID         pgtype.Int4
+	StepNumber     pgtype.Int4
+	ToEmail        string
+	Subject        pgtype.Text
+	Status         pgtype.Text
+	SkipReason     pgtype.Text
+	MessageID      pgtype.Text
+	IdempotencyKey string
+	ChargedUsd     pgtype.Float8
+	Migrated       pgtype.Bool
+	Error          pgtype.Text
+	SentAt         pgtype.Timestamptz
+	OpenedAt       pgtype.Timestamptz
+	RepliedAt      pgtype.Timestamptz
+	BouncedAt      pgtype.Timestamptz
+	CreatedAt      pgtype.Timestamptz
+	UpdatedAt      pgtype.Timestamptz
+}
+
 // plan 09 task 13: outreach send ledger (outreach_sends) and stats. Every
 // tenant statement runs inside tenancy.InWorkspace (FORCE RLS) and also filters
 // on workspace_id explicitly. OutreachSendLookupAnyWorkspace is the only
 // non-scoped statement: it calls the SECURITY DEFINER routing-tuple function.
-func (q *Queries) OutreachSendGetByIdem(ctx context.Context, arg OutreachSendGetByIdemParams) (OutreachSend, error) {
+func (q *Queries) OutreachSendGetByIdem(ctx context.Context, arg OutreachSendGetByIdemParams) (OutreachSendGetByIdemRow, error) {
 	row := q.db.QueryRow(ctx, outreachSendGetByIdem, arg.WorkspaceID, arg.IdempotencyKey)
-	var i OutreachSend
+	var i OutreachSendGetByIdemRow
 	err := row.Scan(
 		&i.ID,
 		&i.WorkspaceID,

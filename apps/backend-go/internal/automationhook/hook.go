@@ -44,8 +44,9 @@ type Emitter interface {
 // SignalRef is one inserted signal: {signal_pk, signal_type, lead_id} of emit_signal_matches.
 // A nil LeadID is skipped (the signal maps to no workbook row).
 type SignalRef struct {
-	PK, Type string
-	LeadID   *int64
+	PK, Type            string
+	CompanyID, PersonID string
+	LeadID              *int64
 }
 
 // DefaultMaxTargets is INTENT_POLLER_MAX_FIRES_PER_SIGNAL's default (D4 fan-out cap).

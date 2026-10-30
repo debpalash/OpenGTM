@@ -96,8 +96,8 @@ function QuickLookView({ payload }: { payload: QuickLookPayload }) {
     )
   }
   return (
-    <div className="grid gap-5 p-6">
-      <div className="flex items-center gap-4">
+    <div className="grid gap-5 p-4">
+      <div className="flex items-center gap-3">
         <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-[var(--gtm-radius-tile)] bg-[var(--t-background-tertiary)] text-lg font-semibold text-muted-foreground shadow-[var(--gtm-shadow-card)]">
           {payload.domain
             ? <img src={`https://www.google.com/s2/favicons?domain=${encodeURIComponent(payload.domain)}&sz=64`} alt="" className="size-8" />
@@ -190,7 +190,7 @@ export function QuickLookProvider({ children }: { children: ReactNode }) {
         >
           {payload && <>
             <div ref={titleBar} tabIndex={-1} className="flex h-11 items-center gap-2 border-b border-border px-3 outline-none">
-              <span className="rounded-sm bg-[var(--t-background-transparent-medium)] px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">{payload.kind}</span>
+              <span className="rounded-sm bg-[var(--t-background-transparent-medium)] px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{payload.kind}</span>
               <DialogTitle className="min-w-0 flex-1 truncate text-sm font-semibold">{payload.title}</DialogTitle>
               <DialogDescription className="sr-only">Quick Look preview. Use the arrow keys to browse and Space to close.</DialogDescription>
               {payload.actions?.filter(action => action.href.startsWith("/") || safeUrl(action.href)).map(action => (

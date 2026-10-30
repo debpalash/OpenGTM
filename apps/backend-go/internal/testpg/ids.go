@@ -101,7 +101,27 @@ func FreeIDs(t testing.TB, table string, ids ...int64) {
 		t.Fatalf("FreeIDs(%s): connect: %v", table, err)
 	}
 	defer conn.Close(ctx)
-	if _, err := conn.Exec(ctx, `DELETE FROM `+pgx.Identifier{table}.Sanitize()+` WHERE id = ANY($1)`, ids); err != nil {
+	err = pgx.BeginFunc(ctx, conn, func(tx pgx.Tx) error {
+		// Schema-5 adapters retain import identities after a workbook or Lead
+		// is deleted. Recorded fixtures deliberately reuse their literal row
+		// IDs for different companies, so forget only those derived aliases.
+		prefix := ""
+		var sources []string
+		switch table {
+		case "leads":
+			prefix, sources = "lead:", []string{"import:legacy-leads", "provider:legacy", "manual", "migration:leads"}
+		case "workbook_rows":
+			prefix, sources = "row:", []string{"import:workbook", "provider:workbook", "manual", "migration:workbook"}
+		}
+		if prefix != "" {
+			if _, err := tx.Exec(ctx, `DELETE FROM record_external_identities WHERE source=ANY($1::text[]) AND external_id IN (SELECT $2::text||id::text FROM unnest($3::bigint[]) AS id)`, sources, prefix, ids); err != nil {
+				return err
+			}
+		}
+		_, err := tx.Exec(ctx, `DELETE FROM `+pgx.Identifier{table}.Sanitize()+` WHERE id = ANY($1)`, ids)
+		return err
+	})
+	if err != nil {
 		t.Fatalf("FreeIDs(%s): %v", table, err)
 	}
 }

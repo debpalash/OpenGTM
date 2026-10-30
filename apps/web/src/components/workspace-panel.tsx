@@ -46,11 +46,11 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-3 h-9 border-b border-border shrink-0">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Workspaces</span>
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Workspaces</span>
         <Button
           variant="ghost"
           size="sm"
-          className="h-5 w-5 p-0 text-[10px]"
+          className="h-5 w-5 p-0 text-xs"
           onClick={() => setCreating(!creating)}
         >
           +
@@ -65,10 +65,10 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
             placeholder="Workspace name…"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
-            className="h-6 text-[11px] mb-1"
+            className="h-6 text-xs mb-1"
           />
           <div className="flex gap-1">
-            <Button type="submit" size="sm" className="h-5 text-[10px] flex-1" disabled={!newName.trim()}>Create</Button>
+            <Button type="submit" size="sm" className="h-5 text-xs flex-1" disabled={!newName.trim()}>Create</Button>
             <Button type="button" variant="ghost" size="icon-xs" aria-label="Cancel new workspace" onClick={() => setCreating(false)}><X /></Button>
           </div>
         </form>
@@ -79,13 +79,13 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
         <div className="p-1.5 space-y-0.5">
           {/* All workspaces */}
           <button
-            className={`w-full flex items-center justify-between px-2 py-1.5 rounded-md text-left text-[11px] transition-colors ${
+            className={`w-full flex items-center justify-between px-2 py-1.5 rounded-md text-left text-xs transition-colors ${
               activeId === "" ? "bg-accent text-accent-foreground" : "hover:bg-accent/40 text-muted-foreground"
             }`}
             onClick={() => onSelect("")}
           >
             <span className="font-medium">All Leads</span>
-            <Badge variant="secondary" className="text-[9px] h-4 px-1.5">{totalLeads}</Badge>
+            <Badge variant="secondary" className="text-xs h-4 px-1.5">{totalLeads}</Badge>
           </button>
 
           {workspaces.length > 0 && <Separator className="my-1" />}
@@ -99,11 +99,11 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
               onClick={() => onSelect(ws.id)}
             >
               <div className="min-w-0">
-                <div className="text-[11px] font-medium truncate">{ws.name}</div>
-                <div className="text-[9px] text-muted-foreground/60">{ws.job_count} jobs</div>
+                <div className="text-xs font-medium truncate">{ws.name}</div>
+                <div className="text-xs text-muted-foreground/60">{ws.job_count} jobs</div>
               </div>
               <div className="flex items-center gap-1">
-                <Badge variant="secondary" className="text-[9px] h-4 px-1.5">{ws.active_lead_count}</Badge>
+                <Badge variant="secondary" className="text-xs h-4 px-1.5">{ws.active_lead_count}</Badge>
                 <Button
                   type="button"
                   variant="ghost"

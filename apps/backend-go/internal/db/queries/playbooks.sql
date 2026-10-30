@@ -162,7 +162,7 @@ RETURNING id, playbook_id, audience_id, status, prompt_version, max_members, att
           error, started_at, finished_at, created_at;
 
 -- name: PbListResults :many
-SELECT id, run_id, lead_id, status, value, result_metadata::text AS metadata, error, attempts, created_at, updated_at
+SELECT id, run_id, lead_id, company_entity_id,person_entity_id,status, value, result_metadata::text AS metadata, error, attempts, created_at, updated_at
 FROM playbook_results
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND run_id = sqlc.arg(run_id)::text
   AND id > sqlc.arg(after_id)::bigint

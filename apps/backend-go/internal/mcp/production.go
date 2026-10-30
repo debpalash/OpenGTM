@@ -132,11 +132,18 @@ func isoNowUTC() string {
 func (PGLeadPort) Upsert(ctx context.Context, tx pgx.Tx, f LeadFields) (int64, error) {
 	company, _ := f["company"].(string)
 	city, _ := f["city"].(string)
+	if err := leadswrite.LockLegacyKey(ctx, tx, company, city); err != nil {
+		return 0, err
+	}
+	var existing int32
+	err := tx.QueryRow(ctx, `SELECT id FROM leads WHERE workspace_id=current_setting('app.workspace_id',true) AND company=$1 AND city=$2 ORDER BY id LIMIT 1 FOR UPDATE`, company, city).Scan(&existing)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return 0, err
+	}
 	now := isoNowUTC()
 	cols := append([]string{"workspace_id", "company", "city", "created_at", "updated_at"}, upsertColumns...)
 	args := []any{company, city, now, now}
 	ph := []string{"current_setting('app.workspace_id', true)", "$1", "$2", "$3", "$4"}
-	sets := []string{"updated_at = EXCLUDED.updated_at"}
 	for _, c := range upsertColumns {
 		v := leadDefault(c)
 		if s, ok := f[c].(string); ok {
@@ -146,11 +153,21 @@ func (PGLeadPort) Upsert(ctx context.Context, tx pgx.Tx, f LeadFields) (int64, e
 		}
 		args = append(args, v)
 		ph = append(ph, fmt.Sprintf("$%d", len(args)))
-		sets = append(sets, c+" = EXCLUDED."+c)
 	}
 	// Column names come from the fixed list above, never from the caller.
 	q := "INSERT INTO leads (" + strings.Join(cols, ", ") + ") VALUES (" + strings.Join(ph, ", ") + ") " +
-		"ON CONFLICT (workspace_id, company, city) DO UPDATE SET " + strings.Join(sets, ", ") + " RETURNING id"
+		"RETURNING id"
+	if err == nil {
+		// Reuse the bound payload expressions; neither columns nor SQL come from the caller.
+		updates := []string{"updated_at=$1"}
+		updateArgs := []any{now, existing}
+		for i, col := range upsertColumns {
+			updates = append(updates, fmt.Sprintf("%s=$%d", col, i+3))
+			updateArgs = append(updateArgs, args[i+4])
+		}
+		args = updateArgs
+		q = "UPDATE leads SET " + strings.Join(updates, ", ") + " WHERE workspace_id=current_setting('app.workspace_id',true) AND id=$2 RETURNING id"
+	}
 	var id int32
 	if err := tx.QueryRow(ctx, q, args...).Scan(&id); err != nil {
 		return 0, fmt.Errorf("leadport: upsert: %w", err)

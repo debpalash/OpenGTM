@@ -12,7 +12,7 @@ import (
 )
 
 const sWCountRows = `-- name: SWCountRows :one
-SELECT count(*)::bigint FROM workbook_rows
+SELECT count(*)::bigint FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 `
 
@@ -52,7 +52,7 @@ func (q *Queries) SWEnqueueJob(ctx context.Context, arg SWEnqueueJobParams) (int
 }
 
 const sWEntityIDs = `-- name: SWEntityIDs :many
-SELECT DISTINCT canonical_entity_id::text FROM workbook_rows
+SELECT DISTINCT canonical_entity_id::text FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND canonical_entity_id IS NOT NULL
 `
@@ -84,7 +84,7 @@ func (q *Queries) SWEntityIDs(ctx context.Context, arg SWEntityIDsParams) ([]str
 
 const sWFinishWorkbook = `-- name: SWFinishWorkbook :exec
 UPDATE workbooks SET
-  total_rows = (SELECT count(*) FROM workbook_rows r
+  total_rows = (SELECT count(*) FROM record_workbook_rows r
                 WHERE r.workbook_id = $1::text AND r.workspace_id = $2::text),
   status = 'draft',
   source_config = coalesce($3::json, source_config),
@@ -219,7 +219,7 @@ func (q *Queries) SWResetRunning(ctx context.Context, arg SWResetRunningParams) 
 }
 
 const sWRowStats = `-- name: SWRowStats :one
-SELECT count(*)::bigint AS n, coalesce(max(position), 0)::int AS max_pos FROM workbook_rows
+SELECT count(*)::bigint AS n, coalesce(max(position), 0)::int AS max_pos FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 `
 
@@ -241,7 +241,7 @@ func (q *Queries) SWRowStats(ctx context.Context, arg SWRowStatsParams) (SWRowSt
 }
 
 const sWRowsData = `-- name: SWRowsData :many
-SELECT id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 ORDER BY position ASC NULLS LAST, id ASC
 `

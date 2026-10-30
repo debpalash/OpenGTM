@@ -15,7 +15,7 @@ WHERE id = sqlc.arg(id)::text;
 -- Upper id bound and size of the next keyset page of rows.
 SELECT COALESCE(max(id), 0)::int4 AS hi, count(*)::int8 AS n
 FROM (
-    SELECT r.id FROM workbook_rows r
+    SELECT r.id FROM record_workbook_rows r
     WHERE r.workbook_id = sqlc.arg(workbook_id)::text
       AND r.id > sqlc.arg(after)::int4
     ORDER BY r.id
@@ -27,7 +27,7 @@ FROM (
 -- than the column cutoff, for rows in (after, hi]. The overlay key is the
 -- linked lead id, else the row id.
 SELECT r.id::int4 AS row_id, c.cid::text AS column_id
-FROM workbook_rows r
+FROM record_workbook_rows r
 CROSS JOIN LATERAL (
     SELECT (sqlc.arg(cids)::text[])[g] AS cid, g AS ord, (sqlc.arg(cutoffs)::timestamp[])[g] AS cutoff
     FROM generate_series(1, cardinality(sqlc.arg(cids)::text[])) AS g
@@ -75,10 +75,10 @@ WHERE type = 'refresh_workbook' AND status IN ('pending', 'processing')
 LIMIT 1;
 
 -- name: MaxWorkbookRowID :one
-SELECT COALESCE(max(id), 0)::int4 AS max_id FROM workbook_rows WHERE workbook_id = sqlc.arg(workbook_id)::text;
+SELECT COALESCE(max(id), 0)::int4 AS max_id FROM record_workbook_rows WHERE workbook_id = sqlc.arg(workbook_id)::text;
 
 -- name: WorkbookRowsAfter :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND id > sqlc.arg(after_id)::int4
 ORDER BY id;
 

@@ -1,9 +1,12 @@
 import { useMemo } from "react"
+import { Link } from "react-router-dom"
+import { ErrorState, PageHeader } from "@/design-system/patterns/workbench"
+import { relativeTime } from "@/lib/record-overview"
 import {
-  BarChart3, TrendingUp, Users, Mail, Phone, Globe,
+  TrendingUp, Users, Mail, Phone, Globe,
   Link2, Target, Zap, Brain, CheckCircle2,
   ArrowUp, ArrowDown, Activity, Database, Sparkles,
-  Layers, CircleDot, Shield,
+  Layers, Shield,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -18,8 +21,8 @@ import {
 } from "recharts"
 
 // ── Shared ───────────────────────────────────────────────────────
-const TIER_COLORS: Record<string, string> = { hot: "#ef4444", warm: "#f59e0b", cold: "#3b82f6", unqualified: "#6b7280" }
-const STATUS_COLORS: Record<string, string> = { new: "#8b5cf6", contacted: "#3b82f6", qualified: "#10b981", negotiating: "#f59e0b", converted: "#22c55e", dead: "#6b7280" }
+const TIER_COLORS: Record<string, string> = { hot: "var(--gtm-danger)", warm: "var(--gtm-warning)", cold: "var(--gtm-link)", unqualified: "var(--muted-foreground)" }
+const STATUS_COLORS: Record<string, string> = { new: "var(--gtm-chart-purple)", contacted: "var(--gtm-link)", qualified: "var(--gtm-success)", negotiating: "var(--gtm-warning)", converted: "var(--gtm-success)", dead: "var(--muted-foreground)" }
 const tt = { contentStyle: { backgroundColor: "var(--color-popover)", border: "1px solid var(--color-border)", borderRadius: "6px", fontSize: "11px", color: "var(--color-foreground)", boxShadow: "0 4px 12px rgba(0,0,0,.15)" }, cursor: { stroke: "var(--color-muted-foreground)", strokeWidth: 1, strokeDasharray: "4 4" } }
 const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(1)}K` : String(n)
 
@@ -30,7 +33,7 @@ function Metric({ label, value, sub, icon: Icon, color = "text-primary", delta }
   return (
     <div className="group rounded-lg border bg-card p-3 space-y-1 hover:border-primary/20 hover:shadow-sm transition-all duration-200 cursor-default">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider truncate">{label}</span>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">{label}</span>
         <div className={`p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ${color} group-hover:scale-110 transition-transform duration-200`}>
           <Icon className="size-3.5" />
         </div>
@@ -38,13 +41,13 @@ function Metric({ label, value, sub, icon: Icon, color = "text-primary", delta }
       <div className="flex items-baseline gap-1.5">
         <span className="text-xl font-bold tracking-tight tabular-nums">{value}</span>
         {delta !== undefined && delta !== 0 && (
-          <span className={`text-[10px] font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+          <span className={`text-xs font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-emerald-500" : "text-red-400"}`}>
             {delta >= 0 ? <ArrowUp className="size-2.5" /> : <ArrowDown className="size-2.5" />}{delta >= 0 ? "+" : ""}{delta}
-            <span className="text-muted-foreground/60">wk</span>
+            <span className="text-muted-foreground">wk</span>
           </span>
         )}
       </div>
-      {sub && <p className="text-[10px] text-muted-foreground truncate">{sub}</p>}
+      {sub && <p className="text-xs text-muted-foreground truncate">{sub}</p>}
     </div>
   )
 }
@@ -56,10 +59,10 @@ function Panel({ title, icon: Icon, children, className = "", badge }: {
   return (
     <div className={`rounded-lg border bg-card overflow-hidden hover:border-primary/15 transition-colors duration-200 ${className}`}>
       <div className="flex items-center justify-between px-3 py-1.5 border-b bg-muted/20">
-        <span className="text-[11px] font-medium flex items-center gap-1.5 text-muted-foreground">
+        <span className="text-xs font-medium flex items-center gap-1.5 text-muted-foreground">
           <Icon className="size-3" /> {title}
         </span>
-        {badge && <Badge variant="secondary" className="text-[9px] px-1.5 py-0 font-mono tabular-nums">{badge}</Badge>}
+        {badge && <Badge variant="secondary" className="text-xs px-1.5 py-0 font-mono tabular-nums">{badge}</Badge>}
       </div>
       <div className="p-3">{children}</div>
     </div>
@@ -71,8 +74,8 @@ function InlineBar({ label, icon: Icon, count, pct, color = "bg-primary/70" }: {
   label: string; icon: any; count: number; pct: number; color?: string
 }) {
   return (
-    <div className="flex items-center gap-2 text-[11px]">
-      <Icon className="size-3 text-muted-foreground/60 shrink-0" />
+    <div className="flex items-center gap-2 text-xs">
+      <Icon className="size-3 text-muted-foreground shrink-0" />
       <span className="w-16 text-muted-foreground truncate">{label}</span>
       <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
         <div className={`h-full rounded-full ${color} transition-all duration-700`} style={{ width: `${Math.min(pct, 100)}%` }} />
@@ -100,10 +103,10 @@ function GaugeRing({ value, max, label, color }: { value: number; max: number; l
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-sm font-bold tabular-nums leading-none">{pct}%</span>
-          <span className="text-[8px] text-muted-foreground/50">{value}</span>
+          <span className="text-xs text-muted-foreground">{value}</span>
         </div>
       </div>
-      <span className="text-[10px] text-muted-foreground">{label}</span>
+      <span className="text-xs text-muted-foreground">{label}</span>
     </div>
   )
 }
@@ -113,24 +116,34 @@ function GaugeRing({ value, max, label, color }: { value: number; max: number; l
 // ═══════════════════════════════════════════════════════════════
 
 export default function AnalyticsPage() {
-  const { data: overview, isLoading: lo } = useAnalyticsOverview()
-  const { data: pipeline, isLoading: lp } = useAnalyticsPipeline()
-  const { data: collection, isLoading: lc } = useAnalyticsCollection()
-  const { data: enrichment, isLoading: le } = useAnalyticsEnrichment()
-  const { data: llm, isLoading: ll } = useAnalyticsLLM()
+  const overviewQuery = useAnalyticsOverview()
+  const { data: overview, isLoading: lo } = overviewQuery
+  const pipelineQuery = useAnalyticsPipeline()
+  const { data: pipeline, isLoading: lp } = pipelineQuery
+  const collectionQuery = useAnalyticsCollection()
+  const { data: collection, isLoading: lc } = collectionQuery
+  const enrichmentQuery = useAnalyticsEnrichment()
+  const { data: enrichment, isLoading: le } = enrichmentQuery
+  const llmQuery = useAnalyticsLLM()
+  const { data: llm, isLoading: ll } = llmQuery
   const isLoading = lo || lp || lc || le || ll
+  const requests = [overviewQuery,pipelineQuery,collectionQuery,enrichmentQuery,llmQuery]
+  const unavailable = requests.some(query => query.isError && query.data === undefined)
+  const stale = requests.some(query => query.isError)
+  const lastLoaded = Math.min(...requests.map(query => query.dataUpdatedAt).filter(Boolean))
+  const retry = () => { for (const query of requests) void query.refetch() }
 
   // ── Derived data ──
   const funnelData = useMemo(() => {
     if (!pipeline?.statuses) return []
     const order = ["new", "contacted", "qualified", "negotiating", "converted", "dead"]
     return order.filter(s => (pipeline.statuses[s] || 0) > 0)
-      .map(s => ({ status: s.charAt(0).toUpperCase() + s.slice(1), count: pipeline.statuses[s] || 0, fill: STATUS_COLORS[s] || "#6b7280" }))
+      .map(s => ({ status: s.charAt(0).toUpperCase() + s.slice(1), count: pipeline.statuses[s] || 0, fill: STATUS_COLORS[s] || "var(--muted-foreground)" }))
   }, [pipeline])
 
   const tierData = useMemo(() => {
     if (!overview?.tiers) return []
-    return Object.entries(overview.tiers).filter(([, v]) => v > 0).map(([k, v]) => ({ name: k, value: v, fill: TIER_COLORS[k] || "#6b7280" }))
+    return Object.entries(overview.tiers).filter(([, v]) => v > 0).map(([k, v]) => ({ name: k, value: v, fill: TIER_COLORS[k] || "var(--muted-foreground)" }))
   }, [overview])
 
   const scoreDist = useMemo(() => enrichment?.score_distribution?.map(d => ({ range: d.range, count: d.count })) || [], [enrichment])
@@ -146,8 +159,10 @@ export default function AnalyticsPage() {
   const softPct = (pct: number, count: number) => (pct <= 0 && count > 0 ? "<1%" : `${pct}%`)
   const qualifiedCount = (pipeline?.statuses?.["qualified"] || 0) + (pipeline?.statuses?.["converted"] || 0)
 
+  if (unavailable) return <div className="workbench-page"><PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
   if (isLoading) return (
-    <div className="p-4 space-y-3">
+    <div className="p-3 space-y-3">
+      <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." />
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
       </div>
@@ -159,21 +174,20 @@ export default function AnalyticsPage() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="p-4 space-y-3 max-w-[1600px] mx-auto">
+      <div className="p-3 space-y-3 max-w-[1600px] mx-auto">
 
-        {/* ── Row 0: Header strip ── */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BarChart3 className="size-4 text-primary" />
-            <h2 className="text-sm font-semibold">Analytics Dashboard</h2>
-            <Badge variant="outline" className="text-[9px] font-mono">{totalLeads} leads</Badge>
-          </div>
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-            <CircleDot className="size-2.5 text-emerald-500 fill-emerald-500" />
-            Live · {new Date().toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-          </div>
-        </div>
+        <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." actions={<Link to="/overview" className="workbench-text-action">Company & people overview</Link>} />
+        {stale && <div className="overview-notice" role="alert">The latest refresh failed. Showing the last successful data. <button onClick={retry}>Try again</button></div>}
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{stale ? "Last successful load" : "Loaded"} {Number.isFinite(lastLoaded) ? relativeTime(new Date(lastLoaded).toISOString()).toLowerCase() : "time unavailable"}</span></div>
 
+        <details className="analytics-data-tables"><summary>View chart data as tables</summary><div>
+          <AnalyticsTable title="Pipeline stages" columns={["Stage","Leads"]} rows={funnelData.map(row=>[row.status,row.count])}/>
+          <AnalyticsTable title="Score tiers" columns={["Tier","Leads"]} rows={tierData.map(row=>[row.name,row.value])}/>
+          <AnalyticsTable title="Leads collected by day" columns={["Day","Leads"]} rows={collection?.leads_by_day.map(row=>[row.day,row.count])??[]}/>
+          <AnalyticsTable title="Score distribution" columns={["Range","Leads"]} rows={scoreDist.map(row=>[row.range,row.count])}/>
+          <AnalyticsTable title="Jobs and leads by day" columns={["Day","Jobs","Leads","Completed jobs"]} rows={collection?.jobs_by_day.map(row=>[row.day,row.jobs,row.leads,row.completed])??[]}/>
+          <AnalyticsTable title="LLM usage by day" columns={["Day","Tokens","Calls","Providers"]} rows={llm?.by_day.map(row=>[row.day,row.tokens,row.calls,row.providers])??[]}/>
+        </div></details>
         {/* ── Row 1: KPI Metrics (6 tiles) ── */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <Metric label="Total Leads" value={fmt(totalLeads)} icon={Database} delta={overview?.leads_this_week} sub={`${overview?.leads_this_month || 0} this month`} />
@@ -192,9 +206,9 @@ export default function AnalyticsPage() {
             {overview?.enrichment ? (
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">
-                  <GaugeRing value={overview.enrichment.with_email} max={overview.enrichment.total} label="Email" color="#10b981" />
-                  <GaugeRing value={overview.enrichment.with_phone} max={overview.enrichment.total} label="Phone" color="#3b82f6" />
-                  <GaugeRing value={overview.enrichment.with_website} max={overview.enrichment.total} label="Website" color="#8b5cf6" />
+                  <GaugeRing value={overview.enrichment.with_email} max={overview.enrichment.total} label="Email" color="var(--gtm-success)" />
+                  <GaugeRing value={overview.enrichment.with_phone} max={overview.enrichment.total} label="Phone" color="var(--gtm-link)" />
+                  <GaugeRing value={overview.enrichment.with_website} max={overview.enrichment.total} label="Website" color="var(--gtm-chart-purple)" />
                 </div>
                 <div className="space-y-1.5">
                   <InlineBar label="Email" icon={Mail} count={overview.enrichment.with_email} pct={overview.enrichment.email_pct} color="bg-emerald-500/70" />
@@ -206,7 +220,7 @@ export default function AnalyticsPage() {
                 {overview.email_confidence && Object.keys(overview.email_confidence).length > 0 && (
                   <div className="flex flex-wrap gap-1 pt-1 border-t">
                     {Object.entries(overview.email_confidence).map(([k, v]) => (
-                      <Badge key={k} variant={k === "smtp_verified" ? "default" : "secondary"} className="text-[9px] px-1 py-0">
+                      <Badge key={k} variant={k === "smtp_verified" ? "default" : "secondary"} className="text-xs px-1 py-0">
                         {k}: {v}
                       </Badge>
                     ))}
@@ -222,8 +236,8 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={funnelData} layout="vertical" margin={{ left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis type="number" tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
-                  <YAxis dataKey="status" type="category" width={80} tick={{ fontSize: 10, fill: "var(--color-muted-foreground)" }} />
+                  <XAxis type="number" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
+                  <YAxis dataKey="status" type="category" width={80} tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
                   <Tooltip {...tt} />
                   <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                     {funnelData.map((e, i) => <Cell key={i} fill={e.fill} />)}
@@ -236,7 +250,7 @@ export default function AnalyticsPage() {
           {/* Tier Distribution */}
           <Panel title="Score Tiers" icon={Sparkles} className="lg:col-span-4">
             {tierData.length > 0 ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <ResponsiveContainer width="50%" height={160}>
                   <PieChart>
                     <Pie data={tierData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} paddingAngle={3} dataKey="value">
@@ -250,7 +264,7 @@ export default function AnalyticsPage() {
                     const pct = Math.round((t.value / totalLeads) * 100)
                     return (
                       <div key={t.name} className="space-y-0.5">
-                        <div className="flex items-center justify-between text-[11px]">
+                        <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-1.5">
                             <div className="size-2 rounded-full" style={{ backgroundColor: t.fill }} />
                             <span className="capitalize text-muted-foreground">{t.name}</span>
@@ -275,12 +289,12 @@ export default function AnalyticsPage() {
             {collection?.leads_by_day?.length ? (
               <ResponsiveContainer width="100%" height={160}>
                 <AreaChart data={collection.leads_by_day}>
-                  <defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} /><stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} /></linearGradient></defs>
+                  <defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--gtm-chart-purple)" stopOpacity={0.3} /><stop offset="95%" stopColor="var(--gtm-chart-purple)" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="day" tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} />
+                  <XAxis dataKey="day" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
                   <Tooltip {...tt} />
-                  <Area type="monotone" dataKey="count" stroke="#8b5cf6" fillOpacity={1} fill="url(#gl)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="count" stroke="var(--gtm-chart-purple)" fillOpacity={1} fill="url(#gl)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : <Empty />}
@@ -291,10 +305,10 @@ export default function AnalyticsPage() {
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={scoreDist}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="range" tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} />
-                  <YAxis tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} />
+                  <XAxis dataKey="range" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
+                  <YAxis tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
                   <Tooltip {...tt} />
-                  <Bar dataKey="count" fill="#10b981" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="count" fill="var(--gtm-success)" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             ) : <Empty />}
@@ -307,16 +321,16 @@ export default function AnalyticsPage() {
             {enrichment?.by_city?.length ? (
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                 {enrichment.by_city.slice(0, 12).map((c, i) => (
-                  <div key={c.city} className="flex items-center gap-2 text-[11px]">
-                    <span className="w-3 text-muted-foreground/40 tabular-nums">{i + 1}</span>
-                    <span className="w-24 truncate text-muted-foreground">{c.city}</span>
+                  <div key={c.city} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-muted-foreground tabular-nums">{i + 1}</span>
+                    <span className="w-24 truncate text-muted-foreground">{c.city || "Unknown city"}</span>
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-blue-500/60 transition-all duration-500"
                         style={{ width: `${(c.count / (enrichment.by_city[0]?.count || 1)) * 100}%` }} />
                     </div>
                     <span className="w-7 text-right font-medium tabular-nums">{c.count}</span>
-                    <Badge variant="secondary" className="text-[9px] px-1 py-0 w-10 justify-center tabular-nums">
-                      {c.avg_score}
+                    <Badge variant="secondary" className="text-xs px-1 py-0 w-10 justify-center tabular-nums">
+                      {c.avg_score ?? "—"}
                     </Badge>
                   </div>
                 ))}
@@ -328,16 +342,16 @@ export default function AnalyticsPage() {
             {sourceData.length > 0 ? (
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                 {sourceData.map((s, i) => (
-                  <div key={s.source} className="flex items-center gap-2 text-[11px]">
-                    <span className="w-3 text-muted-foreground/40 tabular-nums">{i + 1}</span>
+                  <div key={s.source} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-muted-foreground tabular-nums">{i + 1}</span>
                     <span className="w-28 truncate font-mono text-muted-foreground">{s.source}</span>
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div className="h-full rounded-full bg-amber-500/60 transition-all duration-500"
                         style={{ width: `${(s.count / (sourceData[0]?.count || 1)) * 100}%` }} />
                     </div>
                     <span className="w-7 text-right font-medium tabular-nums">{s.count}</span>
-                    <Badge variant="secondary" className="text-[9px] px-1 py-0 w-10 justify-center tabular-nums">
-                      {s.avg_score}
+                    <Badge variant="secondary" className="text-xs px-1 py-0 w-10 justify-center tabular-nums">
+                      {s.avg_score ?? "—"}
                     </Badge>
                   </div>
                 ))}
@@ -353,12 +367,12 @@ export default function AnalyticsPage() {
             {llm?.by_day?.length ? (
               <ResponsiveContainer width="100%" height={140}>
                 <AreaChart data={llm.by_day}>
-                  <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} /><stop offset="95%" stopColor="#06b6d4" stopOpacity={0} /></linearGradient></defs>
+                  <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--gtm-chart-teal)" stopOpacity={0.3} /><stop offset="95%" stopColor="var(--gtm-chart-teal)" stopOpacity={0} /></linearGradient></defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="day" tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: number) => fmt(v)} />
+                  <XAxis dataKey="day" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: number) => fmt(v)} />
                   <Tooltip {...tt} />
-                  <Area type="monotone" dataKey="tokens" stroke="#06b6d4" fillOpacity={1} fill="url(#gt)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="tokens" stroke="var(--gtm-chart-teal)" fillOpacity={1} fill="url(#gt)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : <Empty />}
@@ -368,10 +382,10 @@ export default function AnalyticsPage() {
             {llm?.by_provider?.length ? (
               <div className="space-y-2">
                 {llm.by_provider.map(p => (
-                  <div key={p.provider} className="flex items-center gap-2 text-[11px]">
+                  <div key={p.provider} className="flex items-center gap-2 text-xs">
                     <span className="flex-1 font-mono truncate text-muted-foreground">{p.provider}</span>
                     <span className="font-medium tabular-nums">{fmt(p.tokens || 0)}</span>
-                    <Badge variant="secondary" className="text-[9px] px-1 py-0 tabular-nums">{p.calls}c</Badge>
+                    <Badge variant="secondary" className="text-xs px-1 py-0 tabular-nums">{p.calls}c</Badge>
                   </div>
                 ))}
               </div>
@@ -385,11 +399,11 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={collection.jobs_by_day}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                <XAxis dataKey="day" tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
-                <YAxis tick={{ fontSize: 9, fill: "var(--color-muted-foreground)" }} />
+                <XAxis dataKey="day" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
                 <Tooltip {...tt} />
-                <Bar dataKey="jobs" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="leads" fill="#10b981" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="jobs" fill="var(--gtm-chart-purple)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="leads" fill="var(--gtm-success)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </Panel>
@@ -404,7 +418,9 @@ function Empty() {
   return (
     <div className="h-20 flex flex-col items-center justify-center gap-1">
       <Database className="size-4 text-muted-foreground/20" />
-      <span className="text-[10px] text-muted-foreground/40">No data available</span>
+      <span className="text-xs text-muted-foreground">No data available</span>
     </div>
   )
 }
+
+function AnalyticsTable({title,columns,rows}:{title:string;columns:string[];rows:(string|number)[][]}) { return <section><h2>{title}</h2>{rows.length?<table><caption className="sr-only">{title}</caption><thead><tr>{columns.map(column=><th scope="col" key={column}>{column}</th>)}</tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((value,column)=><td key={column}>{value}</td>)}</tr>)}</tbody></table>:<p>No series returned.</p>}</section> }

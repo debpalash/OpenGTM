@@ -1,0 +1,38 @@
+{
+  "workspace_id": "f8f0d141-6949-4dfb-a26a-1f444bc466d3",
+  "audience_id": "d9e386ac-543d-4dd9-a5bf-3256fa8bd241",
+  "axe": [
+    {
+      "name": "rotation-review",
+      "violations": []
+    },
+    {
+      "name": "token-preserved-after-history-error",
+      "violations": []
+    },
+    {
+      "name": "copy-failure",
+      "violations": []
+    },
+    {
+      "name": "mobile-dark-rotation-review",
+      "violations": []
+    },
+    {
+      "name": "mobile-dark-token-setup",
+      "violations": []
+    },
+    {
+      "name": "explicit-advertising-consent",
+      "violations": []
+    }
+  ],
+  "rotation_review_cancel_sends_no_mutation": "pass",
+  "rotated_token_is_visible_independently_of_history_failure": "pass",
+  "failed_clipboard_copy_keeps_token_and_close_guard": "pass",
+  "history_retry_never_rotates_or_drops_the_token": "pass",
+  "successful_copy_acknowledges_token_and_allows_close": "pass",
+  "manual_token_storage_acknowledgement_and_mobile_layout": "pass",
+  "advertising_consent_is_explicit_and_scoped_to_review_and_target": "pass",
+  "page_errors": []
+}

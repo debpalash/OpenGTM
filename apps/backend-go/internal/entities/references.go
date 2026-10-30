@@ -248,11 +248,7 @@ func restoreAccounts(ctx context.Context, q *gen.Queries, ws string, undo *OMap,
 
 // repointPeople moves current and historical person associations to kept; returns the undo ids.
 func repointPeople(ctx context.Context, q *gen.Queries, ws, merged, kept string) (*OMap, error) {
-	people, err := q.ListCompanyPersonIDs(ctx, gen.ListCompanyPersonIDsParams{WorkspaceID: ws, CompanyID: merged})
-	if err != nil {
-		return nil, err
-	}
-	emps, err := q.ListCompanyEmploymentIDs(ctx, gen.ListCompanyEmploymentIDsParams{WorkspaceID: ws, CompanyID: merged})
+	undo, err := peopleReferences(ctx, q, ws, merged)
 	if err != nil {
 		return nil, err
 	}
@@ -260,6 +256,18 @@ func repointPeople(ctx context.Context, q *gen.Queries, ws, merged, kept string)
 		return nil, err
 	}
 	if err := q.RepointPersonEmployments(ctx, gen.RepointPersonEmploymentsParams{WorkspaceID: ws, MergedID: merged, KeptID: kept}); err != nil {
+		return nil, err
+	}
+	return undo, nil
+}
+
+func peopleReferences(ctx context.Context, q *gen.Queries, ws, merged string) (*OMap, error) {
+	people, err := q.ListCompanyPersonIDs(ctx, gen.ListCompanyPersonIDsParams{WorkspaceID: ws, CompanyID: merged})
+	if err != nil {
+		return nil, err
+	}
+	emps, err := q.ListCompanyEmploymentIDs(ctx, gen.ListCompanyEmploymentIDsParams{WorkspaceID: ws, CompanyID: merged})
+	if err != nil {
 		return nil, err
 	}
 	undo := NewOMap()

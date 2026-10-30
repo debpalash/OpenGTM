@@ -12,7 +12,7 @@ import (
 )
 
 const getCompanyEntity = `-- name: GetCompanyEntity :one
-SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen FROM company_entities
+SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen, accepted_fields, record_version, record_name_key FROM company_entities
 WHERE id = $1::text AND workspace_id = $2::text
 `
 
@@ -40,13 +40,16 @@ func (q *Queries) GetCompanyEntity(ctx context.Context, arg GetCompanyEntityPara
 		&i.ObservationCount,
 		&i.FirstSeen,
 		&i.LastSeen,
+		&i.AcceptedFields,
+		&i.RecordVersion,
+		&i.RecordNameKey,
 	)
 	return i, err
 }
 
 const listCompanyEntities = `-- name: ListCompanyEntities :many
 
-SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen FROM company_entities
+SELECT id, workspace_id, canonical_name, primary_domain, primary_phone, primary_email, primary_city, identity_keys, fields, sources, source_agreement, corroboration_count, observation_count, first_seen, last_seen, accepted_fields, record_version, record_name_key FROM company_entities
 WHERE workspace_id = $1::text
   AND corroboration_count >= $2::int
 ORDER BY corroboration_count DESC, id
@@ -86,6 +89,9 @@ func (q *Queries) ListCompanyEntities(ctx context.Context, arg ListCompanyEntiti
 			&i.ObservationCount,
 			&i.FirstSeen,
 			&i.LastSeen,
+			&i.AcceptedFields,
+			&i.RecordVersion,
+			&i.RecordNameKey,
 		); err != nil {
 			return nil, err
 		}

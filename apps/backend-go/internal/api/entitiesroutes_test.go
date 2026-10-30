@@ -23,6 +23,20 @@ type entEnv struct{ mcpEnv }
 func newEntEnv(t *testing.T) entEnv {
 	t.Helper()
 	pool := testpg.NewAppPool(t, 4)
+	// Recorded graph fixtures use these workspaces and fixed IDs. Canonical
+	// adapters now create related rows there too; clear children before parents.
+	for _, ws := range []string{"ws-alpha", "ws-beta"} {
+		if err := tenancy.InWorkspace(context.Background(), pool, ws, func(tx pgx.Tx) error {
+			for _, table := range []string{"destination_inbound_receipts", "destination_deliveries", "outreach_sends", "outreach_enrollments", "audience_membership_events", "audience_members", "signals", "watch_subscriptions", "playbook_results", "workbook_rows", "leads", "person_employments", "person_entities", "entity_review_pairs", "entity_merge_log", "company_entities"} {
+				if _, err := tx.Exec(context.Background(), "DELETE FROM "+table+" WHERE workspace_id=$1", ws); err != nil {
+					return err
+				}
+			}
+			return nil
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
 	st := identity.NewStore(pool)
 	r := httpx.NewRouter()
 	r.Use(httpx.RequestID(), audit.Middleware(pool, nil))

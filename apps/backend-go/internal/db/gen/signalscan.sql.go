@@ -218,7 +218,7 @@ func (q *Queries) ScanListWorkspaceIDs(ctx context.Context) ([]string, error) {
 
 const signalRowTargets = `-- name: SignalRowTargets :many
 SELECT r.id::int4 AS row_id, r.workbook_id
-FROM workbook_rows r
+FROM record_workbook_rows r
 JOIN workbooks w ON w.id = r.workbook_id
 WHERE w.workspace_id = $1::text
   AND r.lead_id = $2::int4

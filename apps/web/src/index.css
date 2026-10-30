@@ -4,6 +4,8 @@
 @import "@fontsource/inter/latin-400.css";
 @import "@fontsource/inter/latin-500.css";
 @import "@fontsource/inter/latin-600.css";
+@import "@fontsource/manrope/latin-600.css";
+@import "./design-system/patterns/workbench.css";
 @import "twenty-ui/theme-light.css";
 @import "twenty-ui/theme-dark.css";
 @import "./design-system/theme/tokens.css";
@@ -14,27 +16,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Tailwind's text scale on the macOS HIG ramp, with SF-style optical tracking
- * (tighter as size grows): xs 12 callout · sm 13 body · base 15 title3 ·
- * lg 17 title2 · xl 22 title1 · 2xl 26 large title. */
+/* App typography scales with text zoom; line heights stay proportional. */
 @theme {
-    --text-xs: 12px;
-    --text-xs--line-height: 16px;
+    --text-xs: .75rem;
+    --text-xs--line-height: 1.333333;
     --text-xs--letter-spacing: 0;
-    --text-sm: 13px;
-    --text-sm--line-height: 18px;
+    --text-sm: .875rem;
+    --text-sm--line-height: 1.285714;
     --text-sm--letter-spacing: -0.006em;
-    --text-base: 15px;
-    --text-base--line-height: 20px;
+    --text-base: 1rem;
+    --text-base--line-height: 1.25;
     --text-base--letter-spacing: -0.014em;
-    --text-lg: 17px;
-    --text-lg--line-height: 22px;
+    --text-lg: 1.125rem;
+    --text-lg--line-height: 1.222222;
     --text-lg--letter-spacing: -0.022em;
-    --text-xl: 22px;
-    --text-xl--line-height: 28px;
+    --text-xl: 1.5rem;
+    --text-xl--line-height: 1.166667;
     --text-xl--letter-spacing: -0.02em;
-    --text-2xl: 26px;
-    --text-2xl--line-height: 32px;
+    --text-2xl: 1.625rem;
+    --text-2xl--line-height: 1.230769;
     --text-2xl--letter-spacing: -0.022em;
     --font-mono: var(--gtm-font-mono);
 }
@@ -214,16 +214,6 @@
  * ══════════════════════════════════════════════════════════════════════
  */
 
-/* ── Zebra striping and row hover — transparent token tints ── */
-[data-slot="table-body"] tr:nth-child(even) td,
-tbody tr:nth-child(even) td {
-  background-color: var(--t-background-transparent-lighter);
-}
-[data-slot="table-body"] tr:hover td,
-tbody tr:hover td {
-  background-color: var(--t-background-transparent-light) !important;
-}
-
 /* ── Cell flash — fires when enrichment data arrives ── */
 @keyframes cell-flash-dark {
   0%   { background-color: oklch(0.25 0.12 160); }
@@ -319,364 +309,37 @@ tbody tr:hover td {
   background-size: 200% 100%;
 }
 
-/*
- * ══════════════════════════════════════════════════════════════════════
- *  ACTIVITY DRAWER — Bottom-up collapsible panel for enrichment logs
- * ══════════════════════════════════════════════════════════════════════
- */
+.workbook-column-drag { display:inline-flex; align-items:center; justify-content:center; flex:none; width:24px; height:32px; color:var(--muted-foreground); cursor:grab; border-radius:4px; }
+.workbook-column-sort { display:flex; align-items:center; gap:6px; flex:1; min-width:0; height:32px; text-align:left; }
+.workbook-column-drag:hover,.workbook-column-drag:focus-visible { background:var(--gtm-selection); color:var(--gtm-link); }
 
-/* ── Drawer container ── */
-.activity-drawer {
-  position: relative;
-  overflow: hidden;
-  border-top: 1px solid var(--border);
-  background: var(--card);
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  animation: drawer-slide-up 0.25s ease-out;
-}
+.workbook-grid [data-col-id="_select"] { position:sticky; left:0; z-index:2; background:var(--gtm-surface); }
+.workbook-grid [data-col-id="_index"] { position:sticky; left:36px; z-index:2; background:var(--gtm-surface); }
+.workbook-grid [data-col-id="_identity"] { position:sticky; left:86px; z-index:2; background:var(--gtm-surface); box-shadow:3px 0 6px -5px var(--gtm-border-control); }
+.workbook-grid thead [data-col-id] { background:var(--muted); }
+.workbook-grid [data-col-id="_identity"] { padding-inline:12px; }
+.workbook-record-identity { display:flex; justify-content:center; flex-direction:column; min-height:36px; gap:2px; overflow:hidden; }
+.workbook-record-identity strong { font-size:.8125rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.workbook-record-identity span { color:var(--muted-foreground); font-size:.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-@keyframes drawer-slide-up {
-  from { opacity: 0; max-height: 0; }
-  to   { opacity: 1; max-height: 400px; }
-}
+.workbook-grid .gtm-checkbox-target input { width:24px; height:24px; }
 
-/* ── Resize handle ── */
-.activity-drawer-resize {
-  height: 6px;
-  cursor: ns-resize;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.activity-drawer:hover .activity-drawer-resize {
-  opacity: 1;
-}
-.activity-drawer-resize-bar {
-  width: 36px;
-  height: 3px;
-  border-radius: 3px;
-  background: var(--muted-foreground);
-  opacity: 0.3;
-}
+.analytics-data-tables { font-size:.8125rem; padding:12px 16px; border:1px solid var(--border); border-radius:8px; }
+.analytics-data-tables summary { cursor:pointer; min-height:24px; color:var(--gtm-link); }
+.analytics-data-tables>div { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:24px; margin-top:20px; }
+.analytics-data-tables h2 { font-size:.875rem; font-weight:600; margin-bottom:12px; }
+.analytics-data-tables table { width:100%; border-collapse:collapse; text-align:left; }
+.analytics-data-tables th,.analytics-data-tables td { padding:8px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+.analytics-data-tables th,.analytics-data-tables p { color:var(--muted-foreground); font-weight:400; }
 
-/* ── Tab bar ── */
-.activity-drawer-tabs {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  height: 32px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  gap: 8px;
-}
-.activity-drawer-tab-list {
-  display: flex;
-  gap: 2px;
-}
-.activity-drawer-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--muted-foreground);
-  border-radius: 4px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.activity-drawer-tab:hover {
-  background: var(--accent);
-  color: var(--foreground);
-}
-.activity-drawer-tab.active {
-  background: var(--accent);
-  color: var(--foreground);
-  font-weight: 600;
-}
-.activity-drawer-badge-error {
-  font-size: 9px;
-  padding: 1px 5px;
-  border-radius: 8px;
-  background: oklch(0.55 0.22 27 / 0.15);
-  color: oklch(0.65 0.20 25);
-  font-weight: 600;
-  line-height: 1;
-}
-
-/* ── Tab actions area ── */
-.activity-drawer-tab-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.activity-drawer-filter {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  background: var(--muted);
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-.activity-drawer-filter-input {
-  font-size: 11px;
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--foreground);
-  width: 120px;
-}
-.activity-drawer-filter-input::placeholder {
-  color: var(--muted-foreground);
-}
-.activity-drawer-clear,
-.activity-drawer-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 4px;
-  border: none;
-  background: none;
-  color: var(--muted-foreground);
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.activity-drawer-clear:hover,
-.activity-drawer-close:hover {
-  background: var(--accent);
-  color: var(--foreground);
-}
-
-/* ── Content area ── */
-.activity-drawer-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-/* ── Empty state ── */
-.activity-drawer-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted-foreground);
-  opacity: 0.6;
-}
-
-/* ── Live feed ── */
-.activity-drawer-feed {
-  padding: 4px 8px;
-}
-
-.activity-event {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 8px;
-  font-size: 11px;
-  border-radius: 4px;
-  transition: background 0.15s;
-  animation: event-slide-in 0.2s ease-out;
-}
-.activity-event:hover {
-  background: var(--accent);
-}
-
-@keyframes event-slide-in {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.activity-event-time {
-  font-family: var(--font-mono, monospace);
-  font-size: 9px;
-  color: var(--muted-foreground);
-  opacity: 0.5;
-  width: 60px;
-  flex-shrink: 0;
-}
-.activity-event-icon {
-  flex-shrink: 0;
-  width: 14px;
-  display: flex;
-  align-items: center;
-}
-.activity-event-company {
-  font-weight: 500;
-  color: var(--foreground);
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.activity-event-column {
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 3px;
-  background: var(--muted);
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
-.activity-event-provider {
-  font-size: 9px;
-  padding: 1px 5px;
-  border-radius: 3px;
-  border: 1px solid var(--border);
-  color: var(--muted-foreground);
-  opacity: 0.7;
-  flex-shrink: 0;
-}
-.activity-event-value {
-  font-size: 10px;
-  color: oklch(0.70 0.14 160);
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  min-width: 0;
-}
-.activity-event-error {
-  font-size: 10px;
-  color: oklch(0.65 0.20 25);
-  max-width: 250px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Error row highlight */
-.activity-event.enrich_error {
-  background: oklch(0.55 0.22 27 / 0.06);
-}
-.activity-event.enrich_error:hover {
-  background: oklch(0.55 0.22 27 / 0.10);
-}
-
-/* ── Columns tab ── */
-.activity-drawer-columns {
-  padding: 8px;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 6px;
-}
-.activity-col-card {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--background);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.activity-col-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.activity-col-name {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--foreground);
-}
-.activity-col-provider {
-  font-size: 9px;
-  color: var(--muted-foreground);
-  opacity: 0.6;
-}
-.activity-col-bar {
-  height: 4px;
-  border-radius: 4px;
-  background: var(--muted);
-  overflow: hidden;
-  position: relative;
-}
-.activity-col-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  background: oklch(0.60 0.18 160);
-  transition: width 0.4s ease;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-.activity-col-bar-error {
-  height: 100%;
-  border-radius: 4px;
-  background: oklch(0.55 0.20 25);
-  transition: width 0.4s ease;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.activity-col-stats {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 10px;
-}
-.activity-col-stats span {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-/* ── Trigger button (inline in status bar) ── */
-.activity-drawer-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 8px;
-  font-size: 11px;
-  color: var(--muted-foreground);
-  border: none;
-  background: none;
-  cursor: pointer;
-  transition: all 0.15s;
-  border-left: 1px solid var(--border);
-  height: 100%;
-}
-.activity-drawer-trigger:hover {
-  color: var(--foreground);
-  background: var(--accent);
-}
-
-/* ── Light theme adjustments ── */
-:root:not(.dark) .activity-event-value {
-  color: oklch(0.40 0.14 160);
-}
-:root:not(.dark) .activity-event-error {
-  color: oklch(0.45 0.20 25);
-}
-:root:not(.dark) .activity-col-bar-fill {
-  background: oklch(0.50 0.18 160);
-}
-:root:not(.dark) .activity-col-bar-error {
-  background: oklch(0.50 0.20 25);
-}
-:root:not(.dark) .activity-drawer-badge-error {
-  background: oklch(0.55 0.22 27 / 0.10);
-  color: oklch(0.50 0.22 25);
+/* Workstation density keeps controls readable and leaves room for the data. */
+.workbook-record-identity { min-height:32px; gap:0; }
+.workbook-record-identity strong { line-height:16px; }
+.workbook-record-identity span { line-height:14px; }
+.workbook-grid tbody>tr>td { height:32px; }
+@media(pointer:coarse) {
+ [data-slot=button],[data-slot=input],select { min-height:44px; }
+ [role=menuitem],[role=menuitemradio],[role=menuitemcheckbox] { min-height:44px; }
+ [data-sidebar=menu-button] { min-height:44px; height:auto; }
+ .gtm-notification-trigger { width:44px; height:44px; }
 }

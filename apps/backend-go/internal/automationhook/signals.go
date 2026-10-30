@@ -42,14 +42,14 @@ func (h *hook) signals(ctx context.Context, tx pgx.Tx, workspaceID string, sigs 
 	}
 	n := 0
 	for _, sig := range sigs {
-		if sig.LeadID == nil {
+		if sig.LeadID == nil && sig.CompanyID == "" && sig.PersonID == "" {
 			continue
 		}
 		for _, r := range rules {
 			if len(r.wanted) > 0 && !r.wanted[sig.Type] {
 				continue
 			}
-			targets, err := h.rowTargets(ctx, q, workspaceID, *sig.LeadID, r.scope)
+			targets, err := h.subjectTargets(ctx, tx, workspaceID, signalLeadID(sig), sig.CompanyID, sig.PersonID, r.scope)
 			if err != nil {
 				return 0, err
 			}
@@ -80,4 +80,31 @@ func (h *hook) rowTargets(ctx context.Context, q *gen.Queries, ws string, leadID
 		out[i] = target{WorkbookID: r.WorkbookID, RowID: strconv.FormatInt(int64(r.RowID), 10)}
 	}
 	return out, nil
+}
+
+func signalLeadID(s SignalRef) int64 {
+	if s.LeadID == nil {
+		return 0
+	}
+	return *s.LeadID
+}
+func (h *hook) subjectTargets(ctx context.Context, tx pgx.Tx, ws string, leadID int64, cid, pid string, scope []string) ([]target, error) {
+	if cid == "" && pid == "" {
+		return h.rowTargets(ctx, gen.New(tx), ws, leadID, scope)
+	}
+	rows, e := tx.Query(ctx, `SELECT workbook_id,id FROM record_workbook_rows WHERE workspace_id=$1 AND (($3<>'' AND person_entity_id=$3) OR ($3='' AND company_entity_id=$2)) AND (cardinality($4::text[])=0 OR workbook_id=ANY($4::text[])) ORDER BY id LIMIT $5`, ws, cid, pid, scope, h.maxTargets)
+	if e != nil {
+		return nil, e
+	}
+	defer rows.Close()
+	out := []target{}
+	for rows.Next() {
+		var w string
+		var id int64
+		if e = rows.Scan(&w, &id); e != nil {
+			return nil, e
+		}
+		out = append(out, target{WorkbookID: w, RowID: strconv.FormatInt(id, 10)})
+	}
+	return out, rows.Err()
 }

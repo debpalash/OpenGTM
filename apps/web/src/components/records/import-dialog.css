@@ -1,0 +1,261 @@
+.record-import-dialog {
+  width: calc(100vw - 32px);
+  max-width: 760px !important;
+  max-height: calc(100dvh - 48px);
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden;
+  display: flex !important;
+  flex-direction: column;
+}
+.record-import-dialog > [data-slot="dialog-header"] {
+  padding: 24px 24px 20px;
+}
+.record-import-steps {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.record-import-steps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-import-steps li > span {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--muted);
+  border: 1px solid var(--border);
+}
+.record-import-steps svg {
+  width: 16px;
+  height: 16px;
+}
+.record-import-steps [aria-current] {
+  color: var(--gtm-link);
+  font-weight: 600;
+}
+.record-import-steps [aria-current] > span {
+  background: var(--gtm-accent);
+  color: var(--gtm-accent-foreground);
+  border-color: transparent;
+}
+.record-import-steps [data-complete="true"] {
+  color: var(--gtm-success);
+}
+.record-import-body {
+  padding: 24px;
+  overflow: auto;
+  min-height: 0;
+}
+.record-import-dropzone {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px dashed var(--gtm-border-control);
+  border-radius: 12px;
+  padding: 28px 20px;
+  cursor: pointer;
+  text-align: center;
+}
+.record-import-dropzone:hover {
+  background: var(--gtm-canvas);
+}
+.record-import-dropzone:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+}
+.record-import-dropzone > svg {
+  width: 32px;
+  height: 32px;
+  color: var(--gtm-link);
+}
+.record-import-dropzone strong {
+  font-size: 0.875rem;
+  word-break: break-word;
+}
+.record-import-dropzone > span {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-import-dropzone > span:last-of-type {
+  border: 1px solid var(--gtm-border-control);
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: var(--foreground);
+}
+.record-import-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 24px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.record-import-field small,
+.record-import-hint {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  line-height: 1.6;
+  font-weight: 400;
+}
+.record-import-hint {
+  margin-top: 16px;
+}
+.record-import-section {
+  margin-bottom: 20px;
+}
+.record-import-section h2,
+.record-import-result-title h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.record-import-section p,
+.record-import-result-title p {
+  color: var(--muted-foreground);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+.record-import-result-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.record-import-result-title > svg {
+  width: 28px;
+  height: 28px;
+  color: var(--gtm-success);
+  flex: none;
+}
+.record-import-totals {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 24px;
+}
+.record-import-totals > div {
+  padding: 16px;
+}
+.record-import-totals > div + div {
+  border-left: 1px solid var(--border);
+}
+.record-import-totals dt {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.record-import-totals dd {
+  font-family: var(--gtm-font-display);
+  font-size: 1.5rem;
+  margin-top: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.record-import-warning,
+.record-import-error {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--gtm-warning);
+  background: var(--gtm-warning-surface);
+}
+.record-import-error {
+  color: var(--gtm-danger);
+  background: var(--gtm-danger-surface);
+}
+.record-import-errors {
+  max-height: 160px;
+  overflow: auto;
+  margin: 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 0.75rem;
+  color: var(--gtm-danger);
+  line-height: 1.8;
+}
+.record-import-recovery {
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.8125rem;
+}
+.record-import-recovery p {
+  margin: 6px 0 12px;
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+}
+.record-import-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+.record-import-footer > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.record-import-footer > span svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.record-import-footer > div {
+  display: flex;
+  gap: 8px;
+  flex: none;
+}
+@media (max-width: 600px) {
+  .record-import-dialog {
+    width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  .record-import-body {
+    flex: 1;
+    padding: 20px 16px;
+  }
+  .record-import-dialog > [data-slot="dialog-header"] {
+    padding: 24px 16px 20px;
+  }
+  .record-import-steps {
+    padding-inline: 16px;
+    gap: 8px;
+  }
+  .record-import-steps li {
+    gap: 4px;
+    flex-direction: column;
+  }
+  .record-import-footer {
+    flex-wrap: wrap;
+    padding: 16px;
+  }
+  .record-import-footer > div {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .record-import-totals > div {
+    padding: 12px;
+  }
+}

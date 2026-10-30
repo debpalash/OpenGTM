@@ -1,3 +1,6 @@
+import { validateDestinationCatalog } from "@/features/activation/destination-catalog"
+import { validateAnalytics } from "./analytics-contract"
+import { validateDestinationList } from "@/features/activation/destination-client"
 import { getToken, getActiveWorkspace } from "./auth"
 
 const API_BASE = ""
@@ -91,8 +94,8 @@ export interface Audience {
   consecutive_refresh_failures: number
 }
 
-export async function fetchAudiences(): Promise<Audience[]> {
-  const res = await fetch(`${API_BASE}/api/audiences`)
+export async function fetchAudiences(signal?: AbortSignal): Promise<Audience[]> {
+  const res = await fetch(`${API_BASE}/api/audiences`, {signal})
   if (!res.ok) throw new Error(`Could not load audiences (${res.status})`)
   return res.json()
 }
@@ -125,8 +128,10 @@ export async function updateAudience(id: string, data: Partial<Pick<Audience, "n
 
 export interface AudienceMember {
   id: number
-  lead_id: number
-  snapshot: Partial<Lead>
+  lead_id: number | null
+  company_id?: string | null
+  person_id?: string | null
+  snapshot: Partial<Lead> & Record<string, unknown>
   joined_at: string
   last_seen_at: string
 }
@@ -134,20 +139,22 @@ export interface AudienceMember {
 export interface AudienceMembershipEvent {
   id: number
   audience_id: string
-  lead_id: number
+  lead_id: number | null
+  company_id?: string | null
+  person_id?: string | null
   event_type: "entered" | "exited"
-  snapshot: Partial<Lead>
+  snapshot: Partial<Lead> & Record<string, unknown>
   created_at: string
 }
 
-export async function fetchAudienceMembers(id: string): Promise<AudienceMember[]> {
-  const res = await fetch(`${API_BASE}/api/audiences/${id}/members`)
+export async function fetchAudienceMembers(id: string, offset=0, signal?:AbortSignal): Promise<AudienceMember[]> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}/members?limit=100&offset=${offset}`,{signal})
   if (!res.ok) throw new Error(`Could not load audience members (${res.status})`)
   return res.json()
 }
 
-export async function fetchAudienceEvents(id: string): Promise<AudienceMembershipEvent[]> {
-  const res = await fetch(`${API_BASE}/api/audiences/${id}/events`)
+export async function fetchAudienceEvents(id: string, signal?:AbortSignal): Promise<AudienceMembershipEvent[]> {
+  const res = await fetch(`${API_BASE}/api/audiences/${id}/events?limit=100`,{signal})
   if (!res.ok) throw new Error(`Could not load audience activity (${res.status})`)
   return res.json()
 }
@@ -205,13 +212,13 @@ export interface DestinationType {
 export async function fetchDestinationTypes(): Promise<DestinationType[]> {
   const res = await fetch(`${API_BASE}/api/audience-destinations/types`)
   if (!res.ok) throw new Error(`Could not load destination types (${res.status})`)
-  return (await res.json()).types
+  return validateDestinationCatalog(await res.json())
 }
 
-export async function fetchAudienceDestinations(audienceId: string): Promise<AudienceDestination[]> {
-  const res = await fetch(`${API_BASE}/api/audience-destinations?audience_id=${encodeURIComponent(audienceId)}`)
+export async function fetchAudienceDestinations(audienceId: string, signal?:AbortSignal): Promise<AudienceDestination[]> {
+  const res = await fetch(`${API_BASE}/api/audience-destinations?audience_id=${encodeURIComponent(audienceId)}`,{signal})
   if (!res.ok) throw new Error(`Could not load destinations (${res.status})`)
-  return res.json()
+  return validateDestinationList(await res.json(),audienceId)
 }
 
 export async function createAudienceDestination(data: {
@@ -799,20 +806,35 @@ export interface AnalyticsLLM {
   total_calls: number
 }
 
-export const fetchAnalyticsOverview = (): Promise<AnalyticsOverview> =>
-  fetch(`${API_BASE}/api/analytics/overview`).then(r => r.json())
+export async function fetchAnalyticsOverview(signal?: AbortSignal): Promise<AnalyticsOverview> {
+ const value=await jsonOrThrow<AnalyticsOverview>(await fetch(`${API_BASE}/api/analytics/overview`,{signal}))
+ validateAnalytics("overview",value)
+ return value
+}
 
-export const fetchAnalyticsPipeline = (): Promise<AnalyticsPipeline> =>
-  fetch(`${API_BASE}/api/analytics/pipeline`).then(r => r.json())
+export async function fetchAnalyticsPipeline(signal?: AbortSignal): Promise<AnalyticsPipeline> {
+ const value=await jsonOrThrow<AnalyticsPipeline>(await fetch(`${API_BASE}/api/analytics/pipeline`,{signal}))
+ validateAnalytics("pipeline",value)
+ return value
+}
 
-export const fetchAnalyticsCollection = (): Promise<AnalyticsCollection> =>
-  fetch(`${API_BASE}/api/analytics/collection`).then(r => r.json())
+export async function fetchAnalyticsCollection(signal?: AbortSignal): Promise<AnalyticsCollection> {
+ const value=await jsonOrThrow<AnalyticsCollection>(await fetch(`${API_BASE}/api/analytics/collection`,{signal}))
+ validateAnalytics("collection",value)
+ return value
+}
 
-export const fetchAnalyticsEnrichment = (): Promise<AnalyticsEnrichment> =>
-  fetch(`${API_BASE}/api/analytics/enrichment`).then(r => r.json())
+export async function fetchAnalyticsEnrichment(signal?: AbortSignal): Promise<AnalyticsEnrichment> {
+ const value=await jsonOrThrow<AnalyticsEnrichment>(await fetch(`${API_BASE}/api/analytics/enrichment`,{signal}))
+ validateAnalytics("enrichment",value)
+ return value
+}
 
-export const fetchAnalyticsLLM = (): Promise<AnalyticsLLM> =>
-  fetch(`${API_BASE}/api/analytics/llm`).then(r => r.json())
+export async function fetchAnalyticsLLM(signal?: AbortSignal): Promise<AnalyticsLLM> {
+ const value=await jsonOrThrow<AnalyticsLLM>(await fetch(`${API_BASE}/api/analytics/llm`,{signal}))
+ validateAnalytics("llm",value)
+ return value
+}
 
 // ════════════════════════════════════════════════════════════════════════════
 // GTM Automation UI — Outreach · Automations · Watches + meta (role/flags)

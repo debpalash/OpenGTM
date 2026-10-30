@@ -20,19 +20,19 @@ SELECT status FROM playbook_runs
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND id = sqlc.arg(id)::text;
 
 -- name: PbEngMembers :many
-SELECT lead_id, snapshot::text AS snapshot
+SELECT lead_id, company_entity_id,person_entity_id,snapshot::text AS snapshot
 FROM audience_members
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND audience_id = sqlc.arg(audience_id)::text
-ORDER BY lead_id
+ORDER BY lead_id,id
 LIMIT sqlc.arg(row_limit)::int;
 
 -- A result already success yields no row (skipped on retry); otherwise it turns
 -- running with attempts + 1 and a cleared error.
 -- name: PbEngBeginResult :one
-INSERT INTO playbook_results (workspace_id, run_id, lead_id, status, value, result_metadata, attempts, created_at, updated_at)
-VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(run_id)::text, sqlc.arg(lead_id)::int, 'running', '', '{}', 1,
+INSERT INTO playbook_results (workspace_id, run_id, lead_id, company_entity_id,person_entity_id,subject_key,status, value, result_metadata, attempts, created_at, updated_at)
+VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(run_id)::text, sqlc.narg(lead_id)::int,sqlc.narg(company_id)::text,sqlc.narg(person_id)::text,sqlc.arg(subject_key)::text, 'running', '', '{}', 1,
         (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
-ON CONFLICT (workspace_id, run_id, lead_id) DO UPDATE
+ON CONFLICT (workspace_id, run_id, subject_key) DO UPDATE
 SET status = 'running', attempts = playbook_results.attempts + 1, error = NULL, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE playbook_results.status <> 'success'
 RETURNING id, attempts;

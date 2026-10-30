@@ -6,7 +6,7 @@
 -- name: MaxWorkbookRowPosition :one
 -- `max(position) or 0` of add_rows.
 SELECT coalesce(max("position"), 0)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text;
 
 -- name: AppendWorkbookRows :many
@@ -34,7 +34,7 @@ WHERE id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)
 -- name: LockWorkbookRows :many
 -- Rows of one workbook by id, locked in id order (no lost updates, no deadlocks
 -- between concurrent bulk patches). Missing / foreign ids are simply absent.
-SELECT id, data FROM workbook_rows
+SELECT id, data FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND id = ANY(sqlc.arg(row_ids)::bigint[])
 ORDER BY id
 FOR UPDATE;
@@ -42,14 +42,14 @@ FOR UPDATE;
 -- name: PatchWorkbookRowsData :execrows
 -- Set data for several rows of one workbook in a single statement.
 UPDATE workbook_rows AS r
-SET data = u.d::json, updated_at = (now() AT TIME ZONE 'utc')
+SET data = opengtm_record_merge_data(r.data,u.d::json), updated_at = (now() AT TIME ZONE 'utc')
 FROM (SELECT a.id, b.d FROM
         (SELECT v AS id, ord FROM unnest(sqlc.arg(row_ids)::bigint[]) WITH ORDINALITY AS x(v, ord)) AS a
         JOIN (SELECT v AS d, ord FROM unnest(sqlc.arg(datas)::text[]) WITH ORDINALITY AS y(v, ord)) AS b USING (ord)) AS u
 WHERE r.workbook_id = sqlc.arg(workbook_id)::text AND r.id = u.id;
 
 -- name: ExistingWorkbookRowIDs :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND id = ANY(sqlc.arg(row_ids)::bigint[])
 ORDER BY id;
 

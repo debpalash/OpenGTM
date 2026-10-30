@@ -45,7 +45,7 @@ func (q *Queries) DestDeliveriesFailOpen(ctx context.Context, arg DestDeliveries
 }
 
 const destDeliveriesList = `-- name: DestDeliveriesList :many
-SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload FROM destination_deliveries
+SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key FROM destination_deliveries
 WHERE workspace_id = $1::text AND run_id = $2::text
   AND ($3::text IS NULL OR status = $3::text)
   AND ($4::int IS NULL OR id > $4::int)
@@ -94,6 +94,9 @@ func (q *Queries) DestDeliveriesList(ctx context.Context, arg DestDeliveriesList
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Payload,
+			&i.PersonEntityID,
+			&i.CompanyEntityID,
+			&i.SubjectKey,
 		); err != nil {
 			return nil, err
 		}
@@ -123,7 +126,7 @@ func (q *Queries) DestDeliveriesResetInFlight(ctx context.Context, arg DestDeliv
 }
 
 const destDeliveryByKey = `-- name: DestDeliveryByKey :one
-SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload FROM destination_deliveries
+SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key FROM destination_deliveries
 WHERE workspace_id = $1::text AND idempotency_key = $2::text
 `
 
@@ -153,6 +156,9 @@ func (q *Queries) DestDeliveryByKey(ctx context.Context, arg DestDeliveryByKeyPa
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Payload,
+		&i.PersonEntityID,
+		&i.CompanyEntityID,
+		&i.SubjectKey,
 	)
 	return i, err
 }
@@ -200,7 +206,7 @@ UPDATE destination_deliveries SET status = $1::text, summary = $2::text,
   delivered_at = CASE WHEN $5::boolean THEN (now() AT TIME ZONE 'UTC') ELSE delivered_at END,
   updated_at = (now() AT TIME ZONE 'UTC')
 WHERE workspace_id = $6::text AND id = $7::int
-RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload
+RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key
 `
 
 type DestDeliverySettleParams struct {
@@ -242,6 +248,9 @@ func (q *Queries) DestDeliverySettle(ctx context.Context, arg DestDeliverySettle
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Payload,
+		&i.PersonEntityID,
+		&i.CompanyEntityID,
+		&i.SubjectKey,
 	)
 	return i, err
 }
@@ -273,24 +282,27 @@ func (q *Queries) DestDeliveryTotals(ctx context.Context, arg DestDeliveryTotals
 }
 
 const destDeliveryUpsert = `-- name: DestDeliveryUpsert :one
-INSERT INTO destination_deliveries (workspace_id, run_id, destination_id, lead_id, operation, idempotency_key,
+INSERT INTO destination_deliveries (workspace_id, run_id, destination_id, lead_id, company_entity_id,person_entity_id,subject_key, operation, idempotency_key,
                                     payload_fingerprint, payload, status, attempts, summary)
-VALUES ($1::text, $2::text, $3::text, $4::int,
-        $5::text, $6::text, $7::text,
-        $8::json, $9::text, $10::int, $11::text)
+VALUES ($1::text, $2::text, $3::text, $4::int,$5::text,$6::text,$7::text,
+        $8::text, $9::text, $10::text,
+        $11::json, $12::text, $13::int, $14::text)
 ON CONFLICT (workspace_id, idempotency_key) DO UPDATE SET
   run_id = EXCLUDED.run_id, status = EXCLUDED.status, error = NULL, payload = EXCLUDED.payload,
   attempts = destination_deliveries.attempts + EXCLUDED.attempts,
   summary = coalesce(EXCLUDED.summary, destination_deliveries.summary), updated_at = (now() AT TIME ZONE 'UTC')
 WHERE destination_deliveries.status <> 'success'
-RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, (xmax = 0) AS inserted
+RETURNING id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key, (xmax = 0) AS inserted
 `
 
 type DestDeliveryUpsertParams struct {
 	WorkspaceID        string
 	RunID              string
 	DestinationID      string
-	LeadID             int32
+	LeadID             pgtype.Int4
+	CompanyID          pgtype.Text
+	PersonID           pgtype.Text
+	SubjectKey         pgtype.Text
 	Operation          string
 	IdempotencyKey     string
 	PayloadFingerprint string
@@ -305,7 +317,7 @@ type DestDeliveryUpsertRow struct {
 	WorkspaceID        string
 	RunID              string
 	DestinationID      string
-	LeadID             int32
+	LeadID             pgtype.Int4
 	Operation          string
 	IdempotencyKey     string
 	PayloadFingerprint string
@@ -318,6 +330,9 @@ type DestDeliveryUpsertRow struct {
 	CreatedAt          pgtype.Timestamp
 	UpdatedAt          pgtype.Timestamp
 	Payload            []byte
+	PersonEntityID     pgtype.Text
+	CompanyEntityID    pgtype.Text
+	SubjectKey         pgtype.Text
 	Inserted           bool
 }
 
@@ -331,6 +346,9 @@ func (q *Queries) DestDeliveryUpsert(ctx context.Context, arg DestDeliveryUpsert
 		arg.RunID,
 		arg.DestinationID,
 		arg.LeadID,
+		arg.CompanyID,
+		arg.PersonID,
+		arg.SubjectKey,
 		arg.Operation,
 		arg.IdempotencyKey,
 		arg.PayloadFingerprint,
@@ -358,13 +376,16 @@ func (q *Queries) DestDeliveryUpsert(ctx context.Context, arg DestDeliveryUpsert
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Payload,
+		&i.PersonEntityID,
+		&i.CompanyEntityID,
+		&i.SubjectKey,
 		&i.Inserted,
 	)
 	return i, err
 }
 
 const destRecentFailures = `-- name: DestRecentFailures :many
-SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload FROM destination_deliveries
+SELECT id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key FROM destination_deliveries
 WHERE workspace_id = $1::text AND destination_id = $2::text
   AND status = 'failed'
 ORDER BY updated_at DESC, id DESC
@@ -404,6 +425,9 @@ func (q *Queries) DestRecentFailures(ctx context.Context, arg DestRecentFailures
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Payload,
+			&i.PersonEntityID,
+			&i.CompanyEntityID,
+			&i.SubjectKey,
 		); err != nil {
 			return nil, err
 		}

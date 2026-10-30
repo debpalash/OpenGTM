@@ -141,7 +141,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
   const [workspaceName, setWorkspaceName] = useState("")
   const [setupToken, setSetupToken] = useState("")
 
-  const from = (location.state as { from?: string } | null)?.from ?? "/chat"
+  const from = (location.state as { from?: string } | null)?.from ?? "/overview"
   const copy = COPY[mode]
   const ModeIcon = copy.icon
 
@@ -167,7 +167,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
       setBusy(true)
       try {
         await completeSetup({ username: username.trim(), password, workspaceName: workspaceName.trim(), setupToken: setupToken.trim() })
-        navigate("/chat", { replace: true })
+        navigate("/overview", { replace: true })
       } catch (err) {
         setError(err instanceof Error ? err.message : "Setup failed")
         // 409: another visitor finished setup first; hand over to the sign-in page.
@@ -213,7 +213,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
         </svg>
         <LoginScene />
 
-        <header className="relative z-10 flex items-center justify-between gap-4 px-6 pt-6 sm:px-12 sm:pt-8">
+        <header className="relative z-10 flex items-center justify-between gap-3 px-4 pt-6 sm:px-12 sm:pt-8">
           <div className="flex items-center gap-3">
             <span className="flex size-11 items-center justify-center rounded-[var(--t-border-radius-lg)] bg-[#1d1d1f] shadow-[0_1px_2px_rgb(0_0_0/0.2),0_6px_16px_rgb(0_0_0/0.12)]">
               <img src="/opengtm-mark-v8.svg" alt="" aria-hidden="true" className="size-7 object-contain" />
@@ -222,11 +222,11 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </div>
           <nav aria-label="OpenGTM on the web" className="flex items-center gap-2">
             <a href={`https://github.com/${GITHUB_REPO}`} target="_blank" rel="noreferrer"
-              aria-label={stars === null ? "Star OpenGTM on GitHub" : `Star OpenGTM on GitHub, ${stars} stars`}
               className="flex h-9 items-center gap-2 rounded-full bg-white/80 pr-1 pl-3 text-[13px] font-medium text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
               <GitHubMark className="size-4" />
               <span>Star</span>
               <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] tabular-nums [corner-shape:round]">{stars === null ? "GitHub" : formatStars(stars)}</span>
+              <span className="sr-only">OpenGTM on GitHub (opens in a new tab)</span>
             </a>
             {X_URL && (
               <a href={X_URL} target="_blank" rel="noreferrer" aria-label="OpenGTM on X"
@@ -237,9 +237,9 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </nav>
         </header>
 
-        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-4 py-10">
+        <section className="pointer-events-none relative z-10 flex flex-1 items-center justify-center px-3 py-10">
           <div className="gtm-launch pointer-events-auto w-full max-w-[400px]">
-            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-6 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
+            <div className="gtm-login-card relative rounded-[var(--gtm-radius-card)] border border-white/80 px-4 pt-8 pb-7 shadow-[var(--gtm-shadow-window)] backdrop-blur-xl sm:px-8">
               <div className="gtm-login-texture" aria-hidden="true" />
               <div className="relative">
                 <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-[var(--gtm-radius-tile)] bg-white text-[#1d1d1f] shadow-[0_0_0_0.5px_rgb(0_0_0/0.06),0_4px_12px_rgb(0_0_0/0.08)]">
@@ -343,7 +343,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
           </div>
         </section>
 
-        <footer className="relative z-10 px-6 pb-5 text-center text-[11px] text-[#1d1d1f]/55 sm:px-12">
+        <footer className="relative z-10 px-4 pb-5 text-center text-xs text-[#1d1d1f]/55 sm:px-12">
           Inspired by{" "}
           <a href="https://dribbble.com/BagasPrayogo" target="_blank" rel="noreferrer" className="underline decoration-current/30 underline-offset-2 hover:text-[#1d1d1f]">Bagas Prayogo</a>
           {" "}(sign-in design) and{" "}

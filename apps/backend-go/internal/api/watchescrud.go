@@ -291,6 +291,17 @@ func parseWatchCreate(obj *wbcrud.Obj) (in watchsvc.CreateInput, leadErr error, 
 	} else {
 		in.Target = s
 	}
+	for key, dst := range map[string]**string{"company_id": &in.CompanyID, "person_id": &in.PersonID} {
+		if v, ok := obj.Get(key); ok && v != nil {
+			if value, e := watchStr(v, at(key)); e != nil {
+				add(e)
+			} else if len(value) > 128 {
+				errs = append(errs, watchFE("string_too_long", "Record ID is too long", at(key), v))
+			} else {
+				*dst = &value
+			}
+		}
+	}
 	if v, ok := obj.Get("lead_id"); ok && v != nil {
 		if n, e := watchInt(v, at("lead_id")); e != nil {
 			add(e)
@@ -366,6 +377,17 @@ func parseWatchPatch(obj *wbcrud.Obj) (in watchsvc.PatchInput, leadErr error, er
 		errs = append(errs, e...)
 		if len(e) == 0 {
 			in.SignalTypes = &l
+		}
+	}
+	for key, dst := range map[string]**string{"company_id": &in.CompanyID, "person_id": &in.PersonID} {
+		if v, ok := obj.Get(key); ok && v != nil {
+			if value, e := watchStr(v, at(key)); e != nil {
+				add(e)
+			} else if len(value) > 128 {
+				errs = append(errs, watchFE("string_too_long", "Record ID is too long", at(key), v))
+			} else {
+				*dst = &value
+			}
 		}
 	}
 	if v, ok := obj.Get("lead_id"); ok && v != nil {

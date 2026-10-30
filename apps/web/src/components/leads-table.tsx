@@ -90,17 +90,17 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
     <Table>
       <TableHeader>
         <TableRow className="border-border/50 hover:bg-transparent">
-          <TableHead className="w-14 text-[10px] h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Score</TableHead>
-          <TableHead className="text-[10px] h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Company</TableHead>
-          <TableHead className="text-[10px] h-8 w-20 font-semibold uppercase tracking-wider text-muted-foreground/60">City</TableHead>
-          <TableHead className="text-[10px] h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Email</TableHead>
-          <TableHead className="text-[10px] h-8 w-28 font-semibold uppercase tracking-wider text-muted-foreground/60">Phone</TableHead>
-          <TableHead className="text-[10px] h-8 w-14 font-semibold uppercase tracking-wider text-muted-foreground/60">Live</TableHead>
-          <TableHead className="text-[10px] h-8 w-20 font-semibold uppercase tracking-wider text-muted-foreground/60">Signals</TableHead>
-          <TableHead className="text-[10px] h-8 w-24 font-semibold uppercase tracking-wider text-muted-foreground/60">Source</TableHead>
-          <TableHead className="text-[10px] h-8 w-24 font-semibold uppercase tracking-wider text-muted-foreground/60">Status</TableHead>
-          <TableHead className="text-[10px] h-8 w-14 font-semibold uppercase tracking-wider text-muted-foreground/60">Age</TableHead>
-          <TableHead className="text-[10px] h-8 w-8" />
+          <TableHead className="w-14 text-xs h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Score</TableHead>
+          <TableHead className="text-xs h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Company</TableHead>
+          <TableHead className="text-xs h-8 w-20 font-semibold uppercase tracking-wider text-muted-foreground/60">City</TableHead>
+          <TableHead className="text-xs h-8 font-semibold uppercase tracking-wider text-muted-foreground/60">Email</TableHead>
+          <TableHead className="text-xs h-8 w-28 font-semibold uppercase tracking-wider text-muted-foreground/60">Phone</TableHead>
+          <TableHead className="text-xs h-8 w-14 font-semibold uppercase tracking-wider text-muted-foreground/60">Live</TableHead>
+          <TableHead className="text-xs h-8 w-20 font-semibold uppercase tracking-wider text-muted-foreground/60">Signals</TableHead>
+          <TableHead className="text-xs h-8 w-24 font-semibold uppercase tracking-wider text-muted-foreground/60">Source</TableHead>
+          <TableHead className="text-xs h-8 w-24 font-semibold uppercase tracking-wider text-muted-foreground/60">Status</TableHead>
+          <TableHead className="text-xs h-8 w-14 font-semibold uppercase tracking-wider text-muted-foreground/60">Age</TableHead>
+          <TableHead className="text-xs h-8 w-8" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -147,7 +147,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5 px-3">
                 <Tooltip>
                   <TooltipTrigger>
-                    <div className={`inline-flex items-center justify-center w-8 h-5 rounded-md text-[11px] font-bold font-mono ${ts.bg} ${ts.text} ${ts.glow || ""}`}>
+                    <div className={`inline-flex items-center justify-center w-8 h-5 rounded-md text-xs font-bold font-mono ${ts.bg} ${ts.text} ${ts.glow || ""}`}>
                       {lead.score}
                     </div>
                   </TooltipTrigger>
@@ -159,10 +159,10 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5 text-[12px] font-medium truncate max-w-52 text-foreground/90">{lead.company}</TableCell>
 
               {/* City */}
-              <TableCell className="py-0.5 text-[11px] text-muted-foreground truncate">{lead.city || <EmptyCell />}</TableCell>
+              <TableCell className="py-0.5 text-xs text-muted-foreground truncate">{lead.city || <EmptyCell />}</TableCell>
 
               {/* Email */}
-              <TableCell className="py-0.5 text-[11px] truncate max-w-40">
+              <TableCell className="py-0.5 text-xs truncate max-w-40">
                 {lead.email && lead.email !== "N/A" ? (
                   <button
                     className="text-primary hover:underline text-left truncate block max-w-full"
@@ -174,7 +174,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               </TableCell>
 
               {/* Phone */}
-              <TableCell className="py-0.5 text-[11px] text-muted-foreground truncate font-mono">
+              <TableCell className="py-0.5 text-xs text-muted-foreground truncate font-mono">
                 {lead.phone && lead.phone !== "N/A" ? lead.phone : <EmptyCell />}
               </TableCell>
 
@@ -202,13 +202,13 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5">
                 {lead.source.startsWith("job:") ? (
                   <button
-                    className="text-[10px] text-primary/60 hover:text-primary font-mono truncate block max-w-20 hover:underline"
+                    className="text-xs text-primary/60 hover:text-primary font-mono truncate block max-w-20 hover:underline"
                     onClick={(e) => { e.stopPropagation(); navigate(`/pipeline/${lead.source.replace('job:', '')}`) }}
                   >
                     {lead.source.slice(0, 12)}
                   </button>
                 ) : (
-                  <span className="text-[10px] text-muted-foreground/40 font-mono truncate block max-w-20">
+                  <span className="text-xs text-muted-foreground/40 font-mono truncate block max-w-20">
                     {lead.source}
                   </span>
                 )}
@@ -216,13 +216,13 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
 
               {/* Status */}
               <TableCell className="py-0.5">
-                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 capitalize ${STATUS_STYLES[lead.status] ?? ""}`}>
+                <Badge variant="outline" className={`text-xs px-1.5 py-0 capitalize ${STATUS_STYLES[lead.status] ?? ""}`}>
                   {lead.status}
                 </Badge>
               </TableCell>
 
               {/* Age */}
-              <TableCell className="py-0.5 text-[10px] text-muted-foreground/40 font-mono">
+              <TableCell className="py-0.5 text-xs text-muted-foreground/40 font-mono">
                 {timeAgo(lead.created_at)}
               </TableCell>
 
@@ -230,7 +230,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
               <TableCell className="py-0.5 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger>
-                    <span className="inline-flex items-center justify-center rounded-md h-5 w-5 text-[10px] text-muted-foreground hover:bg-muted transition-colors cursor-pointer">⋯</span>
+                    <span className="inline-flex items-center justify-center rounded-md h-5 w-5 text-xs text-muted-foreground hover:bg-muted transition-colors cursor-pointer">⋯</span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-36">
                     {STATUSES.map((s) => (

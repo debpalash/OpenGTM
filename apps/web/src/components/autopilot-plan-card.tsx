@@ -26,7 +26,7 @@ export function AutopilotPlanCard({ plan }: { plan: AutopilotPlan }) {
         <Bot className="size-4 text-rose-400 shrink-0" />
         <span className="text-sm font-medium text-rose-300">Autopilot plan</span>
         {plan.estimated_rows ? (
-          <span className="ml-auto text-[11px] text-muted-foreground">~{plan.estimated_rows} companies</span>
+          <span className="ml-auto text-xs text-muted-foreground">~{plan.estimated_rows} companies</span>
         ) : null}
       </div>
       {plan.goal && (
@@ -35,12 +35,12 @@ export function AutopilotPlanCard({ plan }: { plan: AutopilotPlan }) {
       <ol className="px-3.5 py-2.5 space-y-1.5">
         {steps.map((s, i) => (
           <li key={i} className="flex items-start gap-2.5 text-sm">
-            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-500/15 text-rose-300 text-[11px] font-medium mt-0.5">
+            <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-rose-500/15 text-rose-300 text-xs font-medium mt-0.5">
               {i + 1}
             </span>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-rose-400/70">
+                <span className="text-xs uppercase tracking-wider text-rose-400/70">
                   {KIND_LABEL[s.kind] ?? s.kind}
                 </span>
               </div>
@@ -49,7 +49,7 @@ export function AutopilotPlanCard({ plan }: { plan: AutopilotPlan }) {
           </li>
         ))}
       </ol>
-      <div className="px-3.5 pb-2.5 flex items-center gap-1.5 text-[11px] text-muted-foreground/70">
+      <div className="px-3.5 pb-2.5 flex items-center gap-1.5 text-xs text-muted-foreground/70">
         <ArrowRight className="size-3" />
         Approve to build the workbook and start sourcing + enrichment.
       </div>

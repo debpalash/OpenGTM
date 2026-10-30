@@ -143,14 +143,14 @@ export default function SignalsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold flex items-center gap-2">
+          <h1 tabIndex={-1} data-page-title className="text-base font-semibold flex items-center gap-2">
             <Activity className="size-4" />
             Signal Monitor
-          </h2>
+          </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
             Buying signals detected from your leads — hiring, funding, growth, and more.
           </p>
@@ -168,22 +168,22 @@ export default function SignalsPage() {
 
       <Separator />
 
-      {!!sources.length && <div className="flex flex-wrap items-center gap-2"><span className="text-[11px] font-medium text-muted-foreground">Sources</span>{sources.map(source => <Badge key={source.id} variant={source.maturity === "supported" ? "default" : "secondary"} title={source.signal_types.join(", ")}>{source.id.replaceAll("_", " ")} · {source.maturity}</Badge>)}</div>}
+      {!!sources.length && <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium text-muted-foreground">Sources</span>{sources.map(source => <Badge key={source.id} variant={source.maturity === "supported" ? "default" : "secondary"} title={source.signal_types.join(", ")}>{source.id.replaceAll("_", " ")} · {source.maturity}</Badge>)}</div>}
 
       {analytics && <div className="space-y-3">
-        <div className="flex items-center justify-between"><div><h3 className="text-sm font-medium">Signal momentum</h3><p className="text-[11px] text-muted-foreground">Weighted intent activity and the accounts creating it.</p></div><Select value={period} onValueChange={value => setPeriod(value || "30")}><SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="7">7 days</SelectItem><SelectItem value="30">30 days</SelectItem><SelectItem value="90">90 days</SelectItem></SelectContent></Select></div>
+        <div className="flex items-center justify-between"><div><h2 className="text-sm font-medium">Signal momentum</h2><p className="text-xs text-muted-foreground">Weighted intent activity and the accounts creating it.</p></div><Select value={period} onValueChange={value => setPeriod(value || "30")}><SelectTrigger aria-label="Signal history period" className="h-8 w-28 text-xs"><SelectValue>{period} days</SelectValue></SelectTrigger><SelectContent><SelectItem value="7">7 days</SelectItem><SelectItem value="30">30 days</SelectItem><SelectItem value="90">90 days</SelectItem></SelectContent></Select></div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{[
           ["Signals", analytics.summary.total.toLocaleString()], ["Weighted intent", analytics.summary.weighted_score.toLocaleString()], ["Active accounts", analytics.summary.active_accounts.toLocaleString()], ["Momentum", analytics.summary.momentum_pct === null ? "New" : `${analytics.summary.momentum_pct >= 0 ? "+" : ""}${analytics.summary.momentum_pct}%`],
-        ].map(([label, value]) => <Card key={label}><CardContent className="p-3"><p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p></CardContent></Card>)}</div>
+        ].map(([label, value]) => <Card key={label}><CardContent className="p-3"><p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p><p className="mt-1 text-xl font-semibold">{value}</p></CardContent></Card>)}</div>
         <div className="grid gap-3 lg:grid-cols-[1.5fr_1fr]">
           <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Daily weighted intent</CardTitle></CardHeader><CardContent className="h-48 p-2"><ResponsiveContainer width="100%" height="100%"><AreaChart data={analytics.trend}><defs><linearGradient id="signalWeight" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--primary)" stopOpacity={0.35}/><stop offset="95%" stopColor="var(--primary)" stopOpacity={0}/></linearGradient></defs><CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2}/><XAxis dataKey="date" tickFormatter={value => value.slice(5)} tick={{ fontSize: 10 }} minTickGap={24}/><YAxis tick={{ fontSize: 10 }} width={28}/><Tooltip /><Area type="monotone" dataKey="weight" stroke="var(--primary)" fill="url(#signalWeight)" /></AreaChart></ResponsiveContainer></CardContent></Card>
           <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Intent by type</CardTitle></CardHeader><CardContent className="h-48 p-2"><ResponsiveContainer width="100%" height="100%"><BarChart data={analytics.by_type} layout="vertical"><XAxis type="number" hide/><YAxis type="category" dataKey="signal_type" width={85} tick={{ fontSize: 10 }}/><Tooltip /><Bar dataKey="weight" fill="var(--primary)" radius={[0, 3, 3, 0]} /></BarChart></ResponsiveContainer></CardContent></Card>
         </div>
-        {!!analytics.top_accounts.length && <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Accounts with rising intent</CardTitle></CardHeader><CardContent className="grid gap-2 p-3 sm:grid-cols-2 lg:grid-cols-5">{analytics.top_accounts.slice(0, 5).map((account, index) => <a key={account.lead_id} href={`/leads/${account.lead_id}`} className="rounded-md border p-2 hover:bg-muted/50"><p className="truncate text-xs font-medium">{index + 1}. {account.company}</p><p className="mt-1 text-[10px] text-muted-foreground">{account.count} signals · {account.weight} intent</p></a>)}</CardContent></Card>}
+        {!!analytics.top_accounts.length && <Card><CardHeader className="pb-1"><CardTitle className="text-xs">Accounts with rising intent</CardTitle></CardHeader><CardContent className="grid gap-2 p-3 sm:grid-cols-2 lg:grid-cols-5">{analytics.top_accounts.slice(0, 5).map((account, index) => <a key={account.lead_id} href={`/leads/${account.lead_id}`} className="rounded-md border p-2 hover:bg-muted/50"><p className="truncate text-xs font-medium">{index + 1}. {account.company}</p><p className="mt-1 text-xs text-muted-foreground">{account.count} signals · {account.weight} intent</p></a>)}</CardContent></Card>}
       </div>}
 
       {/* Stats */}
-      <div className="flex items-center gap-4 text-xs">
+      <div className="flex items-center gap-3 text-xs">
         <span className="flex items-center gap-1.5 text-muted-foreground">
           <Bell className="size-3" />
           <span className="font-medium text-foreground">{counts.unread || 0}</span> unread
@@ -193,9 +193,9 @@ export default function SignalsPage() {
         </span>
         <div className="ml-auto">
           <Select value={filter} onValueChange={(v) => setFilter(v ?? "all")}>
-            <SelectTrigger className="w-[140px] h-7 text-xs">
+            <SelectTrigger aria-label="Signal type" className="w-[140px] h-8 text-xs">
               <Filter className="size-3 mr-1" />
-              <SelectValue />
+              <SelectValue>{filter==="all"?"All types":filter.replaceAll("_"," ")}</SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All types</SelectItem>
@@ -216,7 +216,7 @@ export default function SignalsPage() {
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Activity className="size-10 text-muted-foreground/20 mb-4" />
           <p className="text-sm text-muted-foreground mb-1">No signals detected yet</p>
-          <p className="text-xs text-muted-foreground/60 mb-4 max-w-xs">
+          <p className="text-xs text-muted-foreground mb-4 max-w-xs">
             Run a scan to detect hiring activity, funding rounds, and growth signals from your hot leads.
           </p>
           <Button size="sm" onClick={runScan} disabled={scanning} className="gap-1">
@@ -247,11 +247,11 @@ export default function SignalsPage() {
                     )}
                   </div>
                   {signal.description && (
-                    <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2">
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
                       {signal.description}
                     </p>
                   )}
-                  <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground/60">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
                     <span>{signal.company}</span>
                     <span>{signal.source}</span>
                     {signal.source_url && (

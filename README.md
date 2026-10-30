@@ -22,10 +22,10 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: light)" srcset="docs/assets/opengtm-workbench-preview-light.png" />
-    <img src="docs/assets/opengtm-workbench-preview.png" alt="OpenGTM dashboard workbench design preview with a compact company table, qualification scores and data completeness" width="1120" />
+    <img src="docs/assets/opengtm-workbench-preview.png" alt="OpenGTM dashboard workbench with a compact company table, qualification scores and data completeness" width="1120" />
   </picture>
 </p>
-<p align="center"><em>Dashboard workbench design preview · in development · fictional demo data</em></p>
+<p align="center"><em>Dashboard workbench · available in source builds from main · fictional demo data</em></p>
 
 Give OpenGTM a market, a list, or a workbook. It finds companies and people,
 enriches rows through cost-ordered provider waterfalls, researches hard questions
@@ -37,9 +37,11 @@ third-party calls use keys you choose. A zero-key demo is included.
 
 ## See the workbench
 
-The dashboard redesign is in development on the native Go backend. These
-recordings show the latest local workbench preview; they are not a promise that
-every preview feature is included in the current release.
+The dashboard workbench runs on the native Go backend, with separate Companies
+and People, shared record history, Clay/CSV import mapping, and compact workspace
+navigation. Switch Light, Dark, System, and UI scale directly in the account menu.
+These recordings use fictional demo data. Build from `main` for this dashboard;
+published release tags may contain an earlier UI.
 
 <details open>
 <summary><strong>Companies, People and connected employment</strong> · 11-second demo</summary>

@@ -28,7 +28,7 @@ func (q *Queries) SourceIngestDeleteRows(ctx context.Context, arg SourceIngestDe
 
 const sourceIngestExistingRows = `-- name: SourceIngestExistingRows :many
 SELECT id, source_record_id::text AS source_record_id, data::text AS data, source_rank, source_fetched_at
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND source_provider = $3::text AND source_record_id IS NOT NULL
 `
@@ -121,7 +121,7 @@ func (q *Queries) SourceIngestLock(ctx context.Context, lockKey string) error {
 
 const sourceIngestMaxPosition = `-- name: SourceIngestMaxPosition :one
 SELECT coalesce(max("position"), -1)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 `
 

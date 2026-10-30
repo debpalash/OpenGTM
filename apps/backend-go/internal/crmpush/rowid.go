@@ -28,7 +28,7 @@ func StoreRowCRMID(ctx context.Context, pool *pgxpool.Pool, ws, workbookID strin
 	stored := false
 	err := tenancy.InWorkspace(ctx, pool, ws, func(tx pgx.Tx) error {
 		rows, err := tx.Query(ctx,
-			`SELECT id, data::text FROM workbook_rows
+			`SELECT id, data::text FROM record_workbook_rows
 			 WHERE workspace_id = $1 AND workbook_id = $2 AND (lead_id = $3 OR id = $3)
 			 ORDER BY id
 			 FOR UPDATE`, ws, workbookID, leadID)

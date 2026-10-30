@@ -27,7 +27,7 @@ func emitEvents(ctx context.Context, pool *pgxpool.Pool, ws, audienceID, refresh
 				return fmt.Errorf("audiencerefresh: read events: %w", err)
 			}
 			for _, r := range rows {
-				evs = append(evs, MembershipEvent{ID: int64(r.ID), Type: r.EventType, AudienceID: audienceID, LeadID: int64(r.LeadID)})
+				evs = append(evs, MembershipEvent{ID: int64(r.ID), Type: r.EventType, CompanyID: r.CompanyEntityID.String, PersonID: r.PersonEntityID.String, AudienceID: audienceID, LeadID: int64(r.LeadID.Int32)})
 			}
 			if len(evs) == 0 {
 				return nil

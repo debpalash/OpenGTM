@@ -130,7 +130,7 @@ export function LeadPicker({ open, onOpenChange, onConfirm, pending }: LeadPicke
               disabled={rows.length === 0}
               aria-label="Select all visible leads"
             />
-            <Label htmlFor="lp-select-all" className="text-[11px] text-muted-foreground">
+            <Label htmlFor="lp-select-all" className="text-xs text-muted-foreground">
               {selected.size > 0 ? `${selected.size} selected` : "Select all"}
             </Label>
           </div>
@@ -160,12 +160,12 @@ export function LeadPicker({ open, onOpenChange, onConfirm, pending }: LeadPicke
                         <span className="block truncate text-xs font-medium">
                           {l.company || "(no company)"}
                           {l.score_tier && (
-                            <span className="ml-1.5 text-[10px] capitalize text-muted-foreground">
+                            <span className="ml-1.5 text-xs capitalize text-muted-foreground">
                               {l.score_tier}
                             </span>
                           )}
                         </span>
-                        <span className="block truncate text-[11px] text-muted-foreground">
+                        <span className="block truncate text-xs text-muted-foreground">
                           {l.email}
                         </span>
                       </Label>

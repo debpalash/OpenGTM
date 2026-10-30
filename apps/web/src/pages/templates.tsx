@@ -124,9 +124,9 @@ export default function TemplatesPage() {
   const categories = gallery?.categories || {}
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-4 max-w-6xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Template Gallery</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -177,7 +177,7 @@ export default function TemplatesPage() {
 
       {/* Loading */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} className="rounded-xl border bg-card p-5 animate-pulse">
               <div className="h-5 w-40 bg-muted rounded mb-3" />
@@ -202,7 +202,7 @@ export default function TemplatesPage() {
 
       {/* Recipe Grid */}
       {!loading && recipes.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {recipes.map(r => {
             const Icon = RECIPE_ICONS[r.icon] || LayoutTemplate
             const catLabel = categories[r.category]?.label || r.category
@@ -216,7 +216,7 @@ export default function TemplatesPage() {
                   <div className="p-2 rounded-lg bg-primary/10">
                     <Icon className="size-4 text-primary" />
                   </div>
-                  <span className={`inline-flex items-center gap-1 text-[10px] font-medium ${catColor}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-medium ${catColor}`}>
                     {catLabel}
                   </span>
                 </div>
@@ -228,13 +228,13 @@ export default function TemplatesPage() {
 
                 {/* Column mix */}
                 <div className="flex items-center gap-1 flex-wrap mb-4">
-                  <span className="text-[10px] text-muted-foreground mr-1">
+                  <span className="text-xs text-muted-foreground mr-1">
                     {r.columns_count} columns
                   </span>
                   {Object.entries(r.column_types)
                     .filter(([t]) => t !== "lead_field")
                     .map(([t, n]) => (
-                      <Badge key={t} variant="secondary" className="text-[10px] px-1.5 py-0">
+                      <Badge key={t} variant="secondary" className="text-xs px-1.5 py-0">
                         {n}× {TYPE_LABELS[t] || t}
                       </Badge>
                     ))}

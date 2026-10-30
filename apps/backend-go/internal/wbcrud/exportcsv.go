@@ -247,7 +247,7 @@ func (q RowQuery) selectSQL(cols string, ids []int64) (string, []any) {
 		args = append(args, ids)
 		where = append(where, "id = ANY($"+strconv.Itoa(len(args))+"::bigint[])")
 	}
-	return "SELECT " + cols + " FROM workbook_rows WHERE " + strings.Join(where, " AND ") + " ORDER BY " + q.orderBy(), args
+	return "SELECT " + cols + " FROM record_workbook_rows WHERE " + strings.Join(where, " AND ") + " ORDER BY " + q.orderBy(), args
 }
 
 // exportCell is the value of one column in one row: lead_field and input

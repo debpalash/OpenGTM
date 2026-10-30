@@ -2,7 +2,7 @@ import { type FormEvent, useEffect, useRef, useState } from "react"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
-  MoreHorizontal, Search, Settings, SquarePen, Sun, SunMoon, Trash2,
+  MoreHorizontal, Search, Settings, SquarePen, Sun, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -13,12 +13,15 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger,
+  DropdownMenuRadioGroup, DropdownMenuRadioItem,
+  DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
 import { useConversations, useJobs } from "@/lib/hooks"
 import { useAuth } from "@/lib/auth-context"
-import { useTheme } from "@/design-system/theme/use-theme"
+import { useTheme, type ThemePreference } from "@/design-system/theme/use-theme"
+import { useUIScale, type UIScalePreference } from "@/design-system/theme/use-ui-scale"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
 import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
@@ -37,9 +40,11 @@ export function AppSidebar() {
   const { data: conversations } = useConversations()
   const { user, workspaces, activeWorkspaceId, switchWorkspace, logout } = useAuth()
   const { preference, setPreference } = useTheme()
+  const uiScale = useUIScale()
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
   const [historyOpen, setHistoryOpen] = useState(true)
+  const [closedGroups, setClosedGroups] = useState(() => new Set<string>())
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatDraft, setNewChatDraft] = useState("")
   const newChatInput = useRef<HTMLInputElement>(null)
@@ -71,7 +76,7 @@ export function AppSidebar() {
   async function changeWorkspace(id: string) {
     if (id === activeWorkspaceId) return
     setSwitching(true)
-    try { await switchWorkspace(id); go("/chat") }
+    try { if (await switchWorkspace(id)) go("/chat") }
     catch (error) { toast.error(error instanceof Error ? error.message : "Could not switch workspace. Try again.") }
     finally { setSwitching(false) }
   }
@@ -90,12 +95,12 @@ export function AppSidebar() {
       {/* Workspace switcher (shadcn "team switcher") */}
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger aria-label="Switch workspace" disabled={switching} aria-busy={switching}
+          <DropdownMenuTrigger title="Switch workspace" disabled={switching} aria-busy={switching}
             render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
             <span className="gtm-shell-logo"><img src="/opengtm-mark-v8.svg" alt="" /></span>
             <span className="grid min-w-0 flex-1 text-left leading-tight">
               <span className="truncate text-sm font-semibold">OpenGTM</span>
-              <span className="truncate text-xs text-sidebar-foreground/60">{activeWorkspace?.name ?? "No workspace"}</span>
+              <span className="truncate text-xs text-muted-foreground">{activeWorkspace?.name ?? "No workspace"}</span>
             </span>
             <ChevronsUpDown className="ml-auto size-4 opacity-50" aria-hidden="true" />
           </DropdownMenuTrigger>
@@ -104,7 +109,7 @@ export function AppSidebar() {
               <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
               {workspaces.map(workspace => (
                 <DropdownMenuItem key={workspace.id} onClick={() => void changeWorkspace(workspace.id)}>
-                  <span className="flex size-6 items-center justify-center rounded-md border border-border text-[11px] font-semibold">{initials(workspace.name)}</span>
+                  <span className="flex size-6 items-center justify-center rounded-md border border-border text-xs font-semibold">{initials(workspace.name)}</span>
                   <span className="truncate">{workspace.name}</span>
                   {workspace.id === activeWorkspaceId && <Check className="ml-auto size-4" aria-label="Active" />}
                 </DropdownMenuItem>
@@ -118,7 +123,7 @@ export function AppSidebar() {
 
       <SidebarMenu className="gap-1.5">
         <SidebarMenuItem>
-          <SidebarMenuButton variant="outline" tooltip="Find anything" className="gtm-shell-search text-sidebar-foreground/70"
+          <SidebarMenuButton variant="outline" tooltip="Find anything" className="gtm-shell-search text-muted-foreground"
             onClick={() => { closeMobile(); window.dispatchEvent(new Event(OPEN_COMMAND_MENU_EVENT)) }}>
             <Search aria-hidden="true" /><span>Find anything</span>
             <Kbd className="ml-auto group-data-[collapsible=icon]:hidden">{isMac ? "⌘" : "Ctrl"} K</Kbd>
@@ -130,8 +135,10 @@ export function AppSidebar() {
     <SidebarContent>
       <nav aria-label="Primary navigation">
         {NAVIGATION_GROUPS.map(group => <SidebarGroup key={group.label}>
-          <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
-          <SidebarGroupContent><SidebarMenu>
+          <SidebarGroupLabel render={group.label === "Workspace" ? undefined : <button type="button" aria-expanded={!closedGroups.has(group.label)} onClick={() => setClosedGroups(previous => { const next = new Set(previous); if (next.has(group.label)) next.delete(group.label); else next.add(group.label); return next })} />}>
+            {group.label}{group.label !== "Workspace" && <ChevronRight aria-hidden="true" className={`ml-auto size-3.5 transition-transform ${closedGroups.has(group.label) ? "" : "rotate-90"}`} />}
+          </SidebarGroupLabel>
+          {(!closedGroups.has(group.label) || state === "collapsed") && <SidebarGroupContent><SidebarMenu>
             {group.items.map(item => <SidebarMenuItem key={item.to}>
               <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
                 render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
@@ -159,11 +166,11 @@ export function AppSidebar() {
               </>}
               {item.to === "/agents" && activeJobs > 0 && <SidebarMenuBadge aria-label={`${activeJobs} active tasks`}>{activeJobs}</SidebarMenuBadge>}
             </SidebarMenuItem>)}
-          </SidebarMenu></SidebarGroupContent>
+          </SidebarMenu></SidebarGroupContent>}
         </SidebarGroup>)}
       </nav>
 
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroup role="region" aria-label="Recent chats navigation" className="group-data-[collapsible=icon]:hidden">
         <SidebarGroupLabel render={<button type="button" aria-expanded={historyOpen} aria-controls="recent-chat-list" onClick={() => setHistoryOpen(!historyOpen)} />}
           className="cursor-pointer hover:text-sidebar-foreground">
           Recent chats
@@ -191,7 +198,7 @@ export function AppSidebar() {
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>)}</SidebarMenu>
-          {!recent.length && <p className="px-2 py-2 text-xs text-sidebar-foreground/60">{chatSearch ? "No matching chats" : "No recent chats"}</p>}
+          {!recent.length && <p className="px-2 py-2 text-xs text-muted-foreground">{chatSearch ? "No matching chats" : "No recent chats"}</p>}
         </SidebarGroupContent>}
       </SidebarGroup>
     </SidebarContent>
@@ -200,18 +207,19 @@ export function AppSidebar() {
     <SidebarFooter>
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger aria-label="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
+          <DropdownMenuTrigger title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
             <Avatar className="size-8 rounded-lg">
               <AvatarFallback className="rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">{initials(user?.username ?? "")}</AvatarFallback>
             </Avatar>
             <span className="grid min-w-0 flex-1 text-left leading-tight">
               <span className="truncate text-sm font-medium">{user?.username ?? "Signed out"}</span>
-              <span className="truncate text-xs capitalize text-sidebar-foreground/60">{user?.role ?? ""}</span>
+              <span className="truncate text-xs capitalize text-muted-foreground">{user?.role ?? ""}</span>
             </span>
             <ChevronsUpDown className="ml-auto size-4 opacity-50" aria-hidden="true" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={6} className="min-w-56">
+          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={8} className="gtm-account-menu min-w-64">
             <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => go("/leads")}><MoreHorizontal aria-hidden="true" />Legacy data</DropdownMenuItem>
               <DropdownMenuItem onClick={() => go("/settings")}><Settings aria-hidden="true" />Settings</DropdownMenuItem>
               <DropdownMenuItem onClick={() => go("/agency")}><Building2 aria-hidden="true" />Manage workspaces</DropdownMenuItem>
               <DropdownMenuItem onClick={() => window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT))}>
@@ -219,31 +227,33 @@ export function AppSidebar() {
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem></SidebarMenu>
-      <SidebarMenu><SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger aria-label={`Appearance: ${preference}`}
-            render={<SidebarMenuButton className="data-popup-open:bg-sidebar-accent" />}>
-            <SunMoon aria-hidden="true" /><span>Appearance</span>
-            <span className="ml-auto text-xs capitalize text-sidebar-foreground/60 group-data-[collapsible=icon]:hidden">{preference}</span>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={6} className="min-w-44">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Color theme</DropdownMenuLabel>
-              {([
-                { value: "light", label: "Light", icon: Sun },
-                { value: "dark", label: "Dark", icon: Moon },
-                { value: "system", label: "System", icon: Monitor },
-              ] as const).map(({ value, label, icon: Icon }) => (
-                <DropdownMenuItem key={value} onClick={() => setPreference(value)}>
-                  <Icon aria-hidden="true" />{label}
-                  {preference === value && <Check className="ml-auto" aria-label="Selected" />}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuRadioGroup className="gtm-account-theme" value={preference} onValueChange={value => setPreference(value as ThemePreference)}>
+                {([
+                  { value: "light", label: "Light", icon: Sun },
+                  { value: "dark", label: "Dark", icon: Moon },
+                  { value: "system", label: "System", icon: Monitor },
+                ] as const).map(({ value, label, icon: Icon }) => (
+                  <DropdownMenuRadioItem key={value} value={value} className="gtm-account-theme-option">
+                    <Icon aria-hidden="true" />{label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs text-muted-foreground">{uiScale.percent}%</span></DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="gtm-account-menu min-w-56" sideOffset={6}>
+                <DropdownMenuRadioGroup value={uiScale.preference}
+                  onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
+                  <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
+                </DropdownMenuRadioGroup>
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => void logout()}><LogOut aria-hidden="true" />Sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem></SidebarMenu>

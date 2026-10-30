@@ -1,0 +1,174 @@
+{
+  "engine": "webkit",
+  "base_url": "http://127.0.0.1:8002",
+  "build_index_sha256": "745c07f90b8435b0731722089095e96dad862d60e21134e166b5e7d7f905ceba",
+  "checks": [
+    "inspection-is-stateless-and-duplicate-suggestions-remain-editable",
+    "keyboard-input-focus-and-back-navigation-preserve-mapping",
+    "lost-response-missing-receipt-and-reload-recovery-keep-one-batch-without-reposting",
+    "accepted-row-opens-canonical-record-with-custom-fields-and-exact-source-id",
+    "numeric-json-preview-errors-and-separate-enrichment-selection-preserve-data-without-running-jobs",
+    "blocked-browser-storage-discloses-recovery-limit-and-in-memory-receipt-clears-warning",
+    "short-height-and-320px-dark-dialogs-keep-footer-visible-and-guard-escape",
+    "touch-controls-44px-and-text-spacing-reflow",
+    "no-page-errors"
+  ],
+  "axe": [
+    {
+      "name": "choose-file-light",
+      "violations": []
+    },
+    {
+      "name": "conflicting-mapping-light",
+      "violations": []
+    },
+    {
+      "name": "partial-review-light",
+      "violations": []
+    },
+    {
+      "name": "unknown-import-locked-light",
+      "violations": []
+    },
+    {
+      "name": "recovered-results-light",
+      "violations": []
+    },
+    {
+      "name": "blocked-recovery-storage-light",
+      "violations": []
+    },
+    {
+      "name": "mapping-dark-1440",
+      "violations": []
+    },
+    {
+      "name": "mapping-dark-1024",
+      "violations": []
+    },
+    {
+      "name": "mapping-dark-390",
+      "violations": []
+    },
+    {
+      "name": "mapping-dark-320",
+      "violations": []
+    },
+    {
+      "name": "mapping-touch-dark-390",
+      "violations": []
+    },
+    {
+      "name": "mapping-touch-dark-320",
+      "violations": []
+    },
+    {
+      "name": "mapping-touch-text-spacing",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "3a00a3e1-e1b0-4cc0-975a-80af1908257b"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "3a00a3e1-e1b0-4cc0-975a-80af1908257b"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "3a00a3e1-e1b0-4cc0-975a-80af1908257b"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "3a00a3e1-e1b0-4cc0-975a-80af1908257b"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports",
+      "key": "3a00a3e1-e1b0-4cc0-975a-80af1908257b"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-imports/3a00a3e1-e1b0-4cc0-975a-80af1908257b",
+      "key": null
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-imports/3a00a3e1-e1b0-4cc0-975a-80af1908257b",
+      "key": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "6546c6f9-f751-4821-a039-ede028b66df5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "6546c6f9-f751-4821-a039-ede028b66df5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "6546c6f9-f751-4821-a039-ede028b66df5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "6546c6f9-f751-4821-a039-ede028b66df5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports",
+      "key": "6546c6f9-f751-4821-a039-ede028b66df5"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "a6c2351f-d6b4-4290-9a15-fad7349e1a27"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/preview",
+      "key": "a6c2351f-d6b4-4290-9a15-fad7349e1a27"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports",
+      "key": "a6c2351f-d6b4-4290-9a15-fad7349e1a27"
+    },
+    {
+      "method": "GET",
+      "path": "/api/record-imports/a6c2351f-d6b4-4290-9a15-fad7349e1a27",
+      "key": null
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "bffb0a65-f290-4d77-b4dd-e3de46f6a3ef"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "57df5522-25dc-4d7e-b438-966aa68a8349"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "9003be4a-b65e-4917-b4c6-e2768c179bee"
+    },
+    {
+      "method": "POST",
+      "path": "/api/record-imports/inspect",
+      "key": "e514caeb-a81a-431c-a269-1e08cd422db3"
+    }
+  ],
+  "workspace_id": "377ef69c-1b4d-4b6f-a2c3-17e175f2847b"
+}

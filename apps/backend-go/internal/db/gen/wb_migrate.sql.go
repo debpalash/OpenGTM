@@ -112,7 +112,7 @@ UPDATE workbooks SET
   source_config = CASE WHEN $2::bool THEN $3::json ELSE source_config END,
   updated_at = (now() AT TIME ZONE 'utc')
 WHERE id = $4::text AND workspace_id = $5::text
-RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key
+RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type
 `
 
 type UpdateWorkbookSourceParams struct {
@@ -154,6 +154,7 @@ func (q *Queries) UpdateWorkbookSource(ctx context.Context, arg UpdateWorkbookSo
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }

@@ -1,0 +1,472 @@
+{
+  "phase": "Recorded activation increment before the dense workstation revision; historical evidence, not final release certification",
+  "suites": {
+    "runs": {
+      "workspace_id": "f4d5b43a-580d-429a-b8f3-913b529da61e",
+      "audience_id": "ae942661-78a4-47ea-acea-85e0143ef1ab",
+      "destination_id": "8919dacb-153b-455e-a0f9-aabdb5e6b960",
+      "review_cancel_and_focus_return_do_not_send": "pass",
+      "axe": [
+        {
+          "name": "sync-review-light",
+          "violations": []
+        },
+        {
+          "name": "changed-review-scope",
+          "violations": []
+        },
+        {
+          "name": "queued-receipt-kept-after-history-failure",
+          "violations": []
+        },
+        {
+          "name": "paged-run-and-canonical-delivery-receipts",
+          "violations": []
+        },
+        {
+          "name": "delivery-read-error",
+          "violations": []
+        },
+        {
+          "name": "retry-review",
+          "violations": []
+        },
+        {
+          "name": "cancellation-review",
+          "violations": []
+        },
+        {
+          "name": "cancellation-requested",
+          "violations": []
+        },
+        {
+          "name": "uncertain-write-recovery",
+          "violations": []
+        },
+        {
+          "name": "membership-refresh-external-effects-review",
+          "violations": []
+        },
+        {
+          "name": "schedule-activation-review",
+          "violations": []
+        },
+        {
+          "name": "audience-write-uncertainty",
+          "violations": []
+        },
+        {
+          "name": "dark-touch-review-320",
+          "violations": []
+        },
+        {
+          "name": "dark-touch-review-390",
+          "violations": []
+        },
+        {
+          "name": "view-only-history",
+          "violations": []
+        }
+      ],
+      "page_errors": [],
+      "changed_scope_requires_explicit_review_without_mutation": "pass",
+      "permission_revocation_blocks_submit_before_post": "pass",
+      "pending_request_is_guarded_and_queued_receipt_survives_read_failure": "pass",
+      "run_and_delivery_pagination_keep_canonical_identity_and_counts": "pass",
+      "delivery_filter_failure_and_retry_are_not_empty_success": "pass",
+      "reviewed_retry_reuses_run_identity_and_keeps_receipts": "pass",
+      "cancellation_receipts_distinguish_requested_from_finished": "pass",
+      "lost_response_requires_history_review_and_never_auto_reposts": "pass",
+      "membership_refresh_reviews_enabled_targets_and_rejects_changed_scope": "pass",
+      "schedule_enable_and_interval_are_reviewed_and_pause_does_not_claim_cancellation": "pass",
+      "refresh_write_failure_is_not_automatic_retry_or_delivery_success": "pass",
+      "touch_reflow_and_view_only_receipts_preserve_access": "pass"
+    },
+    "audiences": {
+      "workspace_id": "a28d437e-5fe4-46af-8107-419429d5e6bd",
+      "company_audience": "c02a2dc7-7ee4-4dbf-8389-3509b04f8743",
+      "people_audience": "9f45e386-dcb8-47e6-b701-e2db14d77cfe",
+      "company_id": "c9efd335-f466-4b94-84ef-1d4823b941ec",
+      "person_id": "9114b6b9-e9c2-4c11-bfbf-b3f0ef133ed7",
+      "canonical_identity_and_shareable_inspectors": "pass",
+      "refresh_receipt": {
+        "status": "pass",
+        "counts": {
+          "audience": {
+            "id": "9f45e386-dcb8-47e6-b701-e2db14d77cfe",
+            "name": "People ready for review",
+            "description": "",
+            "filters": {
+              "_record_type": "person",
+              "record_ids": [
+                "9114b6b9-e9c2-4c11-bfbf-b3f0ef133ed7",
+                "64adf6de-4d30-4199-9b2f-6c944acd4ac0"
+              ]
+            },
+            "member_count": 2,
+            "created_at": "2026-10-29T09:03:05.320626",
+            "updated_at": "2026-10-29T09:03:12.397813",
+            "refreshed_at": "2026-10-29T09:03:12.397783",
+            "refresh_enabled": true,
+            "refresh_interval_minutes": 60,
+            "next_refresh_at": null,
+            "refresh_health": "healthy",
+            "last_refresh_error": null,
+            "consecutive_refresh_failures": 0
+          },
+          "entered": 0,
+          "exited": 0,
+          "unchanged": 0,
+          "changed": 2
+        }
+      },
+      "members_error_and_retry": "pass",
+      "scans": [
+        {
+          "state": "company",
+          "violations": []
+        },
+        {
+          "state": "person",
+          "violations": []
+        },
+        {
+          "state": "people-320",
+          "violations": []
+        },
+        {
+          "state": "people-390",
+          "violations": []
+        },
+        {
+          "state": "people-768",
+          "violations": []
+        }
+      ],
+      "page_errors": []
+    },
+    "tokens": {
+      "workspace_id": "119b36e5-bdb5-477d-8fc6-3cb8518bd705",
+      "audience_id": "6c437ba3-5677-4c0a-b8c7-a5180f7cb1e5",
+      "axe": [
+        {
+          "name": "rotation-review",
+          "violations": []
+        },
+        {
+          "name": "token-preserved-after-history-error",
+          "violations": []
+        },
+        {
+          "name": "copy-failure",
+          "violations": []
+        },
+        {
+          "name": "mobile-dark-rotation-review",
+          "violations": []
+        },
+        {
+          "name": "mobile-dark-token-setup",
+          "violations": []
+        },
+        {
+          "name": "explicit-advertising-consent",
+          "violations": []
+        }
+      ],
+      "rotation_review_cancel_sends_no_mutation": "pass",
+      "rotated_token_is_visible_independently_of_history_failure": "pass",
+      "failed_clipboard_copy_keeps_token_and_close_guard": "pass",
+      "history_retry_never_rotates_or_drops_the_token": "pass",
+      "successful_copy_acknowledges_token_and_allows_close": "pass",
+      "manual_token_storage_acknowledgement_and_mobile_layout": "pass",
+      "advertising_consent_is_explicit_and_scoped_to_destination_type": "pass",
+      "page_errors": []
+    },
+    "context": {
+      "axe": [
+        {
+          "name": "settings-section-guard",
+          "violations": []
+        },
+        {
+          "name": "workspace-guard",
+          "violations": []
+        },
+        {
+          "name": "provider-save-error",
+          "violations": []
+        },
+        {
+          "name": "pending-provider-save",
+          "violations": []
+        },
+        {
+          "name": "providers-unavailable",
+          "violations": []
+        },
+        {
+          "name": "honest-agent-workflows",
+          "violations": []
+        },
+        {
+          "name": "instance-provider-view-only",
+          "violations": []
+        },
+        {
+          "name": "mobile-settings-guard",
+          "violations": []
+        }
+      ],
+      "page_errors": [],
+      "workspace_ids": [
+        "aedb3768-5b76-4f9b-a4e3-9a03efd1de3b",
+        "494f8c3a-b03a-47b9-a089-395d210a2f4f"
+      ],
+      "section_route_and_workspace_cancel_keep_drafts_without_switch_requests": "pass",
+      "explicit_section_discard_releases_the_old_form": "pass",
+      "provider_http_failure_keeps_draft_and_has_no_false_success": "pass",
+      "pending_save_cannot_be_abandoned_by_workspace_change": "pass",
+      "confirmed_provider_save_does_not_depend_on_followup_read": "pass",
+      "cross_tab_workspace_switch_does_not_redirect_existing_tab_requests": "pass",
+      "denied_switch_keeps_current_workspace_and_data": "pass",
+      "workspace_manager_uses_auth_context_and_clears_previous_data": "pass",
+      "provider_read_error_and_malformed_response_retry": "pass",
+      "instance_permissions_and_agent_workflows_are_honest": "pass",
+      "explicit_signout_is_guarded_and_other_tabs_clear_private_data": "pass",
+      "revoked_session_cancels_pending_actions_and_clears_private_forms": "pass"
+    },
+    "inspector": {
+      "workspace_id": "c313054f-34b0-4528-a4de-13fecbcc982c",
+      "company_id": "fa214653-9ae6-4c18-8356-e895a645f1e7",
+      "person_id": "adcf0311-8da6-4fd1-b9f2-04024e6a116d",
+      "axe": [
+        {
+          "name": "invalid-number",
+          "violations": []
+        },
+        {
+          "name": "invalid-json",
+          "violations": []
+        },
+        {
+          "name": "conflict-light",
+          "violations": []
+        },
+        {
+          "name": "conflict-dark",
+          "violations": []
+        },
+        {
+          "name": "blocked-back",
+          "violations": []
+        },
+        {
+          "name": "company-people",
+          "violations": []
+        },
+        {
+          "name": "people-error",
+          "violations": []
+        },
+        {
+          "name": "sources-error",
+          "violations": []
+        },
+        {
+          "name": "people-320",
+          "violations": []
+        },
+        {
+          "name": "people-390",
+          "violations": []
+        },
+        {
+          "name": "typed-form-320",
+          "violations": []
+        },
+        {
+          "name": "typed-form-390",
+          "violations": []
+        },
+        {
+          "name": "view-only",
+          "violations": []
+        }
+      ],
+      "refetch_keeps_the_typed_draft": "pass",
+      "real_conflicts_and_retry_preserve_remote_and_typed_values": "pass",
+      "pending_save_cannot_be_discarded_by_back": "pass",
+      "back_and_native_reload_keep_drafts": "pass",
+      "company_people_pagination_and_guarded_navigation": "pass",
+      "explicit_employment_end_unknown_role_and_employer_change": "pass",
+      "people_and_sources_failures_are_not_empty_success": "pass",
+      "staged_custom_field_survives_tabs_and_close_guard": "pass",
+      "view_only_inspector_explains_role": "pass",
+      "page_errors": []
+    }
+  },
+  "matrix": {
+    "states": 42,
+    "violations": 0,
+    "page_errors": []
+  },
+  "journey": {
+    "import-upload-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "company-provenance-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "overview-populated-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "inspector-mobile-320-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 320,
+        "windowHeight": 844,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "import-review-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "inspector-mobile-390-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 390,
+        "windowHeight": 844,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "person-employment-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "enrichment-review-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "workbook-identity-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    },
+    "company-inspector-axe.json": {
+      "violations": [],
+      "testEngine": {
+        "name": "axe-core",
+        "version": "4.14.0"
+      },
+      "testEnvironment": {
+        "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+        "windowWidth": 1440,
+        "windowHeight": 1000,
+        "orientationAngle": 0,
+        "orientationType": "landscape-primary"
+      }
+    }
+  },
+  "api_integration": {
+    "root_tests_passed": [
+      "TestHealthMatchesFixtures",
+      "TestDeliveriesFiltersAndBounds",
+      "TestSyncCreatesRunAndJob",
+      "TestSyncReturnsExistingActiveRun",
+      "TestRetryTransitionsAndAudit",
+      "TestCancelPendingFinishesCancelled",
+      "TestCancelRunningRequestsCancellation",
+      "TestRolesAndTenantIsolation",
+      "TestActivationAccessUsesEffectivePermissionAndWorkspace",
+      "TestCanonicalDeliveriesExposeRecordIdentityWithoutLegacyZero"
+    ],
+    "race_detector": true,
+    "test_output_ends_in_pass": true
+  }
+}

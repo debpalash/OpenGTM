@@ -9,11 +9,11 @@ import "./run-review.css"
 
 type Scope = { fillMissing: boolean; viewId: string | null; viewName: string; search: string }
 
-export function WorkbookRunReview({ workbookId, viewId, viewName, search, running, busy, outputColumns }: {
+export function WorkbookRunReview({ workbookId, viewId, viewName, search, running, busy, outputColumns, initiallyOpen=false }: {
   workbookId: string; viewId: string | null; viewName: string; search: string
-  running: boolean; busy: boolean; outputColumns: string[]
+  running: boolean; busy: boolean; outputColumns: string[]; initiallyOpen?: boolean
 }) {
-  const [scope, setScope] = useState<Scope | null>(null)
+  const [scope, setScope] = useState<Scope | null>(()=>initiallyOpen?{fillMissing:false,viewId,viewName,search:search.trim()}:null)
   const [error, setError] = useState("")
   const [needsReview, setNeedsReview] = useState(false)
   const submitting = useRef(false)
@@ -57,7 +57,7 @@ export function WorkbookRunReview({ workbookId, viewId, viewName, search, runnin
       onSuccess: () => toast.success("Stop requested"), onError: () => toast.error("Could not stop the run. Try again."),
     })}>Stop</Button> : <>
       <Button disabled={busy || run.isPending} onClick={event => open(true, event.currentTarget)} startIcon={<Sparkles aria-hidden="true" className="size-4" />}>Fill missing</Button>
-      <Button disabled={busy || run.isPending} variant="solid" onClick={event => open(false, event.currentTarget)} startIcon={<Play aria-hidden="true" className="size-4" />}>Review run</Button>
+      <Button ref={trigger} disabled={busy || run.isPending} variant="solid" onClick={event => open(false, event.currentTarget)} startIcon={<Play aria-hidden="true" className="size-4" />}>Review run</Button>
     </>}
     <Dialog.Root open={!!scope} onOpenChange={(open, details) => {
       if (submitting.current) { details.cancel(); return }

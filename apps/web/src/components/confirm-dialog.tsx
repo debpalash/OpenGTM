@@ -8,9 +8,9 @@ import {
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import { Button } from "@/design-system/primitives"
 
 interface ConfirmDialogProps {
   open: boolean
@@ -24,6 +24,7 @@ interface ConfirmDialogProps {
   confirmDisabled?: boolean
   pending?: boolean
   onConfirm: () => void
+  error?: string
   /** Extra content above the footer (e.g. cost summary, dry-run toggle). */
   children?: ReactNode
 }
@@ -39,16 +40,27 @@ export function ConfirmDialog({
   confirmDisabled,
   pending,
   onConfirm,
-  children,
+  error,
+  children
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!pending) onOpenChange(next)
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description && <DialogDescription>{description}</DialogDescription>}
         </DialogHeader>
         {children}
+        {error && (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        )}
         <DialogFooter>
           <Button
             variant="outline"
@@ -58,11 +70,13 @@ export function ConfirmDialog({
             {cancelLabel}
           </Button>
           <Button
-            variant={destructive ? "destructive" : "default"}
+            variant="solid"
+            color={destructive ? "danger" : "neutral"}
+            loading={pending}
             onClick={onConfirm}
             disabled={confirmDisabled || pending}
           >
-            {pending ? "Working…" : confirmLabel}
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

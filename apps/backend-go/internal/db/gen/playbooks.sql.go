@@ -496,7 +496,7 @@ func (q *Queries) PbListPlaybooks(ctx context.Context, arg PbListPlaybooksParams
 }
 
 const pbListResults = `-- name: PbListResults :many
-SELECT id, run_id, lead_id, status, value, result_metadata::text AS metadata, error, attempts, created_at, updated_at
+SELECT id, run_id, lead_id, company_entity_id,person_entity_id,status, value, result_metadata::text AS metadata, error, attempts, created_at, updated_at
 FROM playbook_results
 WHERE workspace_id = $1::text AND run_id = $2::text
   AND id > $3::bigint
@@ -513,16 +513,18 @@ type PbListResultsParams struct {
 }
 
 type PbListResultsRow struct {
-	ID        int32
-	RunID     string
-	LeadID    int32
-	Status    string
-	Value     string
-	Metadata  string
-	Error     pgtype.Text
-	Attempts  int32
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
+	ID              int32
+	RunID           string
+	LeadID          pgtype.Int4
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	Status          string
+	Value           string
+	Metadata        string
+	Error           pgtype.Text
+	Attempts        int32
+	CreatedAt       pgtype.Timestamp
+	UpdatedAt       pgtype.Timestamp
 }
 
 func (q *Queries) PbListResults(ctx context.Context, arg PbListResultsParams) ([]PbListResultsRow, error) {
@@ -544,6 +546,8 @@ func (q *Queries) PbListResults(ctx context.Context, arg PbListResultsParams) ([
 			&i.ID,
 			&i.RunID,
 			&i.LeadID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
 			&i.Status,
 			&i.Value,
 			&i.Metadata,

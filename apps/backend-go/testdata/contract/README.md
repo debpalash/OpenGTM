@@ -1487,3 +1487,22 @@ Private DB migrated to head (`d3f5a7b9c1e2`), non-superuser role (NOBYPASSRLS, i
 - **Naive timestamp columns are UTC whatever the session TimeZone.** Python's driver converts aware datetimes through the Postgres session TimeZone, so naive columns (`jobs.next_run_at`, audiences, audience schedules and members, retention, governance audit filters and cursors, destinations, inbound token revocation, workbooks, billing, source health) hold session-zone wall time on a non-UTC session. Go converts with `AT TIME ZONE 'UTC'` on every write and comparison (and stamps `now()` as UTC), so an aware `since`/`before`/cursor on the governance audit list is read as the UTC instant it names, not as session wall time. Tested under an Asia/Kolkata session (`internal/db/tz_integration_test.go`).
 
 - **A failed HubSpot/Salesforce email search fails the member.** Python treated a non-200 search as "not found" and went on to create, duplicating the contact/lead. Go stops at the search and reports `HubSpot contact search failed (retryable): HTTP <status>: <body>` (Salesforce: `Salesforce Lead search failed (retryable): ...`) and sends no create (commit 092a609d). Recorded transcripts expect search-fail-then-create; the comparators rewrite the expected side (`searchFixDeviation` in `internal/crm`, `searchFailDeviation` in `internal/destsync`, `hubspotSearchFailDeviations` in `internal/api`). The recorded fixture files are unchanged.
+
+### Dashboard activation workbench extensions
+
+The Go UI adds `GET /api/audience-destinations/access`, authenticated and scoped
+by the active workspace. It returns the effective `activation.write` permission,
+including member overrides. The original 25 audience/destination parity routes
+remain covered separately; `destsworkbench_integration_test.go` covers the new
+endpoint's authentication, roles, overrides and workspace isolation.
+
+Canonical-only delivery receipts now expose `company_id`/`person_id` and a null
+`lead_id`. Legacy Lead delivery responses retain their original shape, including
+when compatibility aliases exist internally. This applies to the delivery ledger
+and health report's recent failures through the shared serializer. No schema
+migration is required. Canonical identity/tenant tests supplement the unchanged
+legacy delivery fixture replay.
+
+## Destination UTC insert correction — 2026-10-29
+
+`DestInsert` explicitly writes both naive timestamp columns with `now() AT TIME ZONE 'UTC'`, matching updates. Baseline defaults used the session timezone, which put new records 5:30 ahead under Asia/Kolkata and broke update ordering. `TestCreatedDestinationTimestampsAreUTCInEverySessionTimezone` reproduces and guards UTC, Asia/Kolkata and America/New_York against the actual write interval. Existing CRUD fixtures still pass. No migration is required; existing historical timestamps are not rewritten because their original session timezone is unknown.

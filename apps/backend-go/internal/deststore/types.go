@@ -110,6 +110,7 @@ type Run struct {
 
 // Delivery is a destination_deliveries ledger row.
 type Delivery struct {
+	CompanyID, PersonID, SubjectKey               string
 	ID                                            int
 	WorkspaceID, RunID, DestinationID             string
 	LeadID                                        int
@@ -165,7 +166,7 @@ func runFrom(r gen.DestinationRun) Run {
 
 func deliveryFrom(r gen.DestinationDelivery) Delivery {
 	return Delivery{
-		ID: int(r.ID), WorkspaceID: r.WorkspaceID, RunID: r.RunID, DestinationID: r.DestinationID, LeadID: int(r.LeadID),
+		CompanyID: r.CompanyEntityID.String, PersonID: r.PersonEntityID.String, SubjectKey: r.SubjectKey.String, ID: int(r.ID), WorkspaceID: r.WorkspaceID, RunID: r.RunID, DestinationID: r.DestinationID, LeadID: int(r.LeadID.Int32),
 		Operation: r.Operation, IdempotencyKey: r.IdempotencyKey, PayloadFingerprint: r.PayloadFingerprint,
 		Payload: r.Payload, Status: r.Status, Attempts: int(r.Attempts), ExternalID: optText(r.ExternalID),
 		Summary: optText(r.Summary), Error: optText(r.Error), DeliveredAt: optTime(r.DeliveredAt),

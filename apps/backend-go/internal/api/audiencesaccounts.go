@@ -146,7 +146,7 @@ func (h audAccounts) accounts(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 					for _, m := range page {
-						if !yield(audiencevalid.Member{LeadID: int(m.LeadID), Snapshot: audAccSnapshot(m.Snapshot)}, nil) {
+						if !yield(audiencevalid.Member{LeadID: int(m.LeadID.Int32), Snapshot: audAccSnapshot(m.Snapshot)}, nil) {
 							return
 						}
 						after = m.ID

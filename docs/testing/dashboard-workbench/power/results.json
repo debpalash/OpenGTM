@@ -1,0 +1,855 @@
+{
+  "date": "2026-10-29",
+  "base_url": "http://127.0.0.1:8002",
+  "source_base_revision": "a1be0e08e603e03f62e021ef288321cb9809e006",
+  "source_state": "Working tree includes preserved inspector implementation plus compact workstation changes; file hashes identify tested source.",
+  "measurements": {
+    "before": {
+      "rowHeight": 34,
+      "fullyVisibleRows": 22,
+      "topbar": 44,
+      "header": 64,
+      "toolbar": 45,
+      "sidebar": 208,
+      "documentWidth": 1440
+    },
+    "compact": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 24,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1440
+    },
+    "desktop-1366-768": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 17,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1366
+    },
+    "desktop-1280-720": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 16,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1280
+    },
+    "desktop-1920-1080": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 27,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1920
+    }
+  },
+  "webkit_measurements": {
+    "compact": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 24,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1440
+    },
+    "desktop-1366-768": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 17,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1366
+    },
+    "desktop-1280-720": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 16,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1280
+    },
+    "desktop-1920-1080": {
+      "rowHeight": 32,
+      "fullyVisibleRows": 27,
+      "topbar": 40,
+      "header": 52,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1920
+    }
+  },
+  "visible_rows_gain_over_previous_compact_percent": 9.1,
+  "visible_rows_gain_over_original_percent": 60,
+  "checks": {
+    "frontend_tests": 113,
+    "failures": 0,
+    "lint": "pass",
+    "typecheck_build": "pass",
+    "go_vet": "pass",
+    "go_records_race_integration_tests": 4,
+    "embedded_api_build": "pass"
+  },
+  "axe": {
+    "chromium_density": 14,
+    "webkit_density": 14,
+    "route_matrix": 42,
+    "native_journey": 10,
+    "inspector": 13,
+    "violations": 0,
+    "comparison_baseline": 1
+  },
+  "route_matrix": [
+    {
+      "label": "overview-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "document_width": 1440,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "document_width": 320,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "document_width": 390,
+      "main_count": 1,
+      "axe_violations": []
+    }
+  ],
+  "journey": {
+    "workspace_id": "ac6f5f3a-9ca6-4483-b701-088d6de1bc45",
+    "import-upload-axe": [],
+    "import-review-axe": [],
+    "guided_csv_import": "pass",
+    "rapid_search_input": "pass",
+    "company-inspector-axe": [],
+    "company-provenance-axe": [],
+    "inspector_edit_and_provenance": "pass",
+    "dirty_draft_and_focus_return": "pass",
+    "partial_rejection_and_lost_response_recovery": "pass",
+    "person-employment-axe": [],
+    "large_identifier_display_and_edit_precision": "pass",
+    "workflow_configuration": "pass",
+    "enrichment-review-axe": [],
+    "workbook-identity-axe": [],
+    "reviewed_native_enrichment_and_grid_identity": "1e649add-545f-420c-9ed5-daf85717f774",
+    "csv_export_precision": "pass",
+    "backup_precision": "pass",
+    "overview-populated-axe": [],
+    "canonical_overview_counts": "pass",
+    "inspector-mobile-390-axe": [],
+    "inspector-mobile-320-axe": [],
+    "mobile_320_390_reflow": "pass",
+    "page_errors": []
+  },
+  "states": {
+    "overview_stale_data_after_503": "pass",
+    "malformed_summary_and_retry": "pass",
+    "analytics_503_and_retry": "pass",
+    "record_view_only_state": "pass",
+    "grid_keyboard_roving_and_checkbox": "pass",
+    "pinned_column_widths": [
+      36,
+      50,
+      240
+    ],
+    "keyboard_column_resize": "pass",
+    "keyboard_column_reorder": "pass",
+    "import_keyboard_trap_and_escape": "pass",
+    "responsive_geometry": [
+      {
+        "width": 320,
+        "document": 320,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 390,
+        "document": 390,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 768,
+        "document": 768,
+        "header": 56,
+        "toolbar": 81
+      },
+      {
+        "width": 1024,
+        "document": 1024,
+        "header": 61.1875,
+        "toolbar": 41
+      },
+      {
+        "width": 1280,
+        "document": 1280,
+        "header": 52,
+        "toolbar": 41
+      },
+      {
+        "width": 1440,
+        "document": 1440,
+        "header": 52,
+        "toolbar": 41
+      },
+      {
+        "width": 1920,
+        "document": 1920,
+        "header": 52,
+        "toolbar": 41
+      }
+    ],
+    "overview_text_zoom_200": "pass",
+    "forced_colors_rendered": "pass",
+    "reduced_motion": 0,
+    "page_errors": []
+  },
+  "inspector": {
+    "workspace_id": "c335a41d-e489-4094-9556-3d24008ed300",
+    "company_id": "c5949741-0ba4-4d0a-a37f-4104ed30ea64",
+    "person_id": "11a19d21-d89b-46b6-a8e2-9f8c4b796dad",
+    "axe": [
+      {
+        "name": "invalid-number",
+        "violations": []
+      },
+      {
+        "name": "invalid-json",
+        "violations": []
+      },
+      {
+        "name": "conflict-light",
+        "violations": []
+      },
+      {
+        "name": "conflict-dark",
+        "violations": []
+      },
+      {
+        "name": "blocked-back",
+        "violations": []
+      },
+      {
+        "name": "company-people",
+        "violations": []
+      },
+      {
+        "name": "people-error",
+        "violations": []
+      },
+      {
+        "name": "sources-error",
+        "violations": []
+      },
+      {
+        "name": "people-320",
+        "violations": []
+      },
+      {
+        "name": "people-390",
+        "violations": []
+      },
+      {
+        "name": "typed-form-320",
+        "violations": []
+      },
+      {
+        "name": "typed-form-390",
+        "violations": []
+      },
+      {
+        "name": "view-only",
+        "violations": []
+      }
+    ],
+    "refetch_keeps_the_typed_draft": "pass",
+    "real_conflicts_and_retry_preserve_remote_and_typed_values": "pass",
+    "pending_save_cannot_be_discarded_by_back": "pass",
+    "back_and_native_reload_keep_drafts": "pass",
+    "company_people_pagination_and_guarded_navigation": "pass",
+    "explicit_employment_end_unknown_role_and_employer_change": "pass",
+    "people_and_sources_failures_are_not_empty_success": "pass",
+    "staged_custom_field_survives_tabs_and_close_guard": "pass",
+    "view_only_inspector_explains_role": "pass",
+    "page_errors": []
+  },
+  "density_states": [
+    "before",
+    "compact",
+    "saved-navigation-rail",
+    "desktop-1366-768",
+    "desktop-1280-720",
+    "desktop-1920-1080",
+    "light-menu-default",
+    "light-menu-comfortable",
+    "light-menu-compact",
+    "dark-menu-default",
+    "dark-menu-comfortable",
+    "dark-menu-compact",
+    "touch-320",
+    "touch-390",
+    "touch-768"
+  ],
+  "webkit_density_states": [
+    "compact",
+    "saved-navigation-rail",
+    "desktop-1366-768",
+    "desktop-1280-720",
+    "desktop-1920-1080",
+    "light-menu-default",
+    "light-menu-comfortable",
+    "light-menu-compact",
+    "dark-menu-default",
+    "dark-menu-comfortable",
+    "dark-menu-compact",
+    "touch-320",
+    "touch-390",
+    "touch-768"
+  ],
+  "source_sha256": {
+    "apps/backend-go/internal/api/recordsroutes.go": "d75ec27c49b28de2124c4593b3807bfacf61d62726eb784959f0b4562ecf461c",
+    "apps/backend-go/internal/records/people_filter_integration_test.go": "56621d9d489817d8b70b5aa2576b91c132b75af4b785be87a262c235f700be78",
+    "apps/backend-go/internal/records/store.go": "925968988266af47f2df7ba7194ce271dcca2f9d2ad994af5dab416fd07ceee0",
+    "apps/web/src/App.tsx": "bdb150d9236c64749339406ff6a07dd21ff62f2069d11bff7f4cf9b70a37a58c",
+    "apps/web/src/components/records/record-editor.tsx": "98af5bbef0137409dd885f3d928e717f6bd664b4cf23a2b07a8a29bb53b509f5",
+    "apps/web/src/components/records/record-inspector.css": "1f78e8190655da8af2035660b5b55f9868c79a22ff574b150f862f4749e1d2a4",
+    "apps/web/src/components/ui/sidebar.tsx": "5a323b3737e61f0e93a3869f6857e0ac1dd4ee8edd485da69e7f67a68de64f62",
+    "apps/web/src/components/workbooks/workbooks.css": "b5b752c5520c90990facdee51b98127602255b21a32a2478b67708cfce26a807",
+    "apps/web/src/design-system/patterns/workbench.css": "c8b60b3e100a317268a69a4498ce204b3fc0218e3c64fa20450d5d692b24cfd4",
+    "apps/web/src/design-system/theme/tokens.css": "c437ce6e614d2e9c06d7e134266c6363c77d982161e69c8b6d3c29a54e79ca3a",
+    "apps/web/src/features/records/company-people.tsx": "3699b768b02448d31224339ea62c4f145e3287b65e15b521e1cc104905102953",
+    "apps/web/src/features/records/company-picker.tsx": "7517072a3263779c50a645d73b4c49355adf9c38dec7f96d514e40ed55d8e452",
+    "apps/web/src/features/records/conflict-review.tsx": "d3114d270ccee36cb675e9243967e39ba3473f727f93ff02cf690a269f1f73c3",
+    "apps/web/src/features/records/custom-field-creator.tsx": "ffc5df90e3721aad5997226e8ade07574bae77b602218e0562ed066b0dea58d3",
+    "apps/web/src/features/records/record-draft.ts": "6e066796fd57589851095d8dcfb22807d4935136f9d39d8157c2edd881c64c4c",
+    "apps/web/src/lib/records.ts": "830d59c480ab9b93d428dd7d46ab9b7353ffb72c21aa630e03e8a696130c5d29",
+    "apps/web/src/pages/audiences.css": "e9ff8beed8d83019bb67d63adea77cb09c55a4903b599b43c2716150c4385bb3",
+    "apps/web/src/pages/overview.css": "9e473c0c73b57bb8cd00e5fab3f6c633df4a414a74108d8d56148583ec88dc5f",
+    "apps/web/src/pages/records.css": "17f55ec0355e4524c77111a70061cb3cb634960fe9452b7898c894eb00cfeeb6",
+    "apps/web/src/pages/records.tsx": "5c2cd0687bde63bf8e104ff8cb65b945fa33d0760c4b7168f3c247f17d0d9efa",
+    "apps/web/tests/record-draft.test.ts": "5babca5855d2407149a51558610038f51342ec811feba38a7e583f9ea7cce49d",
+    "apps/web/tests/records-response.test.ts": "ff249a05a45d91d4b3aa73fa4e87200348a1dd0de46e3e3bfd46e9f92d60d191",
+    "scripts/qa/dashboard_density.py": "d579516b771f873f0ae77eafa245a2bcbbbc9ddcc5596014a27ae34cfc052c6a",
+    "scripts/qa/dashboard_inspector.py": "871c90c3200d430c4d3d8bb6f7d95e0606dc3a6c0f0ea627ff15a80dca6cbda4"
+  },
+  "build_sha256": {
+    ".vite/manifest.json": "7375fdc52b767d989762bbf86cc805835b82dc7a35853abc18042d143f8a3b38",
+    "assets/AreaChart-OGQYm5tZ.js": "7d71041d6203cfcc0ea4e7b3b247b410fbf6572a5d3db2c26186e24cff16eb32",
+    "assets/BarChart-D6kdS_qO.js": "dafa8159abbfba44b374fa3c8f3dd72b9c6746085499a3d7138ceedc24ca21b9",
+    "assets/PieChart-ChsihUyH.js": "c3c14daab5a4c8b5f7b5714d98f6cff4a132de215aeb0e2c2a23f9ae52548a08",
+    "assets/agents-Bx7SNYV8.js": "57f5a2671b1acd093c4432c25a335a14088879861bacfeb1b91c2926656535a4",
+    "assets/analytics-Dr7KeDaX.js": "7e6243ec16f187ad31f0368932242473d42c0f32ba7bac041763d0c353ad5447",
+    "assets/app-Cwd0bTDO.js": "9d24626c32e49205b9b4071c27de57cd19439b511a94313c4d0d60c7da8863d8",
+    "assets/app-DNeJe654.css": "8c37ddb03c183d1ed6a0b05cf53f16a920297465849f06fd8bf566e33f191462",
+    "assets/audiences-CyLVhHpK.js": "d26876e2165814b988771851b2f4237fc62697a292846aad0daca80e1098e6a8",
+    "assets/audiences-EdkppUXD.css": "d9aaab0396a111b9f5167f50a0daaa13de4844d5f1588cbea170656fdfcc0870",
+    "assets/auth-CTwP6CC0.js": "9e50f283b69a19632782e29ec0597eab0d655c3a1a893df4eddf2b474a8e8fd9",
+    "assets/automations-Ch6Sqmk7.js": "c7da691b4a9afddac48b7f24f3f8376780d2053edb84c8533c43b9b9de71b599",
+    "assets/badge-BiCCTjXs.js": "80576e1bb35a4e133a4024d0db117be488d3212ffaf2a7fe4f397bc769e571e7",
+    "assets/campaigns-tv7ffBJY.js": "0ad1dd99b9c3c92496a901ede7283fc6f4ca737a29d3b2a06d4f9108a19ef841",
+    "assets/card-CrnC93a8.js": "774da7a10033aa2de01eaddccb13a219a40565aea2894a90548d927d8d751f44",
+    "assets/chat-3It-mZGT.js": "2e580f382638c0ad59a21b96a7e4fb3fd544881336cdf280f009c9dc2ca39acb",
+    "assets/chat-Bfc0Z677.css": "50407b87b5a5bf702f1e1e7d01c4b87b24dfdda3177149ca3d9ee95122ef34c8",
+    "assets/checkbox-DQ_SokbC.js": "35c4b488dfded4485d3b0b28ba74dbda9695ca70ffd6916a8fbdf8371345cb7e",
+    "assets/command-menu-content-tLs82Mse.js": "19521614d37c49d6489886656e87362db8ccce0470e1714e3fdf9c472f734f4a",
+    "assets/dialog-CGKFYDvi.js": "fbf39bf9d4ff97aa6c68c7055316ddc125b47b6c56382e718a93c255847793b6",
+    "assets/editable-cell-DljN1Eon.js": "029f7f11eea2e682624a491d41a3982207b1f328d08394cee74be3bd71b67e5e",
+    "assets/feature-disabled-BxMqOkaz.js": "fd475188f3cb6150752628455e40dd6a7590bd3be65ff5893bdab3ea3ae74f88",
+    "assets/gate-merlI3ZO.js": "ce7cd1375ef0e6c0af0e7238001a8aec91920895017ea7be233617635e9ebfa8",
+    "assets/inter-latin-400-normal-C38fXH4l.woff2": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+    "assets/inter-latin-400-normal-CyCys3Eg.woff": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+    "assets/inter-latin-500-normal-BL9OpVg8.woff": "9b42c108da48b5ed55a3072e815ffee2d271562e6c0dd6998910e8f9c09e0a3d",
+    "assets/inter-latin-500-normal-Cerq10X2.woff2": "f3779f1efccc4bdcdf9c0a02ab95bf6bd092ed09c48c08cedc725889edd1d19f",
+    "assets/inter-latin-600-normal-CiBQ2DWP.woff": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+    "assets/inter-latin-600-normal-LgqL8muc.woff2": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+    "assets/label-Tr355p12.js": "0e3801e481a87bd77c2bc1c5de0ab590b12254d2e8956b25297e8b877c2c4940",
+    "assets/lead-detail-CsHkegio.js": "3e0ba2bc516f95774ee50cdfa951e074f2d580a50cb1717ad268ce43debae273",
+    "assets/lead-detail-vh-t_kPv.css": "86d3d093fad979e1d185c8a93258f5f124d863fd13ca894c0b9f50bb68b66997",
+    "assets/leads-b9_O8nE1.js": "cf5925b4ed317d5fbedd1b1d2c0d426ea4ed6f32e91b61aff9fa89c3f3af4c83",
+    "assets/manrope-latin-600-normal-4f0koTD-.woff2": "f7ac6258da20ab7541939b59851155753d1d24f1b30cbcb949077a3faa3d1593",
+    "assets/manrope-latin-600-normal-BqgrALkZ.woff": "8d1f509774bca963fa02faf674678ce9244474306361ca2798583fa600346df6",
+    "assets/markdown-content-BN9fjQOf.js": "686387c3d482f69482b84ce560a2112448dd703a02836a0601c73e43fae4d0f2",
+    "assets/native-select-Dr-gIii2.js": "3c1152d0c3eedb8b15c25eb2bf0ad0aa7240360c374e0fc3bf534b3b9a8a66a3",
+    "assets/notifications-DPoTmvdY.js": "4dd03df36af7b17ab46fe97e3977c3229c694cfbab1d9b1ef77c98ecfb9faf96",
+    "assets/outreach-4fcmEaTe.js": "27a6c662f3a9b776e61079e45b6f5771b26de53fb9cbf6717c733b92689f4448",
+    "assets/overview-Dtfp7adC.js": "bf4f2921017631306928a4a7bfc2261235b02b2e8abd1dd635171d9dec2c814e",
+    "assets/overview-F2M2JL6l.css": "fdc70b12321e461f622f9b8dd37d8b8b595f3beeeef6eaff04fc8653aa343f2c",
+    "assets/papaparse.min-CHENVd_W.js": "0dcaa223a85327f6faf3b9f264af1df336b19d5b10afe9d89f90f9c6723764dc",
+    "assets/primitives-CCxpJD_d.css": "f0552acfbc579fcdec6d8ca8a4eda45de0f63d1aadf8e8a11a4633565f7d89fb",
+    "assets/primitives-DPFOObEG.js": "e93c3d96de600be34c47e883b0dcd8797f237e7ab333978ebcbb123226a6c954",
+    "assets/query-client-CqZFzS_b.js": "f979170b024a5aa424d0446a1d0e99ade3d1865ababdacdce05a7ef1f81078a3",
+    "assets/record-overview-BSiNH4wO.js": "0fa18bf7108fad2c0082aa09e3abb9a7c25c3cd98f86c455dbd9026b520346d3",
+    "assets/records-AZvxVVVe.js": "0ee74c9f2b9a6a342ad5396380a62e7cd3296aeeacf69175304c1d502cd14518",
+    "assets/records-D99H15f4.js": "2eabb3a8e9c322c40617576e3af51d77efbc4d36af863f099019df53068a00c0",
+    "assets/records-DrwSp3VH.css": "3a03ad9012a1f1408a496f18d89b982ce9ccd1324849fdaa5ce5d0ebafe5fe3f",
+    "assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+    "assets/scene-motion-Bi7wPNvE.js": "5f7e94e59775d93c3325a9baf2f9c90b98be2881fa537e2de4f365f280578a2a",
+    "assets/scroll-area-Bd8O_jKS.js": "32aa411b35efbebea5ffed922976c2bc75d6fae254e861b777184775013b49f1",
+    "assets/search-BhO5aX1b.js": "18eb863b4c19e72644afcbfcfd1b94d7e3375a9713583c52c4d0acafe3bf1d00",
+    "assets/select-hbk_laOE.js": "135f04b28239e15477ef3447cb123665499d4f083318764eb14198c9a51413a2",
+    "assets/semantic-icons-BGiRsFOf.js": "6d45ac41358ec88c6dbb85c9d4cc90d6d9d0b0be697e08d8e6dfeb44c4bc50d5",
+    "assets/settings-BDAFeeC4.js": "09fbf6e50dd94ec48d637b9504dc2a23ba799cf4bcd816f04cc73de3068cd265",
+    "assets/sheet-D9I7xsiu.js": "c20137ae1f2de304ce23ee16ce88078c76b49c193ebecc1d0a4460f71fc3d991",
+    "assets/signals-yr0c4B_H.js": "17559aa20999efa48fdd09159f1eac114474773695826c75bb9940a692e0f9fc",
+    "assets/source-engine-panel-Bj5TgTFQ.js": "4007e57fbe2a37479351ec009f2ac6f20351496405c6eedd2437eac183933b07",
+    "assets/sources-e1jCEgHC.js": "fb1ed4aacfa09a565c8e0623347f0e4be7fd760457ce6bd23d0446ff06ea5848",
+    "assets/src-C9boDtJ1.css": "62e0616aa299514cba5dd93309555ff6b711c1bdca5d559c191c0fc8297e3e6c",
+    "assets/src-DS0fILit.js": "8571e80030d3b11eb21064b50d03b7de11341ed64af2842ee58d760d16d7d3b4",
+    "assets/status-dot-BvExdOKB.js": "fad12e5a552bf7ed78aa25073b97d9be6318f9e21d8e3c817856c8578eda82bc",
+    "assets/surfaces-CJtMfSRY-xqyZH8QA.js": "a4443f0e724c089349ffc38b86112b109fe855ec9e16adfa54c7934554bf35bf",
+    "assets/switch-_5DhFFL_.js": "9ea5ee1a1e17b00f09d8e09b8a05b3d35ff5da32f321dbea92849db0b586aa82",
+    "assets/table-Gg-KmVfr.js": "2c2b375ab12dbe0f8833322ec476e7e1624f5c55db57af0e141458f21683d5af",
+    "assets/tabs-C_zU6Q6Z.js": "16a490822bfea102b7b113b0da62f299911e35159b2dac4dc3d802c0b4e64955",
+    "assets/task-detail-BFM2qXFl.js": "3e2ac03802735c50736fd07413b8761b8304b525b39cdde4c6e6d6f4d064d842",
+    "assets/task-detail-card-qmwpNyuj.js": "bf9681097eb5d1b8212408d55387e8bf7572588491894095991a54e329e2bda0",
+    "assets/templates-DasdOODB.js": "4302e08bf63a690ff34a8418f7b73465479f2486daa0a98482fc80331e4c7a49",
+    "assets/textarea-S6fXRYFh.js": "af887d2651cad08ddb071ce7ebb6a42f9d05ee5dc04102be4314686ad2355a95",
+    "assets/tooltip-BkRRs_mV.js": "aed6c91c09e5d3d7e6fd0387c92ae30f8f6a601af7e4cbf8d846e32919683b2c",
+    "assets/ui-preview-C1sTnO6N.css": "036ca60bf8ade9d0fd9d6f906e6c15faec954750b5df04badb722693aff859c5",
+    "assets/ui-preview-SVJeInGg.js": "bc321fa2098b3a2721928efb78a295b6e90f38742ca44441e027f6eb8232c6d0",
+    "assets/utils-y_cw0P81.js": "999998e321c412004f562accf22eddd57c7cbc8db0d97bc9f66932e82d0afd53",
+    "assets/vendor-data-CqEgLqsf.js": "6af0eb8e22f981ce7bc7da2b45274a533f7358e646ea386f93d3323d55f1c018",
+    "assets/vendor-react-CJfTswhJ.js": "056a09fa1ea4f6b49d1a9a1c2f8324912e655fc43f731b0e40a2a0b0f9a8abd2",
+    "assets/vendor-ui-BBMg3byc.js": "8084d166f4c78990c9275ad300b75a25302d4a40663eba634eb8273112e86661",
+    "assets/watches-Bx_-MvXG.js": "b066371cae35f7371b5979eb3be2b93fc97d5acd44a31b607ed2b1da334be123",
+    "assets/workbench-Bj-KRm3z.js": "e29aadd0abe4538c9696428ef433594a94f407b0f0af4b32b888b35c304fdc8f",
+    "assets/workbook-editor-BshdhdR9.js": "5de8f878888811c9426dd91a712bfbc57e66ab1509ca36b9b2e7384d0fc09639",
+    "assets/workbook-editor-CE8M8LiC.css": "501bbc615519ea302fba6aba9cfc671544e90e1df6874799d2b899bd2788d760",
+    "assets/workbook-hooks-MmiMn-Er.js": "32424b6f68a6b7868d9c82fdeef4150806a8d4d7e4f423f64ffa02821eed5816",
+    "assets/workbooks-B7GE-6yZ.js": "7a7406f5c246861b1aaba9331553c1c1b2d125781b256ab30f9d117239b4afeb",
+    "assets/workbooks-DsgkLMji.css": "74347cd6735757ac33f1f0c6d91b09e86b7de58b9a4731c9b91cf52e5972cd7b",
+    "assets/workspaces-manager-DQqKUkAQ.js": "e27a61578bd230dfce81303e79dcb344aae5173499225aa996cce6c50ae16b75",
+    "favicon.svg": "558c4e001c5b00854dcbd70c370c3d45c59bcf4a5fe43ec956827fd845aef7ef",
+    "icons.svg": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+    "index.html": "07527e438a998505594e647696e949fb2d2b08bca4c45499d945b8ae1ab116fc",
+    "logo.svg": "c07e96dfa6d41068555277fc8f6d01f9535f0493c583e7090357f83679ad1fb2",
+    "opengtm-lockup.svg": "3300d1c2c22ba4b33cd37a490ede2b4f4554e55eab920989b4101ec0c2942185",
+    "opengtm-mark-v2.svg": "6019293fc2051d3fd9af5d063298c87384bf3aadfc1c631881eae432f89a6fb0",
+    "opengtm-mark-v3.svg": "69c3661ace6236653d81a92af4ff38e8d55580367f561ebf785d4effc0e8e141",
+    "opengtm-mark-v4.svg": "79b677a82421a386f693ce5f5005da9503b84b54fca417a743a29c06e98162e8",
+    "opengtm-mark-v5.svg": "54d476204d84d502e70fe7b6f5584d3b4d5ffd6ee9eda34b44c50f426d486a9e",
+    "opengtm-mark-v6.svg": "283df5eb76dbf7e96dbb7c7cf0d1e4473da961ed665362c96bcc035b2d22fa94",
+    "opengtm-mark-v7.svg": "1325218d81567342640a1bed9583193eeabda370d008968a02a0fe0f186f420e",
+    "opengtm-mark-v8.svg": "becffec1496f84862c59a6f60f7abd82f8372249a16b9564600e3e89460ed18b",
+    "opengtm-mark.png": "8ccd131dba68d75cd9a59678415196be85d8f6857df2ae3092729a01c1157ac0",
+    "theme.js": "4f557e0f50bb4b18a711ed2cc2eee5e716b271ae3d2e75bfa1b94f9994ed5351",
+    "ui-preview.html": "b93a7cc73a870ae6e5e4c3a296593c5c6273f98a35746bbbdc8355fafe4e5c2b"
+  },
+  "limitations": "Automated local checks with synthetic fixtures. Full release, manual AT, actual browser zoom, operator pilot and full performance gates remain in ../completion-audit.md.",
+  "served_index_sha256": "07527e438a998505594e647696e949fb2d2b08bca4c45499d945b8ae1ab116fc"
+}

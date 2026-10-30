@@ -135,7 +135,7 @@ function StageRow({ stage }: { stage: JobStage }) {
             <StageIcon className="size-3" />
           </div>
           <span className="text-xs font-medium flex-1 truncate">{meta.label}</span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">
+          <span className="text-xs text-muted-foreground tabular-nums">
             {stage.output_count > 0 && <span className="text-foreground font-medium">{stage.output_count}</span>}
             {stage.rejected_count > 0 && <span className="text-destructive/70 ml-1">-{stage.rejected_count}</span>}
           </span>
@@ -146,7 +146,7 @@ function StageRow({ stage }: { stage: JobStage }) {
 
       {hasDetails && (
         <CollapsibleContent>
-          <div className="ml-7 mr-2 mb-1.5 p-2 rounded bg-muted/30 space-y-1 text-[10px]">
+          <div className="ml-7 mr-2 mb-1.5 p-2 rounded bg-muted/30 space-y-1 text-xs">
             {tiers && (
               <div className="flex flex-wrap gap-1">
                 {Object.entries(tiers).map(([t, count]) => (
@@ -167,7 +167,7 @@ function StageRow({ stage }: { stage: JobStage }) {
             {rejectedNames && rejectedNames.length > 0 && (
               <div className="flex flex-wrap gap-0.5">
                 {rejectedNames.slice(0, 8).map((name, i) => (
-                  <Badge key={i} variant="outline" className="text-[9px] px-1 py-0 border-destructive/20 text-destructive/70">{name}</Badge>
+                  <Badge key={i} variant="outline" className="text-xs px-1 py-0 border-destructive/20 text-destructive/70">{name}</Badge>
                 ))}
                 {rejectedNames.length > 8 && <span className="text-muted-foreground">+{rejectedNames.length - 8}</span>}
               </div>
@@ -249,7 +249,7 @@ function LiveActivityFeed({ events, isRunning }: { events: ActivityEvent[]; isRu
         <span className="text-muted-foreground/60 tabular-nums">({events.length})</span>
       </h3>
       <ScrollArea className="h-44 rounded-md border bg-muted/20">
-        <div className="p-2 space-y-0.5 font-mono text-[11px] leading-relaxed">
+        <div className="p-2 space-y-0.5 font-mono text-xs leading-relaxed">
           {events.map((e, i) => {
             const meta = STAGE_META[e.stage]
             return (
@@ -373,7 +373,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
     return compact ? (
       <Skeleton className="h-24 w-full rounded-lg" />
     ) : (
-      <div className="space-y-3 p-4">
+      <div className="space-y-3 p-3">
         <Skeleton className="h-6 w-64" />
         <Skeleton className="h-4 w-48" />
         {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full" />)}
@@ -383,7 +383,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
 
   if (!job) {
     return (
-      <div className="text-sm text-muted-foreground p-4 text-center">
+      <div className="text-sm text-muted-foreground p-3 text-center">
         Task not found
       </div>
     )
@@ -435,7 +435,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 <StatusIcon className={cn("size-3.5", STATUS_COLORS[job.status], isRunning && "animate-spin")} />
                 <span className="text-xs text-muted-foreground capitalize">{job.status}</span>
                 {job.leads_found > 0 && (
-                  <Badge variant="outline" className="text-[10px] py-0">{job.leads_found} qualified</Badge>
+                  <Badge variant="outline" className="text-xs py-0">{job.leads_found} qualified</Badge>
                 )}
                 {duration > 0 && (
                   <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
@@ -487,10 +487,10 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
         <div className="flex-1 min-w-0">
           <h2 className="text-base font-semibold leading-tight truncate">{job.query}</h2>
           <div className="flex items-center gap-2 mt-1 flex-wrap">
-            <Badge variant={job.status === "done" ? "default" : job.status === "failed" ? "destructive" : "secondary"} className="text-[10px]">
+            <Badge variant={job.status === "done" ? "default" : job.status === "failed" ? "destructive" : "secondary"} className="text-xs">
               {job.status}
             </Badge>
-            <Badge variant="outline" className="text-[10px] capitalize">
+            <Badge variant="outline" className="text-xs capitalize">
               {(job.intent || "market_search").replace(/_/g, " ")}
             </Badge>
             {job.leads_found > 0 && (
@@ -499,7 +499,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             {duration > 0 && (
               <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
             )}
-            <span className="text-[10px] text-muted-foreground">
+            <span className="text-xs text-muted-foreground">
               {new Date(job.created_at).toLocaleString()}
             </span>
           </div>
@@ -507,7 +507,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
           {(job.status === "running" || job.status === "pending") && (
-            <Button variant="outline" size="sm" className="h-6 text-[10px] gap-0.5 px-2 text-destructive hover:text-destructive" onClick={async () => {
+            <Button variant="outline" size="sm" className="h-6 text-xs gap-0.5 px-2 text-destructive hover:text-destructive" onClick={async () => {
               await fetch(`/api/jobs/${job.id}/cancel`, { method: "POST" })
               queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
               toast.success("Task cancelled")
@@ -517,7 +517,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             </Button>
           )}
           {(job.status === "failed" || job.status === "cancelled") && (
-            <Button variant="outline" size="sm" className="h-6 text-[10px] gap-0.5 px-2" onClick={async () => {
+            <Button variant="outline" size="sm" className="h-6 text-xs gap-0.5 px-2" onClick={async () => {
               await fetch(`/api/jobs/${job.id}/retry`, { method: "POST" })
               queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
               toast.success("Queued for retry")
@@ -527,7 +527,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             </Button>
           )}
           {job.status === "done" && qualifiedCount > 0 && (
-            <Button variant="outline" size="sm" className="h-6 text-[10px] gap-0.5 px-2" onClick={async () => {
+            <Button variant="outline" size="sm" className="h-6 text-xs gap-0.5 px-2" onClick={async () => {
               try {
                 const { createWorkbookFromJobs } = await import("@/lib/workbook-api")
                 const wb = await createWorkbookFromJobs({ job_ids: [job.id] })
@@ -540,7 +540,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
               <Database className="size-3" /> Workbook
             </Button>
           )}
-          <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-0.5 px-1.5" onClick={async () => {
+          <Button variant="ghost" size="sm" className="h-6 text-xs gap-0.5 px-1.5" onClick={async () => {
             await fetch(`/api/jobs/${job.id}?keep_leads=true`, { method: "DELETE" })
             queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
             toast.success("Task removed (leads kept)")
@@ -548,7 +548,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
           }}>
             <FileX2 className="size-3" />
           </Button>
-          <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-0.5 px-1.5 text-destructive hover:text-destructive" onClick={async () => {
+          <Button variant="ghost" size="sm" className="h-6 text-xs gap-0.5 px-1.5 text-destructive hover:text-destructive" onClick={async () => {
             if (!confirm(`Delete "${job.query}" and all its leads?`)) return
             await fetch(`/api/jobs/${job.id}?keep_leads=false`, { method: "DELETE" })
             queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
@@ -670,7 +670,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
                 </tbody>
               </table>
               {leads.length > 20 && (
-                <div className="text-center py-1.5 text-[10px] text-muted-foreground border-t">
+                <div className="text-center py-1.5 text-xs text-muted-foreground border-t">
                   +{leads.length - 20} more leads
                 </div>
               )}
@@ -692,7 +692,7 @@ function MetricPill({ label, value, icon: Icon, sub }: {
       <Icon className="size-3 text-muted-foreground" />
       <span className="text-muted-foreground">{label}</span>
       <span className="font-semibold tabular-nums">{value}</span>
-      {sub && <span className="text-destructive/70 text-[10px]">{sub}</span>}
+      {sub && <span className="text-destructive/70 text-xs">{sub}</span>}
     </div>
   )
 }

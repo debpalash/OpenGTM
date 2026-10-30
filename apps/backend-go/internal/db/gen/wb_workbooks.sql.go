@@ -31,7 +31,7 @@ func (q *Queries) DeleteWorkbook(ctx context.Context, arg DeleteWorkbookParams) 
 
 const getWorkbookOwned = `-- name: GetWorkbookOwned :one
 
-SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key FROM workbooks
+SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type FROM workbooks
 WHERE id = $1::text AND workspace_id = $2::text
 `
 
@@ -68,12 +68,13 @@ func (q *Queries) GetWorkbookOwned(ctx context.Context, arg GetWorkbookOwnedPara
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }
 
 const getWorkbookOwnedForUpdate = `-- name: GetWorkbookOwnedForUpdate :one
-SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key FROM workbooks
+SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type FROM workbooks
 WHERE id = $1::text AND workspace_id = $2::text
 FOR UPDATE
 `
@@ -106,6 +107,7 @@ func (q *Queries) GetWorkbookOwnedForUpdate(ctx context.Context, arg GetWorkbook
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }
@@ -118,7 +120,7 @@ VALUES ($1::text, $2::text, $3::text, 'draft',
         $4::text, $5::text, $6::json,
         $7::json, $8::json, 0, 0, true,
         0.0, 0.0, '{}'::json, (now() AT TIME ZONE 'utc'), (now() AT TIME ZONE 'utc'))
-RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key
+RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type
 `
 
 type InsertWorkbookParams struct {
@@ -164,12 +166,13 @@ func (q *Queries) InsertWorkbook(ctx context.Context, arg InsertWorkbookParams) 
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }
 
 const listWorkbooks = `-- name: ListWorkbooks :many
-SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key FROM workbooks
+SELECT workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type FROM workbooks
 WHERE workspace_id = $1::text
 ORDER BY updated_at DESC, id
 `
@@ -203,6 +206,7 @@ func (q *Queries) ListWorkbooks(ctx context.Context, workspaceID string) ([]Work
 			&i.UpdatedAt,
 			&i.LastRunAt,
 			&i.ActionIdempotencyKey,
+			&i.RecordType,
 		); err != nil {
 			return nil, err
 		}
@@ -232,7 +236,7 @@ func (q *Queries) TouchWorkbook(ctx context.Context, arg TouchWorkbookParams) er
 const updateWorkbookColumns = `-- name: UpdateWorkbookColumns :one
 UPDATE workbooks SET columns_config = $1::json, updated_at = (now() AT TIME ZONE 'utc')
 WHERE id = $2::text AND workspace_id = $3::text
-RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key
+RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type
 `
 
 type UpdateWorkbookColumnsParams struct {
@@ -264,6 +268,7 @@ func (q *Queries) UpdateWorkbookColumns(ctx context.Context, arg UpdateWorkbookC
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }
@@ -276,7 +281,7 @@ UPDATE workbooks SET
   filter_criteria = CASE WHEN $4::bool THEN $5::json ELSE filter_criteria END,
   updated_at = (now() AT TIME ZONE 'utc')
 WHERE id = $6::text AND workspace_id = $7::text
-RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key
+RETURNING workbooks.id, workbooks.name, workbooks.description, workbooks.status, workbooks.workspace_id, workbooks.source_type, workbooks.source_config, workbooks.filter_criteria, workbooks.columns_config, workbooks.total_rows, workbooks.completed_rows, workbooks.sync_to_leads, workbooks.budget_max_usd, workbooks.budget_spent_usd, workbooks.refresh_policy, workbooks.created_at, workbooks.updated_at, workbooks.last_run_at, workbooks.action_idempotency_key, workbooks.record_type
 `
 
 type UpdateWorkbookMetaParams struct {
@@ -322,6 +327,7 @@ func (q *Queries) UpdateWorkbookMeta(ctx context.Context, arg UpdateWorkbookMeta
 		&i.UpdatedAt,
 		&i.LastRunAt,
 		&i.ActionIdempotencyKey,
+		&i.RecordType,
 	)
 	return i, err
 }

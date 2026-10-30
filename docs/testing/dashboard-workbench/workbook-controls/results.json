@@ -1,0 +1,271 @@
+{
+  "source_revision": "f217b9d40cb4d7cbe3aeab8f15d25497f5b5f99f",
+  "date": "2026-10-29",
+  "served_build": "Go API with embedded production UI on http://127.0.0.1:8002",
+  "checks": {
+    "frontend_tests": 102,
+    "failures": 0,
+    "lint": "pass",
+    "typecheck_and_production_build": "pass",
+    "embedded_go_api_build": "pass",
+    "layout_axe_states": 15,
+    "axe_violations": 0,
+    "go_database_race_tests": [
+      "--- PASS: TestOrderLiteralNotCapturedByColumnID (0.41s)",
+      "--- PASS: TestGuardStrings (0.37s)",
+      "--- PASS: TestWidthBounds (0.40s)",
+      "--- PASS: TestConcurrentColumnEditsSerialize (0.38s)",
+      "--- PASS: TestForeignAndMissingWorkbook404 (0.62s)"
+    ]
+  },
+  "layout": {
+    "pointer_column_move_and_position_persist": "pass",
+    "failed_and_conflicted_order_retains_choice": "pass",
+    "immediate_keyboard_drop_after_resize": "pass",
+    "pointer_drag_after_keyboard_drag": "pass",
+    "keyboard_drag_cancel_does_not_save": "pass",
+    "axe": [
+      {
+        "name": "settings-light",
+        "violations": []
+      },
+      {
+        "name": "settings-dark",
+        "violations": []
+      },
+      {
+        "name": "panel-light-changes",
+        "violations": []
+      },
+      {
+        "name": "panel-light-columns",
+        "violations": []
+      },
+      {
+        "name": "panel-light-errors",
+        "violations": []
+      },
+      {
+        "name": "panel-dark-changes",
+        "violations": []
+      },
+      {
+        "name": "panel-dark-columns",
+        "violations": []
+      },
+      {
+        "name": "panel-dark-errors",
+        "violations": []
+      },
+      {
+        "name": "panel-narrow-320",
+        "violations": []
+      },
+      {
+        "name": "panel-narrow-390",
+        "violations": []
+      },
+      {
+        "name": "panel-narrow-768",
+        "violations": []
+      },
+      {
+        "name": "settings-touch-320",
+        "violations": []
+      },
+      {
+        "name": "panel-touch-320-changes",
+        "violations": []
+      },
+      {
+        "name": "panel-touch-320-columns",
+        "violations": []
+      },
+      {
+        "name": "panel-touch-320-errors",
+        "violations": []
+      }
+    ],
+    "numeric_width_validation_and_reload": "pass",
+    "panel_pointer_keyboard_size_and_persistence": "pass",
+    "activity_tabs_keyboard_and_close_focus": "pass",
+    "reloaded_error_and_skips_are_honest": "pass",
+    "large_error_list_is_bounded_and_paginated": "pass",
+    "short_height_cap": "pass",
+    "touch_settings_and_activity_targets": "pass",
+    "page_errors": []
+  },
+  "core_state_regressions": {
+    "overview_stale_data_after_503": "pass",
+    "malformed_summary_and_retry": "pass",
+    "analytics_503_and_retry": "pass",
+    "record_view_only_state": "pass",
+    "grid_keyboard_roving_and_checkbox": "pass",
+    "pinned_column_widths": [
+      36,
+      50,
+      240
+    ],
+    "keyboard_column_resize": "pass",
+    "keyboard_column_reorder": "pass",
+    "import_keyboard_trap_and_escape": "pass",
+    "responsive_geometry": [
+      {
+        "width": 320,
+        "document": 320,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 390,
+        "document": 390,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 768,
+        "document": 768,
+        "header": 56,
+        "toolbar": 85
+      },
+      {
+        "width": 1024,
+        "document": 1024,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1280,
+        "document": 1280,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1440,
+        "document": 1440,
+        "header": 64,
+        "toolbar": 45
+      },
+      {
+        "width": 1920,
+        "document": 1920,
+        "header": 64,
+        "toolbar": 45
+      }
+    ],
+    "overview_text_zoom_200": "pass",
+    "forced_colors_rendered": "pass",
+    "reduced_motion": 0,
+    "page_errors": []
+  },
+  "served_index_sha256": "7e3681b6295cc5c579a1691f2ca2a2b8f6e966bebc1452155f92e3e972d7fc95",
+  "production_assets": {
+    ".vite/manifest.json": "50253f04b15df9a9a1c57d2ff5c362fc370e4ce49bd1c3ffcd8ff3b2c89e9708",
+    "assets/AreaChart-XpH0APuP.js": "f0e2778cc8dc711ed37df639d3c08f45dc1ec6c48a3f6d1dfde3e5ff19ca2ebd",
+    "assets/BarChart-B-MSg_DE.js": "b641075751e092d7e4dfba5de88a40c81f447b60234bf1a215f147a6ddfe3e7e",
+    "assets/PieChart-CNxD258S.js": "f0f982b823f2c51785300043b1c875556957fba6ffec3971ea5d9d6422ef412f",
+    "assets/agents-CrGgGGny.js": "aa56eba614ab13e809e5ed6c36592ec685ce52a08d9862a3a2e88785bfc654bb",
+    "assets/analytics-Buo80RtH.js": "4008b4966f3f1c05aef39db8c1bb6c711a7e6dd3787998d7d59d293a08e1b15c",
+    "assets/app-DNeJe654.css": "8c37ddb03c183d1ed6a0b05cf53f16a920297465849f06fd8bf566e33f191462",
+    "assets/app-Dp4gPJc-.js": "bca76a84963b2de84f54c7590e9cf50b3a6e6d6782e6120b20fb90774c102ccc",
+    "assets/audiences-d8yvW14o.js": "42bfd417cb84c2f4fcc3b46afd683fe06dcafb45cde80e09c865d33be09d1d23",
+    "assets/audiences-h9I9NJAd.css": "0d4f7257a567f11001b44877679ad853efcb0c9a1841fdd2bcf475d087536e7e",
+    "assets/auth-CTwP6CC0.js": "9e50f283b69a19632782e29ec0597eab0d655c3a1a893df4eddf2b474a8e8fd9",
+    "assets/automations-BSWrW4qL.js": "fd0ae512e736b94e9efccf45cba451478075813b6265c9f61951c8aaced5f879",
+    "assets/badge-CGkJooF1.js": "2ced3e271f57a929d26c069ded7dd7c273b29ea62c14f88c9404fbc5585ada23",
+    "assets/campaigns-CTKDG87O.js": "069f869c5932095d2b7b64d5490e9228798d75c77ce816f4cb7c28aec8bb4441",
+    "assets/card-B8v51rqg.js": "f3c3eca6d92ea59a4ade1fa34bcf629ca7e31a001f7f67da2e09903bf719023c",
+    "assets/chat-Bfc0Z677.css": "50407b87b5a5bf702f1e1e7d01c4b87b24dfdda3177149ca3d9ee95122ef34c8",
+    "assets/chat-CR_ZLRtW.js": "cb7522cdd74f24f562b9a99447b7082c9ea010926c3a3bccdfcffd60debb0799",
+    "assets/checkbox-Bqj7QCcC.js": "aa9e9a464898e8cbb2205a139d100bc820c29ae437d113066bd92558f6d52645",
+    "assets/command-menu-content-BpSHfvqT.js": "eeaa1b6ff0f06f3babed4c4f516959ecc957cb47f3cdf69b9744dcfe66f4dbb5",
+    "assets/dialog-HVeOP5-J.js": "016f650161ed55c3ff6b7f124a30c302bc073a65aec0c9a13691f5e0157c2c2f",
+    "assets/editable-cell-COQl0Gy_.js": "20bdaea7c308fad51e7e3e23e3c43bcd4cd05cf2c19776cbe994d21afdd2c4c0",
+    "assets/feature-disabled-C3Khvuqa.js": "41ee452e2e2fff019b3515bfd294651ed92ed3046a5992ff0cb3a7280e4c0865",
+    "assets/gate-B0CpSLVz.js": "a58346e60c01abba172f00d4df43c2e145eeb61b10c58ae4016248ad0a9362bd",
+    "assets/inter-latin-400-normal-C38fXH4l.woff2": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+    "assets/inter-latin-400-normal-CyCys3Eg.woff": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+    "assets/inter-latin-500-normal-BL9OpVg8.woff": "9b42c108da48b5ed55a3072e815ffee2d271562e6c0dd6998910e8f9c09e0a3d",
+    "assets/inter-latin-500-normal-Cerq10X2.woff2": "f3779f1efccc4bdcdf9c0a02ab95bf6bd092ed09c48c08cedc725889edd1d19f",
+    "assets/inter-latin-600-normal-CiBQ2DWP.woff": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+    "assets/inter-latin-600-normal-LgqL8muc.woff2": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+    "assets/label-NvydMinQ.js": "499623b607bd13559a87b03cad115c1880e06c11b6a92319518987b9dc213539",
+    "assets/lead-detail-DP2u6cSv.js": "c7f25abca605641341edd170fa8ea6c45533cea04a79b3e913e047da0605366e",
+    "assets/lead-detail-vh-t_kPv.css": "86d3d093fad979e1d185c8a93258f5f124d863fd13ca894c0b9f50bb68b66997",
+    "assets/leads-D0cHn51D.js": "0681003606c92e33ae7ab183acddd1196ee5af23f98b6d0da937817116d51572",
+    "assets/manrope-latin-600-normal-4f0koTD-.woff2": "f7ac6258da20ab7541939b59851155753d1d24f1b30cbcb949077a3faa3d1593",
+    "assets/manrope-latin-600-normal-BqgrALkZ.woff": "8d1f509774bca963fa02faf674678ce9244474306361ca2798583fa600346df6",
+    "assets/markdown-content-DUTZePJ6.js": "4f7565a0aea4442f6748ee967fe5a6a5fd0353528624bb9226489ed44f3498a6",
+    "assets/native-select-BKw2x7IP.js": "4062c9738e8cc5e36a3b90932c93154e5082c58eba0528360c324c649862d777",
+    "assets/notifications-CQr_lO8-.js": "1d6da5205552e67e58345b7b72b95684ac5975997894ea5348b44aa8269cc198",
+    "assets/outreach-C_mYh71J.js": "a71a836442b1f29723bd4657ebd86e311a051d070cd68db86847e3983ee9257c",
+    "assets/overview-Bq-s5wMA.js": "f3dee18d5939ade45e445c4c1c986972aef7b732775bc56fd9fcdc1fe28a6c9e",
+    "assets/overview-CSqDCOaf.css": "fb3432e2ed4532f4b1809770d5daac47b7e73abc32e30df06ffa99b91b47705a",
+    "assets/papaparse.min-CHENVd_W.js": "0dcaa223a85327f6faf3b9f264af1df336b19d5b10afe9d89f90f9c6723764dc",
+    "assets/primitives-CCxpJD_d.css": "f0552acfbc579fcdec6d8ca8a4eda45de0f63d1aadf8e8a11a4633565f7d89fb",
+    "assets/primitives-DWqoDGpL.js": "c36daad7b15b891f905d3cb2d81e386ed51f1f1fcce2420b2e86e007528c1d9c",
+    "assets/query-client-CrpVWlWf.js": "fa4c90c6adc3f497ea80d47431e174dc96653bd90d7c9877a9823e4fa7a23a7f",
+    "assets/record-overview-BSiNH4wO.js": "0fa18bf7108fad2c0082aa09e3abb9a7c25c3cd98f86c455dbd9026b520346d3",
+    "assets/records-CEFhmsR5.js": "4cfa55dd4bf4d903d81426362d9a5bd12cd64dbef08956f8cc910dc7e82c7278",
+    "assets/records-CLDjz_-Q.css": "16b2cb5ce4b51e89c23d46270559c00471e445caa99f98e8eb5173b8be823124",
+    "assets/records-Ckwcc_aX.js": "e69eb4bffdc29acd620ee94d0fa7287b0381ba922e95a39f0d70f1ccfc7e227e",
+    "assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+    "assets/scene-motion-Bi7wPNvE.js": "5f7e94e59775d93c3325a9baf2f9c90b98be2881fa537e2de4f365f280578a2a",
+    "assets/scroll-area-3WJVrirl.js": "c33a1215ac57a2536f6955fd1fe0db36596ebd086a884ced720cd48c6a8c73df",
+    "assets/search-Bt4WAH7F.js": "4b8ed3a44163c4af5a5b8ea99a636ceea99cececce04946bef75890d3d40eab3",
+    "assets/select-CRQV1-Ns.js": "32ea96db2ed0c9be072373672495496a6a874e18a72abe052aec995bcd6316ec",
+    "assets/semantic-icons-CjJNpkQ-.js": "5f49ece55b3a84e24f10a9703cff4f5bce31edb31c6752e9436bd61942c34b77",
+    "assets/settings-CiKJl9AI.js": "3c180c60ac568c465c2dc9fe453388db421ce6676ed30301a30f34668ac14484",
+    "assets/sheet-CcN1b3XI.js": "2a0d1ff0d25d7be80ddb050941182f8297397db29c2b84a24b6badee106240f6",
+    "assets/signals-1IeXw-cM.js": "bfc9ff07bd61c9f770b4a56661547da58f922f74e71b71b56c71edae0344f5a8",
+    "assets/source-engine-panel-AF2LB9Mq.js": "3cd52ac4d35cc7197a7e92614cfbe98f769bd3725309a40b8c473a20dcab0f77",
+    "assets/sources-Bc3LJyHv.js": "8685f68c70032ae4e97cc9bf40d95f2433aca8f9334fc2de89ec4c2d6ab3a51d",
+    "assets/src-BXoPiMdY.css": "4595bbdde90372eabb8be36db7bd2377b9278c0d272fa309c41f789d587ff422",
+    "assets/src-N500Uxa3.js": "dd5083a602322fb01cd92ad32223b23794d047ea2128873f4e40b8a817fb7db3",
+    "assets/status-dot-Bh5JhWPT.js": "6a0227ffae5a8591b9864d8fadaa4a4f43f96bed7b47affe8d0871531a0d38b9",
+    "assets/surfaces-CJtMfSRY-IrPs7xMG.js": "16727d78f7c0561e232e13863b38501d07359a1b4baad578285360e77f377317",
+    "assets/switch-DDu7RUKW.js": "5809f3ec62b5523c2ce5ee945a6ce24712d505cdda570cb35200f3e1c37607a0",
+    "assets/table-C5UQ6fwO.js": "b8f36a1dda7ad5baaef64e2ecdd98b8d07e8d043341a4f154a666bccb8a0518f",
+    "assets/tabs-CCsSkTVC.js": "3c297dae0dd15cac16e83cd11e672b6068d3eeb883eb8f0d95c3dd2d4a5743c5",
+    "assets/task-detail-D-F6HavN.js": "6cec353358a4733fe4e2d40486ecf07ce70b0cc9049d988d97e0dfa644c00ca9",
+    "assets/task-detail-card-Ca1AGkrx.js": "ede42fc85adf3c0b062e345cf05798dff7d41e23117e77f4e1cbd22b411a7781",
+    "assets/templates-Dq28UlIp.js": "b4077b9f5132e2397ce5db0e5af83664ecf2f1273fe0d1178698d6b2205db441",
+    "assets/textarea-2PSr4rMJ.js": "b3b812440d76286edf6b96de0e1aa54828deb567e4017e4d87f23cdef4a6fd4c",
+    "assets/tooltip-DwjEx3xw.js": "10e8e922b9ec475de9d27c468d38da300dae7e68f39e95301ad4423ae55143be",
+    "assets/ui-preview-C1sTnO6N.css": "036ca60bf8ade9d0fd9d6f906e6c15faec954750b5df04badb722693aff859c5",
+    "assets/ui-preview-DIneXPHZ.js": "76b27ecbdb0ce22fe106ee92e284c781ee8eef4452dab974bf02eaaabe13d57d",
+    "assets/utils-xCRtrKPW.js": "64dae385f4cdae381e375802bff7ddadd7570d65a25074d05a3b3fc8a3b3da46",
+    "assets/vendor-data-DHwHGRy5.js": "754d90f8e3ab02878db6a8f72c1ed7ac782f4e431e77a1127bcb3f82f3122a12",
+    "assets/vendor-react-Bt71-tLz.js": "3fd17a0582e044c45b542f3afd51858e734231f39adb3594c91bcd631c87bb94",
+    "assets/vendor-ui-DP3Pq_qM.js": "977e4173ab4f472ddd94b62202b6323f837e78ac294f0182d4962dca46737a6f",
+    "assets/watches-Cz9PttPV.js": "cb4a869d41e41d2b6bbb2a4ad01f06731419d8c25d3c56f7e82657407f485d07",
+    "assets/workbench-CqbWeVr4.js": "1c98f550477225daeaa1cc8d0d059457822103552e6dd76d1dc2bf8b0c0ffb42",
+    "assets/workbook-editor-CE8M8LiC.css": "501bbc615519ea302fba6aba9cfc671544e90e1df6874799d2b899bd2788d760",
+    "assets/workbook-editor-DVFIVQqB.js": "1d930493efd21ad8bd4008f39e06896b1277c96e7323d834b1b8fa40b6e54731",
+    "assets/workbook-hooks-C02HUS7H.js": "086f3d6e8c043cb699b0dca89e3690802d4553fe4a867f1cafd6c299d1433055",
+    "assets/workbooks-CEkeCq65.css": "bccdcff7174b6364f2bb6d01a2d1f6ed6c59cc20077e75a243b1e07154a97013",
+    "assets/workbooks-CttME-ka.js": "c5f6730c2835cf2ed44d262543ed29f5b9e419791830e4fce79f0db58ea0fc5f",
+    "assets/workspaces-manager-BHbCy_Y7.js": "4dbccbb1840b7e9bbd52570ca593a156cdb24a284407bd8268a805059be1280b",
+    "favicon.svg": "558c4e001c5b00854dcbd70c370c3d45c59bcf4a5fe43ec956827fd845aef7ef",
+    "icons.svg": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+    "index.html": "7e3681b6295cc5c579a1691f2ca2a2b8f6e966bebc1452155f92e3e972d7fc95",
+    "logo.svg": "c07e96dfa6d41068555277fc8f6d01f9535f0493c583e7090357f83679ad1fb2",
+    "opengtm-lockup.svg": "3300d1c2c22ba4b33cd37a490ede2b4f4554e55eab920989b4101ec0c2942185",
+    "opengtm-mark-v2.svg": "6019293fc2051d3fd9af5d063298c87384bf3aadfc1c631881eae432f89a6fb0",
+    "opengtm-mark-v3.svg": "69c3661ace6236653d81a92af4ff38e8d55580367f561ebf785d4effc0e8e141",
+    "opengtm-mark-v4.svg": "79b677a82421a386f693ce5f5005da9503b84b54fca417a743a29c06e98162e8",
+    "opengtm-mark-v5.svg": "54d476204d84d502e70fe7b6f5584d3b4d5ffd6ee9eda34b44c50f426d486a9e",
+    "opengtm-mark-v6.svg": "283df5eb76dbf7e96dbb7c7cf0d1e4473da961ed665362c96bcc035b2d22fa94",
+    "opengtm-mark-v7.svg": "1325218d81567342640a1bed9583193eeabda370d008968a02a0fe0f186f420e",
+    "opengtm-mark-v8.svg": "becffec1496f84862c59a6f60f7abd82f8372249a16b9564600e3e89460ed18b",
+    "opengtm-mark.png": "8ccd131dba68d75cd9a59678415196be85d8f6857df2ae3092729a01c1157ac0",
+    "theme.js": "4f557e0f50bb4b18a711ed2cc2eee5e716b271ae3d2e75bfa1b94f9994ed5351",
+    "ui-preview.html": "40b77aaf27284b80fadecd765220a44fa58bd3e236637a7b5f89301cce7b118d"
+  },
+  "keyboard_regression": {
+    "before": "Three of three same-task Arrow/Space drops were lost before the fix. The coordinate target was correct, but onDragEnd still saw the active column as its collision target; no save request was made.",
+    "after": "Immediate Arrow/Space drops, post-save focus, pointer dragging after keyboard dragging, and Escape cancellation pass against the embedded app. Native dimensions also pass at 80px and 600px.",
+    "test_boundary": "KeyboardSensor installs its document listener on the next task. The harness allows that task after pickup, then dispatches Arrow and drop in the same task; there is no wait for collision/render state between them."
+  },
+  "scope_limits": "See ../completion-audit.md. This increment does not certify the full state/browser/assistive-technology/performance/operator-pilot matrix."
+}

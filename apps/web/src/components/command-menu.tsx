@@ -50,7 +50,7 @@ export function CommandMenu() {
             <Content open={open} setOpen={setOpen} />
           </>
         ) : (
-          <div className="grid gap-3 p-4">
+          <div className="grid gap-3 p-3">
             <DialogHeader>
               <DialogTitle>Command Palette</DialogTitle>
               <DialogDescription role={failed ? "alert" : "status"}>

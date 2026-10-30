@@ -1,3 +1,5 @@
+import { fetchProviderSettings } from "@/features/settings/provider-client"
+import { getActiveWorkspace } from "./auth"
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useRef, useCallback, useState } from "react"
 import { queryKeys } from "./query-client"
@@ -60,20 +62,20 @@ export function useLeadTimeline(id: number) {
 }
 
 export function useAudiences() {
-  return useQuery({ queryKey: queryKeys.audiences.all, queryFn: fetchAudiences })
+  return useQuery({ queryKey: [...queryKeys.audiences.all,getActiveWorkspace()], queryFn: ({signal})=>fetchAudiences(signal) })
 }
 
-export function useAudienceMembers(id: string | null) {
+export function useAudienceMembers(id: string | null, offset=0) {
   return useQuery({
-    queryKey: queryKeys.audiences.members(id ?? ""),
-    queryFn: () => fetchAudienceMembers(id!), enabled: !!id,
+    queryKey: [...queryKeys.audiences.members(id ?? ""),getActiveWorkspace(),offset],
+    queryFn: ({signal}) => fetchAudienceMembers(id!,offset,signal), enabled: !!id,
   })
 }
 
 export function useAudienceEvents(id: string | null) {
   return useQuery({
-    queryKey: queryKeys.audiences.events(id ?? ""),
-    queryFn: () => fetchAudienceEvents(id!), enabled: !!id,
+    queryKey: [...queryKeys.audiences.events(id ?? ""),getActiveWorkspace()],
+    queryFn: ({signal}) => fetchAudienceEvents(id!,signal), enabled: !!id,
   })
 }
 
@@ -115,8 +117,8 @@ export function useUpdateAudience() {
 
 export function useAudienceDestinations(audienceId: string | null) {
   return useQuery({
-    queryKey: queryKeys.audienceDestinations(audienceId ?? ""),
-    queryFn: () => fetchAudienceDestinations(audienceId!), enabled: !!audienceId,
+    queryKey: [...queryKeys.audienceDestinations(audienceId ?? ""),getActiveWorkspace()],
+    queryFn: ({signal}) => fetchAudienceDestinations(audienceId!,signal), enabled: !!audienceId,
     refetchInterval: 5_000,
   })
 }
@@ -386,28 +388,12 @@ export function useSSE(url = "/api/events") {
 
 // ── Providers ───────────────────────────────────────────────────
 
-export interface Provider {
-  id: string
-  name: string
-  icon: string
-  configured: boolean
-  api_key_masked: string
-  base_url: string
-  model: string
-  default_model: string
-  docs_url: string
-  free_tier: string
-  is_default: boolean
-  openai_compatible: boolean
-}
+export type { Provider } from "@/features/settings/provider-client"
 
 export function useProviders() {
   return useQuery({
     queryKey: queryKeys.providers,
-    queryFn: async (): Promise<{ providers: Provider[]; default_provider: string }> => {
-      const res = await fetch("/api/settings/providers")
-      return res.json()
-    },
+    queryFn: ({ signal }) => fetchProviderSettings(signal),
     staleTime: 60 * 1000,
   })
 }
@@ -462,17 +448,17 @@ export function useConversationMessages(id: string | null) {
 // ── Analytics ───────────────────────────────────────────────────
 
 export function useAnalyticsOverview() {
-  return useQuery({ queryKey: ["analytics", "overview"], queryFn: fetchAnalyticsOverview, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "overview"], queryFn: ({signal})=>fetchAnalyticsOverview(signal), staleTime: 30_000 })
 }
 export function useAnalyticsPipeline() {
-  return useQuery({ queryKey: ["analytics", "pipeline"], queryFn: fetchAnalyticsPipeline, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "pipeline"], queryFn: ({signal})=>fetchAnalyticsPipeline(signal), staleTime: 30_000 })
 }
 export function useAnalyticsCollection() {
-  return useQuery({ queryKey: ["analytics", "collection"], queryFn: fetchAnalyticsCollection, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "collection"], queryFn: ({signal})=>fetchAnalyticsCollection(signal), staleTime: 30_000 })
 }
 export function useAnalyticsEnrichment() {
-  return useQuery({ queryKey: ["analytics", "enrichment"], queryFn: fetchAnalyticsEnrichment, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "enrichment"], queryFn: ({signal})=>fetchAnalyticsEnrichment(signal), staleTime: 30_000 })
 }
 export function useAnalyticsLLM() {
-  return useQuery({ queryKey: ["analytics", "llm"], queryFn: fetchAnalyticsLLM, staleTime: 30_000 })
+  return useQuery({ queryKey: ["analytics", getActiveWorkspace(), "llm"], queryFn: ({signal})=>fetchAnalyticsLLM(signal), staleTime: 30_000 })
 }

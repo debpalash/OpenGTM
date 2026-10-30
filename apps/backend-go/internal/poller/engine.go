@@ -52,6 +52,7 @@ func (d HandlerDeps) log() *slog.Logger {
 // subscription and its decoded JSON columns.
 type WatchRow struct {
 	ID, WorkspaceID, Kind, Target string
+	CompanyID, PersonID           string
 	ResolvedCIK                   string
 	LeadID                        int64 // 0 = not pinned
 	SignalTypes                   []string
@@ -111,7 +112,7 @@ func loadWatchRow(ctx context.Context, tx pgx.Tx, id, ws string) (WatchRow, bool
 		return WatchRow{}, false, fmt.Errorf("poller: load watch: %w", err)
 	}
 	w := WatchRow{ID: r.ID, WorkspaceID: r.WorkspaceID, Kind: r.Kind, Target: r.Target, Enabled: r.Enabled,
-		SignalTypes: decodeStrings(r.SignalTypes), Config: decodeObject(r.Config), Cursor: decodeObject(r.Cursor)}
+		CompanyID: r.CompanyEntityID.String, PersonID: r.PersonEntityID.String, SignalTypes: decodeStrings(r.SignalTypes), Config: decodeObject(r.Config), Cursor: decodeObject(r.Cursor)}
 	if r.ResolvedCik.Valid {
 		w.ResolvedCIK = r.ResolvedCik.String
 	}
@@ -130,7 +131,7 @@ func ResolveLeadID(ctx context.Context, tx pgx.Tx, w WatchRow) (lead int64, errT
 	if w.LeadID != 0 {
 		return w.LeadID, "", nil
 	}
-	if w.Kind == "job_change" || w.Kind == "account_group" {
+	if w.CompanyID != "" || w.PersonID != "" || w.Kind == "job_change" || w.Kind == "account_group" {
 		return 0, "", nil
 	}
 	target := NormalizeTarget(w.Target)
@@ -205,11 +206,18 @@ func EmitEvents(ctx context.Context, tx pgx.Tx, hook automationhook.Hook, w Watc
 		if created == 0 {
 			created = float64(now.UnixNano()) / 1e9
 		}
-		_, err := q.ScanInsertSignal(ctx, gen.ScanInsertSignalParams{
-			ID: id, WorkspaceID: w.WorkspaceID, LeadID: int32(l), Company: company, SignalType: ev.SignalType,
-			Title: ev.Title, Description: ev.Description, Source: ev.Source, SourceUrl: ev.SourceURL,
-			Weight: int32(ev.Weight), CreatedAt: created,
-		})
+		var insertedID string
+		var err error
+		if w.CompanyID != "" || w.PersonID != "" {
+			var legacy *int64
+			if l > 0 {
+				legacy = &l
+			}
+			err = tx.QueryRow(ctx, `INSERT INTO signals(id,workspace_id,lead_id,company_entity_id,person_entity_id,company,signal_type,title,description,source,source_url,weight,created_at,read) VALUES($1,$2,$3,nullif($4,''),nullif($5,''),$6,$7,$8,$9,$10,$11,$12,$13,false) ON CONFLICT(id) DO NOTHING RETURNING id`, id, w.WorkspaceID, legacy, w.CompanyID, w.PersonID, company, ev.SignalType, ev.Title, ev.Description, ev.Source, ev.SourceURL, int32(ev.Weight), created).Scan(&insertedID)
+		} else {
+			insertedID, err = q.ScanInsertSignal(ctx, gen.ScanInsertSignalParams{ID: id, WorkspaceID: w.WorkspaceID, LeadID: int32(l), Company: company, SignalType: ev.SignalType, Title: ev.Title, Description: ev.Description, Source: ev.Source, SourceUrl: ev.SourceURL, Weight: int32(ev.Weight), CreatedAt: created})
+		}
+		_ = insertedID
 		if errors.Is(err, pgx.ErrNoRows) {
 			out.Dupe++
 			continue
@@ -218,7 +226,7 @@ func EmitEvents(ctx context.Context, tx pgx.Tx, hook automationhook.Hook, w Watc
 			return out, fmt.Errorf("poller: insert signal: %w", err)
 		}
 		out.Inserted++
-		ref := automationhook.SignalRef{PK: id, Type: ev.SignalType}
+		ref := automationhook.SignalRef{PK: id, Type: ev.SignalType, CompanyID: w.CompanyID, PersonID: w.PersonID}
 		if l != 0 {
 			ll := l
 			ref.LeadID = &ll
@@ -503,6 +511,11 @@ func (d HandlerDeps) pollOneSource(ctx context.Context, watchID, ws, src, fireKe
 		}
 		switch src {
 		case "web_tech":
+			if row.CompanyID != "" {
+				if err := tx.QueryRow(ctx, `SELECT coalesce(accepted_fields->>'website','https://'||primary_domain) FROM company_entities WHERE workspace_id=$1 AND id=$2`, ws, row.CompanyID).Scan(&website); err != nil {
+					return err
+				}
+			}
 			if lead != 0 && lead <= math.MaxInt32 {
 				w, err := q.PollEngineLeadWebsite(ctx, gen.PollEngineLeadWebsiteParams{ID: int32(lead), WorkspaceID: ws})
 				if err != nil && !errors.Is(err, pgx.ErrNoRows) {
@@ -608,7 +621,7 @@ func (d HandlerDeps) applySource(ctx context.Context, tx pgx.Tx, row WatchRow, s
 		}
 	}
 	routed := src == "job_change" || src == "account_group"
-	if len(evs) > 0 && lead == 0 && !routed {
+	if len(evs) > 0 && lead == 0 && row.CompanyID == "" && row.PersonID == "" && !routed {
 		// A detected company event without a lead cannot be published: keep the cursor.
 		msg := "unresolved_lead"
 		if err := q.PollEngineSaveSource(ctx, gen.PollEngineSaveSourceParams{ID: watchID, WorkspaceID: ws,
@@ -618,7 +631,7 @@ func (d HandlerDeps) applySource(ctx context.Context, tx pgx.Tx, row WatchRow, s
 		return sourceOutcome{failed: true}, nil
 	}
 	var counts EmitCounts
-	if len(evs) > 0 && (lead != 0 || routed) {
+	if len(evs) > 0 && (lead != 0 || row.CompanyID != "" || row.PersonID != "" || routed) {
 		erow := row
 		erow.ResolvedCIK = resolved.String
 		counts, err = EmitEvents(ctx, tx, d.Hook, erow, lead, evs, d.now())

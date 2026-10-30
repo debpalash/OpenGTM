@@ -22,7 +22,7 @@ DELETE FROM entity_blocking_keys
 WHERE entity_id = sqlc.arg(entity_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: ListEntityRowIDs :many
-SELECT id FROM workbook_rows
+SELECT id FROM record_workbook_rows
 WHERE canonical_entity_id = sqlc.arg(entity_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 ORDER BY id;
 
@@ -35,13 +35,13 @@ UPDATE workbook_rows SET canonical_entity_id = sqlc.arg(entity_id)::text, update
 WHERE id = sqlc.arg(id)::int AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: ListAccountReferenceRows :many
-SELECT id, data FROM workbook_rows
+SELECT id, data FROM record_workbook_rows
 WHERE workspace_id = sqlc.arg(workspace_id)::text AND strpos(data::text, sqlc.arg(entity_id)::text) > 0
 ORDER BY id
 FOR UPDATE;
 
 -- name: GetWorkbookRowData :one
-SELECT data FROM workbook_rows
+SELECT data FROM record_workbook_rows
 WHERE id = sqlc.arg(id)::int AND workspace_id = sqlc.arg(workspace_id)::text
 FOR UPDATE;
 
@@ -158,3 +158,8 @@ FOR UPDATE OF p;
 
 -- name: SetEntityReviewPairStatus :exec
 UPDATE entity_review_pairs SET status = sqlc.arg(status)::text WHERE id = sqlc.arg(id)::int;
+
+-- name: MergeSharedCompanyRecords :one
+SELECT opengtm_record_merge_company(sqlc.arg(workspace_id)::text,sqlc.arg(kept_id)::text,sqlc.arg(merged_id)::text)::jsonb;
+-- name: RestoreSharedCompanyRecords :exec
+SELECT opengtm_record_restore_company(sqlc.arg(workspace_id)::text,sqlc.arg(undo)::jsonb);

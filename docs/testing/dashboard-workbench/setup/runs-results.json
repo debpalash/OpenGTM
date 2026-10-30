@@ -1,0 +1,81 @@
+{
+  "workspace_id": "1d158008-f961-4337-a8f0-b5a5f3ffc9c0",
+  "audience_id": "430025d0-f410-4277-9370-e041eb233572",
+  "destination_id": "6f90c3cc-55fd-4c50-9ab2-b06d3873dae3",
+  "review_cancel_and_focus_return_do_not_send": "pass",
+  "axe": [
+    {
+      "name": "sync-review-light",
+      "violations": []
+    },
+    {
+      "name": "changed-review-scope",
+      "violations": []
+    },
+    {
+      "name": "queued-receipt-kept-after-history-failure",
+      "violations": []
+    },
+    {
+      "name": "paged-run-and-canonical-delivery-receipts",
+      "violations": []
+    },
+    {
+      "name": "delivery-read-error",
+      "violations": []
+    },
+    {
+      "name": "retry-review",
+      "violations": []
+    },
+    {
+      "name": "cancellation-review",
+      "violations": []
+    },
+    {
+      "name": "cancellation-requested",
+      "violations": []
+    },
+    {
+      "name": "uncertain-write-recovery",
+      "violations": []
+    },
+    {
+      "name": "membership-refresh-external-effects-review",
+      "violations": []
+    },
+    {
+      "name": "schedule-activation-review",
+      "violations": []
+    },
+    {
+      "name": "audience-write-uncertainty",
+      "violations": []
+    },
+    {
+      "name": "dark-touch-review-320",
+      "violations": []
+    },
+    {
+      "name": "dark-touch-review-390",
+      "violations": []
+    },
+    {
+      "name": "view-only-history",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "changed_scope_requires_explicit_review_without_mutation": "pass",
+  "permission_revocation_blocks_submit_before_post": "pass",
+  "pending_request_is_guarded_and_queued_receipt_survives_read_failure": "pass",
+  "run_and_delivery_pagination_keep_canonical_identity_and_counts": "pass",
+  "delivery_filter_failure_and_retry_are_not_empty_success": "pass",
+  "reviewed_retry_reuses_run_identity_and_keeps_receipts": "pass",
+  "cancellation_receipts_distinguish_requested_from_finished": "pass",
+  "lost_response_requires_history_review_and_never_auto_reposts": "pass",
+  "membership_refresh_reviews_enabled_targets_and_rejects_changed_scope": "pass",
+  "schedule_enable_and_interval_are_reviewed_and_pause_does_not_claim_cancellation": "pass",
+  "refresh_write_failure_is_not_automatic_retry_or_delivery_success": "pass",
+  "touch_reflow_and_view_only_receipts_preserve_access": "pass"
+}

@@ -35,7 +35,7 @@ ORDER BY id;
 -- name: SignalRowTargets :many
 -- Workbook rows linked to a lead in the workspace, optionally limited to a rule's scope.
 SELECT r.id::int4 AS row_id, r.workbook_id
-FROM workbook_rows r
+FROM record_workbook_rows r
 JOIN workbooks w ON w.id = r.workbook_id
 WHERE w.workspace_id = sqlc.arg(workspace_id)::text
   AND r.lead_id = sqlc.arg(lead_id)::int4

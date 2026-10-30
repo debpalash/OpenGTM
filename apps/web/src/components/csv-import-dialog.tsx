@@ -105,13 +105,13 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
   }
 
   return (
-    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={() => { if (!importing) onClose() }}>
+    <div className="fixed inset-0 z-[220] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm" onClick={() => { if (!importing) onClose() }}>
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="csv-import-title" aria-describedby="csv-import-summary" tabIndex={-1} className="flex max-h-[82vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl outline-none" onClick={event => event.stopPropagation()}>
-        <div className="flex items-start justify-between border-b px-5 py-4">
+        <div className="flex items-start justify-between border-b px-5 py-3">
           <div className="flex gap-3">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileSpreadsheet className="size-4" /></div>
             <div>
-              <h2 id="csv-import-title" className="flex items-center gap-2 text-sm font-semibold">Import CSV {clayDetected && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">Clay export</span>}</h2>
+              <h2 id="csv-import-title" className="flex items-center gap-2 text-sm font-semibold">Import CSV {clayDetected && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">Clay export</span>}</h2>
               <p id="csv-import-summary" className="mt-0.5 text-xs text-muted-foreground">
                 {draft.fileName} · {draft.rows.length.toLocaleString()} rows · {draft.fields.length.toLocaleString()} columns
               </p>
@@ -121,7 +121,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
         </div>
 
         <div className="overflow-y-auto px-5 py-3">
-          <div className="mb-2 grid grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-center gap-2 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+          <div className="mb-2 grid grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-center gap-2 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
             <span>CSV column</span><span /><span>OpenGTM column</span>
           </div>
           <div className="space-y-1.5">
@@ -129,7 +129,7 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
               <div key={header} className="grid grid-cols-[minmax(0,1fr)_24px_minmax(0,1fr)] items-center gap-2 rounded-lg border bg-background/60 px-2.5 py-2">
                 <div className="min-w-0">
                   <div className="truncate text-xs font-medium">{header}</div>
-                  <div className="truncate text-[10px] text-muted-foreground">{draft.rows.slice(0, 3).map(row => row[header]).filter(Boolean).join(" · ") || "Empty values"}</div>
+                  <div className="truncate text-xs text-muted-foreground">{draft.rows.slice(0, 3).map(row => row[header]).filter(Boolean).join(" · ") || "Empty values"}</div>
                 </div>
                 <ArrowRight className="size-3.5 text-muted-foreground/60" />
                 <NativeSelect aria-label={`Map ${header}`} value={mapping[header]} onChange={event => setMapping(current => ({ ...current, [header]: event.target.value }))} className="w-full" size="sm">
@@ -153,13 +153,13 @@ export function CsvImportDialog({ draft, columns, importing, onClose, onImport }
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-4 border-t bg-muted/20 px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3 border-t bg-muted/20 px-5 py-3.5">
           <div>
             <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
               <input type="checkbox" checked={dedupe} onChange={event => setDedupe(event.target.checked)} className="size-3.5 rounded border" />
               Skip duplicate companies and domains
             </label>
-            <p className="mt-1 text-[10px] text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground">
               {mappingSummary.kept} kept · {mappingSummary.custom} new · {mappingSummary.skipped} skipped
             </p>
           </div>

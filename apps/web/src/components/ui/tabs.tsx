@@ -25,12 +25,12 @@ function Tabs({
 // compact pill switcher for in-card toggles.
 // macOS segmented control by default; "line" keeps underline tabs for dense panels.
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
+  "group/tabs-list inline-flex w-fit max-w-full min-w-0 overflow-x-auto items-center text-muted-foreground group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col",
   {
     variants: {
       variant: {
-        default: "h-7 justify-center gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
-        segmented: "h-7 justify-center gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
+        default: "h-8 justify-start gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
+        segmented: "h-8 justify-start gap-0.5 rounded-md bg-[var(--t-background-transparent-medium)] p-0.5",
         line: "h-9 gap-1 border-b border-border group-data-horizontal/tabs:w-full justify-start",
       },
     },
@@ -64,7 +64,7 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
         // Segmented: the selected segment is a raised bezel.
         "group-data-[variant=default]/tabs-list:h-full group-data-[variant=segmented]/tabs-list:h-full group-data-[variant=default]/tabs-list:data-active:bg-[var(--gtm-control-bezel)] group-data-[variant=segmented]/tabs-list:data-active:bg-[var(--gtm-control-bezel)] group-data-[variant=default]/tabs-list:data-active:shadow-[var(--gtm-control-shadow)] group-data-[variant=segmented]/tabs-list:data-active:shadow-[var(--gtm-control-shadow)]",
         // Line: hover tint and a 2px indicator on the hairline.
-        "group-data-[variant=line]/tabs-list:h-7 group-data-[variant=line]/tabs-list:px-2 group-data-[variant=line]/tabs-list:hover:bg-accent after:absolute after:inset-x-1 after:-bottom-[5px] after:h-0.5 after:rounded-full after:bg-[var(--gtm-accent)] after:opacity-0 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
+        "group-data-[variant=line]/tabs-list:h-8 group-data-[variant=line]/tabs-list:px-2 group-data-[variant=line]/tabs-list:hover:bg-accent after:absolute after:inset-x-1 after:-bottom-[5px] after:h-0.5 after:rounded-full after:bg-[var(--gtm-accent)] after:opacity-0 group-data-[variant=line]/tabs-list:data-active:after:opacity-100",
         className
       )}
       {...props}

@@ -56,9 +56,9 @@ WHERE workspace_id = sqlc.arg(workspace_id)::text AND idempotency_key = sqlc.arg
 -- attempts counted when the caller delivers immediately). A success row is left
 -- untouched (no row returned; the caller skips it).
 -- name: DestDeliveryUpsert :one
-INSERT INTO destination_deliveries (workspace_id, run_id, destination_id, lead_id, operation, idempotency_key,
+INSERT INTO destination_deliveries (workspace_id, run_id, destination_id, lead_id, company_entity_id,person_entity_id,subject_key, operation, idempotency_key,
                                     payload_fingerprint, payload, status, attempts, summary)
-VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(run_id)::text, sqlc.arg(destination_id)::text, sqlc.arg(lead_id)::int,
+VALUES (sqlc.arg(workspace_id)::text, sqlc.arg(run_id)::text, sqlc.arg(destination_id)::text, sqlc.narg(lead_id)::int,sqlc.narg(company_id)::text,sqlc.narg(person_id)::text,sqlc.narg(subject_key)::text,
         sqlc.arg(operation)::text, sqlc.arg(idempotency_key)::text, sqlc.arg(payload_fingerprint)::text,
         sqlc.arg(payload)::json, sqlc.arg(status)::text, sqlc.arg(attempts)::int, sqlc.narg(summary)::text)
 ON CONFLICT (workspace_id, idempotency_key) DO UPDATE SET

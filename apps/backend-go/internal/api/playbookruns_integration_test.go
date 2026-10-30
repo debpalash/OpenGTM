@@ -127,8 +127,8 @@ func (e pbEnv) seedRuns(t *testing.T) {
 				ws = "ws-beta"
 			}
 			testpg.FreeIDs(t, "playbook_results", int64(r.ID)) // recorded id, below testpg.SeqFloor
-			e.exec(t, `INSERT INTO playbook_results (id, workspace_id, run_id, lead_id, status, value, result_metadata, error, attempts, created_at, updated_at)
-				VALUES ($1,$2,$3,$4,$5,$6,$7::json,$8,$9,$10::timestamp,$11::timestamp)`,
+			e.exec(t, `INSERT INTO playbook_results (id, workspace_id, run_id, lead_id, subject_key, status, value, result_metadata, error, attempts, created_at, updated_at)
+				VALUES ($1,$2,$3,$4::int,'lead:'||($4::int)::text,$5,$6,$7::json,$8,$9,$10::timestamp,$11::timestamp)`,
 				r.ID, ws, r.RunID, r.LeadID, r.Status, r.Value, string(r.Metadata), r.Error, r.Attempts, r.CreatedAt, r.UpdatedAt)
 		}
 	}

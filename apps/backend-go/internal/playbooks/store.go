@@ -534,7 +534,7 @@ func ListResults(ctx context.Context, tx pgx.Tx, ws, runID string, limit, offset
 			break
 		}
 		pg.Results = append(pg.Results, Result{
-			ID: int64(r.ID), RunID: r.RunID, LeadID: int(r.LeadID), Status: r.Status, Value: r.Value,
+			ID: int64(r.ID), RunID: r.RunID, LeadID: int(r.LeadID.Int32), CompanyID: r.CompanyEntityID.String, PersonID: r.PersonEntityID.String, Status: r.Status, Value: r.Value,
 			Metadata: json.RawMessage(r.Metadata), Error: optText(r.Error), Attempts: int(r.Attempts),
 			CreatedAt: ts(r.CreatedAt), UpdatedAt: ts(r.UpdatedAt),
 		})

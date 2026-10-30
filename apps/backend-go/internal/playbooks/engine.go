@@ -450,7 +450,7 @@ func (g *engine) member(ctx context.Context, m gen.PbEngMembersRow) (stop bool, 
 	var resID, attempts int32
 	skipped := false
 	if err := g.in(ctx, func(q *gen.Queries) error {
-		row, err := q.PbEngBeginResult(ctx, gen.PbEngBeginResultParams{WorkspaceID: g.ws, RunID: g.runID, LeadID: m.LeadID})
+		row, err := q.PbEngBeginResult(ctx, gen.PbEngBeginResultParams{WorkspaceID: g.ws, RunID: g.runID, LeadID: m.LeadID, CompanyID: m.CompanyEntityID, PersonID: m.PersonEntityID, SubjectKey: playbookSubject(m)})
 		if errors.Is(err, pgx.ErrNoRows) {
 			skipped = true // already success
 			return nil
@@ -560,7 +560,7 @@ func (g *engine) steps2(ctx context.Context, m gen.PbEngMembersRow, resID, attem
 			cc[k] = v
 		}
 		res, err := g.d.Researcher.Research(ctx, g.ws, ResearchRequest{
-			CallID:         fmt.Sprintf("%s:%d:%s:%d", g.runID, m.LeadID, keyText, attempts),
+			CallID:         fmt.Sprintf("%s:%s:%s:%d", g.runID, playbookCallSubject(m), keyText, attempts),
 			PromptTemplate: tmplText, Context: cc, MaxSteps: int(g.pb.MaxSteps), OutputFormat: asText(format),
 			CellBudgetUSD: g.pb.CellBudgetUsd / float64(total),
 		})
@@ -696,4 +696,20 @@ func (g *engine) finish(ctx context.Context) error {
 		}
 		return nil
 	})
+}
+
+func playbookSubject(m gen.PbEngMembersRow) string {
+	if m.LeadID.Valid {
+		return fmt.Sprintf("lead:%d", m.LeadID.Int32)
+	}
+	if m.PersonEntityID.Valid {
+		return "person:" + m.PersonEntityID.String
+	}
+	return "company:" + m.CompanyEntityID.String
+}
+func playbookCallSubject(m gen.PbEngMembersRow) string {
+	if m.LeadID.Valid {
+		return fmt.Sprint(m.LeadID.Int32)
+	}
+	return playbookSubject(m)
 }

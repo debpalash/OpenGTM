@@ -26,9 +26,9 @@ type DestInboundDeliveryLeadParams struct {
 }
 
 // Python (on PG) ordered delivered_at DESC with NULLs first; keep that, id breaks ties.
-func (q *Queries) DestInboundDeliveryLead(ctx context.Context, arg DestInboundDeliveryLeadParams) (int32, error) {
+func (q *Queries) DestInboundDeliveryLead(ctx context.Context, arg DestInboundDeliveryLeadParams) (pgtype.Int4, error) {
 	row := q.db.QueryRow(ctx, destInboundDeliveryLead, arg.WorkspaceID, arg.DestinationID, arg.ExternalID)
-	var lead_id int32
+	var lead_id pgtype.Int4
 	err := row.Scan(&lead_id)
 	return lead_id, err
 }
@@ -144,7 +144,7 @@ func (q *Queries) DestInboundLeadsByEmail(ctx context.Context, arg DestInboundLe
 }
 
 const destInboundReceiptByEvent = `-- name: DestInboundReceiptByEvent :one
-SELECT id, destination_id, provider, external_event_id, external_record_id, lead_id, status,
+SELECT id, destination_id, provider, external_event_id, external_record_id, lead_id, company_entity_id,person_entity_id,status,
        conflict_policy, applied_fields, ignored_fields, error, created_at
 FROM destination_inbound_receipts
 WHERE workspace_id = $1::text AND destination_id = $2::text
@@ -164,6 +164,8 @@ type DestInboundReceiptByEventRow struct {
 	ExternalEventID  string
 	ExternalRecordID pgtype.Text
 	LeadID           pgtype.Int4
+	CompanyEntityID  pgtype.Text
+	PersonEntityID   pgtype.Text
 	Status           string
 	ConflictPolicy   string
 	AppliedFields    []byte
@@ -182,6 +184,8 @@ func (q *Queries) DestInboundReceiptByEvent(ctx context.Context, arg DestInbound
 		&i.ExternalEventID,
 		&i.ExternalRecordID,
 		&i.LeadID,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 		&i.Status,
 		&i.ConflictPolicy,
 		&i.AppliedFields,
@@ -199,7 +203,7 @@ VALUES ($1::text, $2::text, $3::text, $4::text,
   $5::text, $6::text, $7::int,
   $8::text, $9::text, $10::json,
   $11::json, $12::text, $13::text)
-RETURNING id, destination_id, provider, external_event_id, external_record_id, lead_id, status,
+RETURNING id, destination_id, provider, external_event_id, external_record_id, lead_id, company_entity_id,person_entity_id,status,
           conflict_policy, applied_fields, ignored_fields, error, created_at
 `
 
@@ -226,6 +230,8 @@ type DestInboundReceiptInsertRow struct {
 	ExternalEventID  string
 	ExternalRecordID pgtype.Text
 	LeadID           pgtype.Int4
+	CompanyEntityID  pgtype.Text
+	PersonEntityID   pgtype.Text
 	Status           string
 	ConflictPolicy   string
 	AppliedFields    []byte
@@ -258,6 +264,8 @@ func (q *Queries) DestInboundReceiptInsert(ctx context.Context, arg DestInboundR
 		&i.ExternalEventID,
 		&i.ExternalRecordID,
 		&i.LeadID,
+		&i.CompanyEntityID,
+		&i.PersonEntityID,
 		&i.Status,
 		&i.ConflictPolicy,
 		&i.AppliedFields,

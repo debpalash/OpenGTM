@@ -1,32 +1,35 @@
 import {
   Activity, BarChart3, BellRing, Bot, Building2, Database, LayoutTemplate, ListFilter,
-  Megaphone, MessageSquare, Radar, Search, Send, Settings, Table2, Users, Zap,
+  House, Megaphone, MessageSquare, Radar, Search, Send, Settings, Table2, Users, Zap,
 } from "lucide-react"
 
 export const NAVIGATION_GROUPS = [
   { label: "Workspace", items: [
-    { to: "/chat", key: "c", icon: MessageSquare, label: "Chat" },
+    { to: "/overview", key: "d", icon: House, label: "Overview" },
+    { to: "/companies", key: "b", icon: Building2, label: "Companies" },
+    { to: "/people", key: "e", icon: Users, label: "People" },
     { to: "/workbooks", key: "w", icon: Table2, label: "Workbooks" },
-    { to: "/leads", key: "l", icon: Users, label: "Leads" },
     { to: "/audiences", key: "a", icon: ListFilter, label: "Audiences" },
-    { to: "/search", key: "f", icon: Search, label: "Search" },
+    { to: "/signals", key: "i", icon: Activity, label: "Signals" },
+    { to: "/outreach", key: "o", icon: Send, label: "Outreach" },
+    { to: "/chat", key: "h", icon: MessageSquare, label: "Assistant" },
   ] },
-  { label: "Execution", items: [
+  { label: "Operations", items: [
     { to: "/agents", key: "t", icon: Bot, label: "Tasks" },
     { to: "/automations", key: "u", icon: Zap, label: "Automations" },
     { to: "/watches", key: "v", icon: Radar, label: "Watches" },
-    { to: "/signals", key: "i", icon: Activity, label: "Signals" },
-    { to: "/outreach", key: "o", icon: Send, label: "Outreach" },
     { to: "/campaigns", key: "p", icon: Megaphone, label: "Campaigns" },
   ] },
   { label: "Resources", items: [
-    { to: "/sources", key: "r", icon: Database, label: "Sources" },
+    { to: "/sources", key: "r", icon: Database, label: "Data sources" },
     { to: "/templates", key: "m", icon: LayoutTemplate, label: "Templates" },
     { to: "/analytics", key: "y", icon: BarChart3, label: "Analytics" },
   ] },
 ]
 
 export const UTILITY_NAVIGATION = [
+  { to: "/search", key: "f", icon: Search, label: "Search" },
+  { to: "/leads", key: "l", icon: Users, label: "Legacy data" },
   { to: "/agency", key: "k", icon: Building2, label: "Manage workspaces" },
   { to: "/notifications", key: "n", icon: BellRing, label: "Notifications" },
   { to: "/settings", key: "s", icon: Settings, label: "Settings" },

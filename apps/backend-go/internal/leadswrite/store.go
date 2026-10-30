@@ -49,6 +49,14 @@ func idOK(id int64) bool { return id >= 1 && id <= math.MaxInt32 }
 // winner's commit, then the winner is selected).
 func Create(ctx context.Context, tx pgx.Tx, workspaceID string, n NewLead) (int64, error) {
 	q := gen.New(tx)
+	if err := LockLegacyKey(ctx, tx, n.Company, n.City); err != nil {
+		return 0, err
+	}
+	if existing, err := q.LeadIDByKey(ctx, gen.LeadIDByKeyParams{WorkspaceID: workspaceID, Company: n.Company, City: n.City}); err == nil {
+		return 0, &ExistsError{LeadID: int64(existing)}
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return 0, err
+	}
 	now := isoNow()
 	id, err := q.InsertLeadCreateOnly(ctx, gen.InsertLeadCreateOnlyParams{
 		WorkspaceID: workspaceID, Company: n.Company, City: n.City, Website: n.Website, Email: n.Email,
@@ -61,11 +69,19 @@ func Create(ctx context.Context, tx pgx.Tx, workspaceID string, n NewLead) (int6
 	if !errors.Is(err, pgx.ErrNoRows) {
 		return 0, fmt.Errorf("leadswrite: insert: %w", err)
 	}
-	winner, err := q.LeadIDByKey(ctx, gen.LeadIDByKeyParams{WorkspaceID: workspaceID, Company: n.Company, City: n.City})
+	var winner int32
+	err = tx.QueryRow(ctx, `SELECT id FROM leads WHERE workspace_id=$1 AND company=$2 AND city=$3 ORDER BY id LIMIT 1`, workspaceID, n.Company, n.City).Scan(&winner)
 	if err != nil {
 		return 0, fmt.Errorf("leadswrite: select winner: %w", err)
 	}
 	return 0, &ExistsError{LeadID: int64(winner)}
+}
+
+// Legacy endpoints retain their company/city identity contract. Canonical
+// Companies and People use separate identifiers and do not take this lock.
+func LockLegacyKey(ctx context.Context, tx pgx.Tx, company, city string) error {
+	_, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended(jsonb_build_array(current_setting('app.workspace_id',true),$1::text,$2::text)::text,0))`, company, city)
+	return err
 }
 
 // UpdateStatus sets status and advances updated_at. found is false for an

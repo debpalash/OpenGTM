@@ -12,10 +12,10 @@ import (
 )
 
 const pbEngBeginResult = `-- name: PbEngBeginResult :one
-INSERT INTO playbook_results (workspace_id, run_id, lead_id, status, value, result_metadata, attempts, created_at, updated_at)
-VALUES ($1::text, $2::text, $3::int, 'running', '', '{}', 1,
+INSERT INTO playbook_results (workspace_id, run_id, lead_id, company_entity_id,person_entity_id,subject_key,status, value, result_metadata, attempts, created_at, updated_at)
+VALUES ($1::text, $2::text, $3::int,$4::text,$5::text,$6::text, 'running', '', '{}', 1,
         (now() AT TIME ZONE 'UTC'), (now() AT TIME ZONE 'UTC'))
-ON CONFLICT (workspace_id, run_id, lead_id) DO UPDATE
+ON CONFLICT (workspace_id, run_id, subject_key) DO UPDATE
 SET status = 'running', attempts = playbook_results.attempts + 1, error = NULL, updated_at = (now() AT TIME ZONE 'UTC')
 WHERE playbook_results.status <> 'success'
 RETURNING id, attempts
@@ -24,7 +24,10 @@ RETURNING id, attempts
 type PbEngBeginResultParams struct {
 	WorkspaceID string
 	RunID       string
-	LeadID      int32
+	LeadID      pgtype.Int4
+	CompanyID   pgtype.Text
+	PersonID    pgtype.Text
+	SubjectKey  string
 }
 
 type PbEngBeginResultRow struct {
@@ -35,7 +38,14 @@ type PbEngBeginResultRow struct {
 // A result already success yields no row (skipped on retry); otherwise it turns
 // running with attempts + 1 and a cleared error.
 func (q *Queries) PbEngBeginResult(ctx context.Context, arg PbEngBeginResultParams) (PbEngBeginResultRow, error) {
-	row := q.db.QueryRow(ctx, pbEngBeginResult, arg.WorkspaceID, arg.RunID, arg.LeadID)
+	row := q.db.QueryRow(ctx, pbEngBeginResult,
+		arg.WorkspaceID,
+		arg.RunID,
+		arg.LeadID,
+		arg.CompanyID,
+		arg.PersonID,
+		arg.SubjectKey,
+	)
 	var i PbEngBeginResultRow
 	err := row.Scan(&i.ID, &i.Attempts)
 	return i, err
@@ -190,10 +200,10 @@ func (q *Queries) PbEngLockRun(ctx context.Context, arg PbEngLockRunParams) (PbE
 }
 
 const pbEngMembers = `-- name: PbEngMembers :many
-SELECT lead_id, snapshot::text AS snapshot
+SELECT lead_id, company_entity_id,person_entity_id,snapshot::text AS snapshot
 FROM audience_members
 WHERE workspace_id = $1::text AND audience_id = $2::text
-ORDER BY lead_id
+ORDER BY lead_id,id
 LIMIT $3::int
 `
 
@@ -204,8 +214,10 @@ type PbEngMembersParams struct {
 }
 
 type PbEngMembersRow struct {
-	LeadID   int32
-	Snapshot string
+	LeadID          pgtype.Int4
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	Snapshot        string
 }
 
 func (q *Queries) PbEngMembers(ctx context.Context, arg PbEngMembersParams) ([]PbEngMembersRow, error) {
@@ -217,7 +229,12 @@ func (q *Queries) PbEngMembers(ctx context.Context, arg PbEngMembersParams) ([]P
 	var items []PbEngMembersRow
 	for rows.Next() {
 		var i PbEngMembersRow
-		if err := rows.Scan(&i.LeadID, &i.Snapshot); err != nil {
+		if err := rows.Scan(
+			&i.LeadID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
+			&i.Snapshot,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -12,7 +12,7 @@ import (
 )
 
 const countWorkbookRows = `-- name: CountWorkbookRows :one
-SELECT COUNT(*)::bigint FROM workbook_rows
+SELECT COUNT(*)::bigint FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
 `
 
@@ -150,7 +150,7 @@ func (q *Queries) GetProviderStat(ctx context.Context, arg GetProviderStatParams
 }
 
 const getRowOverlayCell = `-- name: GetRowOverlayCell :one
-SELECT COALESCE((enrichments::jsonb -> $1::text)::text, 'null')::text AS cell FROM workbook_rows
+SELECT COALESCE((enrichments::jsonb -> $1::text)::text, 'null')::text AS cell FROM record_workbook_rows
 WHERE id = $2::int AND workbook_id = $3::text AND workspace_id = $4::text
 `
 
@@ -274,7 +274,7 @@ func (q *Queries) ListPriorAttemptProviders(ctx context.Context, arg ListPriorAt
 }
 
 const listRowEnrichments = `-- name: ListRowEnrichments :many
-SELECT id, enrichments FROM workbook_rows
+SELECT id, enrichments FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND id = ANY($3::int[])
 `
@@ -311,7 +311,7 @@ func (q *Queries) ListRowEnrichments(ctx context.Context, arg ListRowEnrichments
 }
 
 const listWorkbookRows = `-- name: ListWorkbookRows :many
-SELECT id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = $1::text AND workspace_id = $2::text
   AND (NOT $3::bool OR id = ANY($4::int[]))
   AND (NOT $5::bool OR lead_id = ANY($6::int[]))

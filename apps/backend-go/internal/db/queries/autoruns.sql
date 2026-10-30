@@ -41,11 +41,11 @@ SELECT columns_config FROM workbooks
 WHERE id = sqlc.arg(id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: AutoRunRowByID :one
-SELECT id, workbook_id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, workbook_id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE id = sqlc.arg(id)::int4 AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: AutoRunSweepRows :many
-SELECT id, workbook_id, lead_id, data, enrichments FROM workbook_rows
+SELECT id, workbook_id, lead_id, data, enrichments FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
 ORDER BY created_at ASC, id ASC
 LIMIT sqlc.arg(row_limit)::int4;

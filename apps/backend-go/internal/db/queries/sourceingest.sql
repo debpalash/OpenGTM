@@ -15,14 +15,14 @@ WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(work
 
 -- name: SourceIngestExistingRows :many
 SELECT id, source_record_id::text AS source_record_id, data::text AS data, source_rank, source_fetched_at
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
   AND source_provider = sqlc.arg(provider)::text AND source_record_id IS NOT NULL;
 
 -- name: SourceIngestMaxPosition :one
 -- max(position), -1 when there is none (next row = value + 1).
 SELECT coalesce(max("position"), -1)::int AS max_position
-FROM workbook_rows
+FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text;
 
 -- name: SourceIngestInsertRow :one

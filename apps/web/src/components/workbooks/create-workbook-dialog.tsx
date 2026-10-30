@@ -55,7 +55,7 @@ export function CreateWorkbookDialog() {
     <Dialog.Popup className="gtm-workbook-dialog">
       <Dialog.Header><Dialog.Title>New workbook</Dialog.Title><Dialog.Description>Start empty or copy a snapshot of your existing leads.</Dialog.Description></Dialog.Header>
       <form onSubmit={submit}>
-        <Dialog.Body className="space-y-4">
+        <Dialog.Body className="space-y-3">
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <label className="grid gap-2 text-sm">Workbook name<Input value={name} onChange={event => setName(event.target.value)} maxLength={255} required disabled={mutation.isPending} /></label>
           <fieldset className="space-y-2" disabled={mutation.isPending}>

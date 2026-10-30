@@ -1,0 +1,842 @@
+{
+  "date": "2026-10-29",
+  "base_url": "http://127.0.0.1:8002",
+  "source_base_revision": "a1be0e08e603e03f62e021ef288321cb9809e006",
+  "source_state": "Tested working tree; see source SHA-256 values. Includes preserved inspector and compact workstation work.",
+  "checks": {
+    "frontend_tests": 120,
+    "failures": 0,
+    "lint": "pass",
+    "typecheck_production_build": "pass",
+    "embedded_go_api_build": "pass",
+    "production_browser_pipeline": "pass"
+  },
+  "axe": {
+    "counts": {
+      "context": 8,
+      "activation": 6,
+      "inspector": 13,
+      "journey": 10,
+      "audiences": 5,
+      "matrix": 42
+    },
+    "total_scans": 84,
+    "violations": 0
+  },
+  "context": {
+    "axe": [
+      {
+        "name": "settings-section-guard",
+        "violations": []
+      },
+      {
+        "name": "workspace-guard",
+        "violations": []
+      },
+      {
+        "name": "provider-save-error",
+        "violations": []
+      },
+      {
+        "name": "pending-provider-save",
+        "violations": []
+      },
+      {
+        "name": "providers-unavailable",
+        "violations": []
+      },
+      {
+        "name": "honest-agent-workflows",
+        "violations": []
+      },
+      {
+        "name": "instance-provider-view-only",
+        "violations": []
+      },
+      {
+        "name": "mobile-settings-guard",
+        "violations": []
+      }
+    ],
+    "page_errors": [],
+    "workspace_ids": [
+      "76334112-e630-46f6-9494-c06f121b1b0e",
+      "b20ed5ef-4072-4365-a33d-462d5c4254de"
+    ],
+    "section_route_and_workspace_cancel_keep_drafts_without_switch_requests": "pass",
+    "explicit_section_discard_releases_the_old_form": "pass",
+    "provider_http_failure_keeps_draft_and_has_no_false_success": "pass",
+    "pending_save_cannot_be_abandoned_by_workspace_change": "pass",
+    "confirmed_provider_save_does_not_depend_on_followup_read": "pass",
+    "cross_tab_workspace_switch_does_not_redirect_existing_tab_requests": "pass",
+    "denied_switch_keeps_current_workspace_and_data": "pass",
+    "workspace_manager_uses_auth_context_and_clears_previous_data": "pass",
+    "provider_read_error_and_malformed_response_retry": "pass",
+    "instance_permissions_and_agent_workflows_are_honest": "pass",
+    "explicit_signout_is_guarded_and_other_tabs_clear_private_data": "pass",
+    "revoked_session_cancels_pending_actions_and_clears_private_forms": "pass"
+  },
+  "activation": {
+    "workspace_id": "3445b8e1-9cef-404c-8e8f-4d0e8b34c127",
+    "audience_id": "ba62e99d-ad1d-4472-af14-7bf631213b88",
+    "axe": [
+      {
+        "name": "rotation-review",
+        "violations": []
+      },
+      {
+        "name": "token-preserved-after-history-error",
+        "violations": []
+      },
+      {
+        "name": "copy-failure",
+        "violations": []
+      },
+      {
+        "name": "mobile-dark-rotation-review",
+        "violations": []
+      },
+      {
+        "name": "mobile-dark-token-setup",
+        "violations": []
+      },
+      {
+        "name": "explicit-advertising-consent",
+        "violations": []
+      }
+    ],
+    "rotation_review_cancel_sends_no_mutation": "pass",
+    "rotated_token_is_visible_independently_of_history_failure": "pass",
+    "failed_clipboard_copy_keeps_token_and_close_guard": "pass",
+    "history_retry_never_rotates_or_drops_the_token": "pass",
+    "successful_copy_acknowledges_token_and_allows_close": "pass",
+    "manual_token_storage_acknowledgement_and_mobile_layout": "pass",
+    "advertising_consent_is_explicit_and_scoped_to_destination_type": "pass",
+    "page_errors": []
+  },
+  "inspector": {
+    "workspace_id": "c6d1111e-d279-4227-b44b-cf828b0bf93b",
+    "company_id": "987dbecc-5fda-4fa4-a137-32e5565e4568",
+    "person_id": "98b2d683-ecba-432a-8f29-17c55c6394ec",
+    "axe": [
+      {
+        "name": "invalid-number",
+        "violations": []
+      },
+      {
+        "name": "invalid-json",
+        "violations": []
+      },
+      {
+        "name": "conflict-light",
+        "violations": []
+      },
+      {
+        "name": "conflict-dark",
+        "violations": []
+      },
+      {
+        "name": "blocked-back",
+        "violations": []
+      },
+      {
+        "name": "company-people",
+        "violations": []
+      },
+      {
+        "name": "people-error",
+        "violations": []
+      },
+      {
+        "name": "sources-error",
+        "violations": []
+      },
+      {
+        "name": "people-320",
+        "violations": []
+      },
+      {
+        "name": "people-390",
+        "violations": []
+      },
+      {
+        "name": "typed-form-320",
+        "violations": []
+      },
+      {
+        "name": "typed-form-390",
+        "violations": []
+      },
+      {
+        "name": "view-only",
+        "violations": []
+      }
+    ],
+    "refetch_keeps_the_typed_draft": "pass",
+    "real_conflicts_and_retry_preserve_remote_and_typed_values": "pass",
+    "pending_save_cannot_be_discarded_by_back": "pass",
+    "back_and_native_reload_keep_drafts": "pass",
+    "company_people_pagination_and_guarded_navigation": "pass",
+    "explicit_employment_end_unknown_role_and_employer_change": "pass",
+    "people_and_sources_failures_are_not_empty_success": "pass",
+    "staged_custom_field_survives_tabs_and_close_guard": "pass",
+    "view_only_inspector_explains_role": "pass",
+    "page_errors": []
+  },
+  "journey": {
+    "workspace_id": "7c3e60b9-c6cf-45fd-8c4b-4ededae8f89e",
+    "import-upload-axe": [],
+    "import-review-axe": [],
+    "guided_csv_import": "pass",
+    "rapid_search_input": "pass",
+    "company-inspector-axe": [],
+    "company-provenance-axe": [],
+    "inspector_edit_and_provenance": "pass",
+    "dirty_draft_and_focus_return": "pass",
+    "partial_rejection_and_lost_response_recovery": "pass",
+    "person-employment-axe": [],
+    "large_identifier_display_and_edit_precision": "pass",
+    "workflow_configuration": "pass",
+    "enrichment-review-axe": [],
+    "workbook-identity-axe": [],
+    "reviewed_native_enrichment_and_grid_identity": "b4201b5c-e79c-4355-8462-c286dd784d81",
+    "csv_export_precision": "pass",
+    "backup_precision": "pass",
+    "overview-populated-axe": [],
+    "canonical_overview_counts": "pass",
+    "inspector-mobile-390-axe": [],
+    "inspector-mobile-320-axe": [],
+    "mobile_320_390_reflow": "pass",
+    "page_errors": []
+  },
+  "audiences": {
+    "workspace_id": "9507378f-5800-4e61-bdf0-9dad6bb05414",
+    "company_audience": "a7026ae5-9a34-4c91-8ac6-9c9e7eceb060",
+    "people_audience": "431ae8fa-2875-4145-836d-0d4be615d8cd",
+    "company_id": "b0d0aa54-c2d9-408c-bbb9-43b6e6f5c936",
+    "person_id": "2d9bdb17-55a6-4299-9f52-8688cd9293e9",
+    "canonical_identity_and_shareable_inspectors": "pass",
+    "refresh_receipt": {
+      "status": "pass",
+      "counts": {
+        "audience": {
+          "id": "431ae8fa-2875-4145-836d-0d4be615d8cd",
+          "name": "People ready for review",
+          "description": "",
+          "filters": {
+            "_record_type": "person",
+            "record_ids": [
+              "2d9bdb17-55a6-4299-9f52-8688cd9293e9",
+              "ffd61fe8-bc52-4f6c-88df-54b7e820d58b"
+            ]
+          },
+          "member_count": 2,
+          "created_at": "2026-10-29T07:49:58.967993",
+          "updated_at": "2026-10-29T07:50:05.933062",
+          "refreshed_at": "2026-10-29T07:50:05.933021",
+          "refresh_enabled": true,
+          "refresh_interval_minutes": 60,
+          "next_refresh_at": null,
+          "refresh_health": "healthy",
+          "last_refresh_error": null,
+          "consecutive_refresh_failures": 0
+        },
+        "entered": 0,
+        "exited": 0,
+        "unchanged": 0,
+        "changed": 2
+      }
+    },
+    "members_error_and_retry": "pass",
+    "scans": [
+      {
+        "state": "company",
+        "violations": []
+      },
+      {
+        "state": "person",
+        "violations": []
+      },
+      {
+        "state": "people-320",
+        "violations": []
+      },
+      {
+        "state": "people-390",
+        "violations": []
+      },
+      {
+        "state": "people-768",
+        "violations": []
+      }
+    ],
+    "page_errors": []
+  },
+  "route_matrix": [
+    {
+      "label": "overview-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "chat-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "workbooks-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "audiences-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "signals-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "outreach-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "analytics-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "settings-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "sources-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "automations-dark",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "main_count": 1,
+      "document_width": 1440,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "people-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-light-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 320,
+      "axe_violations": []
+    },
+    {
+      "label": "companies-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "people-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "overview-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    },
+    {
+      "label": "workbook-dark-390",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "main_count": 1,
+      "document_width": 390,
+      "axe_violations": []
+    }
+  ],
+  "source_sha256": {
+    "apps/backend-go/internal/api/recordsroutes.go": "d75ec27c49b28de2124c4593b3807bfacf61d62726eb784959f0b4562ecf461c",
+    "apps/backend-go/internal/records/people_filter_integration_test.go": "56621d9d489817d8b70b5aa2576b91c132b75af4b785be87a262c235f700be78",
+    "apps/backend-go/internal/records/store.go": "925968988266af47f2df7ba7194ce271dcca2f9d2ad994af5dab416fd07ceee0",
+    "apps/web/src/App.tsx": "c40b54ec35f8867e8ba79244b5b4ee85f233bf936a359ca65e30f62fc7a56dec",
+    "apps/web/src/components/app-shell/app-sidebar.tsx": "7805c3f5820d812979ab07e978edf28bf87549049d47ba4b1c87c1b30884a47b",
+    "apps/web/src/components/records/record-editor.tsx": "5a46729a85a2c185f1c5ef8e4ddb1215311e121a88d524c2999f95dc93664ff8",
+    "apps/web/src/components/records/record-inspector.css": "1f78e8190655da8af2035660b5b55f9868c79a22ff574b150f862f4749e1d2a4",
+    "apps/web/src/components/ui/sidebar.tsx": "5a323b3737e61f0e93a3869f6857e0ac1dd4ee8edd485da69e7f67a68de64f62",
+    "apps/web/src/components/workbooks/workbooks.css": "b5b752c5520c90990facdee51b98127602255b21a32a2478b67708cfce26a807",
+    "apps/web/src/design-system/patterns/workbench.css": "c8b60b3e100a317268a69a4498ce204b3fc0218e3c64fa20450d5d692b24cfd4",
+    "apps/web/src/design-system/theme/tokens.css": "c437ce6e614d2e9c06d7e134266c6363c77d982161e69c8b6d3c29a54e79ca3a",
+    "apps/web/src/features/activation/inbound-client.ts": "af57ec2e49365a0d6dc58a0bc0de34aeb206ef0c21f8515f615b711fe813dfbc",
+    "apps/web/src/features/activation/inbound-setup.tsx": "3ffcf17c6f908a9cf0d21a891990d02f814e430a6fcae302177c8ac9f618d35e",
+    "apps/web/src/features/navigation/leave-guard-provider.tsx": "a7feaaff8158ea872fe8db6db7f9a66fdd18305f2835a6f9e06558e9f707efbf",
+    "apps/web/src/features/navigation/leave-guard.ts": "8161557d8a0a3cecb6ba8d3361679ac70f90496efbe30f2d4f05b254cbb8bda1",
+    "apps/web/src/features/records/company-people.tsx": "3699b768b02448d31224339ea62c4f145e3287b65e15b521e1cc104905102953",
+    "apps/web/src/features/records/company-picker.tsx": "7517072a3263779c50a645d73b4c49355adf9c38dec7f96d514e40ed55d8e452",
+    "apps/web/src/features/records/conflict-review.tsx": "d3114d270ccee36cb675e9243967e39ba3473f727f93ff02cf690a269f1f73c3",
+    "apps/web/src/features/records/custom-field-creator.tsx": "ffc5df90e3721aad5997226e8ade07574bae77b602218e0562ed066b0dea58d3",
+    "apps/web/src/features/records/record-draft.ts": "6e066796fd57589851095d8dcfb22807d4935136f9d39d8157c2edd881c64c4c",
+    "apps/web/src/lib/auth-context.tsx": "b92b20545b6e0e712dc4e3d1051a2ea755379ac8fa14c4a6d447cb059d20f4ad",
+    "apps/web/src/lib/auth.ts": "ae757738c9de0db1842766f9b9690b7f0ebafdd4091a9aee4b2045df17f9ed93",
+    "apps/web/src/lib/hooks.ts": "fb70154d26c50c26bd96fb205d558d7abece9e86ac2a4c16d189fbe46fbe17b7",
+    "apps/web/src/lib/records.ts": "830d59c480ab9b93d428dd7d46ab9b7353ffb72c21aa630e03e8a696130c5d29",
+    "apps/web/src/pages/audiences.css": "e9ff8beed8d83019bb67d63adea77cb09c55a4903b599b43c2716150c4385bb3",
+    "apps/web/src/pages/audiences.tsx": "427bee580ccc9a6bab31c487785f4804c28e979b6d16679c09e79b36cebce46a",
+    "apps/web/src/pages/overview.css": "9e473c0c73b57bb8cd00e5fab3f6c633df4a414a74108d8d56148583ec88dc5f",
+    "apps/web/src/pages/records.css": "17f55ec0355e4524c77111a70061cb3cb634960fe9452b7898c894eb00cfeeb6",
+    "apps/web/src/pages/records.tsx": "5c2cd0687bde63bf8e104ff8cb65b945fa33d0760c4b7168f3c247f17d0d9efa",
+    "apps/web/src/pages/settings.tsx": "39ebd8303f71985de5a8ed16866b34a0b417da3830a7f0c861c31ab8be2a1c1f",
+    "apps/web/src/pages/workspaces-manager.tsx": "a1cda1d6eb9d893d1d4261b0abfb28c97aa71a559aade29791579a7e86aecea7",
+    "apps/web/tests/inbound-client.test.ts": "a72220ed25af8c7a7ffcb48c7cf02bc4390c731de0929c9cc915fdb41ba67bb1",
+    "apps/web/tests/leave-guard.test.ts": "c49aa45752ec198ee267b7882428f5eed62144c7913d7ba247dc16cebbff7d04",
+    "apps/web/tests/record-draft.test.ts": "5babca5855d2407149a51558610038f51342ec811feba38a7e583f9ea7cce49d",
+    "apps/web/tests/records-response.test.ts": "ff249a05a45d91d4b3aa73fa4e87200348a1dd0de46e3e3bfd46e9f92d60d191",
+    "scripts/qa/dashboard_activation_trust.py": "6b6eb9c45e37bcaf7cd6d79cf5d6ff97bb8c4c1d0c4105921e62371ddbeba8a1",
+    "scripts/qa/dashboard_context.py": "b842ad5225499803e67a57e6c920a0d1fad0e8cade607fa234921fafbc8328b3",
+    "scripts/qa/dashboard_density.py": "d579516b771f873f0ae77eafa245a2bcbbbc9ddcc5596014a27ae34cfc052c6a",
+    "scripts/qa/dashboard_inspector.py": "871c90c3200d430c4d3d8bb6f7d95e0606dc3a6c0f0ea627ff15a80dca6cbda4"
+  },
+  "build_sha256": {
+    ".vite/manifest.json": "5e5d891b208c3150e883e6db1ef248bb5aefeae249f43e2e959d22b8e265edf5",
+    "assets/AreaChart-CBUDYpM6.js": "fe44ef5621c074cf5523fae217f96ff00d80b88402436e1daeeb783aab29db6d",
+    "assets/BarChart-BI4sUJGY.js": "75594c6c1579c79f25c5108f930725ca33139c1f86ec1237745d56a16a244c7d",
+    "assets/PieChart-BwOBxD8b.js": "0261fcd0002439cf62c366845563afa99a9cf86f2ba688f5fbcbf58bda81b1ba",
+    "assets/agents-C44WCMjZ.js": "7cc75b0ca7b15d03640fb61ddab6b57fecea80e30af504faf6ea3f6503d911de",
+    "assets/analytics-D_toNjvR.js": "a3a0ddf4cc25b36c63ffa47ca55e071c46b7e5fefdd46e4f67ef20b8befcf8c7",
+    "assets/app-CdhDZ8d4.js": "2c99c2f6f6cfb1c02f856017554cf3508ba0867c2447fa8f669fb3c599d5dde4",
+    "assets/app-DNeJe654.css": "8c37ddb03c183d1ed6a0b05cf53f16a920297465849f06fd8bf566e33f191462",
+    "assets/audiences-DbEAHtPO.js": "8a341826834ae97ed157d99d3ae71f5d767c8ad09b959605d059f324a380a2b6",
+    "assets/audiences-EdkppUXD.css": "d9aaab0396a111b9f5167f50a0daaa13de4844d5f1588cbea170656fdfcc0870",
+    "assets/auth-DtAzrqfB.js": "611b0e12d4882d18a4243fcce93e76a6925ba3fcca88b84cbec533e1c370ef8a",
+    "assets/automations-DvT9wfmx.js": "88ed4b96f669f1aa9ad264c68098c9d7ae1894ef671d54b1836220d75134f490",
+    "assets/badge-BE-0zy7A.js": "d03c38472135d6f5fadbc0fa8e46a7bf89c5471b82d1da01fe30e8f3e5a62d54",
+    "assets/button-DFVboWVs.js": "eb832bc2efbf823d3b53c63558d83c4a0f7ba72c29661798585f74c1722d088f",
+    "assets/campaigns-DTOp9gq-.js": "209d7d38555f51d57257be3481a6afcf22bd11d6a3f8978dce3f73ead5b27126",
+    "assets/card-BNUMOu4b.js": "d2c621bd352012ae33894223f8f8786041f38ff82f366bdde013b34b143d4c25",
+    "assets/chat-Bfc0Z677.css": "50407b87b5a5bf702f1e1e7d01c4b87b24dfdda3177149ca3d9ee95122ef34c8",
+    "assets/chat-C9cLYxs6.js": "dd19f09396ecbf646ae6b95f238dbefbd6b0ae9969f4e744a5a2463cbfde2a41",
+    "assets/checkbox-Bpnc5n0c.js": "919e0ae8c5372f252fa85aa9cc244a904f251a39f3773d0333e1968e931d423c",
+    "assets/command-menu-content-C2kbetQI.js": "336d15fece5fb6080af561307592b44251f8959f3f78ab1d9f8001742b4d8b2d",
+    "assets/editable-cell-PLGJuwOU.js": "58f362aa549c596f6108db07ea35d829040ea7ae4c9e62652b1974e6bddcbbc2",
+    "assets/feature-disabled-BlDt01Kf.js": "ef1d6169a866928a1f1f25693982ac5b9ddf67dcfb397659d8f8112284a66a29",
+    "assets/gate-BxK9amyu.js": "0b715a9dbd37aeebbc5842f9871940ec474fd44bc7447ac634384133a8e74e2b",
+    "assets/inter-latin-400-normal-C38fXH4l.woff2": "8909904ab6c872eb994093482a88a28eca2cd95912d7b6fecd72103b0dc07edc",
+    "assets/inter-latin-400-normal-CyCys3Eg.woff": "e20fa0b4fd2dd26e4d14b3ac3cc922509c3a63fa5e910e90c614544aa042dd45",
+    "assets/inter-latin-500-normal-BL9OpVg8.woff": "9b42c108da48b5ed55a3072e815ffee2d271562e6c0dd6998910e8f9c09e0a3d",
+    "assets/inter-latin-500-normal-Cerq10X2.woff2": "f3779f1efccc4bdcdf9c0a02ab95bf6bd092ed09c48c08cedc725889edd1d19f",
+    "assets/inter-latin-600-normal-CiBQ2DWP.woff": "6a9cb3a509b4eeaf12b7dda6c4aacac3e85d07f4201bf4dd716e332e692b87bd",
+    "assets/inter-latin-600-normal-LgqL8muc.woff2": "f9a06e79cd3a2a20951c0f0e28f66dd0e6d3fda73911d640a2125c8fcb78f21a",
+    "assets/label-BBfR26hn.js": "a1cfe9fbcfa5f2c2112eac5e2a783a84cb876a3e323716f7c1ecb9299790c814",
+    "assets/lead-detail-Dd2zmaMF.js": "f43042b260bc7d813bef7add3a6f9d79bc6a3af7c39b147465607f252f6555f9",
+    "assets/lead-detail-vh-t_kPv.css": "86d3d093fad979e1d185c8a93258f5f124d863fd13ca894c0b9f50bb68b66997",
+    "assets/leads-DMqlFeP9.js": "5d43966fded266ac577fb91242db152f052726f916f1b834fa75d86c6f246c82",
+    "assets/leave-guard-provider-C879N58O.js": "eabe935d1a84d8eff7f18393c9a819f8c07074c4d9985b0c9377c03f65d4128a",
+    "assets/manrope-latin-600-normal-4f0koTD-.woff2": "f7ac6258da20ab7541939b59851155753d1d24f1b30cbcb949077a3faa3d1593",
+    "assets/manrope-latin-600-normal-BqgrALkZ.woff": "8d1f509774bca963fa02faf674678ce9244474306361ca2798583fa600346df6",
+    "assets/markdown-content-PIl_HLLs.js": "f9f2fde40d985e87ce2f589c3b2bccdedfff3b5c3247404e87e2e41325741cc8",
+    "assets/native-select-DmKh6uNA.js": "315d28ac848e3e7d873778499ad5291b979f6e2b490982a374488e2b47dae796",
+    "assets/notifications-Be--31H3.js": "79925a166ab74067fa55a7031d332dc8bf48d6c3a966492d40b88bd083a5df43",
+    "assets/outreach-CBSasGLJ.js": "fadb433ba606e01f40ab4c717d7f7986e4427c80e708483c2c3fa92a9d3864e5",
+    "assets/overview-F2M2JL6l.css": "fdc70b12321e461f622f9b8dd37d8b8b595f3beeeef6eaff04fc8653aa343f2c",
+    "assets/overview-Za-LxW26.js": "4fc414d707c52b21004d454e165c331296e964a68b5a050fa1a54fb7717e712c",
+    "assets/papaparse.min-CHENVd_W.js": "0dcaa223a85327f6faf3b9f264af1df336b19d5b10afe9d89f90f9c6723764dc",
+    "assets/primitives-CCxpJD_d.css": "f0552acfbc579fcdec6d8ca8a4eda45de0f63d1aadf8e8a11a4633565f7d89fb",
+    "assets/primitives-Cy6HIgoE.js": "b0a97974e04f1f517b6272c7ad8ef52087399d455ba01b0a88346390031049c6",
+    "assets/query-client-BBmiERiS.js": "ddca9d5f942f526bdc3fcf113db2d292b55f490a0a8a307f38ad7503d52537fe",
+    "assets/record-overview-BSiNH4wO.js": "0fa18bf7108fad2c0082aa09e3abb9a7c25c3cd98f86c455dbd9026b520346d3",
+    "assets/records-AZvxVVVe.js": "0ee74c9f2b9a6a342ad5396380a62e7cd3296aeeacf69175304c1d502cd14518",
+    "assets/records-DrwSp3VH.css": "3a03ad9012a1f1408a496f18d89b982ce9ccd1324849fdaa5ce5d0ebafe5fe3f",
+    "assets/records-Dx4sHkXJ.js": "8f4641867b921494791df3547855032b66f2db0cf36ffa4b31e782c5f8b1cc7d",
+    "assets/rolldown-runtime-XKyaHtl9.js": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7",
+    "assets/scene-motion-Bi7wPNvE.js": "5f7e94e59775d93c3325a9baf2f9c90b98be2881fa537e2de4f365f280578a2a",
+    "assets/scroll-area-DRDGix9D.js": "27e6aa2151218a13b1845219013ecceafed2989b0373e2f3b490b2d57d76d23f",
+    "assets/search-x6K2tRgu.js": "cc380200fa9b946b6d6973827be62b3983570fa7f41990d8b2b0b70f07fcf6ff",
+    "assets/select-C4pjWIsK.js": "567889ddd321ac1702f9f996acc52dc68147609874a961ce87e50e594a7631ad",
+    "assets/semantic-icons-CXUEGqf9.js": "8b6aa512a51b9e14dcef4bc11d653188c92494cbb44481627984378b6e733ffe",
+    "assets/settings-CJdPfoBi.js": "8505a3e5309afd6626a34baaded34a52f0915762d53e20b281a98a621ecfaf4f",
+    "assets/signals-DD-9KJMb.js": "098055488127df8b60220268b8581dcf67437b7169f749885787f797de766dbc",
+    "assets/source-engine-panel-zPl9fm90.js": "f4698adb2a3171770338b94b2dd6685f0d4ebcac1a59b862881e1b579ad87b4a",
+    "assets/sources-BD78A_JJ.js": "df6cea6881fc7e9a07cfd6b9287adc12c96c39ddc12dc54da5cfb78cbfd85aac",
+    "assets/src-ClFxTv40.js": "86cb491364b8c2d82f5c7b3280d3229a6f5664b57cac3ac2135c7d0cc8803fe0",
+    "assets/src-Dfb79MzQ.css": "4f50065c54b1a560ffeef273ded6c6bd40e26828a1559d0c6f015361114be111",
+    "assets/status-dot-Jf4KDYQv.js": "d11519da9960adafbefa4df977200bd830aa843695a9dcc4ba4626fee6230c52",
+    "assets/surfaces-CJtMfSRY-D9wTY34O.js": "124bdeeb4bdf2083d09be20b24ac6a0d68ac5984a3f874a9a4e876a3a8e6791b",
+    "assets/switch-Bsu--Cjb.js": "990fe150c1e5031b1141101318925996ee21e35680ed10f0d44462ece1eea74c",
+    "assets/table-MT_mDgG1.js": "0bfd4f32e222445c388b3f062c5c92380923f7e0eb5b2f137e895fc3845bbc27",
+    "assets/tabs-BbxuqoAb.js": "b2829bc98cdd24a261fe19e0fe15b2cc6a8e5df082afe64036410e6168703e53",
+    "assets/task-detail-Be43_jim.js": "d5e1661d07194fa7cc7c6b9d4c0834db18709d05373850a1654928707ad9afe8",
+    "assets/task-detail-card-CXUwZSpX.js": "3f46b1964418d88d5d71435451cb574e98189fb7d971e063ae8701c7c1aa3b6f",
+    "assets/templates-o1RY8rro.js": "d2ab2bb9d913355f4cbe27aa7559e07a27f92e9e3babe674b3ff57586a29cf38",
+    "assets/textarea-D9gn43_1.js": "7d0f985612be9cea50f3b067fb58be1bd30da4fc38b9e49e024811ca6b0ec831",
+    "assets/ui-preview-C1sTnO6N.css": "036ca60bf8ade9d0fd9d6f906e6c15faec954750b5df04badb722693aff859c5",
+    "assets/ui-preview-Dumm-VpY.js": "f8a016794fa05eb7062e1c6f18b3d0b1988cdb3a4e3ab09a738ce278e027d251",
+    "assets/utils-FYLWdumP.js": "18ff3afc25f98958e28bb53fd5310d42d011bad18044f4c671eb06309aa55056",
+    "assets/vendor-data-9O8QiYJE.js": "6b9b7b85d7e0ceb10c9cfa54e1264154c26ac6c522d1e8a900bd51fa31514582",
+    "assets/vendor-react-B1FcVRHm.js": "9d2c52fcfe7b65f4f8f147abfe6911c5dbbcd162d557447dd77a6a1eb9f47e61",
+    "assets/vendor-ui-BTkEQQrC.js": "670dac337967e218c1dc1c1be98209cdbfbc54ba0b7fafad5679e08f41e716a4",
+    "assets/watches-CheI96O2.js": "a41ab8ecb0a41729e1eb50e2471c71fe18c654c3b0c6c1f893a6f56325564e18",
+    "assets/workbench-mq2RZC0J.js": "32d33c3289a08d983bab94ebc52814df3ca97adf2e7a62f6a34a65ccf5ea569b",
+    "assets/workbook-editor-BQKXE3QG.js": "c9e8c3c7c7665acbfd9e7b049bb85d2903aba68d23e8d8241cc9282368f0c815",
+    "assets/workbook-editor-CE8M8LiC.css": "501bbc615519ea302fba6aba9cfc671544e90e1df6874799d2b899bd2788d760",
+    "assets/workbook-hooks-Bdbpl6FG.js": "07392ebe99c97e76d6cf5f7c9d0ff96afadaa3552ac4d363868fb03f998a566a",
+    "assets/workbooks-DsgkLMji.css": "74347cd6735757ac33f1f0c6d91b09e86b7de58b9a4731c9b91cf52e5972cd7b",
+    "assets/workbooks-njfvpxHm.js": "ea322d2b3d774644d58a35ce3c3cd38414fe88763081931b1c4301a2fb814471",
+    "assets/workspaces-manager-D80tv-iS.js": "25ed98e7d0acf54f820d41f79b4489564ebd6407bd1cb1241c723dfb107695e0",
+    "favicon.svg": "558c4e001c5b00854dcbd70c370c3d45c59bcf4a5fe43ec956827fd845aef7ef",
+    "icons.svg": "b45fa506195cfcdef406ba9f0c77b36ddc1a7c224040926ec70abc2fdea7b93a",
+    "index.html": "f2799393c29dbea305da94d15cbeb58a7703f7bb648408aff5f5f0bb20beac78",
+    "logo.svg": "c07e96dfa6d41068555277fc8f6d01f9535f0493c583e7090357f83679ad1fb2",
+    "opengtm-lockup.svg": "3300d1c2c22ba4b33cd37a490ede2b4f4554e55eab920989b4101ec0c2942185",
+    "opengtm-mark-v2.svg": "6019293fc2051d3fd9af5d063298c87384bf3aadfc1c631881eae432f89a6fb0",
+    "opengtm-mark-v3.svg": "69c3661ace6236653d81a92af4ff38e8d55580367f561ebf785d4effc0e8e141",
+    "opengtm-mark-v4.svg": "79b677a82421a386f693ce5f5005da9503b84b54fca417a743a29c06e98162e8",
+    "opengtm-mark-v5.svg": "54d476204d84d502e70fe7b6f5584d3b4d5ffd6ee9eda34b44c50f426d486a9e",
+    "opengtm-mark-v6.svg": "283df5eb76dbf7e96dbb7c7cf0d1e4473da961ed665362c96bcc035b2d22fa94",
+    "opengtm-mark-v7.svg": "1325218d81567342640a1bed9583193eeabda370d008968a02a0fe0f186f420e",
+    "opengtm-mark-v8.svg": "becffec1496f84862c59a6f60f7abd82f8372249a16b9564600e3e89460ed18b",
+    "opengtm-mark.png": "8ccd131dba68d75cd9a59678415196be85d8f6857df2ae3092729a01c1157ac0",
+    "theme.js": "4f557e0f50bb4b18a711ed2cc2eee5e716b271ae3d2e75bfa1b94f9994ed5351",
+    "ui-preview.html": "683d960b13ed09b0c7378c8a10e5be2d3a28461ba3e9a26bb65fb3630f9608a0"
+  },
+  "limitations": "Native synthetic workspace/data fixtures. Provider writes/tests, token rotation responses and injected history failures are intercepted. No external delivery. Manual AT, actual zoom, full permission/state/browser/performance/operator/rollout gates and all other completion-audit requirements remain open.",
+  "served_index_sha256": "f2799393c29dbea305da94d15cbeb58a7703f7bb648408aff5f5f0bb20beac78"
+}

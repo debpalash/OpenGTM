@@ -107,7 +107,17 @@ func (s *Service) UpdateLead(ctx context.Context, tx pgx.Tx, ws string, leadID i
 	args = append(args, leadISO(time.Now()), ws, leadID)
 	sql := fmt.Sprintf("UPDATE leads SET %s, updated_at = $%d WHERE workspace_id = $%d AND id = $%d",
 		strings.Join(sets, ", "), len(keys)+1, len(keys)+2, len(keys)+3)
+	var prior string
+	if err := tx.QueryRow(ctx, `SELECT coalesce(current_setting('opengtm.record_source',true),'')`).Scan(&prior); err != nil {
+		return nil, nil, err
+	}
+	if _, err := tx.Exec(ctx, `SELECT set_config('opengtm.record_source','manual',true)`); err != nil {
+		return nil, nil, err
+	}
 	if _, err := tx.Exec(ctx, sql, args...); err != nil {
+		return nil, nil, err
+	}
+	if _, err := tx.Exec(ctx, `SELECT set_config('opengtm.record_source',$1,true)`, prior); err != nil {
 		return nil, nil, err
 	}
 	return keys, nil, nil

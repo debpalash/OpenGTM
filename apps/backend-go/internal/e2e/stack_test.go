@@ -137,7 +137,7 @@ func (s *stack) start(name, path string, env []string) {
 	cmd := exec.Command(path)
 	cmd.Env = env
 	cmd.Stdout, cmd.Stderr = logf, logf
-	cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL}
+	cmd.SysProcAttr = childProcessAttrs()
 	if err := cmd.Start(); err != nil {
 		s.t.Fatal(err)
 	}

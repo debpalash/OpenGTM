@@ -152,15 +152,33 @@ func TestRunIsIdempotent(t *testing.T) {
 	}
 }
 
-// alembicOnly turns a Go-migrated database into one that looks Alembic-managed
-// (same schema, alembic_version stamped, no goose table).
+// alembicOnly restores the actual Python baseline in a disposable database.
+// Dropping only Goose metadata would leave newer Go migrations applied.
 func alembicOnly(t *testing.T, p *pgxpool.Pool, rev string) {
 	t.Helper()
 	ctx := context.Background()
-	for _, q := range []string{`DROP TABLE goose_db_version`, `UPDATE alembic_version SET version_num = '` + rev + `'`} {
-		if _, err := p.Exec(ctx, q); err != nil {
+	baseline, err := os.ReadFile("baseline/e7b2c4d6f8a0.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tx, err := p.Begin(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback(ctx)
+	if _, err := tx.Exec(ctx, `SET LOCAL check_function_bodies=off`); err != nil {
+		t.Fatal(err)
+	}
+	for _, q := range []string{`DROP SCHEMA public CASCADE; CREATE SCHEMA public`, string(baseline)} {
+		if _, err := tx.Exec(ctx, q); err != nil {
 			t.Fatal(err)
 		}
+	}
+	if _, err := tx.Exec(ctx, `INSERT INTO alembic_version(version_num) VALUES($1)`, rev); err != nil {
+		t.Fatal(err)
+	}
+	if err := tx.Commit(ctx); err != nil {
+		t.Fatal(err)
 	}
 }
 

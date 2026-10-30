@@ -1,0 +1,729 @@
+[
+  {
+    "id": "duckduckgo",
+    "file": "duckduckgo.svg",
+    "source": "https://github.com/duckduckgo/duckduckgo-privacy-extension/blob/5c6ac8d6a07421adbfb97ee2ff855dd7655f8d71/shared/img/logo-small-grayscale.svg",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/duckduckgo.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "google_maps",
+    "file": "google_maps.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:Google_Maps_icon.svg",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/googlemaps.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "directories",
+    "category": true
+  },
+  {
+    "id": "linkedin",
+    "file": "linkedin.svg",
+    "source": "https://brand.linkedin.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/11.15.0/icons/linkedin.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "job_boards",
+    "category": true
+  },
+  {
+    "id": "indiamart",
+    "file": "indiamart.svg",
+    "source": "https://indiamart.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=indiamart.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "justdial",
+    "file": "justdial.svg",
+    "source": "https://justdial.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=justdial.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "tradeindia",
+    "file": "tradeindia.svg",
+    "source": "https://tradeindia.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=tradeindia.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "sulekha",
+    "file": "sulekha.svg",
+    "source": "https://sulekha.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=sulekha.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "exportersindia",
+    "file": "exportersindia.svg",
+    "source": "https://exportersindia.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=exportersindia.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "ambitionbox",
+    "file": "ambitionbox.svg",
+    "source": "https://static.ambitionbox.com/alpha/img/supporting-images/browser_icon_16x16.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "glassdoor_in",
+    "file": "glassdoor_in.svg",
+    "source": "https://www.glassdoor.com/about/newsroom",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/glassdoor.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "naukri",
+    "file": "naukri.svg",
+    "source": "https://naukri.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=naukri.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "zaubacorp",
+    "file": "zaubacorp.svg",
+    "source": "https://www.zaubacorp.com/public/static/images/favicon.ico?28b634d87229",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "tofler",
+    "file": "tofler.svg",
+    "source": "https://www.tofler.in/images/logo_new",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "yourstory",
+    "file": "yourstory.svg",
+    "source": "https://yourstory.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=yourstory.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "inc42",
+    "file": "inc42.svg",
+    "source": "https://inc42.com/cdn-cgi/image/quality=90/https://asset.inc42.com/2021/09/cropped-inc42-favicon-1-32x32.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "clutch",
+    "file": "clutch.svg",
+    "source": "https://clutch.co",
+    "distribution": "https://www.google.com/s2/favicons?domain=clutch.co&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "goodfirms",
+    "file": "goodfirms.svg",
+    "source": "https://www.goodfirms.co/icon.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "g2",
+    "file": "g2.svg",
+    "source": "https://www.g2.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/g2.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "softwaresuggest",
+    "file": "softwaresuggest.svg",
+    "source": "https://www.softwaresuggest.com/favicon-16x16.png?version=a",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "techbehemoths",
+    "file": "techbehemoths.svg",
+    "source": "https://techbehemoths.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=techbehemoths.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "yellowpages",
+    "file": "yellowpages.svg",
+    "source": "https://yellowpages.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=yellowpages.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "yelp",
+    "file": "yelp.svg",
+    "source": "https://www.yelp.com/brand",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/yelp.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "bbb",
+    "file": "bbb.svg",
+    "source": "https://m.bbb.org/brand/logos/BBB_PrimaryLogo_Blue_RGB.svg",
+    "distribution": "official website"
+  },
+  {
+    "id": "thomasnet",
+    "file": "thomasnet.svg",
+    "source": "https://www.thomasnet.com/favicon.ico",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "crunchbase",
+    "file": "crunchbase.svg",
+    "source": "https://crunchbase.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/crunchbase.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "tracxn",
+    "file": "tracxn.svg",
+    "source": "https://cdn.tracxn.com/images/static/favicon.ico",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "angellist",
+    "file": "angellist.svg",
+    "source": "https://wellfound.com/logo",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/wellfound.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "linkedin_companies",
+    "file": "linkedin_companies.svg",
+    "source": "https://brand.linkedin.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/11.15.0/icons/linkedin.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "facebook_pages",
+    "file": "facebook_pages.svg",
+    "source": "https://about.meta.com/brand/resources/facebook/logo",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/facebook.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "indeed",
+    "file": "indeed.svg",
+    "source": "https://indeed.design/resources",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/indeed.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "glassdoor",
+    "file": "glassdoor.svg",
+    "source": "https://www.glassdoor.com/about/newsroom",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/glassdoor.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "europages",
+    "file": "europages.svg",
+    "source": "https://www.europages.co.uk/favicon.svg",
+    "distribution": "official website"
+  },
+  {
+    "id": "kompass",
+    "file": "kompass.svg",
+    "source": "https://kompass.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=kompass.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "generic_companies_list",
+    "category": true
+  },
+  {
+    "id": "generic_association",
+    "category": true
+  },
+  {
+    "id": "generic_awards",
+    "category": true
+  },
+  {
+    "id": "capterra",
+    "file": "capterra.svg",
+    "source": "https://capterra.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=capterra.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "getapp",
+    "file": "getapp.svg",
+    "source": "https://getapp.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=getapp.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "producthunt",
+    "file": "producthunt.svg",
+    "source": "https://www.producthunt.com/branding",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/producthunt.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "sourceforge",
+    "file": "sourceforge.svg",
+    "source": "https://sourceforge.net",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/sourceforge.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "alternativeto",
+    "file": "alternativeto.svg",
+    "source": "https://alternativeto.net",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/alternativeto.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "saashub",
+    "file": "saashub.svg",
+    "source": "https://cdn-b.saashub.com/assets/logo-favicon-1a390b4cc3b50656a95567df376acd51d82a6f33bb04094c5d2f913173b28ac5.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "stackshare",
+    "file": "stackshare.svg",
+    "source": "https://stackshare.io/branding",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/stackshare.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "appsumo",
+    "file": "appsumo.svg",
+    "source": "https://appsumo.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=appsumo.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "trustpilot",
+    "file": "trustpilot.svg",
+    "source": "https://support.trustpilot.com/hc/en-us/articles/206289947-Trustpilot-Brand-Assets-Style-Guide",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/trustpilot.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "tripadvisor",
+    "file": "tripadvisor.svg",
+    "source": "https://tripadvisor.mediaroom.com/logo-guidelines",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/tripadvisor.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "google_reviews",
+    "file": "google_reviews.svg",
+    "source": "https://partnermarketinghub.withgoogle.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/google.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "mouthshut",
+    "file": "mouthshut.svg",
+    "source": "https://m.mouthshut.com/images/app_icon.png",
+    "distribution": "official app icon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "upwork",
+    "file": "upwork.svg",
+    "source": "https://www.upwork.com/press/",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/upwork.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "fiverr",
+    "file": "fiverr.svg",
+    "source": "https://www.fiverr.com/press-kit",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/fiverr.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "toptal",
+    "file": "toptal.svg",
+    "source": "https://www.toptal.com/branding",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/toptal.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "freelancer",
+    "file": "freelancer.svg",
+    "source": "https://www.freelancer.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/freelancer.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "bark",
+    "file": "bark.svg",
+    "source": "https://assets.bark.com/images/favicon/20190628/apple-touch-icon.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "github_orgs",
+    "file": "github_orgs.svg",
+    "source": "https://github.com/logos",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "stackoverflow_jobs",
+    "file": "stackoverflow_jobs.svg",
+    "source": "https://stackoverflow.design/brand/logo/",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/stackoverflow.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "hackernews",
+    "file": "hackernews.svg",
+    "source": "https://www.ycombinator.com/press",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ycombinator.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "devto",
+    "file": "devto.svg",
+    "source": "https://dev.to",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/devdotto.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "google_news",
+    "file": "google_news.svg",
+    "source": "https://partnermarketinghub.withgoogle.com/brands/google-news/",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/googlenews.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "economic_times",
+    "file": "economic_times.svg",
+    "source": "https://economictimes.indiatimes.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=economictimes.indiatimes.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "business_standard",
+    "file": "business_standard.svg",
+    "source": "https://www.business-standard.com/favicon16x16-min.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "livemint",
+    "file": "livemint.svg",
+    "source": "https://www.livemint.com/lm-img/images/mintfavi-1.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "techcrunch",
+    "file": "techcrunch.svg",
+    "source": "https://commons.wikimedia.org/wiki/File:TechCrunch_logo.svg",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/techcrunch.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "forbes",
+    "file": "forbes.svg",
+    "source": "https://forbes.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=forbes.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "yellowpages_in",
+    "file": "yellowpages_in.svg",
+    "source": "https://yellowpages.in",
+    "distribution": "https://www.google.com/s2/favicons?domain=yellowpages.in&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "grotal",
+    "file": "grotal.svg",
+    "source": "https://grotal.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=grotal.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "urbanpro",
+    "file": "urbanpro.svg",
+    "source": "https://urbanpro.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=urbanpro.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "dial4trade",
+    "file": "dial4trade.svg",
+    "source": "https://www.dial4trade.com/favicon.ico",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "fundoodata",
+    "file": "fundoodata.svg",
+    "source": "https://www.fundoodata.com/favicon-16x16.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "startup_india",
+    "file": "startup_india.svg",
+    "source": "https://startupindia.gov.in",
+    "distribution": "https://www.google.com/s2/favicons?domain=startupindia.gov.in&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "nasscom",
+    "file": "nasscom.svg",
+    "source": "https://nasscom.in",
+    "distribution": "https://www.google.com/s2/favicons?domain=nasscom.in&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "shine",
+    "file": "shine.svg",
+    "source": "https://shine.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=shine.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "monsterindia",
+    "file": "monsterindia.svg",
+    "source": "https://www.monster.com/press/",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/monster.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "manta",
+    "file": "manta.svg",
+    "source": "https://manta.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=manta.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "dnb",
+    "file": "dnb.svg",
+    "source": "https://www.dnb.com/etc.clientlibs/dnb-marketing-website/clientlibs/clientlib-react/resources/logo192.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "opencorporates",
+    "file": "opencorporates.svg",
+    "source": "https://opencorporates.com/wp-content/uploads/2023/03/opencorporates-favicon-150x150.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "companieshouse",
+    "file": "companieshouse.svg",
+    "source": "https://www.gov.uk/assets/collections/favicon-d962d21b5bb443f546c097ea21b567cde639adef7370da45be5e349ba8d62d33.svg",
+    "distribution": "official website"
+  },
+  {
+    "id": "dealroom",
+    "file": "dealroom.svg",
+    "source": "https://dealroom.co",
+    "distribution": "https://www.google.com/s2/favicons?domain=dealroom.co&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "cbinsights",
+    "file": "cbinsights.svg",
+    "source": "https://www.cbinsights.com/favicon.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "foursquare",
+    "file": "foursquare.svg",
+    "source": "https://foursquare.com/brand/",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/foursquare.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "hotfrog",
+    "file": "hotfrog.svg",
+    "source": "https://www.hotfrog.com/build/assets/apple-touch-icon-t8UXq-JN.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "brownbook",
+    "file": "brownbook.svg",
+    "source": "https://www.brownbook.net/logo192.png",
+    "distribution": "official site favicon",
+    "format": "SVG container with original PNG artwork"
+  },
+  {
+    "id": "cylex",
+    "file": "cylex.svg",
+    "source": "https://cylex.us.com",
+    "distribution": "https://www.google.com/s2/favicons?domain=cylex.us.com&sz=128",
+    "format": "SVG container with cached site PNG favicon"
+  },
+  {
+    "id": "twitter_companies",
+    "file": "twitter_companies.svg",
+    "source": "https://x.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/x.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "instagram_business",
+    "file": "instagram_business.svg",
+    "source": "https://about.meta.com/brand/resources/instagram",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/instagram.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "reddit_companies",
+    "file": "reddit_companies.svg",
+    "source": "https://www.redditinc.com/brand",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/reddit.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "quora_companies",
+    "file": "quora_companies.svg",
+    "source": "https://www.quora.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/quora.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "amazon_sellers",
+    "file": "amazon_sellers.svg",
+    "source": "https://www.amazon.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/11.15.0/icons/amazon.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "flipkart_sellers",
+    "file": "flipkart_sellers.svg",
+    "source": "https://www.flipkart.com",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/15.14.0/icons/flipkart.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "shopify_stores",
+    "file": "shopify_stores.svg",
+    "source": "https://www.shopify.com/brand-assets",
+    "distribution": "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/shopify.svg",
+    "license": {
+      "type": "CC0-1.0"
+    }
+  },
+  {
+    "id": "generic_expo",
+    "category": true
+  },
+  {
+    "id": "generic_incubator",
+    "category": true
+  },
+  {
+    "id": "generic_govt_tender",
+    "category": true
+  },
+  {
+    "id": "generic_iso_certified",
+    "category": true
+  },
+  {
+    "id": "generic_hiring_surge",
+    "category": true
+  },
+  {
+    "id": "firecrawl",
+    "file": "firecrawl.svg",
+    "source": "https://www.firecrawl.dev",
+    "distribution": "https://github.com/pheralb/svgl/blob/main/static/library/firecrawl.svg"
+  },
+  {
+    "id": "spicrawl",
+    "file": "spicrawl.svg",
+    "source": "https://spicrawl.com/favicon.svg",
+    "distribution": "official website"
+  }
+]

@@ -1,0 +1,35 @@
+.provider-settings-card {
+  height: 100%;
+  min-width: 0;
+}
+
+.provider-settings-card [data-slot="card-title"] {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .provider-settings input,
+  .provider-settings select {
+    font-size: 16px;
+  }
+}
+
+@media (pointer: coarse) {
+  .settings-sections {
+    min-height: 48px;
+    height: auto;
+  }
+
+  .settings-sections [role="tab"] {
+    min-height: 44px;
+  }
+
+  .provider-settings input,
+  .provider-settings select {
+    font-size: 16px;
+  }
+
+  .provider-settings .provider-key-reveal {
+    min-width: 44px;
+  }
+}

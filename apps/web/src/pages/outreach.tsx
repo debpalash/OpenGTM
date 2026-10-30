@@ -88,14 +88,14 @@ export default function OutreachPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-3 p-3">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="flex items-center gap-2 text-base font-semibold">
+          <h1 tabIndex={-1} data-page-title className="flex items-center gap-2 text-base font-semibold">
             {draftId ? <FileText className="size-4" /> : <Send className="size-4" />}
             Outreach
-          </h2>
+          </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">
             {draftId
               ? "Inspect the saved message and evidence behind each personalized claim."
@@ -105,10 +105,10 @@ export default function OutreachPage() {
         <div className="flex items-center gap-2">
           {!draftId && smtpStatus && (
             <span
-              className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] ${
+              className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${
                 smtpStatus.configured
-                  ? "border-emerald-400/20 bg-emerald-400/5 text-emerald-400"
-                  : "border-amber-400/20 bg-amber-400/5 text-amber-400"
+                  ? "border-border bg-[var(--gtm-success-surface)] text-[var(--gtm-success)]"
+                  : "border-border bg-[var(--gtm-warning-surface)] text-[var(--gtm-warning)]"
               }`}
             >
               {smtpStatus.configured ? (
@@ -138,7 +138,7 @@ export default function OutreachPage() {
 
       {/* Member banner — enroll-yes / activate-no asymmetry (spec §6) */}
       {!draftId && !canAdmin && !isOwner && (
-        <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-[11px] text-sky-300">
+        <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-xs text-sky-300">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>You can view and enroll leads; activating/sending requires the admin role.</span>
         </div>
@@ -146,7 +146,7 @@ export default function OutreachPage() {
 
       {/* Stats bar */}
       {!draftId && view === "list" && rows.length > 0 && (
-        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Hash className="size-3" /> {rows.length} sequences
           </span>
@@ -159,11 +159,11 @@ export default function OutreachPage() {
           onBack={() => setSearchParams({}, { replace: true })}
         />
       ) : view === "list" ? (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <GroundedDraftList onOpen={openDraft} />
           <section aria-labelledby="sequences-heading" className="space-y-3">
             <div>
-              <h3 id="sequences-heading" className="text-sm font-medium">Sequences</h3>
+              <h2 id="sequences-heading" className="text-sm font-medium">Sequences</h2>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 Scheduled email programs with consent and delivery controls.
               </p>
@@ -215,7 +215,7 @@ function GroundedDraftList({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <section aria-labelledby="grounded-drafts-heading" className="space-y-3">
       <div>
-        <h3 id="grounded-drafts-heading" className="text-sm font-medium">Grounded drafts</h3>
+        <h2 id="grounded-drafts-heading" className="text-sm font-medium">Grounded drafts</h2>
         <p className="mt-0.5 text-xs text-muted-foreground">
           Draft-only messages tied to an exact saved contact and public evidence.
         </p>
@@ -234,7 +234,7 @@ function GroundedDraftList({ onOpen }: { onOpen: (id: string) => void }) {
             <span className="min-w-0 flex-1">
               <span className="flex flex-wrap items-center gap-2">
                 <span className="truncate text-sm font-medium">{draft.subject}</span>
-                <Badge variant="secondary" className="text-[10px]">Draft only</Badge>
+                <Badge variant="secondary" className="text-xs">Draft only</Badge>
               </span>
               <span className="mt-0.5 block truncate text-xs text-muted-foreground">
                 {draft.person_name} · {draft.to_email}
@@ -275,7 +275,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
   }
 
   return (
-    <article className="max-w-4xl space-y-4" aria-labelledby="draft-subject">
+    <article className="max-w-4xl space-y-3" aria-labelledby="draft-subject">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 space-y-2">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-8 px-2 text-xs">
@@ -289,7 +289,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
                 {row.contact_status === "verified" ? "Verified address" : "Risky address approved"}
               </span>
             </div>
-            <h3 id="draft-subject" className="text-lg font-semibold leading-snug">{row.subject}</h3>
+            <h2 id="draft-subject" className="text-lg font-semibold leading-snug">{row.subject}</h2>
             <p className="mt-1 text-xs text-muted-foreground">Saved {created}</p>
           </div>
         </div>
@@ -299,7 +299,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
         </Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
+      <div className="grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
         <Card>
           <CardHeader className="space-y-2 pb-3">
             <div className="grid gap-2 text-xs sm:grid-cols-[72px_1fr]">
@@ -332,7 +332,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
             {personalized.map((item) => (
               <div key={item.sentence_id} className="rounded-md border p-3">
                 <p className="text-xs leading-5">{item.text}</p>
-                <p className="mt-2 font-mono text-[10px] text-muted-foreground">
+                <p className="mt-2 font-mono text-xs text-muted-foreground">
                   {item.claim_ids.join(" · ")}
                 </p>
               </div>
@@ -351,7 +351,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
                     <span>{source.label || "Public evidence"}</span>
                     <ExternalLink aria-hidden="true" className="mt-0.5 size-3 shrink-0" />
                   </span>
-                  <span className="mt-1 block break-words text-[10px] leading-4 text-muted-foreground">
+                  <span className="mt-1 block break-words text-xs leading-4 text-muted-foreground">
                     Observed {new Date(source.observed_at).toLocaleString()} · {Math.round(source.confidence * 100)}% confidence
                   </span>
                 </a>
@@ -427,7 +427,7 @@ function SequenceList({
         {rows.map((seq) => (
           <div
             key={seq.id}
-            className="group flex cursor-pointer items-center gap-4 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/30"
+            className="group flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 transition-colors hover:bg-muted/30"
             onClick={() => onOpen(seq.id)}
           >
             <div className="min-w-0 flex-1">
@@ -435,12 +435,12 @@ function SequenceList({
                 <span className="truncate text-sm font-medium">{seq.name}</span>
                 <StatusDot status={seq.status} />
                 {seq.auto_paused && (
-                  <Badge variant="secondary" className="gap-1 text-[10px] text-amber-400">
+                  <Badge variant="secondary" className="gap-1 text-xs text-amber-400">
                     <AlertTriangle className="size-2.5" /> auto-paused
                   </Badge>
                 )}
               </div>
-              <div className="mt-0.5 flex items-center gap-3 text-[11px] text-muted-foreground">
+              <div className="mt-0.5 flex items-center gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
                   <Clock className="size-3" /> {seq.steps.length} steps
                 </span>
@@ -571,12 +571,12 @@ function SequenceCreator({
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="max-w-2xl space-y-3">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="sm" onClick={onCancel} className="h-7 text-xs">
           ← Back
         </Button>
-        <h3 className="text-sm font-medium">New Sequence</h3>
+        <h2 className="text-sm font-medium">New Sequence</h2>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
@@ -670,14 +670,14 @@ function SequenceCreator({
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-xs font-medium">
-                  <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                     {idx + 1}
                   </span>
                   {idx === 0 ? "Initial Email" : `Follow-up ${idx}`}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   {idx > 0 && (
-                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Timer className="size-3" />
                       <Input
                         type="number"
@@ -686,7 +686,7 @@ function SequenceCreator({
                         onChange={(e) =>
                           updateStep(idx, "delay_hours", parseInt(e.target.value) || 0)
                         }
-                        className="h-6 w-14 text-center text-[11px]"
+                        className="h-6 w-14 text-center text-xs"
                       />
                       <span>hrs after prev</span>
                     </div>
@@ -707,7 +707,7 @@ function SequenceCreator({
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="space-y-1">
-                <Label htmlFor={`step-subj-${idx}`} className="text-[11px] text-muted-foreground">
+                <Label htmlFor={`step-subj-${idx}`} className="text-xs text-muted-foreground">
                   Subject
                 </Label>
                 <Input
@@ -719,7 +719,7 @@ function SequenceCreator({
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor={`step-body-${idx}`} className="text-[11px] text-muted-foreground">
+                <Label htmlFor={`step-body-${idx}`} className="text-xs text-muted-foreground">
                   Body
                 </Label>
                 <Textarea
@@ -841,14 +841,14 @@ function SequenceDetailView({ id, onBack }: { id: string; onBack: () => void }) 
   }
 
   return (
-    <div className="max-w-3xl space-y-4">
+    <div className="max-w-3xl space-y-3">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={onBack} className="h-7 text-xs">
             ← Back
           </Button>
-          <h3 className="text-sm font-medium">{seq.name}</h3>
+          <h2 className="text-sm font-medium">{seq.name}</h2>
           <StatusDot status={seq.status} />
         </div>
         <div className="flex items-center gap-2">
@@ -900,7 +900,7 @@ function SequenceDetailView({ id, onBack }: { id: string; onBack: () => void }) 
               variant="outline"
               onClick={() => resume.mutate({ id: seq.id, body: { status: "active" } })}
               disabled={resume.isPending}
-              className="h-6 gap-1 text-[11px]"
+              className="h-6 gap-1 text-xs"
             >
               <Play className="size-3" /> Resume
             </Button>
@@ -918,7 +918,7 @@ function SequenceDetailView({ id, onBack }: { id: string; onBack: () => void }) 
             <div className="flex items-center gap-1.5">
               <span className="text-lg font-semibold tabular-nums">{statValue(key)}</span>
             </div>
-            <span className="text-[10px] text-muted-foreground">{label}</span>
+            <span className="text-xs text-muted-foreground">{label}</span>
           </div>
         ))}
       </div>
@@ -934,7 +934,7 @@ function SequenceDetailView({ id, onBack }: { id: string; onBack: () => void }) 
           <Users className="size-3" /> Pick leads…
         </Button>
         <div className="flex items-center gap-1.5">
-          <Label htmlFor="enroll-consent" className="text-[11px] text-muted-foreground">
+          <Label htmlFor="enroll-consent" className="text-xs text-muted-foreground">
             Consent
           </Label>
           <Select value={consentSource} onValueChange={(v) => setConsentSource(v ?? "")}>
@@ -996,7 +996,7 @@ function SmtpStartHint({ force }: { force?: boolean }) {
   const smtp = useSmtpStatus()
   if (!force && smtp.data?.configured !== false) return null
   return (
-    <div className="flex items-center justify-between gap-2 rounded-md border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-[11px] text-amber-300">
+    <div className="flex items-center justify-between gap-2 rounded-md border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-xs text-amber-300">
       <span className="flex items-center gap-2">
         <AlertCircle className="size-3.5" /> SMTP is not configured — activating will fail until you set it up.
       </span>
@@ -1004,7 +1004,7 @@ function SmtpStartHint({ force }: { force?: boolean }) {
         size="sm"
         variant="outline"
         onClick={() => navigate("/settings")}
-        className="h-6 gap-1 text-[11px]"
+        className="h-6 gap-1 text-xs"
       >
         <SettingsIcon className="size-3" /> Configure SMTP
       </Button>
@@ -1021,7 +1021,7 @@ function StepsView({ steps }: { steps: SeqStep[] }) {
       {steps.map((step, idx) => (
         <div key={idx} className="flex items-start gap-3">
           <div className="flex flex-col items-center gap-1 pt-1">
-            <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
+            <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
               {idx + 1}
             </span>
             {idx < steps.length - 1 && <div className="h-8 w-px bg-border" />}
@@ -1030,12 +1030,12 @@ function StepsView({ steps }: { steps: SeqStep[] }) {
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium">{step.subject || "(No subject)"}</span>
               {idx > 0 && (
-                <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Timer className="size-3" /> +{step.delay_hours}h
                 </span>
               )}
             </div>
-            <pre className="mt-1 line-clamp-3 whitespace-pre-wrap font-sans text-[11px] text-muted-foreground">
+            <pre className="mt-1 line-clamp-3 whitespace-pre-wrap font-sans text-xs text-muted-foreground">
               {step.body_html}
             </pre>
           </div>
@@ -1066,7 +1066,7 @@ function SendsLog({ id }: { id: string }) {
     <div className="space-y-2">
       <div className="overflow-x-auto rounded-md border">
         <table className="w-full text-xs">
-          <thead className="bg-muted/40 text-[11px] text-muted-foreground">
+          <thead className="bg-muted/40 text-xs text-muted-foreground">
             <tr>
               <th className="px-3 py-2 text-left font-medium">To</th>
               <th className="px-3 py-2 text-left font-medium">Step</th>
@@ -1084,7 +1084,7 @@ function SendsLog({ id }: { id: string }) {
                 <td className="px-3 py-1.5">
                   <StatusDot status={s.status} />
                   {s.skip_reason && (
-                    <span className="ml-1 text-[10px] text-muted-foreground">({s.skip_reason})</span>
+                    <span className="ml-1 text-xs text-muted-foreground">({s.skip_reason})</span>
                   )}
                 </td>
                 <td className="px-3 py-1.5 text-muted-foreground">
@@ -1096,11 +1096,11 @@ function SendsLog({ id }: { id: string }) {
         </table>
       </div>
       {pages > 1 && (
-        <div className="flex items-center justify-end gap-2 text-[11px] text-muted-foreground">
+        <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
           <Button
             size="sm"
             variant="outline"
-            className="h-6 text-[11px]"
+            className="h-6 text-xs"
             disabled={page === 0}
             onClick={() => setPage((p) => p - 1)}
           >
@@ -1112,7 +1112,7 @@ function SendsLog({ id }: { id: string }) {
           <Button
             size="sm"
             variant="outline"
-            className="h-6 text-[11px]"
+            className="h-6 text-xs"
             disabled={page >= pages - 1}
             onClick={() => setPage((p) => p + 1)}
           >
@@ -1141,7 +1141,7 @@ function SuppressionsView({ canAdmin }: { canAdmin: boolean }) {
     <div className="space-y-3">
       <div className="flex flex-wrap items-end gap-2">
         <div className="flex-1 space-y-1">
-          <Label htmlFor="supp-email" className="text-[11px] text-muted-foreground">
+          <Label htmlFor="supp-email" className="text-xs text-muted-foreground">
             Suppress an email
           </Label>
           <Input
@@ -1175,7 +1175,7 @@ function SuppressionsView({ canAdmin }: { canAdmin: boolean }) {
       ) : (
         <div className="overflow-x-auto rounded-md border">
           <table className="w-full text-xs">
-            <thead className="bg-muted/40 text-[11px] text-muted-foreground">
+            <thead className="bg-muted/40 text-xs text-muted-foreground">
               <tr>
                 <th className="px-3 py-2 text-left font-medium">Email</th>
                 <th className="px-3 py-2 text-left font-medium">Reason</th>
@@ -1191,7 +1191,7 @@ function SuppressionsView({ canAdmin }: { canAdmin: boolean }) {
                   <td className="px-3 py-1.5 text-muted-foreground">
                     {s.source || "—"}
                     {s.locked && (
-                      <Badge variant="secondary" className="ml-1.5 text-[10px]">locked</Badge>
+                      <Badge variant="secondary" className="ml-1.5 text-xs">locked</Badge>
                     )}
                   </td>
                   <td className="px-3 py-1.5 text-right">

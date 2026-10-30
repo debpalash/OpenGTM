@@ -332,7 +332,7 @@ func (e *Engine) memberPage(ctx context.Context, rs *runState, after int32) ([]m
 		}
 		out = out[:0]
 		for _, r := range rows {
-			out = append(out, member{r.ID, r.LeadID, r.Snapshot})
+			out = append(out, member{r.ID, r.LeadID.Int32, r.Snapshot})
 		}
 		return nil
 	})
@@ -414,10 +414,13 @@ func (e *Engine) oneMember(ctx context.Context, rs *runState, m member, buf *war
 		}
 	}
 	fp := destdeliver.Fingerprint(mapped)
-	idem := destdeliver.IdempotencyKey(rs.dest.ID, int(m.leadID), fp, false)
+	cid, _ := snapshot["company_id"].(string)
+	pid, _ := snapshot["person_id"].(string)
+	subject := destdeliver.SubjectKey(int(m.leadID), cid, pid)
+	idem := destdeliver.SubjectIdempotencyKey(rs.dest.ID, subject, fp, false)
 
 	in := deststore.UpsertDeliveryInput{
-		RunID: rs.runID, DestinationID: rs.dest.ID, LeadID: int(m.leadID), Operation: "upsert", IdempotencyKey: idem,
+		CompanyID: cid, PersonID: pid, SubjectKey: subject, RunID: rs.runID, DestinationID: rs.dest.ID, LeadID: int(m.leadID), Operation: "upsert", IdempotencyKey: idem,
 		Fingerprint: fp, Payload: json.RawMessage(`{}`), Attempts: 0,
 	}
 	unsupported := rs.ads && !adsdrv.IdentifiersSupported(rs.dest.Type, hashed)
@@ -460,6 +463,13 @@ func (e *Engine) oneMember(ctx context.Context, rs *runState, m member, buf *war
 	case rs.ads:
 		return &adCand{id: int32(del.ID), row: adsdrv.IdentifierRow("add", snapshot)}, false, nil
 	case rs.wh:
+		if m.leadID == 0 {
+			mapped["_opengtm_subject"] = subject
+			mapped["_opengtm_company_id"] = cid
+			if pid != "" {
+				mapped["_opengtm_person_id"] = pid
+			}
+		}
 		if err := buf.Append(int(m.leadID), mapped); err != nil {
 			return nil, true, fmt.Errorf("destsync: warehouse buffer: %w", err)
 		}

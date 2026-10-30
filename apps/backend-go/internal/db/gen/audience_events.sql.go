@@ -7,6 +7,8 @@ package gen
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const audRefreshEventInsert = `-- name: AudRefreshEventInsert :exec
@@ -39,7 +41,7 @@ func (q *Queries) AudRefreshEventInsert(ctx context.Context, arg AudRefreshEvent
 }
 
 const audRefreshEventsPage = `-- name: AudRefreshEventsPage :many
-SELECT id, lead_id, event_type
+SELECT id, company_entity_id,person_entity_id, lead_id, event_type
 FROM audience_membership_events
 WHERE workspace_id = $1::text AND audience_id = $2::text
   AND refresh_id = $3::text AND id > $4::int
@@ -56,9 +58,11 @@ type AudRefreshEventsPageParams struct {
 }
 
 type AudRefreshEventsPageRow struct {
-	ID        int32
-	LeadID    int32
-	EventType string
+	ID              int32
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	LeadID          pgtype.Int4
+	EventType       string
 }
 
 // One refresh's events in stable keyset pages.
@@ -77,7 +81,13 @@ func (q *Queries) AudRefreshEventsPage(ctx context.Context, arg AudRefreshEvents
 	var items []AudRefreshEventsPageRow
 	for rows.Next() {
 		var i AudRefreshEventsPageRow
-		if err := rows.Scan(&i.ID, &i.LeadID, &i.EventType); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
+			&i.LeadID,
+			&i.EventType,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

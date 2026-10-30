@@ -1,0 +1,170 @@
+{
+  "version": 5,
+  "status": "implemented foundation; dense workstation revision",
+  "purpose": "Design contract for the dashboard transformation. Layout values reflect the user\u2019s compact workstation direction of 2026-10-29.",
+  "units": "CSS pixels unless stated otherwise",
+  "displayScale": {
+    "preferences": ["auto", "85", "100"],
+    "default": "auto",
+    "compactPercent": 85,
+    "minimumDesktopViewport": 1024,
+    "autoCompactMaximumWindowWidth": 1600,
+    "autoCompactMaximumWindowHeight": 900,
+    "touchPercent": 100,
+    "notes": "Auto compacts desktop windows at or below either logical window threshold. Touch and viewports below 1024px use 100%. Browser page zoom and physical Retina resolution do not determine the profile."
+  },
+  "color": {
+    "light": {
+      "canvas": "#F6F8FB",
+      "surface": "#FFFFFF",
+      "raised": "#FFFFFF",
+      "textPrimary": "#15233B",
+      "textSecondary": "#52627A",
+      "borderSubtle": "#DFE5EF",
+      "borderControl": "#7B879C",
+      "actionFill": "#315BE8",
+      "actionText": "#FFFFFF",
+      "actionHover": "#254AC8",
+      "actionPressed": "#1F3FAF",
+      "link": "#315BE8",
+      "focus": "#315BE8",
+      "selection": "#EAF0FF",
+      "successText": "#157347",
+      "successSurface": "#EAF7F0",
+      "warningText": "#8A4B06",
+      "warningSurface": "#FFF4DC",
+      "dangerText": "#B42337",
+      "dangerSurface": "#FFF0F2"
+    },
+    "dark": {
+      "canvas": "#11151C",
+      "surface": "#181F2B",
+      "raised": "#1E2838",
+      "textPrimary": "#DFE5EE",
+      "textSecondary": "#A0ADBF",
+      "borderSubtle": "#26303E",
+      "borderControl": "#72829B",
+      "actionFill": "#9BB4FF",
+      "actionText": "#102044",
+      "actionHover": "#AEC2FF",
+      "actionPressed": "#8EA7F2",
+      "link": "#AFC3FF",
+      "focus": "#AFC3FF",
+      "selection": "#243650",
+      "successText": "#8ED8B0",
+      "successSurface": "#17382B",
+      "warningText": "#F5CB83",
+      "warningSurface": "#3B2E16",
+      "dangerText": "#FFB1B8",
+      "dangerSurface": "#44212C"
+    }
+  },
+  "type": {
+    "headingFamily": [
+      "Manrope",
+      "Inter",
+      "sans-serif"
+    ],
+    "bodyFamily": [
+      "Inter",
+      "sans-serif"
+    ],
+    "codeFamily": [
+      "ui-monospace",
+      "SF Mono",
+      "Menlo",
+      "Consolas",
+      "monospace"
+    ],
+    "pageTitle": {
+      "size": 18,
+      "lineHeight": 24,
+      "weight": 600
+    },
+    "sectionTitle": {
+      "size": 18,
+      "lineHeight": 24,
+      "weight": 600
+    },
+    "body": {
+      "size": 14,
+      "lineHeight": 20,
+      "weight": 400
+    },
+    "table": {
+      "size": 13,
+      "lineHeight": 20,
+      "weight": 400
+    },
+    "caption": {
+      "size": 12,
+      "lineHeight": 16,
+      "weight": 400
+    },
+    "metric": {
+      "size": 24,
+      "lineHeight": 32,
+      "weight": 600
+    }
+  },
+  "spacing": [
+    2,
+    4,
+    6,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48
+  ],
+  "radius": [
+    4,
+    6,
+    8,
+    12
+  ],
+  "layout": {
+    "sidebarExpanded": 192,
+    "sidebarCollapsed": 52,
+    "globalBar": 36,
+    "pageHeaderMin": 44,
+    "resourceToolbarMin": 40,
+    "tableHeader": 32,
+    "rowDefault": 28,
+    "rowCompact": 28,
+    "rowComfortable": 48,
+    "controlDefault": 32,
+    "controlCompact": 28,
+    "controlTouch": 44,
+    "inspectorDesktop": 400,
+    "insetDesktop": 12,
+    "insetMobile": 12,
+    "overviewMaxWidth": null,
+    "rowStandard": 40,
+    "globalBarTouch": 48,
+    "textScaling": "Global chrome and navigation grow with the root text size; listed dimensions are normal-text defaults."
+  },
+  "motion": {
+    "interactionDurationMs": [
+      100,
+      160
+    ],
+    "overlayDurationMs": [
+      160,
+      220
+    ],
+    "reducedMotion": "Disable nonessential animations and movement; preserve positioning."
+  },
+  "compatibilityAliases": {
+    "--gtm-accent": "actionFill",
+    "--gtm-accent-foreground": "actionText",
+    "--gtm-accent-hover": "actionHover",
+    "--gtm-focus-ring": "focus",
+    "--t-background-primary": "surface",
+    "--t-background-secondary": "canvas",
+    "--t-font-color-primary": "textPrimary",
+    "--t-font-color-secondary": "textSecondary",
+    "--t-border-color-strong": "borderControl"
+  }
+}

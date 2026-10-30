@@ -8,6 +8,9 @@
 
 const TOKEN_KEY = "yupcha_token"
 const WS_KEY = "yupcha_workspace_id"
+// Each tab keeps the workspace it actually displays. localStorage remembers the
+// preference for new tabs; another tab must not redirect this tab's API headers.
+let tabWorkspace: string | null | undefined
 
 let unauthorizedHandler: (() => void) | null = null
 
@@ -24,10 +27,12 @@ export function clearToken(): void {
 }
 
 export function getActiveWorkspace(): string | null {
-  return localStorage.getItem(WS_KEY)
+  if (tabWorkspace === undefined) tabWorkspace = localStorage.getItem(WS_KEY)
+  return tabWorkspace
 }
 
 export function setActiveWorkspace(id: string | null): void {
+  tabWorkspace = id
   if (id) localStorage.setItem(WS_KEY, id)
   else localStorage.removeItem(WS_KEY)
 }
@@ -73,7 +78,7 @@ export function installFetchInterceptor(): void {
     if (!needsAuth(url)) return orig(input as RequestInfo, init)
 
     const headers = new Headers(
-      init.headers ?? (input instanceof Request ? input.headers : undefined),
+      init.headers ?? (input instanceof Request ? input.headers : undefined)
     )
     const token = getToken()
     if (token && !headers.has("Authorization")) {

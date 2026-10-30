@@ -6,13 +6,13 @@ describe("shared application navigation", () => {
     const routes = ALL_NAVIGATION.map(item => item.to)
     expect(new Set(routes).size).toBe(routes.length)
     expect([...routes].sort()).toEqual([
-      "/chat", "/leads", "/audiences", "/workbooks", "/templates", "/search",
+      "/overview", "/companies", "/people", "/chat", "/leads", "/audiences", "/workbooks", "/templates", "/search",
       "/agents", "/outreach", "/automations", "/watches", "/signals", "/sources",
       "/analytics", "/agency", "/campaigns", "/notifications", "/settings",
     ].sort())
   })
   test("groups routes without renaming backend concepts", () => {
-    expect(NAVIGATION_GROUPS.map(group => group.label)).toEqual(["Workspace", "Execution", "Resources"])
+    expect(NAVIGATION_GROUPS.map(group => group.label)).toEqual(["Workspace", "Operations", "Resources"])
     expect(getPageTitle("/agents/job-123")).toBe("Tasks")
     expect(getPageTitle("/agency/team-123")).toBe("Manage workspaces")
   })

@@ -2,6 +2,7 @@ package entities
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/url"
@@ -213,14 +214,59 @@ func ResolvePerson(ctx context.Context, tx pgx.Tx, ws string, o PersonObservatio
 	}
 	fields.Set("sources", sources)
 
-	companyEntity, err := recordEmployment(ctx, tx, ws, personID, o, observed)
-	if err != nil {
+	var companyEntity pgtype.Text
+	var protected bool
+	if err := tx.QueryRow(ctx, `SELECT company_entity_id,EXISTS(SELECT 1 FROM record_field_owners WHERE workspace_id=$1 AND record_type='person' AND record_id=$2 AND field_name='current_employment' AND (priority>20 OR updated_at>$3)) FROM person_entities WHERE workspace_id=$1 AND id=$2`, ws, personID, observed).Scan(&companyEntity, &protected); err != nil {
 		return "", false, err
+	}
+	if !protected {
+		companyEntity, err = recordEmployment(ctx, tx, ws, personID, o, observed)
+		if err != nil {
+			return "", false, err
+		}
 	}
 	if err := q.UpdatePersonEntity(ctx, gen.UpdatePersonEntityParams{FullName: fullName, IdentityKeys: MarshalJSON(identity),
 		Fields: MarshalJSON(fields), CorroborationCount: int32(len(sources)), CompanyEntityID: companyEntity,
 		ID: personID, WorkspaceID: ws}); err != nil {
 		return "", false, fmt.Errorf("entities: update person: %w", err)
+	}
+
+	company := map[string]any{}
+	if o.Company != "" {
+		company["name"] = o.Company
+	}
+	if o.CompanyDomain != "" {
+		company["domain"] = o.CompanyDomain
+	}
+	person := map[string]any{}
+	if o.Name != "" {
+		person["full_name"] = o.Name
+	}
+	if em != "" {
+		person["email"] = em
+	}
+	if li != "" {
+		person["linkedin_url"] = "https://" + li
+	}
+	employment := map[string]any{}
+	if o.Title != "" {
+		employment["title"] = o.Title
+	}
+	if o.EvidenceURL != "" {
+		employment["evidence_url"] = o.EvidenceURL
+	}
+	payload := map[string]any{"company": company, "person": person, "employment": employment, "person_id": personID, "observed_at": observed.Format(time.RFC3339Nano)}
+	if companyEntity.Valid && !protected {
+		payload["company_id"] = companyEntity.String
+	}
+	raw, e := json.Marshal(payload)
+	if e != nil {
+		return "", false, e
+	}
+	var result []byte
+	e = tx.QueryRow(ctx, `SELECT opengtm_record_upsert($1,'person',$2::jsonb,$3,'',false)`, ws, raw, "provider:"+o.Source).Scan(&result)
+	if e != nil {
+		return "", false, e
 	}
 	return personID, created, nil
 }

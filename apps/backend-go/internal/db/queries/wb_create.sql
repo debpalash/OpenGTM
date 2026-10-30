@@ -15,7 +15,7 @@ ORDER BY e.ord
 RETURNING id;
 
 -- name: ListWorkbookRowLeadIDs :many
-SELECT lead_id::int AS lead_id FROM workbook_rows
+SELECT lead_id::int AS lead_id FROM record_workbook_rows
 WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text AND lead_id IS NOT NULL;
 
 -- name: ListWorkbookViewConfigs :many

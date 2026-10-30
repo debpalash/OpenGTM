@@ -19,20 +19,21 @@ var ErrNoEmail = errors.New("no_email")
 
 // Enrollment is one outreach_enrollments row.
 type Enrollment struct {
-	ID              int
-	WorkspaceID     string
-	SequenceID      string
-	LeadID          int
-	ToEmailSnapshot string
-	ConsentSource   string
-	ConsentAt       *time.Time
-	CurrentStep     int
-	Status          string
-	NextSendAt      *time.Time
-	SentCount       int
-	SoftBounceCount int
-	LastSentAt      *time.Time
-	Error           string
+	CompanyID, PersonID string
+	ID                  int
+	WorkspaceID         string
+	SequenceID          string
+	LeadID              int
+	ToEmailSnapshot     string
+	ConsentSource       string
+	ConsentAt           *time.Time
+	CurrentStep         int
+	Status              string
+	NextSendAt          *time.Time
+	SentCount           int
+	SoftBounceCount     int
+	LastSentAt          *time.Time
+	Error               string
 }
 
 // EnrollmentDict is _enroll_to_dict (the Python dict key order).
@@ -71,7 +72,7 @@ func tp(v pgtype.Timestamptz) *time.Time {
 
 func toEnrollment(r gen.OutreachEnrollment) Enrollment {
 	return Enrollment{
-		ID: int(r.ID), WorkspaceID: r.WorkspaceID, SequenceID: r.SequenceID, LeadID: int(r.LeadID),
+		CompanyID: r.CompanyEntityID.String, PersonID: r.PersonEntityID.String, ID: int(r.ID), WorkspaceID: r.WorkspaceID, SequenceID: r.SequenceID, LeadID: int(r.LeadID.Int32),
 		ToEmailSnapshot: r.ToEmailSnapshot, ConsentSource: r.ConsentSource.String, ConsentAt: tp(r.ConsentAt),
 		CurrentStep: int4Or0(r.CurrentStep), Status: r.Status.String, NextSendAt: tp(r.NextSendAt),
 		SentCount: int4Or0(r.SentCount), SoftBounceCount: int4Or0(r.SoftBounceCount),
@@ -87,6 +88,25 @@ func toEnrollment(r gen.OutreachEnrollment) Enrollment {
 // usable. The email is normalized; an empty result is ErrNoEmail. A zero
 // consentAt stores NULL.
 func Enroll(ctx context.Context, tx pgx.Tx, wsID, seqID string, leadID int, email, consentSource string, consentAt time.Time) (int, bool, error) {
+	// A legacy alias and a canonical Person enrollment share one identity.
+	var person string
+	e := tx.QueryRow(ctx, `SELECT coalesce(person_entity_id,'') FROM leads WHERE workspace_id=$1 AND id=$2`, wsID, leadID).Scan(&person)
+	if e != nil && !errors.Is(e, pgx.ErrNoRows) {
+		return 0, false, e
+	}
+	if person != "" {
+		if _, e := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtextextended($1,0))`, wsID+"|enroll|"+seqID+"|"+person); e != nil {
+			return 0, false, e
+		}
+		var existing int
+		e := tx.QueryRow(ctx, `SELECT id FROM outreach_enrollments WHERE workspace_id=$1 AND sequence_id=$2 AND person_entity_id=$3 LIMIT 1`, wsID, seqID, person).Scan(&existing)
+		if e == nil {
+			return existing, false, nil
+		}
+		if !errors.Is(e, pgx.ErrNoRows) {
+			return 0, false, e
+		}
+	}
 	norm := emailnorm.Normalize(email)
 	if norm == "" {
 		return 0, false, ErrNoEmail

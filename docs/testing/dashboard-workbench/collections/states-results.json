@@ -1,0 +1,68 @@
+{
+  "overview_stale_data_after_503": "pass",
+  "malformed_summary_and_retry": "pass",
+  "analytics_503_and_retry": "pass",
+  "record_view_only_state": "pass",
+  "grid_keyboard_roving_and_checkbox": "pass",
+  "pinned_column_widths": [
+    36,
+    50,
+    240
+  ],
+  "keyboard_column_resize": "pass",
+  "keyboard_column_reorder": "pass",
+  "import_keyboard_trap_and_escape": "pass",
+  "responsive_geometry": [
+    {
+      "width": 320,
+      "document": 320,
+      "header": 56,
+      "toolbar": 85
+    },
+    {
+      "width": 390,
+      "document": 390,
+      "header": 56,
+      "toolbar": 85
+    },
+    {
+      "width": 768,
+      "document": 768,
+      "header": 56,
+      "toolbar": 81
+    },
+    {
+      "width": 1024,
+      "document": 1024,
+      "header": 53.1875,
+      "toolbar": 41
+    },
+    {
+      "width": 1280,
+      "document": 1280,
+      "header": 44,
+      "toolbar": 41
+    },
+    {
+      "width": 1440,
+      "document": 1440,
+      "header": 44,
+      "toolbar": 41
+    },
+    {
+      "width": 1920,
+      "document": 1920,
+      "header": 44,
+      "toolbar": 41
+    }
+  ],
+  "enlarged_text_fits_navigation_and_workspace": {
+    "crowdedNavigation": [],
+    "workspaceFits": true,
+    "breadcrumbFits": true
+  },
+  "overview_text_zoom_200": "pass",
+  "forced_colors_rendered": "pass",
+  "reduced_motion": 0,
+  "page_errors": []
+}

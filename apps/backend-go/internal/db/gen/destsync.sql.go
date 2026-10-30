@@ -152,42 +152,39 @@ func (q *Queries) DSDestSetHealth(ctx context.Context, arg DSDestSetHealthParams
 
 const dSExitCandidates = `-- name: DSExitCandidates :many
 WITH latest AS (
-  SELECT lead_id, max(id) AS delivery_id FROM destination_deliveries
-  WHERE workspace_id = $1::text AND destination_id = $5::text AND status = 'success'
-  GROUP BY lead_id
+ SELECT DISTINCT ON (coalesce('person:'||person_entity_id,'company:'||company_entity_id,'lead:'||lead_id::text)) id, workspace_id, run_id, destination_id, lead_id, operation, idempotency_key, payload_fingerprint, status, attempts, external_id, summary, error, delivered_at, created_at, updated_at, payload, person_entity_id, company_entity_id, subject_key FROM destination_deliveries
+ WHERE workspace_id=$2::text AND destination_id=$5::text AND status='success'
+ ORDER BY coalesce('person:'||person_entity_id,'company:'||company_entity_id,'lead:'||lead_id::text),id DESC
 )
-SELECT d.id, d.lead_id, d.payload
-FROM destination_deliveries d
-JOIN latest l ON d.id = l.delivery_id
-LEFT JOIN audience_members m ON m.workspace_id = $1::text
-  AND m.audience_id = $2::text AND m.lead_id = d.lead_id
-WHERE d.workspace_id = $1::text AND d.operation = 'upsert' AND m.id IS NULL
-  AND d.id > $3::int
-ORDER BY d.id
-LIMIT $4::int
+SELECT d.id,d.lead_id,d.company_entity_id,d.person_entity_id,d.payload
+FROM latest d WHERE d.operation='upsert' AND d.id>$1::int
+AND NOT EXISTS(SELECT 1 FROM audience_members m WHERE m.workspace_id=$2::text AND m.audience_id=$3::text AND (m.lead_id=d.lead_id OR (d.person_entity_id IS NOT NULL AND m.person_entity_id=d.person_entity_id) OR (d.person_entity_id IS NULL AND m.person_entity_id IS NULL AND m.company_entity_id=d.company_entity_id)))
+ORDER BY d.id LIMIT $4::int
 `
 
 type DSExitCandidatesParams struct {
+	AfterID       int32
 	WorkspaceID   string
 	AudienceID    string
-	AfterID       int32
 	PageLimit     int32
 	DestinationID string
 }
 
 type DSExitCandidatesRow struct {
-	ID      int32
-	LeadID  int32
-	Payload []byte
+	ID              int32
+	LeadID          pgtype.Int4
+	CompanyEntityID pgtype.Text
+	PersonEntityID  pgtype.Text
+	Payload         []byte
 }
 
 // Exit reconciliation: the latest successful delivery per lead, when it is an upsert and
 // the lead has no membership row any more. Keyset by delivery id.
 func (q *Queries) DSExitCandidates(ctx context.Context, arg DSExitCandidatesParams) ([]DSExitCandidatesRow, error) {
 	rows, err := q.db.Query(ctx, dSExitCandidates,
+		arg.AfterID,
 		arg.WorkspaceID,
 		arg.AudienceID,
-		arg.AfterID,
 		arg.PageLimit,
 		arg.DestinationID,
 	)
@@ -198,7 +195,13 @@ func (q *Queries) DSExitCandidates(ctx context.Context, arg DSExitCandidatesPara
 	var items []DSExitCandidatesRow
 	for rows.Next() {
 		var i DSExitCandidatesRow
-		if err := rows.Scan(&i.ID, &i.LeadID, &i.Payload); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.LeadID,
+			&i.CompanyEntityID,
+			&i.PersonEntityID,
+			&i.Payload,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -227,7 +230,7 @@ type DSMemberPageParams struct {
 
 type DSMemberPageRow struct {
 	ID       int32
-	LeadID   int32
+	LeadID   pgtype.Int4
 	Snapshot []byte
 }
 

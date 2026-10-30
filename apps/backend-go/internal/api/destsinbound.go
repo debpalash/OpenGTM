@@ -224,6 +224,7 @@ func parseInboundEvent(raw []byte) (destinbound.InboundBody, []httpx.FieldError)
 	var eventID string
 	var recordID *string
 	var leadID *int64
+	var companyID, personID *string
 	fields := wbcrud.NewObj()
 	add := func(e *httpx.FieldError) {
 		if e != nil {
@@ -248,6 +249,15 @@ func parseInboundEvent(raw []byte) (destinbound.InboundBody, []httpx.FieldError)
 			recordID = &s
 		}
 	}
+	for key, dst := range map[string]**string{"company_id": &companyID, "person_id": &personID} {
+		if v, ok := obj.Get(key); ok && v != nil {
+			if value, e := seqString(v, seqLoc(key), 128); e != nil {
+				add(e)
+			} else {
+				*dst = &value
+			}
+		}
+	}
 	if v, ok := obj.Get("lead_id"); ok && v != nil {
 		if n, e := seqIntRange(v, seqLoc("lead_id"), 1, math.MaxInt64); e != nil {
 			add(e)
@@ -265,7 +275,13 @@ func parseInboundEvent(raw []byte) (destinbound.InboundBody, []httpx.FieldError)
 			add(ptr(valueError("fields may contain at most 50 entries", at, f)))
 		default:
 			fields = f
-			add(inboundFieldsCheck(f, at))
+			if companyID != nil || personID != nil {
+				if raw, e := json.Marshal(f); e != nil || len(raw) > 256*1024 {
+					add(ptr(valueError("record fields exceed 256 KiB", at, f)))
+				}
+			} else {
+				add(inboundFieldsCheck(f, at))
+			}
 		}
 	}
 	if errs != nil {
@@ -282,7 +298,9 @@ func parseInboundEvent(raw []byte) (destinbound.InboundBody, []httpx.FieldError)
 		R *string         `json:"external_record_id"`
 		L *int64          `json:"lead_id"`
 		F json.RawMessage `json:"fields"`
-	}{eventID, recordID, leadID, fj})
+		C *string         `json:"company_id,omitempty"`
+		P *string         `json:"person_id,omitempty"`
+	}{eventID, recordID, leadID, fj, companyID, personID})
 	if err != nil {
 		return destinbound.InboundBody{}, []httpx.FieldError{{Type: "json_invalid", Loc: []any{"body", 0}, Msg: "JSON decode error", Input: map[string]any{}}}
 	}

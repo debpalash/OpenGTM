@@ -12,37 +12,62 @@ export default defineConfig({
   build: {
     manifest: true,
     rolldownOptions: {
+      input: {
+        app: fileURLToPath(new URL("./index.html", import.meta.url)),
+        "ui-preview": fileURLToPath(
+          new URL("./ui-preview.html", import.meta.url)
+        )
+      },
       output: {
         // Long-lived vendor chunks: cached across app releases and each well under the 500 kB warning.
         codeSplitting: {
           groups: [
-            { name: "vendor-react", test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom)[\\/]/, priority: 30 },
-            { name: "vendor-ui", test: /node_modules[\\/](@base-ui|@floating-ui|lucide-react|sonner|cmdk|class-variance-authority|tailwind-merge|clsx)[\\/]/, priority: 20 },
-            { name: "vendor-data", test: /node_modules[\\/]@tanstack[\\/]/, priority: 20 },
-          ],
-        },
-      },
-    },
+            {
+              name: "vendor-react",
+              test: /node_modules[\\/](react|react-dom|scheduler|react-router|react-router-dom)[\\/]/,
+              priority: 30
+            },
+            {
+              name: "vendor-ui",
+              test: /node_modules[\\/](@base-ui|@floating-ui|lucide-react|sonner|cmdk|class-variance-authority|tailwind-merge|clsx)[\\/]/,
+              priority: 20
+            },
+            {
+              name: "vendor-data",
+              test: /node_modules[\\/]@tanstack[\\/]/,
+              priority: 20
+            }
+          ]
+        }
+      }
+    }
   },
   plugins: [react(), tailwindcss()],
   css: { postcss: { plugins: [twentyCss()] } },
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
+      "@": fileURLToPath(new URL("./src", import.meta.url))
+    }
   },
   server: {
+    fs: {
+      allow: [
+        fileURLToPath(new URL("./", import.meta.url)),
+        fileURLToPath(new URL("../../node_modules", import.meta.url))
+      ]
+    },
     port: 4099,
     proxy: {
       "/api": {
         target: apiTarget,
         changeOrigin: true,
-        ws: true,
+        ws: true
       },
       "/auth": {
         target: apiTarget,
-        changeOrigin: true,
-      },
-    },
-  },
+        changeOrigin: true
+      }
+    }
+  }
 })

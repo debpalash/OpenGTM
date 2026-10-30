@@ -22,7 +22,7 @@ export function ResearchEvidenceInspector({ evidence }: { evidence: ResearchEvid
         {evidence.synthesis_fallback && <p className="mb-4">Fallback synthesis was used. Structured citations may be unavailable.</p>}
         <h3 className="font-medium mb-2">Sources</h3>
         {!evidence.citations.length && <p>No supporting citations recorded. Do not treat this answer as verified.</p>}
-        <ol className="space-y-4">{evidence.citations.map((citation, index) => {
+        <ol className="space-y-3">{evidence.citations.map((citation, index) => {
           const href = citationHref(citation.url)
           return <li key={`${index}:${citation.url}`} className="border-t border-border pt-3">
             <p className="font-medium">{citation.title || `Source ${index + 1}`}</p>

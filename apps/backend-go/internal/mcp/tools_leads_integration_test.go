@@ -26,26 +26,7 @@ var leadWriteCols = []string{"company", "website", "email", "phone", "contact_pe
 	"twitter_url", "facebook_url", "notes", "status", "source"}
 
 func (*pgLeadWrites) Upsert(ctx context.Context, tx pgx.Tx, f LeadFields) (int64, error) {
-	vals := make([]any, 0, len(leadWriteCols))
-	ph := make([]string, 0, len(leadWriteCols))
-	set := make([]string, 0, len(leadWriteCols))
-	for i, c := range leadWriteCols {
-		v, _ := f[c].(string)
-		if c == "status" && v == "" {
-			v = "new"
-		}
-		vals = append(vals, v)
-		ph = append(ph, fmt.Sprintf("$%d", i+1))
-		if c != "company" && c != "city" {
-			set = append(set, c+"=EXCLUDED."+c)
-		}
-	}
-	q := `INSERT INTO leads (workspace_id, score, score_tier, created_at, updated_at, ` + strings.Join(leadWriteCols, ",") + `)
-		VALUES (current_setting('app.workspace_id'), 0, 'unqualified', '2026-01-01T00:00:00', '2026-01-01T00:00:00', ` + strings.Join(ph, ",") + `)
-		ON CONFLICT (workspace_id, company, city) DO UPDATE SET ` + strings.Join(set, ",") + ` RETURNING id`
-	var id int64
-	err := tx.QueryRow(ctx, q, vals...).Scan(&id)
-	return id, err
+	return (PGLeadPort{}).Upsert(ctx, tx, f)
 }
 
 func (*pgLeadWrites) UpdateFields(ctx context.Context, tx pgx.Tx, id int64, f LeadFields) error {

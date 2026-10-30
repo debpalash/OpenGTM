@@ -3,7 +3,8 @@
 # run opengtm-migrate (go run ./cmd/migrate) on a scratch database, pg_dump it, normalize.
 #   scripts/go_schema_dump.sh           rewrite schema.sql
 #   scripts/go_schema_dump.sh --check   exit 1 if schema.sql differs from the migrations
-# Requires: go, docker, a running Postgres 18 container (pg_dump runs inside it so client
+# Native Postgres alternative: SCHEMA_DUMP_DATABASE_URL=postgres://owner@host/postgres.
+# Requires: go and either native PostgreSQL tools or docker and a running Postgres 18 container (pg_dump runs inside it so client
 # and server versions match). No Python, no Alembic.
 #   SCHEMA_DUMP_CONTAINER  container (default: opengtm-go-test-pg)
 #   SCHEMA_DUMP_PORT       its published host port (default: 55480)
@@ -22,18 +23,32 @@ db="opengtm_schema_dump_$$"
 tmp="$(mktemp)"
 gen="$(mktemp)"
 cleanup() {
-  docker exec "$container" dropdb -U postgres --if-exists "$db" >/dev/null 2>&1 || true
-  rm -f "$tmp" "$gen"
+  if [[ -n "${SCHEMA_DUMP_DATABASE_URL:-}" ]]; then
+    dropdb --maintenance-db="$SCHEMA_DUMP_DATABASE_URL" --if-exists "$db" >/dev/null 2>&1 || true
+  else
+    docker exec "$container" dropdb -U postgres --if-exists "$db" >/dev/null 2>&1 || true
+  fi
+  rm -f "$tmp" "$gen" "$tmp.raw"
 }
 trap cleanup EXIT
-docker exec "$container" createdb -U postgres "$db"
-
-PGPASSWORD="$(docker exec "$container" printenv POSTGRES_PASSWORD)" \
-DATABASE_URL="postgres://postgres@${host}:${port}/${db}" \
-  bash -c 'cd "$1/apps/backend-go" && go run ./cmd/migrate up' _ "$root" >&2
-
-docker exec "$container" pg_dump -U postgres -d "$db" --schema-only --no-owner --no-privileges \
-    --exclude-table=goose_db_version \
+if [[ -n "${SCHEMA_DUMP_DATABASE_URL:-}" ]]; then
+  createdb --maintenance-db="$SCHEMA_DUMP_DATABASE_URL" "$db"
+  task_dsn="$(python3 - "$db" <<'PYURL'
+import os,sys,urllib.parse
+u=urllib.parse.urlsplit(os.environ['SCHEMA_DUMP_DATABASE_URL'])
+print(urllib.parse.urlunsplit(u._replace(path='/'+sys.argv[1])))
+PYURL
+)"
+  DATABASE_URL="$task_dsn" bash -c 'cd "$1/apps/backend-go" && go run ./cmd/migrate up' _ "$root" >&2
+  pg_dump --dbname="$task_dsn" --schema-only --no-owner --no-privileges --exclude-table=goose_db_version > "$tmp.raw"
+else
+  docker exec "$container" createdb -U postgres "$db"
+  PGPASSWORD="$(docker exec "$container" printenv POSTGRES_PASSWORD)" \
+  DATABASE_URL="postgres://postgres@${host}:${port}/${db}" \
+    bash -c 'cd "$1/apps/backend-go" && go run ./cmd/migrate up' _ "$root" >&2
+  docker exec "$container" pg_dump -U postgres -d "$db" --schema-only --no-owner --no-privileges --exclude-table=goose_db_version > "$tmp.raw"
+fi
+cat "$tmp.raw" \
   | grep -Ev '^(\\restrict|\\unrestrict) ' \
   | grep -Ev '^SET (statement_timeout|lock_timeout|idle_in_transaction_session_timeout|transaction_timeout|client_encoding|standard_conforming_strings|check_function_bodies|xmloption|client_min_messages|row_security) ' \
   | grep -Ev "^SELECT pg_catalog.set_config\('search_path'" \

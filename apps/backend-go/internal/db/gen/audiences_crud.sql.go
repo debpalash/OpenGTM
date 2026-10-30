@@ -28,7 +28,7 @@ func (q *Queries) AudCrudDelete(ctx context.Context, arg AudCrudDeleteParams) (i
 }
 
 const audCrudGet = `-- name: AudCrudGet :one
-SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures FROM audiences
+SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures, record_type FROM audiences
 WHERE id = $1::text AND workspace_id = $2::text
 `
 
@@ -56,12 +56,13 @@ func (q *Queries) AudCrudGet(ctx context.Context, arg AudCrudGetParams) (Audienc
 		&i.RefreshHealth,
 		&i.LastRefreshError,
 		&i.ConsecutiveRefreshFailures,
+		&i.RecordType,
 	)
 	return i, err
 }
 
 const audCrudGetForUpdate = `-- name: AudCrudGetForUpdate :one
-SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures FROM audiences
+SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures, record_type FROM audiences
 WHERE id = $1::text AND workspace_id = $2::text
 FOR UPDATE
 `
@@ -90,6 +91,7 @@ func (q *Queries) AudCrudGetForUpdate(ctx context.Context, arg AudCrudGetForUpda
 		&i.RefreshHealth,
 		&i.LastRefreshError,
 		&i.ConsecutiveRefreshFailures,
+		&i.RecordType,
 	)
 	return i, err
 }
@@ -128,7 +130,7 @@ func (q *Queries) AudCrudInsert(ctx context.Context, arg AudCrudInsertParams) er
 }
 
 const audCrudList = `-- name: AudCrudList :many
-SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures FROM audiences
+SELECT id, workspace_id, name, description, filters, member_count, created_at, updated_at, refreshed_at, refresh_enabled, refresh_interval_minutes, next_refresh_at, refresh_health, last_refresh_error, consecutive_refresh_failures, record_type FROM audiences
 WHERE workspace_id = $1::text
 ORDER BY updated_at DESC, id ASC
 LIMIT $2::int
@@ -165,6 +167,7 @@ func (q *Queries) AudCrudList(ctx context.Context, arg AudCrudListParams) ([]Aud
 			&i.RefreshHealth,
 			&i.LastRefreshError,
 			&i.ConsecutiveRefreshFailures,
+			&i.RecordType,
 		); err != nil {
 			return nil, err
 		}

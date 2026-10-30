@@ -1,0 +1,100 @@
+{
+  "engine": "chromium",
+  "measurements": {
+    "compact": {
+      "rowHeight": 28,
+      "fullyVisibleRows": 28,
+      "topbar": 36,
+      "header": 44,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1440
+    },
+    "desktop-1366-768": {
+      "rowHeight": 28,
+      "fullyVisibleRows": 20,
+      "topbar": 36,
+      "header": 44,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1366
+    },
+    "desktop-1280-720": {
+      "rowHeight": 28,
+      "fullyVisibleRows": 18,
+      "topbar": 36,
+      "header": 44,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1280
+    },
+    "desktop-1920-1080": {
+      "rowHeight": 28,
+      "fullyVisibleRows": 31,
+      "topbar": 36,
+      "header": 44,
+      "toolbar": 41,
+      "sidebar": 192,
+      "documentWidth": 1920
+    }
+  },
+  "checks": [
+    {
+      "name": "compact",
+      "violations": []
+    },
+    {
+      "name": "saved-navigation-rail",
+      "violations": []
+    },
+    {
+      "name": "desktop-1366-768",
+      "violations": []
+    },
+    {
+      "name": "desktop-1280-720",
+      "violations": []
+    },
+    {
+      "name": "desktop-1920-1080",
+      "violations": []
+    },
+    {
+      "name": "light-menu-default",
+      "violations": []
+    },
+    {
+      "name": "light-menu-comfortable",
+      "violations": []
+    },
+    {
+      "name": "light-menu-compact",
+      "violations": []
+    },
+    {
+      "name": "dark-menu-default",
+      "violations": []
+    },
+    {
+      "name": "dark-menu-comfortable",
+      "violations": []
+    },
+    {
+      "name": "dark-menu-compact",
+      "violations": []
+    },
+    {
+      "name": "touch-320",
+      "violations": []
+    },
+    {
+      "name": "touch-390",
+      "violations": []
+    },
+    {
+      "name": "touch-768",
+      "violations": []
+    }
+  ],
+  "page_errors": []
+}

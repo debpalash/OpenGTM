@@ -1,0 +1,19 @@
+{
+  "engine": "chromium",
+  "checks": [
+    {
+      "signed_in": false,
+      "route": "/login",
+      "heading": "Sign in to OpenGTM",
+      "violations": []
+    },
+    {
+      "signed_in": true,
+      "route": "/overview",
+      "heading": "Workspace overview",
+      "violations": []
+    }
+  ],
+  "page_errors": [],
+  "failed_assets": []
+}

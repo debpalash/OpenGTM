@@ -16,7 +16,7 @@ func TestLeadsByCollectionJobColumnOrder(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	m := regexp.MustCompile(`(?s)-- name: LeadsByCollectionJob :many\s+SELECT (.*?)\s+FROM leads`).FindStringSubmatch(string(b))
+	m := regexp.MustCompile(`(?s)-- name: LeadsByCollectionJob :many\s+SELECT (.*?)\s+FROM leads\b`).FindStringSubmatch(string(b))
 	if m == nil {
 		t.Fatal("LeadsByCollectionJob select list not found")
 	}

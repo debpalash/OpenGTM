@@ -7,7 +7,7 @@
 
 .gtm-shell-logo {
   display: inline-flex; align-items: center; justify-content: center;
-  width: 32px; height: 32px; flex-shrink: 0;
+  width:28px; height:28px; flex-shrink:0;
   border-radius: 9px; background: #16181d;
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08), 0 1px 2px rgb(0 0 0 / 0.18);
 }
@@ -80,7 +80,7 @@
   border-radius: 999px;
   background: var(--muted);
   color: var(--muted-foreground);
-  font-size: 10px;
+  font-size:.75rem;
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -93,3 +93,104 @@
   border-color: transparent !important;
   -webkit-backdrop-filter: none; backdrop-filter: none;
 }
+
+/* Workbench shell: quiet chrome, predictable targets, one navigation rhythm. */
+/* Zoom the document so portals share the same coordinate system. Viewport
+   heights need compensation: 100vh itself is not enlarged by CSS zoom. */
+html:has(.gtm-dashboard) {
+  zoom: var(--gtm-ui-scale, 1);
+  --gtm-viewport-height: calc(100dvh / var(--gtm-ui-scale, 1));
+}
+/* Give floating UI a scaled offset parent so anchor measurements and portal
+   positions agree. Fixed dialogs still use the full browser viewport. */
+html:has(.gtm-dashboard) body {
+  position: relative;
+}
+.gtm-dashboard,
+.gtm-dashboard #main-content {
+  height: var(--gtm-viewport-height);
+}
+.gtm-dashboard [data-slot="sidebar-wrapper"] {
+  min-height: var(--gtm-viewport-height);
+}
+.gtm-dashboard [data-slot="sidebar-container"] {
+  height: var(--gtm-viewport-height);
+}
+[data-slot="sidebar-inner"].gtm-material-sidebar { background-image:none; }
+[data-slot="sidebar-content"] { padding:8px; }
+[data-sidebar="group"] { padding:4px 0; }
+[data-sidebar="group-label"] { min-height:max(24px, 1.5rem); font-size:.75rem; color:var(--muted-foreground); font-weight:500; padding-inline:12px; }
+[data-sidebar="menu-button"] { min-height:var(--gtm-sidebar-row); height:var(--gtm-sidebar-row); padding-inline:10px; gap:8px; border-radius:7px; font-size:.8125rem; color:var(--muted-foreground); }
+[data-sidebar="menu-button"][data-active=true] { color:var(--gtm-link); background:var(--gtm-selection); font-weight:600; }
+[data-sidebar="menu-action"] { min-width:28px; min-height:28px; top:4px; right:4px; }
+[data-sidebar="menu-action"]~[data-sidebar="menu-button"] { padding-right:36px; }
+[data-slot="sidebar-header"] { padding:8px 10px 6px; }
+[data-slot="sidebar-footer"] { padding:8px; }
+.gtm-breadcrumb { display:flex; align-items:center; min-width:0; gap:12px; font-size:.8125rem; }
+.gtm-breadcrumb>span:first-child { color:var(--muted-foreground); }
+.gtm-breadcrumb>span:last-child { color:var(--foreground); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.gtm-topbar { padding-inline:16px; background:var(--gtm-surface); }
+.gtm-topbar-chip { background:transparent; border:0; color:var(--gtm-success); }
+.gtm-notification-trigger { border-radius:8px; background:transparent; box-shadow:none; }
+.gtm-notification-trigger:hover { transform:none; box-shadow:none; }
+@media(max-width:767px) { .gtm-topbar { padding-inline:16px; } .gtm-breadcrumb>span:first-child,.gtm-breadcrumb>span:nth-child(2) { display:none; } }
+
+[data-sidebar="menu-button"][data-size="lg"] { height:max(44px, 2.75rem); min-height:max(44px, 2.75rem); }
+.gtm-topbar { min-height:var(--gtm-toolbar-height); }
+.gtm-notification-trigger { width:max(28px, 1.75rem); height:max(28px, 1.75rem); }
+[data-sidebar="menu-action"] { top:1px; right:2px; }
+[data-sidebar="menu"] { gap:0; }
+
+[data-sidebar="group-label"] { height:max(24px, 1.5rem); }
+
+/* Keep desktop navigation dense enough to leave recent conversations in view. */
+@media (min-width:768px) and (pointer:fine) {
+  .gtm-dashboard [data-slot="sidebar-content"] { padding:4px 8px; }
+  .gtm-dashboard [data-sidebar="group"] { padding-block:4px; }
+  .gtm-dashboard [data-sidebar="group-label"] {
+    height:max(22px, 1.375rem);
+    min-height:max(22px, 1.375rem);
+  }
+  .gtm-dashboard [data-sidebar="menu-button"]:not([data-size="lg"]) {
+    height:max(28px, 1.75rem);
+    min-height:max(28px, 1.75rem);
+    padding:4px 12px;
+  }
+  .gtm-dashboard [data-sidebar="menu-action"] {
+    top:2px;
+    min-width:24px;
+    min-height:24px;
+    width:24px;
+    height:24px;
+  }
+}
+
+/* Space around controls, with theme choices sharing one quiet row. */
+.gtm-account-menu { padding:8px; }
+.gtm-account-menu [data-slot="dropdown-menu-item"],
+.gtm-account-menu [data-slot="dropdown-menu-sub-trigger"],
+.gtm-account-menu [data-slot="dropdown-menu-radio-item"] {
+  min-height:32px;
+  padding:6px 10px;
+  gap:10px;
+}
+.gtm-account-menu [data-slot="dropdown-menu-label"] { padding:8px 10px 6px; }
+.gtm-account-menu [data-slot="dropdown-menu-separator"] { margin:6px 2px; }
+.gtm-account-theme { display:flex; gap:6px; padding:0 4px 8px; }
+.gtm-account-theme .gtm-account-theme-option {
+  flex:1;
+  justify-content:center;
+  min-height:36px;
+  padding:7px 5px;
+  gap:5px;
+  font-size:.75rem;
+  color:var(--muted-foreground);
+  background:var(--gtm-surface);
+}
+.gtm-account-theme-option[aria-checked="true"] {
+  color:var(--gtm-link);
+  background:var(--gtm-selection);
+  box-shadow:inset 0 0 0 1px var(--gtm-border-control);
+}
+.gtm-account-theme-option [data-slot="dropdown-menu-radio-item-indicator"] { display:none; }
+.gtm-account-theme-option:focus-visible { outline:2px solid var(--ring); outline-offset:1px; }

@@ -207,15 +207,16 @@ func ValidateJobChangeConfig(config any, maxContacts int) (*wbcrud.Obj, error) {
 
 // CreateInput is POST /watches.
 type CreateInput struct {
-	Kind              string
-	Target            string
-	LeadID            *int32
-	SignalTypes       []string
-	Interval          *string
-	Config            any // nil, *wbcrud.Obj, or another JSON value
-	CreateWebhookRule bool
-	WebhookURL        *string
-	WebhookSecretRef  *string
+	CompanyID, PersonID *string
+	Kind                string
+	Target              string
+	LeadID              *int32
+	SignalTypes         []string
+	Interval            *string
+	Config              any // nil, *wbcrud.Obj, or another JSON value
+	CreateWebhookRule   bool
+	WebhookURL          *string
+	WebhookSecretRef    *string
 }
 
 // Validated is the normalised create request.
@@ -292,11 +293,12 @@ func reprList(ss []string) string {
 
 // PatchInput is PATCH /watches/{id}; nil fields are unchanged.
 type PatchInput struct {
-	Enabled     *bool
-	Interval    *string
-	SignalTypes *[]string
-	LeadID      *int32
-	Config      any // nil = unchanged
+	CompanyID, PersonID *string
+	Enabled             *bool
+	Interval            *string
+	SignalTypes         *[]string
+	LeadID              *int32
+	Config              any // nil = unchanged
 }
 
 // PatchChanges are the validated field changes ValidatePatch returns.

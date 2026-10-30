@@ -166,6 +166,9 @@ func (h leadWriteRoutes) withLead(w http.ResponseWriter, r *http.Request, id int
 		if err != nil || !exists {
 			return err
 		}
+		if _, err = tx.Exec(r.Context(), `SELECT set_config('opengtm.record_source','manual',true)`); err != nil {
+			return err
+		}
 		found, err = fn(tx)
 		return err
 	})
