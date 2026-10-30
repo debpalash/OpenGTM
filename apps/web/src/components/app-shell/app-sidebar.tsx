@@ -206,7 +206,7 @@ export function AppSidebar() {
     <SidebarFooter>
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
-          <DropdownMenuTrigger aria-label="Account menu" title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
+          <DropdownMenuTrigger title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
             <Avatar className="size-8 rounded-lg">
               <AvatarFallback className="rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">{initials(user?.username ?? "")}</AvatarFallback>
             </Avatar>

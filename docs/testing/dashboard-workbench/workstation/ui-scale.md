@@ -1,7 +1,7 @@
 # Adaptive scale and quieter overview
 
 The dashboard defaults to Auto. On the local Mac's 1280×832 logical display
-(2560×1664 Retina pixels), it renders at 85%. Appearance offers Auto, Compact
+(2560×1664 Retina pixels), it renders at 85%. The account menu offers Auto, Compact
 (85%) and Comfortable (100%), persisted across reloads and tabs. Auto uses
 logical browser window dimensions and updates when the window changes size.
 Fine-pointer viewports of at least 1024px compact when the window is at most
@@ -31,7 +31,7 @@ Verified against the native embedded build on localhost:8002, 2026-10-29:
 - Laptop Retina 1280×832, desktop 1920×1080, narrow 900×700, touch laptop,
   touch phone 390×844, and 320px reflow retained full height and avoided
   document overflow.
-- Appearance radio state, 100% preference across reload, cross-tab preference
+- Account-menu radio state, 100% preference across reload, cross-tab preference
   changes, window resizing, menu anchoring and dialog containment passed.
 - A 51px visual column drag changed its layout width by 60px at 85%. Width saves
   were intercepted; the native workbook was unchanged.

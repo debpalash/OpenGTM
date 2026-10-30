@@ -189,8 +189,8 @@ try:
         page.evaluate('Storage.prototype.setItem=window.__importStorageSet;delete window.__importStorageSet')
         log('blocked-browser-storage-discloses-recovery-limit-and-in-memory-receipt-clears-warning')
         # Change theme through the product so root tokens and portal context agree.
-        page.get_by_title('Change appearance',exact=True).click()
-        page.get_by_role('menuitem',name='Dark',exact=True).click()
+        page.get_by_title('Account menu',exact=True).click()
+        page.get_by_role('menuitemradio',name='Dark',exact=True).click()
         expect(page.locator('html')).to_have_class(__import__('re').compile(r'\bdark\b'))
         for width,height in [(1440,760),(1024,600),(390,844),(320,568)]:
             page.set_viewport_size({'width':width,'height':height})

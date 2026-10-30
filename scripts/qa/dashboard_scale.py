@@ -75,12 +75,12 @@ with sync_playwright() as p:
             page.evaluate("OpenGTMTheme.setPreference('dark')")
             audit(page,name+"-dark")
             if name=="retina-laptop":
-                page.get_by_title("Change appearance",exact=True).click()
+                page.get_by_title("Account menu",exact=True).click()
                 auto=page.get_by_role("menuitemradio",name="Auto · fit window")
                 expect(auto).to_have_attribute("aria-checked","true")
                 box=page.get_by_role("menu").bounding_box()
                 assert 0<=box["x"] and box["x"]+box["width"]<=width and box["y"]+box["height"]<=height
-                anchor=page.get_by_title("Change appearance",exact=True).bounding_box()
+                anchor=page.get_by_title("Account menu",exact=True).bounding_box()
                 assert 0<=box["x"]-(anchor["x"]+anchor["width"])<=10,(box,anchor)
                 assert abs(box["y"]+box["height"]-anchor["y"]-anchor["height"])<2,(box,anchor)
                 page.get_by_role("menuitemradio",name="Comfortable · 100%").click()
@@ -89,7 +89,7 @@ with sync_playwright() as p:
                 page.reload(wait_until="domcontentloaded")
                 expect(page.locator(".overview-metric")).to_have_count(4)
                 assert page.evaluate("OpenGTMScale.getSnapshot()") == "100:100"
-                page.get_by_title("Change appearance",exact=True).click()
+                page.get_by_title("Account menu",exact=True).click()
                 page.get_by_role("menuitemradio",name="Compact · 85%").click()
                 page.keyboard.press("Escape")
                 assert page.evaluate("OpenGTMScale.getSnapshot()") == "85:85"

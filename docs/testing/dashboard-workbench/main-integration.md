@@ -19,6 +19,10 @@ node_modules assets, avoiding duplicate-hook failures and blocked bundled fonts.
 
 - Frontend lint, unit tests, and production build pass.
 - Combined Go vet and unit tests pass locally.
+- Chromium and WebKit checks pass at 1280×832 desktop and 390×844 touch sizes:
+  account-menu themes, keyboard selection, preference persistence, live system
+  changes, visible recent conversations, and no horizontal overflow. Desktop
+  scans report zero axe violations and both engines report zero page errors.
 - Fresh migration and race integration checks run against a disposable database,
   separately from the saved local dashboard database.
 - PR checks must pass on the final head before merge.
