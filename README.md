@@ -73,7 +73,7 @@ We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
 ship releases, and build a faster enrichment backend. Experience with **Go,
 PostgreSQL, browser automation, or provider integrations** is especially welcome.
 
-Interested? [Join the rewrite issue](https://github.com/debpalash/OpenGTM/issues/33)
+Interested? [Join contributor and design-partner onboarding](https://github.com/debpalash/OpenGTM/issues/122)
 with a short introduction and the areas you'd like to own. Focused contributions
 are welcome too; start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
@@ -256,7 +256,7 @@ clients, bounded concurrency, provider rate limits, cancellation and batched wri
 inside the internal browser service (Playwright Chromium and scraper libraries), which has no database
 access and no secrets. Optional Rust acceleration may follow where profiling and end-to-end benchmarks
 show a benefit. See the [port notes](docs/go-port/) and
-[tracking issue](https://github.com/debpalash/OpenGTM/issues/33).
+[release readiness](https://github.com/debpalash/OpenGTM/issues/120).
 
 ## Scope and contribution
 
