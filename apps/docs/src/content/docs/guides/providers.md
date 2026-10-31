@@ -23,6 +23,7 @@ API key at the vendor's direct price. Keys go in **Settings → API Keys**
 | `numverify` | phone verify, carrier, line type | `NUMVERIFY_API_KEY` | 100/month | $0.005 |
 | `ipinfo` | company from IP/domain, org, location, ASN | `IPINFO_TOKEN` | 50,000 requests/month | free tier |
 | `google_maps` | phone, address for local businesses | `GOOGLE_MAPS_API_KEY` | $200/month credit | $0.005 |
+| `scavio_maps` | phone, address, category, rating for local businesses ([Scavio](https://scavio.dev/google-maps-api)) | `SCAVIO_API_KEY` | 50 credits on signup | $0.0043 (1 credit) |
 | `leadmagic_email` | email | `LEADMAGIC_API_KEY` | | $0.05 |
 | `leadmagic_company` | company size, description | `LEADMAGIC_API_KEY` | | $0.05 |
 | `leadmagic_mobile` | mobile phone | `LEADMAGIC_API_KEY` | | $0.05 (0 if not found) |
