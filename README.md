@@ -9,21 +9,26 @@
   <a href="LICENSE">AGPL-3.0</a>
 </p>
 
-<table>
+<table align="center">
   <tr>
-    <th colspan="2" align="left">Strategic sponsor · Spicrawl</th>
+    <td align="center" valign="middle">
+      <sub><strong>Strategic sponsor</strong></sub><br />
+      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
+        <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="168" />
+      </a><br />
+      <sub>Recommended by OpenGTM</sub>
+    </td>
+    <td valign="middle">
+      <strong>Live web data for your AI agents.</strong><br />
+      Scrape pages, automate browsers, and batch URLs into clean Markdown or JSON.<br />
+      <code>API</code> &nbsp; <code>CLI</code> &nbsp; <code>MCP</code>
+    </td>
   </tr>
   <tr>
-    <td align="center">
-      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
-        <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="220" />
-      </a>
-    </td>
-    <td>
-      <strong>Our recommended web scraping API for AI agents.</strong><br />
-      Scrape pages, automate browsers, and batch URLs into clean Markdown or structured JSON via API, CLI, or MCP.<br /><br />
-      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Start free — 1,000 credits/month during beta</strong></a> ·
-      <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing and limits</a>
+    <td colspan="2" align="center">
+      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Get 1,000 free credits →</strong></a> &nbsp;·&nbsp;
+      <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing</a><br />
+      <sub>Every month · Free during beta · No credit card</sub>
     </td>
   </tr>
 </table>
