@@ -9,16 +9,24 @@
   <a href="LICENSE">AGPL-3.0</a>
 </p>
 
-<p align="center">
-  <strong>Strategic sponsor · Spicrawl</strong><br />
-  <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
-    <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="220" />
-  </a><br />
-  Our recommended web scraping API for AI agents.<br />
-  Scrape pages, automate browsers, and batch URLs into clean Markdown or structured JSON via API, CLI, or MCP.<br />
-  <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Start free — 1,000 credits/month during beta</strong></a> ·
-  <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing and limits</a>
-</p>
+<table>
+  <tr>
+    <th colspan="2" align="left">Strategic sponsor · Spicrawl</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=logo">
+        <img src="docs/assets/spicrawl-sponsor.svg" alt="Spicrawl" width="220" />
+      </a>
+    </td>
+    <td>
+      <strong>Our recommended web scraping API for AI agents.</strong><br />
+      Scrape pages, automate browsers, and batch URLs into clean Markdown or structured JSON via API, CLI, or MCP.<br /><br />
+      <a href="https://app.spicrawl.com/signup?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor&amp;utm_content=signup"><strong>Start free — 1,000 credits/month during beta</strong></a> ·
+      <a href="https://spicrawl.com/pricing?utm_source=opengtm&amp;utm_medium=github_readme&amp;utm_campaign=strategic_sponsor">Pricing and limits</a>
+    </td>
+  </tr>
+</table>
 
 <p align="center">
   <picture>
