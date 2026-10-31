@@ -153,6 +153,51 @@
           "icon": "linkedin",
           "id": "linkedin_ads",
           "name": "LinkedIn Ads"
+        },
+        {
+          "connected": false,
+          "description": "Per-recipient cold-email compliance check for enrichment columns (decision support, not legal advice). Uses each workspace's own key; global values apply only with ALLOW_GLOBAL_CREDENTIAL_FALLBACK.",
+          "fields": [
+            {
+              "key": "PRECLEARED_API_KEY",
+              "label": "API key",
+              "masked": "",
+              "placeholder": "pc_live_...",
+              "secret": true,
+              "set": false,
+              "value": ""
+            },
+            {
+              "key": "PRECLEARED_SENDER_COUNTRY",
+              "label": "Sender country: GB, US or AE",
+              "masked": "",
+              "placeholder": "GB",
+              "secret": false,
+              "set": false,
+              "value": ""
+            },
+            {
+              "key": "PRECLEARED_ADDRESS_SOURCE",
+              "label": "Where your addresses come from: published, bought, scraped, given or unknown",
+              "masked": "",
+              "placeholder": "unknown",
+              "secret": false,
+              "set": false,
+              "value": ""
+            },
+            {
+              "key": "PRECLEARED_PITCH",
+              "label": "What your emails offer",
+              "masked": "",
+              "placeholder": "Bookkeeping software for small firms",
+              "secret": false,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "shield",
+          "id": "precleared",
+          "name": "Precleared"
         }
       ]
     },

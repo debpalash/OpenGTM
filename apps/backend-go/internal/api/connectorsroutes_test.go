@@ -342,7 +342,7 @@ func TestCatalogDefaultsToBuiltinManifests(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &out); err != nil {
 		t.Fatal(err)
 	}
-	if len(out.Connectors) != 4 {
-		t.Fatalf("builtin catalog has %d connectors, want 4: %s", len(out.Connectors), rec.Body.String())
+	if len(out.Connectors) != 5 {
+		t.Fatalf("builtin catalog has %d connectors, want 5: %s", len(out.Connectors), rec.Body.String())
 	}
 }

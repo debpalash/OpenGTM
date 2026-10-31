@@ -1,0 +1,46 @@
+{
+ "scenario": "uncertain_unknown",
+ "lead": {
+  "email": "alex@example.com",
+  "company": "Example Inc"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001",
+  "PRECLEARED_SENDER_COUNTRY": "GB",
+  "PRECLEARED_ADDRESS_SOURCE": "published",
+  "PRECLEARED_PITCH": "Bookkeeping software for small firms"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"published\",\"company_name\":\"Example Inc\",\"pitch\":\"Bookkeeping software for small firms\",\"recipient_email\":\"alex@example.com\",\"sender_country\":\"GB\"}"
+ },
+ "response": {
+  "status": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"check_id\": \"00000000-0000-4000-8000-000000000003\", \"verdict\": \"unknown\", \"confidence\": \"low\", \"reasons\": [{\"note\": \"The register and domain checks took too long, so no verdict was reached. Try again, or pass a company number.\"}], \"rules_applied\": [], \"footer_text\": null, \"next_step\": \"Try the check again in a minute.\", \"facts\": {\"recipient_email_masked\": \"a***@example.com\", \"recipient_domain\": \"example.com\", \"recipient_country\": null, \"country_source\": \"none\", \"legal_form\": null, \"legal_form_source\": \"none\", \"company_number\": null, \"company_name\": null, \"company_status\": null, \"director_first_name\": null, \"address_type\": null, \"syntax_ok\": true, \"mx_ok\": true, \"disposable\": false, \"suppressed\": null}, \"receipt\": {\"id\": \"cc_rcpt_0000000000000003\", \"created_at\": \"2026-10-29T12:00:03.000Z\", \"request_hash\": \"0000000000000000000000000000000000000000000000000000000000000003\", \"response_hash\": \"0000000000000000000000000000000000000000000000000000000000000067\", \"signature\": \"c2lnbmF0dXJlLWZpeHR1cmU=\", \"algorithm\": \"ed25519\", \"key_version\": \"v1\", \"verify_url\": \"https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000003\"}, \"rules_version\": \"v1\", \"usage\": {\"free_remaining_today\": 24, \"credits_remaining\": 0}, \"disclaimer\": \"Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms\"}"
+ },
+ "result": {
+  "success": true,
+  "error": "",
+  "http_status": 200,
+  "confidence": 0.8,
+  "fields": {
+   "compliance": "unknown",
+   "compliance_confidence": "low",
+   "compliance_note": "The register and domain checks took too long, so no verdict was reached. Try again, or pass a company number.",
+   "compliance_next_step": "Try the check again in a minute.",
+   "compliance_receipt_id": "cc_rcpt_0000000000000003",
+   "compliance_receipt_url": "https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000003",
+   "compliance_checked_at": "2026-10-29T12:00:03.000Z",
+   "compliance_rules_version": "v1",
+   "compliance_disclaimer": "Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms"
+  }
+ }
+}
