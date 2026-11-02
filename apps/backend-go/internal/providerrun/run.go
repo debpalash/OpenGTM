@@ -457,7 +457,9 @@ func (r *Runner) mode(ctx context.Context, provider string, in providers.Input) 
 		}
 		return cacheNone, "", false
 	}
-	if leadStr(in.Lead, "person_id") != "" || leadStr(in.Lead, "company_id") != "" || leadStr(in.Lead, "contact_person") != "" {
+	p, _ := providers.Get(provider)
+	_, cacheByInput := p.(providers.InputCached)
+	if cacheByInput || leadStr(in.Lead, "person_id") != "" || leadStr(in.Lead, "company_id") != "" || leadStr(in.Lead, "contact_person") != "" {
 		raw, e := json.Marshal(struct {
 			Provider, Field string
 			Lead, Settings  map[string]any

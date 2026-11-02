@@ -933,6 +933,124 @@
       ],
       "maturity": "beta",
       "certification": null
+    },
+    {
+      "name": "companyenrich_company",
+      "capabilities": [
+        "companyenrich_company",
+        "company_size",
+        "description",
+        "industry_tags",
+        "technologies",
+        "founding_year",
+        "revenue_estimate",
+        "funding_stage",
+        "linkedin_url",
+        "twitter_url",
+        "facebook_url",
+        "city",
+        "state",
+        "address"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companyenrich_person",
+      "capabilities": [
+        "companyenrich_person",
+        "contact_person",
+        "contact_title",
+        "linkedin_url"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companyenrich_workforce",
+      "capabilities": [
+        "companyenrich_workforce"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companyenrich_people",
+      "capabilities": [
+        "companyenrich_people"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companyenrich_search",
+      "capabilities": [
+        "companyenrich_search"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "companyenrich_similar",
+      "capabilities": [
+        "companyenrich_similar"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
     }
   ],
   "recipes": {

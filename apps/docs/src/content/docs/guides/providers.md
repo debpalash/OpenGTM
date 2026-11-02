@@ -117,3 +117,14 @@ input_fields: [website_domain, contact_person]
 The manifest compiler validates it at load, registers it under `name`, and the
 vendor catalog picks up `cost_per_lookup` for estimates. Ship a golden fixture
 with it so its accuracy can be checked, not just its presence.
+
+## CompanyEnrich
+
+CompanyEnrich provides company and people research APIs. Configure `COMPANYENRICH_API_KEY`
+in the environment or save it in Settings → Enrichment providers. Six separate, paid,
+opt-in workbook providers cover company profiles (`companyenrich_company`), existing-email
+person lookup (`companyenrich_person`), workforce (`companyenrich_workforce`), company-domain
+people search (`companyenrich_people`), semantic company search (`companyenrich_search`)
+and lookalikes (`companyenrich_similar`). Search actions fetch one page of at most ten
+results, preserve the full response as JSON text, and do not discover email addresses.
+No default waterfall is changed. See the [setup, fields, costs and scope guide](https://github.com/debpalash/OpenGTM/blob/main/docs/providers/companyenrich.md).

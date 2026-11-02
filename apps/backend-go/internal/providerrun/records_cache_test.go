@@ -30,3 +30,22 @@ func TestRecordCacheSeparatesPeopleInputsAndSettings(t *testing.T) {
 		t.Fatal("provider configuration omitted from key")
 	}
 }
+
+func TestCompanyEnrichCacheUsesEmailAndResearchCriteria(t *testing.T) {
+	r := Runner{d: Deps{Pool: &pgxpool.Pool{}}}
+	for _, tc := range []struct{ provider, field, key, a, b string }{
+		{"companyenrich_person", "companyenrich_person", "email", "a@acme.example", "b@acme.example"},
+		{"companyenrich_search", "companyenrich_search", "description", "payroll", "payments"},
+	} {
+		in := providers.Input{Field: tc.field, Lead: map[string]any{"website": "acme.example", tc.key: tc.a}}
+		_, a, ok := r.mode(context.Background(), tc.provider, in)
+		if !ok {
+			t.Fatal("missing cache identity")
+		}
+		in.Lead[tc.key] = tc.b
+		_, b, _ := r.mode(context.Background(), tc.provider, in)
+		if a == b {
+			t.Errorf("%s shares results for different %s", tc.provider, tc.key)
+		}
+	}
+}

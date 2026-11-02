@@ -59,6 +59,16 @@
           "icon": "\ud83c\udf0d",
           "id": "ipinfo",
           "name": "IPInfo"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Company / people research, profile lookup and workforce",
+          "configured": false,
+          "docs_url": "https://docs.companyenrich.com/reference",
+          "free_tier": "Paid credits; each action is opt-in",
+          "icon": "\ud83c\udfe2",
+          "id": "companyenrich",
+          "name": "CompanyEnrich"
         }
       ]
     },

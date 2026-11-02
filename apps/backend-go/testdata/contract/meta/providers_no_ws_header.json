@@ -763,6 +763,124 @@
             "quality_sample",
             "tenant_isolation"
           ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_company",
+            "company_size",
+            "description",
+            "industry_tags",
+            "technologies",
+            "founding_year",
+            "revenue_estimate",
+            "funding_stage",
+            "linkedin_url",
+            "twitter_url",
+            "facebook_url",
+            "city",
+            "state",
+            "address"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_company",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_person",
+            "contact_person",
+            "contact_title",
+            "linkedin_url"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_person",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_workforce"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_workforce",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_people"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_people",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_search"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_search",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "companyenrich_similar"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "companyenrich_similar",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
         }
       ]
     },

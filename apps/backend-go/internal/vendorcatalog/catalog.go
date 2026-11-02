@@ -47,6 +47,15 @@ var vendors = []Vendor{
 	v("prospeo_mobile", 0.10, "mobile_phone"),
 	{Name: "research", BaseCost: researchBaseCost, BYOK: false, Capabilities: []string{"research"},
 		PerPageSize: 25, Notes: "flagged by RESEARCH_VENDOR_COST (default off)"},
+	// CompanyEnrich estimates use the published Starter unit rate, $0.0098/credit
+	// (2026-11-02). Search actions request at most 10 records in one page. These
+	// are conservative catalog estimates, not invoices or a guarantee of price.
+	{Name: "companyenrich_company", BaseCost: 0.0098, BYOK: true, Capabilities: []string{"company_size", "description"}, Notes: "1 credit; plan-dependent; https://companyenrich.com/pricing"},
+	{Name: "companyenrich_person", BaseCost: 0.049, BYOK: true, Capabilities: []string{"contact_person", "contact_title"}, Notes: "5 credits; reverse lookup from existing email"},
+	{Name: "companyenrich_workforce", BaseCost: 0.049, BYOK: true, Capabilities: []string{"companyenrich_workforce"}, Notes: "5 credits; observed workforce, not exact total employees"},
+	{Name: "companyenrich_people", BaseCost: 0.196, BYOK: true, Capabilities: []string{"companyenrich_people"}, Notes: "Up to 20 credits for 10 profiles; no email addresses"},
+	{Name: "companyenrich_search", BaseCost: 0.196, BYOK: true, Capabilities: []string{"companyenrich_search"}, Notes: "Up to 20 credits for 10 semantic-search companies"},
+	{Name: "companyenrich_similar", BaseCost: 0.49, BYOK: true, Capabilities: []string{"companyenrich_similar"}, Notes: "Up to 50 credits for 10 similar companies"},
 }
 
 var vendorIndex = func() map[string]*Vendor {
