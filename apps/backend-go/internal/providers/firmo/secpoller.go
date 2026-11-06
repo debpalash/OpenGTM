@@ -59,7 +59,7 @@ func (p secEdgar) resolvePublic(ctx context.Context, s secClient, target string)
 		if cerr := ctx.Err(); cerr != nil {
 			return "", cerr
 		}
-		return "", nil // Python: the caller's blanket except degrades to no filings
+		return "", err
 	}
 	return cik, nil
 }
