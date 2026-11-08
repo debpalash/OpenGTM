@@ -1,0 +1,16 @@
+{
+  "version": "1.0",
+  "document": "CLA.md",
+  "signatures": [
+    {
+      "login": "velixio",
+      "id": 270455167,
+      "issue": 134,
+      "comment_id": 6724138540,
+      "signed_at": "2026-11-08T16:39:14Z",
+      "version": "1.0",
+      "repo_id": 1344817392,
+      "body_sha256": "33b0cbfc5e5c854d87dd7c7a4d7279feffbd253b9532547aaea971ae03d244cd"
+    }
+  ]
+}
