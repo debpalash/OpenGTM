@@ -15,17 +15,25 @@ For each one, either get a signature on #134 or remove or rewrite their code.
 
 | Contributor | Lines at HEAD | Where | Action |
 |---|---:|---|---|
-| @rudycelekli | 163 | `apps/web` (workbook clipboard, tests), `docs/adr` | Ask to sign #134, or rewrite |
-| @bipul0525 | 182 | `reference/legacy/enrich*.py` (old reference code) | Delete `reference/legacy/`, or ask to sign |
-| @musabgultekin | 1 | `.env.example` | Ask to sign, or rewrite the line |
-| @googio (serply) | 1 | `.env.example` | Ask to sign, or rewrite the line |
+| @rudycelekli | 163 | `apps/web` TypeScript (`workbook-clipboard.ts`, `add-lead-dialog.tsx`, tests), `docs/adr` | Open: not covered by the Go rewrite. Ask to sign #134, or rewrite |
+| @bipul0525 | 182 | `reference/legacy/enrich*.py` (old Python, replaced by the Go port) | Done: `reference/legacy/` deleted in this PR. The remaining line is `*.pyc` in `.gitignore`, too trivial to carry copyright |
+| @musabgultekin | 1 | `.env.example` (a commented `SERPINGAPI_API_KEY=` line) | None: a variable name and a URL are too trivial to carry copyright |
+| @googio (serply) | 1 | `.env.example` (a commented `SERPLY_API_KEY=` line) | None: as above |
 
 Maintainer identities that the CLA check does not exempt yet. These need confirming as Yupcha-owned work:
 
 | Identity | Lines at HEAD | Action |
 |---|---:|---|
-| @velixio (Shimul Debnath, account ID 270455167) | 1,558,753 | Add to `MAINTAINER_IDS` in `.github/scripts/cla_check.py`, or sign #134 |
-| `user@users-MacBook-Air.local` (2 commits, 2026-07-18) | 1,923 | Confirm who wrote `gtm/*.md` and the `ambitionbox` fix |
+| @velixio (Shimul Debnath, account ID 270455167) | 1,559,102 | Owner signs #134 from this account |
+| `user@users-MacBook-Air.local` (2 commits, 2026-07-18) | 1,923 | Done: the owner's. Mapped to debpalash in `.mailmap` (see below) |
+
+`user@users-MacBook-Air.local` commits (`5346670d`, `488d2f52`) belong to the owner:
+
+- They were pushed straight to `main` with no pull request. Only debpalash (admin) and velixio (write) can do that.
+- They use the owner's timezone (+0530) and sit within a run of owner-only commits.
+- Both carry the owner's usual AI co-author trailer.
+
+GitHub links them to the unrelated account setyaraka (unverified) only because that account lists the same default macOS email. `.mailmap` fixes the attribution without rewriting `main`'s 2,300 later commits.
 
 The audit reviewed two maintainer commits that fold in other work, `fc0a93e3`
 and `a348bbd6`. Both are maintainer work with an AI co-author, so neither is a
@@ -35,8 +43,8 @@ blocker.
 
 | Component | Licence | Where | Why it matters | Options |
 |---|---|---|---|---|
-| `holehe` | GPL-3.0 | `apps/browser-service` (`scrapers/holehe_check.py`), imported in process | A closed browser service that imports it would breach the GPL | Replace or remove it, run it as a separate open process, or keep the browser service AGPL |
-| `reacherhq/backend` | AGPL-3.0 (commercial licence sold by Reacher) | `docker-compose.yml` email-verification service | OpenGTM only calls it over HTTP, so OpenGTM's own code is unaffected. Shipping or hosting the image still carries AGPL duties for Reacher itself | Keep offering Reacher's source, buy Reacher's commercial licence, or make it optional |
+| `holehe` | GPL-3.0 | `apps/browser-service` (`scrapers/holehe_check.py`), imported in process | A closed browser service that imports it would breach the GPL. The Go backend only calls it over HTTP, so it is unaffected | Replace in a separate PR |
+| `reacherhq/backend` | AGPL-3.0 (commercial licence sold by Reacher) | `docker-compose.yml` email-verification service | OpenGTM only calls it over HTTP, so OpenGTM's own code is unaffected. Shipping or hosting the image still carries AGPL duties for Reacher itself | Replace when needed; OpenGTM's code does not depend on it |
 
 ## 3. Checked and clear
 
