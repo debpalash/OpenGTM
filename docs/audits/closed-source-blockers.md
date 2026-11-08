@@ -15,7 +15,7 @@ For each one, either get a signature on #134 or remove or rewrite their code.
 
 | Contributor | Lines at HEAD | Where | Action |
 |---|---:|---|---|
-| @rudycelekli | 163 | `apps/web` TypeScript (`workbook-clipboard.ts`, `add-lead-dialog.tsx`, tests), `docs/adr` | Open: not covered by the Go rewrite. Ask to sign #134, or rewrite |
+| @rudycelekli | 163 | `apps/web` TypeScript (`workbook-clipboard.ts`, `add-lead-dialog.tsx`, tests), `docs/adr` | Open: not covered by the Go rewrite. Asked to sign on #134 (2026-11-08); if he does not, rewrite these files and re-check the Go code ported from his Python fixes |
 | @bipul0525 | 182 | `reference/legacy/enrich*.py` (old Python, replaced by the Go port) | Done: `reference/legacy/` deleted in this PR. The remaining line is `*.pyc` in `.gitignore`, too trivial to carry copyright |
 | @musabgultekin | 1 | `.env.example` (a commented `SERPINGAPI_API_KEY=` line) | None: a variable name and a URL are too trivial to carry copyright |
 | @googio (serply) | 1 | `.env.example` (a commented `SERPLY_API_KEY=` line) | None: as above |
