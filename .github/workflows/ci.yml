@@ -97,6 +97,19 @@ jobs:
       - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - run: uv run --frozen pytest -q
 
+  cla-bot:
+    name: CLA bot tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: '3.13'
+      - run: uv run --no-project --with pytest==8.4.2 --with pyyaml==6.0.3 python -m pytest tests -q
+
   frontend:
     name: Frontend lint, tests and build
     runs-on: ubuntu-latest
