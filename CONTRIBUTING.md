@@ -19,8 +19,15 @@ a bug report, or a whole feature.
    commits are not signed off will be asked to amend.
 
 2. **Sign the Contributor License Agreement (CLA).** Before your first pull
-   request is merged, sign the [Individual CLA](./CLA.md) once. The CLA check
-   on your pull request links to the signing page. If you contribute as part
+   request is merged, sign the [Individual CLA](./CLA.md) once by posting this
+   line as a new comment on your pull request:
+
+   ```text
+   I have read the OpenGTM CLA 1.0 and I hereby sign it.
+   ```
+
+   The CLA check on your pull request records it and lists anyone else who
+   still needs to sign. If you contribute as part
    of your job, your employer must also sign the
    [Corporate CLA](./CLA-CORPORATE.md).
 
