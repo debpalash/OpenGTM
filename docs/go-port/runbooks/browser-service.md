@@ -29,11 +29,10 @@ Go reaches it only through `internal/browserclient`.
 | `POST /v1/scrape/{linkedin,job_boards,crunchbase,review_directories,web_directories,google_search}` | Raw search hits per search string. The search strings are the exact legacy templates. |
 | `POST /v1/search` | One keyless ddgs query (text or news) with the caller's backends, region, safesearch and timelimit. Failures come back as `error`: `no_results`, `rate_limited`, `timeout` or `failed` (rate_limited and timeout are the legacy block signals). |
 | `POST /v1/extract` | Main text and metadata (trafilatura, legacy content_extract) plus markdown (markdownify) from given HTML or a fetched URL. Its body cap is `BROWSER_MAX_EXTRACT_BYTES`. |
-| `POST /v1/holehe` | Per-site holehe results for one email (first 50 modules, concurrency 10, as legacy). The verdict mapping stays in Go. |
 | `POST /v1/staffspy` | A company's LinkedIn roster. Off (503 `engine_unavailable`) unless `BROWSER_STAFFSPY_ENABLED`. The LinkedIn cookies come with each request; nothing is written to disk. |
 | `GET /v1/stats` | This process's counters: calls, ok and error codes per op, search failures by class, egress sessions, refusals and upstream failures. Per replica, not aggregated. |
 
-Every page, search, holehe and staffspy request takes an optional `upstream_proxy` (http, socks5 or socks4 URL).
+Every page, search and staffspy request takes an optional `upstream_proxy` (http, socks5 or socks4 URL).
 Go picks it from `PROXY_LIST` or the proxy manager; the service never stores or logs it. See "Upstream proxies" below.
 
 Errors use the envelope `{"error":{"code","message","fields?"}}`. Each code has one fixed message, so page text

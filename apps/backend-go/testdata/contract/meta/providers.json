@@ -460,23 +460,6 @@
         },
         {
           "capabilities": [
-            "email_verify"
-          ],
-          "certification": null,
-          "confidence": 0.85,
-          "maturity": "beta",
-          "name": "holehe",
-          "required_checks": [
-            "external_read",
-            "failure_recovery",
-            "normalization",
-            "provenance",
-            "quality_sample",
-            "tenant_isolation"
-          ]
-        },
-        {
-          "capabilities": [
             "email",
             "contact_person"
           ],

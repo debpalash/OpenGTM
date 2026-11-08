@@ -1,8 +1,7 @@
 """Ops added for the Go web layer (plan 15 WP-WEB): generic search, extract,
-holehe, staffspy, stats, per-request upstream proxies and the stealth Maps
+staffspy, stats, per-request upstream proxies and the stealth Maps
 browser."""
 
-import asyncio
 import sys
 import types
 
@@ -11,7 +10,7 @@ from conftest import AUTH, TOKEN, FakePool
 
 from browser_service.config import ConfigError, Settings
 from browser_service.egress import UpstreamProxy
-from browser_service.scrapers import holehe_check, search, staffspy_roster
+from browser_service.scrapers import search, staffspy_roster
 
 ARTICLE = (
     "<html><head><title>Acme Robotics raises Series B</title>"
@@ -233,89 +232,6 @@ async def test_extract_accepts_bodies_above_the_generic_cap(make_client):
     assert r.status_code == 200
     r = await c.post("/v1/render", headers=AUTH, json={"url": "https://a.example/", "user_agent": "x" * 70000})
     assert r.status_code == 413
-
-
-# ── /v1/holehe ───────────────────────────────────────────────────────
-
-
-def _fake_holehe(monkeypatch, behaviours):
-    """Install fake holehe modules: name -> exists | 'rate' | Exception."""
-    funcs = []
-    for name, b in behaviours.items():
-
-        async def fn(email, client, out, _name=name, _b=b):
-            if isinstance(_b, Exception):
-                raise _b
-            out.append(
-                {
-                    "name": _name,
-                    "domain": f"{_name}.com",
-                    "method": "register",
-                    "frequent_rate_limit": False,
-                    "rateLimit": _b == "rate",
-                    "exists": _b is True,
-                    "emailrecovery": "secret-recovery",
-                    "phoneNumber": None,
-                    "others": None,
-                }
-            )
-
-        fn.__name__ = name
-        funcs.append(fn)
-    monkeypatch.setattr(holehe_check, "load_modules", lambda: funcs)
-    return funcs
-
-
-async def test_holehe_reports_per_site_results(make_client, monkeypatch):
-    _fake_holehe(monkeypatch, {"twitter": True, "spotify": False, "instagram": "rate", "adobe": RuntimeError("x")})
-    seen = {}
-
-    def fake_client(proxy_url, timeout):
-        seen["proxy"] = proxy_url
-        seen["timeout"] = timeout
-
-        class C:
-            async def aclose(self):
-                seen["closed"] = True
-
-        return C()
-
-    monkeypatch.setattr(holehe_check, "make_client", fake_client)
-    c = await make_client()
-    r = await c.post("/v1/holehe", headers=AUTH, json={"email": "jane@acme.example"})
-    assert r.status_code == 200, r.text
-    b = r.json()
-    assert b["exists_on"] == ["twitter"] and b["total_checked"] == 3 and b["errors"] == 1
-    assert [s["name"] for s in b["sites"]] == ["twitter", "spotify", "instagram"]
-    assert b["sites"][2]["rate_limited"] is True and b["sites"][0]["domain"] == "twitter.com"
-    assert "secret-recovery" not in r.text
-    assert seen["proxy"].startswith("http://s") and seen["closed"] and seen["timeout"] == 10
-
-
-async def test_holehe_caps_modules(make_client, monkeypatch):
-    _fake_holehe(monkeypatch, {f"m{i}": False for i in range(60)})
-    monkeypatch.setattr(holehe_check, "make_client", lambda p, t: types.SimpleNamespace(aclose=_anoop))
-    c = await make_client()
-    r = await c.post("/v1/holehe", headers=AUTH, json={"email": "a@b.example"})
-    assert r.json()["total_checked"] == 50
-    r = await c.post("/v1/holehe", headers=AUTH, json={"email": "a@b.example", "max_modules": 5})
-    assert r.json()["total_checked"] == 5
-
-
-async def _anoop():
-    return None
-
-
-@pytest.mark.parametrize("email", ["", "no-at-sign", "a@b", "x" * 300 + "@a.com"])
-async def test_holehe_validation(make_client, email):
-    c = await make_client()
-    r = await c.post("/v1/holehe", headers=AUTH, json={"email": email})
-    assert r.status_code == 400
-
-
-def test_holehe_real_modules_load():
-    mods = holehe_check.load_modules()
-    assert len(mods) > 100 and all(asyncio.iscoroutinefunction(m) for m in mods[:5])
 
 
 # ── /v1/staffspy ─────────────────────────────────────────────────────

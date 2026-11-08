@@ -156,13 +156,6 @@
    ],
    "default_confidence": 0.9
   },
-  "holehe": {
-   "cost_per_lookup": 0.0,
-   "capabilities": [
-    "email_verify"
-   ],
-   "default_confidence": 0.85
-  },
   "hunter_io": {
    "cost_per_lookup": 0.0,
    "capabilities": [
@@ -804,22 +797,6 @@
    "research_flag": true,
    "base_cost": 0.005,
    "is_paid": true,
-   "has_known_cost": true,
-   "is_byok": true
-  },
-  {
-   "name": "holehe",
-   "research_flag": false,
-   "base_cost": 0.0,
-   "is_paid": false,
-   "has_known_cost": true,
-   "is_byok": true
-  },
-  {
-   "name": "holehe",
-   "research_flag": true,
-   "base_cost": 0.0,
-   "is_paid": false,
    "has_known_cost": true,
    "is_byok": true
   },
