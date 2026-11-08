@@ -1,0 +1,3 @@
+# Map commit identities to their GitHub accounts (git shortlog, blame and scripts/cla_audit.py).
+# Commits from the repository owner's laptop, before git was configured on it.
+Palash Debnath <4178343+debpalash@users.noreply.github.com> user <user@users-MacBook-Air.local>
