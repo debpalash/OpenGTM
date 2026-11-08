@@ -598,6 +598,8 @@ SIGNED = {"signatures": [{"id": 1001}]}
 HAS_LABEL = {"labels": [{"name": "cla-signed"}]}
 ADD = ("POST", "7/labels", {"labels": ["cla-signed"]})
 REMOVE = ("DELETE", "7/labels/cla-signed", None)
+PENDING_ADD = ("POST", "7/labels", {"labels": ["cla-pending"]})
+PENDING_REMOVE = ("DELETE", "7/labels/cla-pending", None)
 
 
 def writes(gh):
@@ -628,13 +630,32 @@ def test_labelled_signed_pr_writes_nothing():
 def test_label_is_removed_when_a_new_contributor_has_not_signed():
     gh = FakeGitHub([], [actor("bob", 1002)], store=SIGNED, pr=HAS_LABEL)
     assert not cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}}).passed
-    assert writes(gh) == [REMOVE]
+    assert writes(gh) == [REMOVE, PENDING_ADD]
 
 
-def test_unsigned_pr_without_the_label_writes_nothing():
+def test_unsigned_pr_gets_the_pending_label():
     gh = FakeGitHub([], [actor("alice", 1001)], store=cla.empty_store())
     cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}})
+    assert writes(gh) == [PENDING_ADD]
+
+
+def test_pending_pr_already_labelled_writes_nothing():
+    gh = FakeGitHub([], [actor("alice", 1001)], store=cla.empty_store(), pr={"labels": [{"name": "cla-pending"}]})
+    cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}})
     assert writes(gh) == []
+
+
+def test_signing_swaps_pending_for_signed():
+    gh = FakeGitHub([], [actor("alice", 1001)], store=SIGNED, pr={"labels": [{"name": "cla-pending"}]})
+    assert cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}}).passed
+    assert writes(gh) == [ADD, PENDING_REMOVE]
+
+
+def test_override_clears_the_pending_label():
+    labels = [{"name": "cla-override"}, {"name": "cla-pending"}]
+    gh = FakeGitHub([], [actor("bob", 1002)], store=cla.empty_store(), pr={"labels": labels})
+    assert cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}}).passed
+    assert writes(gh) == [PENDING_REMOVE]
 
 
 def test_exempt_only_pr_is_not_labelled_as_signed():
@@ -670,7 +691,7 @@ def test_duplicate_head_clears_the_label():
     gh = FakeGitHub([], [actor("alice", 1001)], store=SIGNED, pr=prs[0])
     gh.open_prs = prs
     assert not cla.run(gh, "pull_request_target", {"pull_request": prs[0]}).passed
-    assert writes(gh) == [REMOVE]
+    assert writes(gh) == [REMOVE, PENDING_ADD]
 
 
 def test_merged_pr_keeps_its_label():

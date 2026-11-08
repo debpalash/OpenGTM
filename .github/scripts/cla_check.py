@@ -19,9 +19,10 @@ saying why. The result is a
 commit status named "CLA" on the head commit, which branch protection can
 require. A maintainer can apply the `cla-override` label after reviewing a pull
 request by hand, for example one that folds in commits from agent identities.
-The `cla-signed` label follows the result so people can filter on it: present
+Two labels follow the result so people can filter on it: `cla-signed`, present
 only while signatures clear a pull request, when the check's comment also links
-the agreement and each signature. Neither affects the gate.
+the agreement and each signature; and `cla-pending`, present while the check
+fails. Neither affects the gate.
 """
 from __future__ import annotations
 
@@ -53,6 +54,8 @@ NEAR_MISS_ID = re.compile(r"<!-- opengtm-cla-near-miss:(\d+) -->")
 SIGNING_LABEL = "cla"
 OVERRIDE_LABEL = "cla-override"
 SIGNED_LABEL = "cla-signed"  # written by this check, never read as an input
+PENDING_LABEL = "cla-pending"  # written by this check while signatures are missing, never read as an input
+RESULT_LABELS = {SIGNED_LABEL, PENDING_LABEL}
 COMMENT_MARKER = "<!-- opengtm-cla -->"
 MAX_OPEN_PRS = 1000  # reaching the cap is incomplete evidence, so fail closed
 MAX_COMMITS = 250
@@ -544,24 +547,30 @@ def document_permalink(gh: GitHub, fallback: str, server_url: str) -> str:
     return f"{server_url}/{gh.repo}/blob/{commits[0]['sha']}/{DOCUMENT_PATH}"
 
 
-def sync_signed_label(gh: GitHub, pr: dict, earned: bool) -> None:
-    """Make `cla-signed` match the result. The status is the gate, so a failed write only warns.
+def sync_label(gh: GitHub, pr: dict, label: str, wanted: bool) -> None:
+    """Make one result label match the check. The status is the gate, so a failed write only warns.
 
     GITHUB_TOKEN label writes start no workflow run, so this cannot re-trigger the check.
     """
-    if earned == (SIGNED_LABEL in {label.get("name") for label in pr.get("labels") or []}):
+    if wanted == (label in {item.get("name") for item in pr.get("labels") or []}):
         return
     issue = f"/repos/{gh.repo}/issues/{pr['number']}/labels"
     try:
-        if earned:
-            status, _, _ = gh.request("POST", issue, {"labels": [SIGNED_LABEL]})
+        if wanted:
+            status, _, _ = gh.request("POST", issue, {"labels": [label]})
         else:
-            status, _, _ = gh.request("DELETE", f"{issue}/{SIGNED_LABEL}")
+            status, _, _ = gh.request("DELETE", f"{issue}/{label}")
     except OSError as err:
-        print(f"CLA: could not update {SIGNED_LABEL}: {err}")
+        print(f"CLA: could not update {label}: {err}")
         return
-    if status >= 400 and not (status == 404 and not earned):
-        print(f"CLA: could not update {SIGNED_LABEL} ({status})")
+    if status >= 400 and not (status == 404 and not wanted):
+        print(f"CLA: could not update {label} ({status})")
+
+
+def sync_labels(gh: GitHub, pr: dict, *, signed: bool, pending: bool) -> None:
+    """`cla-signed` while signatures clear the PR; `cla-pending` while the check fails."""
+    sync_label(gh, pr, SIGNED_LABEL, signed)
+    sync_label(gh, pr, PENDING_LABEL, pending)
 
 
 def open_prs_at_head(gh: GitHub, sha: str) -> list[dict]:
@@ -579,7 +588,7 @@ def _evaluation_snapshot(pr: dict) -> tuple:
     return (pr.get("state"), pr["head"]["sha"], pr["base"].get("sha"),
             pr["user"]["id"], pr["user"].get("type"), pr.get("body") or "",
             sorted(label.get("name", "") for label in pr.get("labels") or []
-                   if label.get("name") != SIGNED_LABEL))
+                   if label.get("name") not in RESULT_LABELS))
 
 
 def confirm_current_pr(gh: GitHub, pr: dict) -> None:
@@ -631,12 +640,12 @@ def run(gh: GitHub, event_name: str, event: dict, server_url: str = "https://git
         evaluation = Evaluation(blockers=blockers)
         upsert_comment(gh, number, render_comment(evaluation, doc_url), create=True)
         set_status(gh, pr["head"]["sha"], "failure", "Close duplicate pull requests sharing this head", doc_url)
-        sync_signed_label(gh, pr, False)
+        sync_labels(gh, pr, signed=False, pending=True)
         return evaluation
     if OVERRIDE_LABEL in {label.get("name") for label in pr.get("labels") or []}:
         confirm_current_pr(gh, pr)
         set_status(gh, pr["head"]["sha"], "success", "CLA reviewed by a maintainer", doc_url)
-        sync_signed_label(gh, pr, False)  # a maintainer's review is not a signature
+        sync_labels(gh, pr, signed=False, pending=False)  # a maintainer's review is not a signature
         return Evaluation()
 
     actors, count = pr_actors(gh, number)
@@ -686,7 +695,7 @@ def run(gh: GitHub, event_name: str, event: dict, server_url: str = "https://git
     # Exempt-only pull requests pass with no signature to report.
     upsert_comment(gh, number, body, create=cleared or not evaluation.passed)
     set_status(gh, pr["head"]["sha"], "success" if evaluation.passed else "failure", description, doc_url)
-    sync_signed_label(gh, pr, cleared)
+    sync_labels(gh, pr, signed=cleared, pending=not evaluation.passed)
     return evaluation
 
 
