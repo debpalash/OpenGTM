@@ -484,36 +484,6 @@
    "registered_in_workbook_registry": true
   },
   {
-   "module": "holehe_verify",
-   "classes": [
-    {
-     "class": "HoleheProvider",
-     "bases": [
-      "EnrichmentProvider"
-     ],
-     "name": "holehe",
-     "capabilities": [
-      "email_verify"
-     ],
-     "cost_per_lookup": null,
-     "default_confidence": 0.85
-    }
-   ],
-   "imports_top_level": [],
-   "imports_nested": [
-    "holehe",
-    "httpx"
-   ],
-   "non_http_third_party": [
-    "holehe"
-   ],
-   "uses_httpx": true,
-   "uses_smtp_or_dns": false,
-   "line_count": 144,
-   "sha256": "b93b5d864b323c56316b235f24864b766f00a0fa06aeb0e6f26085e0612a3583",
-   "registered_in_workbook_registry": true
-  },
-  {
    "module": "hunter_io",
    "classes": [
     {

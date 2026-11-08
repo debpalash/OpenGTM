@@ -579,6 +579,15 @@ loop:
 			skipped = append(skipped, skippedProvider{name, "unknown_provider"})
 			continue
 		}
+		// A stored chain can name a provider that was removed from this build
+		// (e.g. holehe): skip it, like any unknown provider, instead of failing
+		// the run or stopping the waterfall before the later providers. A priced
+		// provider with no runner keeps its own path (released spend, cell fails).
+		if _, declarative := rs.p.Manifests[name]; !declarative && !rs.pl.paid(name) && !rs.registered(name) {
+			rs.log.Warn("provider not found, skipping", "provider", name)
+			skipped = append(skipped, skippedProvider{name, "unknown_provider"})
+			continue
+		}
 		reserved := rs.pl.paid(name)
 		if !reserved && !rs.pl.knownCost(name) {
 			resultError = "provider_price_unknown"

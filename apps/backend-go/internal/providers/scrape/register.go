@@ -15,7 +15,6 @@ func init() {
 	providers.Register(ddgEmail{})
 	providers.Register(decisionMaker{})
 	providers.Register(JobSpy{})
-	providers.Register(holehe{})
 	providers.Register(staffSpy{})
 	providers.Register(mailScout{})
 	providers.Register(companySizeHeuristic{})

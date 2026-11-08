@@ -325,33 +325,6 @@ class ExtractResult(BaseModel):
     elapsed_ms: int
 
 
-# ── holehe ───────────────────────────────────────────────────────────
-
-
-class HoleheRequest(_Upstream):
-    email: str = Field(min_length=3, max_length=254, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-    max_modules: int = Field(default=50, ge=1, le=200, description="legacy checked the first 50 modules")
-    timeout_s: float = Field(default=60.0, ge=5.0, le=300.0)
-
-
-class HoleheSite(BaseModel):
-    name: str
-    domain: str
-    method: str
-    exists: bool
-    rate_limited: bool
-
-
-class HoleheResult(BaseModel):
-    email: str
-    sites: list[HoleheSite]
-    exists_on: list[str]
-    total_checked: int
-    errors: int = Field(description="modules that raised")
-    partial: bool
-    elapsed_ms: int
-
-
 # ── staffspy ─────────────────────────────────────────────────────────
 
 

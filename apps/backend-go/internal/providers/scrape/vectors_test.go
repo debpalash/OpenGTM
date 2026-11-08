@@ -48,10 +48,6 @@ type scenario struct {
 		Pick   mailAns `json:"pick"`
 		Verify mailAns `json:"verify"`
 	} `json:"mail"`
-	Holehe struct {
-		ExistsOn     []string `json:"exists_on"`
-		TotalChecked int      `json:"total_checked"`
-	} `json:"holehe"`
 	StaffSpy struct {
 		Rows []browserclient.StaffRow `json:"rows"`
 	} `json:"staffspy"`
@@ -171,11 +167,6 @@ func (w *fakeWorld) Verify(_ context.Context, e string) (MailCheck, error) {
 
 func (w *fakeWorld) Render(context.Context, browserclient.RenderRequest) (browserclient.RenderResult, error) {
 	return browserclient.RenderResult{}, errors.New("render not scripted")
-}
-
-func (w *fakeWorld) Holehe(_ context.Context, r browserclient.HoleheRequest) (browserclient.HoleheResult, error) {
-	w.log("holehe", r.Email)
-	return browserclient.HoleheResult{Email: r.Email, ExistsOn: w.sc.Holehe.ExistsOn, TotalChecked: w.sc.Holehe.TotalChecked}, nil
 }
 
 func (w *fakeWorld) StaffSpy(_ context.Context, r browserclient.StaffSpyRequest) (browserclient.StaffSpyResult, error) {
