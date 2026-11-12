@@ -177,6 +177,14 @@ func (cur Cursor) failover() *Cursor {
 	return &Cursor{Provider: cur.Fallbacks[0], Fallbacks: cur.Fallbacks[1:]}
 }
 
+// streamRetryForEmpty is the streaming mirror of the callOpenAI reliability
+// retry: only a custom_openai round that produced neither content nor tool
+// calls and does not already have thinking disabled retries (once, because
+// the retry cursor carries the flag, so it can never loop).
+func (c *Client) streamRetryForEmpty(prov ChatProvider, gotContent, gotToolCalls bool) bool {
+	return prov.ID == CustomOpenAIID && !gotContent && !gotToolCalls && !hasDisableThinking(prov.ExtraBody)
+}
+
 // streamOnce talks to cursor.Provider once. It returns the cursor to retry on
 // (failover), or fin != nil when the round completed on this provider, or both
 // nil when the round is over without a result (error frame already sent, or EOF).
@@ -257,6 +265,7 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 	}
 
 	acc := map[int]*ToolCall{}
+	gotContent, gotToolCalls := false, false
 	sc := bufio.NewScanner(resp.Body)
 	sc.Buffer(make([]byte, 0, min(64<<10, maxStreamLine)), maxStreamLine)
 	touch() // headers arrived
@@ -273,14 +282,28 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok && more {
 			touch()
 			if data == "[DONE]" {
+				// Reasoning-server reliability (mirrors callOpenAI): a
+				// thinking model can stream its whole budget into the
+				// reasoning block and finish with no content/tool-call
+				// deltas at all. Retry the round once against the same
+				// custom_openai server with thinking disabled.
+				if c.streamRetryForEmpty(prov, gotContent, gotToolCalls) {
+					prov2 := prov
+					prov2.ExtraBody = withDisableThinking(prov.ExtraBody)
+					return &Cursor{Provider: prov2, Fallbacks: cursor.Fallbacks}, nil
+				}
 				send(Frame{Kind: FrameDone})
 				return nil, &cursor
 			}
 			calls, content, done := parseChunk(data, acc)
-			if content != "" && !send(Frame{Kind: FrameContent, Text: content}) {
-				return nil, nil
+			if content != "" {
+				gotContent = true
+				if !send(Frame{Kind: FrameContent, Text: content}) {
+					return nil, nil
+				}
 			}
 			if done {
+				gotToolCalls = true
 				send(Frame{Kind: FrameToolCalls, ToolCalls: calls})
 				return nil, &cursor
 			}
@@ -291,6 +314,11 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 			}
 			rerr := sc.Err()
 			if rerr == nil {
+				if c.streamRetryForEmpty(prov, gotContent, gotToolCalls) {
+					prov2 := prov
+					prov2.ExtraBody = withDisableThinking(prov.ExtraBody)
+					return &Cursor{Provider: prov2, Fallbacks: cursor.Fallbacks}, nil
+				}
 				return nil, nil // EOF
 			}
 			if errors.Is(rerr, bufio.ErrTooLong) {

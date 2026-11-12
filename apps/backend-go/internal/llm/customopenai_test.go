@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync/atomic"
 	"sync"
 	"testing"
 	"time"
@@ -497,5 +498,107 @@ func TestCustomOpenAIDisableThinkingFlag(t *testing.T) {
 	sraw, _ := json.Marshal(sm.requests[0].Body["chat_template_kwargs"])
 	if string(sraw) != `{"enable_thinking":false}` {
 		t.Fatalf("stream chat_template_kwargs: %s", sraw)
+	}
+}
+
+// 14: reasoning-server reliability — a thinking model that answers with empty
+// content (budget spent on reasoning) triggers exactly one retry of the round
+// with chat_template_kwargs.enable_thinking=false; the retry's answer wins.
+func TestCustomOpenAIRetryOnEmptyContent(t *testing.T) {
+	var n int32
+	m := &mockOpenAI{handler: func(w http.ResponseWriter, _ *http.Request, body map[string]any) {
+		atomic.AddInt32(&n, 1)
+		if atomic.LoadInt32(&n) == 1 {
+			// first round: reasoning model out of budget -> null content
+			_, _ = io.WriteString(w, `{"choices":[{"message":{"content":null,"reasoning":"thinking..."}}]}`)
+			return
+		}
+		_, _ = io.WriteString(w, `{"choices":[{"message":{"content":"ANSWER"}}]}`)
+	}}
+	srv := httptest.NewServer(m)
+	defer srv.Close()
+	c := customClient(t, mapSettings{"CUSTOM_OPENAI_BASE_URL": srv.URL, "CUSTOM_OPENAI_MODEL": "m"})
+	got, err := c.Complete(context.Background(), CompleteRequest{Prompt: "ping"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got != "ANSWER" {
+		t.Fatalf("retry did not produce the answer: %q", got)
+	}
+	if atomic.LoadInt32(&n) != 2 {
+		t.Fatalf("requests: %d", n)
+	}
+	m.mu.Lock()
+	second := m.requests[1].Body
+	m.mu.Unlock()
+	tk, ok := second["chat_template_kwargs"].(map[string]any)
+	if !ok || tk["enable_thinking"] != false {
+		t.Fatalf("retry body lacks enable_thinking=false: %v", second)
+	}
+}
+
+// with the flag already on there is no second retry (single request path)
+func TestCustomOpenAIRetrySkippedWhenFlagSet(t *testing.T) {
+	var n int32
+	m := &mockOpenAI{handler: func(w http.ResponseWriter, _ *http.Request, _ map[string]any) {
+		atomic.AddInt32(&n, 1)
+		_, _ = io.WriteString(w, `{"choices":[{"message":{"content":null}}]}`)
+	}}
+	srv := httptest.NewServer(m)
+	defer srv.Close()
+	c := customClient(t, mapSettings{"CUSTOM_OPENAI_BASE_URL": srv.URL, "CUSTOM_OPENAI_MODEL": "m", "CUSTOM_OPENAI_DISABLE_THINKING": "true"})
+	_, err := c.Complete(context.Background(), CompleteRequest{Prompt: "ping"})
+	// thinking is already off: an empty answer is a genuine empty response,
+	// surfaced as an error — but exactly ONE request went out (no retry).
+	if !errors.Is(err, ErrEmptyResponse) {
+		t.Fatalf("want ErrEmptyResponse, got %v", err)
+	}
+	if atomic.LoadInt32(&n) != 1 {
+		t.Fatalf("flag already disables thinking; must not retry again: %d", n)
+	}
+}
+
+// streaming: a stream that ends with no content and no tool calls (reasoning
+// consumed everything) retries the round once with thinking disabled.
+func TestCustomOpenAIStreamRetryOnEmpty(t *testing.T) {
+	var n int32
+	m := &mockOpenAI{handler: func(w http.ResponseWriter, r *http.Request, body map[string]any) {
+		if atomic.AddInt32(&n, 1) == 1 {
+			w.Header().Set("Content-Type", "text/event-stream")
+			_, _ = io.WriteString(w, "data: [DONE]\n\n")
+			return
+		}
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = io.WriteString(w, `data: {"choices":[{"delta":{"content":"OK"},"finish_reason":"stop"}]}`+"\n\n")
+		_, _ = io.WriteString(w, "data: [DONE]\n\n")
+	}}
+	srv := httptest.NewServer(m)
+	defer srv.Close()
+	c := customClient(t, mapSettings{"CUSTOM_OPENAI_BASE_URL": srv.URL, "CUSTOM_OPENAI_MODEL": "m"})
+	frames := drain(t, c.Stream(context.Background(), StreamRequest{
+		Messages: []map[string]string{{"role": "user", "content": "hi"}},
+		Cursor:   Cursor{Provider: ChatProvider{ID: CustomOpenAIID, BaseURL: srv.URL, Model: "m"}},
+	}))
+	var text strings.Builder
+	for _, f := range frames {
+		if f.Kind == FrameContent {
+			text.WriteString(f.Text)
+		}
+		if f.Kind == FrameError {
+			t.Fatalf("error frame: %s", f.Text)
+		}
+	}
+	if text.String() != "OK" {
+		t.Fatalf("stream retry text: %q frames=%d", text.String(), len(frames))
+	}
+	m.mu.Lock()
+	var sawFlag bool
+	if len(m.requests) >= 2 {
+		tk, ok := m.requests[1].Body["chat_template_kwargs"].(map[string]any)
+		sawFlag = ok && tk["enable_thinking"] == false
+	}
+	m.mu.Unlock()
+	if !sawFlag {
+		t.Fatal("stream retry request lacks enable_thinking=false")
 	}
 }
