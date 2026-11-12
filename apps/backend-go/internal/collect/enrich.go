@@ -337,9 +337,11 @@ func FindEmailViaSearch(ctx context.Context, w Web, company, city, domain string
 	return ""
 }
 
-// EnrichEmails is enrich_emails for one lead (bulk "find_emails"): a searched address ("verified",
-// disposable domains skipped), else the SMTP-checked info@<domain> guess ("smtp_verified" when the
-// mailbox answered, "generic" when unknown, nothing when the server rejected it).
+// EnrichEmails is enrich_emails for one lead (bulk "find_emails"): a searched address
+// ("found" — discovered on a public page, NOT verified; honesty rule: a harvested address
+// never carries a verification claim without evidence), else the SMTP-checked info@<domain>
+// guess ("smtp_verified" when the mailbox answered, "generic" when unknown, nothing when the
+// server rejected it).
 func EnrichEmails(ctx context.Context, w Web, e Enrichers, l *Lead) {
 	if l.HasEmail() || l.Company == "" {
 		return
@@ -349,7 +351,7 @@ func EnrichEmails(ctx context.Context, w Web, e Enrichers, l *Lead) {
 		if e.Disposable(email) {
 			return
 		}
-		l.Email, l.EmailConfidence = email, "verified"
+		l.Email, l.EmailConfidence = email, "found"
 		return
 	}
 	if domain == "" {
