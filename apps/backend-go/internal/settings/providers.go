@@ -114,6 +114,11 @@ func (p *Providers) List(ctx context.Context) ([]ProviderView, string, error) {
 			v.Configured, v.APIKeyMasked = key != "", MaskKey(key)
 		}
 		v.BaseURL, v.Model = p.urlAndModel(ctx, prov)
+		// custom_openai may serve without authentication: it is configured
+		// once a base URL and model are set, key or no key.
+		if id == "custom_openai" && err == nil {
+			v.Configured = v.BaseURL != "" && v.Model != ""
+		}
 		out = append(out, v)
 	}
 	return out, def, nil
@@ -210,10 +215,16 @@ func (p *Providers) Test(ctx context.Context, id string) (res map[string]any, fo
 	if err != nil {
 		return nil, true, err
 	}
-	if key == "" {
+	// custom_openai may serve without authentication, so an empty key is
+	// testable there (the request goes out without an Authorization header);
+	// every other provider still needs a key to test.
+	if key == "" && id != "custom_openai" {
 		return errResult("API key not configured"), true, nil
 	}
 	base, model := p.urlAndModel(ctx, prov)
+	if id == "custom_openai" && (base == "" || model == "") {
+		return errResult("Base URL and model must be configured before testing this provider"), true, nil
+	}
 	ctx, cancel := context.WithTimeout(ctx, testTimeout)
 	defer cancel()
 	return p.send(ctx, id, prov, key, base, model), true, nil
@@ -286,7 +297,11 @@ func (p *Providers) send(ctx context.Context, id string, prov Provider, key, bas
 		} else {
 			body["max_tokens"] = 50
 		}
-		status, raw, err := p.post(ctx, base+"/chat/completions", map[string]string{"Authorization": "Bearer " + key}, body)
+		hdr := map[string]string{}
+		if key != "" {
+			hdr["Authorization"] = "Bearer " + key
+		}
+		status, raw, err := p.post(ctx, base+"/chat/completions", hdr, body)
 		if err != nil {
 			return errResult(err.Error())
 		}

@@ -46,7 +46,7 @@ func aiColsDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sh *wor
 		return nil, errors.New("no shared settings")
 	}
 	app, reg, llmCfg := sh.app, sh.reg, sh.llmCfg
-	httpc := egress.NewOperatorClient(cfg.EgressAllowHosts)
+	httpc := llm.OperatorClient(cfg.EgressAllowHosts, app)
 	// API-backed search/markdown also work without the optional browser sidecar.
 	sw, err := workerLeadweb(cfg, os.Getenv)
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -133,23 +134,42 @@ func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool)
 		return Provider{}, false
 	}
 	key, keySrc := c.getSource(ctx, spec.EnvKey, "")
-	if key == "" {
+	// custom_openai's API key is optional (vLLM serves without auth unless
+	// --api-key was passed). It still needs an explicit base URL and model:
+	// there is no committed default to fall back to.
+	keyless := id == CustomOpenAIID
+	if key == "" && !keyless {
 		return Provider{}, false
 	}
 	baseURL, urlSrc := c.getSource(ctx, spec.EnvURL, spec.DefaultURL)
-	if keySrc != "" && urlSrc != "" && urlSrc != keySrc && baseURL != spec.DefaultURL {
+	if key != "" && keySrc != "" && urlSrc != "" && urlSrc != keySrc && baseURL != spec.DefaultURL {
 		// The URL was set at another level than the key (a workspace URL beside the global key, or the
 		// reverse): never send this key there. The provider default is used instead.
 		c.o.Log.Warn("llm: base URL ignored, it is not set at the same level as the API key", "provider", id)
 		baseURL = spec.DefaultURL
 	}
+	model := c.get(ctx, spec.EnvModel, spec.DefaultModel)
+	if baseURL == "" || model == "" {
+		return Provider{}, false
+	}
+	var timeout time.Duration
+	if id == CustomOpenAIID {
+		if secs := c.get(ctx, "CUSTOM_OPENAI_HTTP_TIMEOUT", ""); secs != "" {
+			if f, err := strconv.ParseFloat(secs, 64); err == nil && f > 0 {
+				timeout = time.Duration(f * float64(time.Second))
+			} else {
+				c.o.Log.Warn("llm: ignoring invalid CUSTOM_OPENAI_HTTP_TIMEOUT", "value", secs)
+			}
+		}
+	}
 	return Provider{
 		ID:         id,
 		APIKey:     key,
 		BaseURL:    baseURL,
-		Model:      c.get(ctx, spec.EnvModel, spec.DefaultModel),
+		Model:      model,
 		TokenParam: spec.TokenParam,
 		Native:     spec.Native,
+		Timeout:    timeout,
 	}, true
 }
 

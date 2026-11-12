@@ -71,13 +71,20 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 		return "", err
 	}
 
-	cctx, cancel := context.WithTimeout(ctx, c.o.Config.HTTPTimeout)
+	timeout := c.o.Config.HTTPTimeout
+	if p.Timeout > 0 {
+		timeout = p.Timeout
+	}
+	cctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	hreq, err := http.NewRequestWithContext(cctx, http.MethodPost, p.BaseURL+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
 		return "", stripURL(err)
 	}
-	hreq.Header.Set("Authorization", "Bearer "+p.APIKey)
+	if p.APIKey != "" {
+		// custom_openai may run against a server without authentication.
+		hreq.Header.Set("Authorization", "Bearer "+p.APIKey)
+	}
 	hreq.Header.Set("Content-Type", "application/json")
 	resp, err := c.o.HTTP.Do(hreq)
 	if err != nil {
@@ -156,9 +163,18 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 // LLM_HTTP_TIMEOUT becomes a timeoutError, anything else keeps its text.
 func (c *Client) wrapTransportErr(parent, req context.Context, err error) error {
 	if parent.Err() == nil && errors.Is(req.Err(), context.DeadlineExceeded) {
-		return &timeoutError{c.o.Config.HTTPTimeout}
+		return &timeoutError{reqTimeoutOf(req)}
 	}
 	return stripURL(err)
+}
+
+// reqTimeoutOf is the request context's remaining deadline, so a timeoutError
+// reports the per-provider timeout (CUSTOM_OPENAI_HTTP_TIMEOUT) when one is set.
+func reqTimeoutOf(req context.Context) time.Duration {
+	if d, ok := req.Deadline(); ok {
+		return time.Until(d).Round(time.Millisecond)
+	}
+	return 0
 }
 
 // urlFreeError is a transport error whose request URL has been reduced to its host: the path, query and

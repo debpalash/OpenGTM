@@ -114,7 +114,7 @@ func (c *Client) streamRounds(ctx context.Context, req StreamRequest, send func(
 	finish := func() { send(Frame{Kind: FrameCursor, Cursor: &cursor}) }
 	for {
 		prov := cursor.Provider
-		if prov.APIKey == "" {
+		if prov.APIKey == "" && (prov.ID != CustomOpenAIID || prov.BaseURL == "") {
 			if !send(Frame{Kind: FrameError, Text: "No AI provider configured. Go to Settings to add an API key."}) {
 				return
 			}
@@ -191,7 +191,10 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 		send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(stripURL(err).Error(), 200)})
 		return nil, nil
 	}
-	hreq.Header.Set("Authorization", "Bearer "+prov.APIKey)
+	if prov.APIKey != "" {
+		// custom_openai may run against a server without authentication.
+		hreq.Header.Set("Authorization", "Bearer "+prov.APIKey)
+	}
 	hreq.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.o.HTTP.Do(hreq)

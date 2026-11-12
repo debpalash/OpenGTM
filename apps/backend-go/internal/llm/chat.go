@@ -21,7 +21,8 @@ func (c *Client) resolveChat(ctx context.Context, id string) (ChatProvider, bool
 	if model == "" {
 		model = prov.DefaultModel
 	}
-	if key == "" || base == "" {
+	// custom_openai's key is optional; it still needs a URL and a model.
+	if (key == "" && id != CustomOpenAIID) || base == "" || model == "" {
 		return ChatProvider{}, false
 	}
 	name := prov.Name
