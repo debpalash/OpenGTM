@@ -100,6 +100,15 @@ func (c *Client) Usage() TokenUsage { return c.usage.snapshot() }
 // ResetUsage starts a new usage window (a new job).
 func (c *Client) ResetUsage() { c.usage.reset() }
 
+// envTruthy parses an operator env/setting boolean the way pydantic does.
+func envTruthy(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "1", "true", "t", "yes", "y", "on":
+		return true
+	}
+	return false
+}
+
 func (c *Client) get(ctx context.Context, key, def string) string {
 	if key == "" {
 		return def
@@ -153,6 +162,7 @@ func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool)
 		return Provider{}, false
 	}
 	var timeout time.Duration
+	var extraBody map[string]any
 	if id == CustomOpenAIID {
 		if secs := c.get(ctx, "CUSTOM_OPENAI_HTTP_TIMEOUT", ""); secs != "" {
 			if f, err := strconv.ParseFloat(secs, 64); err == nil && f > 0 {
@@ -160,6 +170,14 @@ func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool)
 			} else {
 				c.o.Log.Warn("llm: ignoring invalid CUSTOM_OPENAI_HTTP_TIMEOUT", "value", secs)
 			}
+		}
+		// Reasoning servers (vLLM thinking models) can spend the whole token
+		// budget on reasoning, leaving content empty for JSON/tool calls.
+		// The operator opts out of thinking with this flag; vLLM honours it
+		// via the chat template, and servers that ignore unknown body fields
+		// are unaffected.
+		if envTruthy(c.get(ctx, "CUSTOM_OPENAI_DISABLE_THINKING", "")) {
+			extraBody = map[string]any{"chat_template_kwargs": map[string]any{"enable_thinking": false}}
 		}
 	}
 	return Provider{
@@ -170,6 +188,7 @@ func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool)
 		TokenParam: spec.TokenParam,
 		Native:     spec.Native,
 		Timeout:    timeout,
+		ExtraBody:  extraBody,
 	}, true
 }
 

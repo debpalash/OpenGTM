@@ -11,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
 
 // mockOpenAI is a mock OpenAI-compatible chat-completions server: it records
@@ -432,4 +434,68 @@ func kinds(frames []Frame) []string {
 		out[i] = f.Kind
 	}
 	return out
+}
+
+// CUSTOM_OPENAI_DISABLE_THINKING injects chat_template_kwargs into completions
+// and streaming bodies so vLLM reasoning servers don't spend small token
+// budgets entirely on thinking. Off by default.
+func TestCustomOpenAIDisableThinkingFlag(t *testing.T) {
+	m := &mockOpenAI{handler: okHandler(`{"kind":"research"}`)}
+	srv := httptest.NewServer(m)
+	defer srv.Close()
+	base := mapSettings{
+		"CUSTOM_OPENAI_BASE_URL": srv.URL + "/v1",
+		"CUSTOM_OPENAI_MODEL":    "my-model",
+	}
+
+	// off (default): no chat_template_kwargs
+	c := customClient(t, base)
+	if _, err := c.Complete(context.Background(), CompleteRequest{Prompt: "ping"}); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := m.last(t).Body["chat_template_kwargs"]; ok {
+		t.Fatal("chat_template_kwargs present with flag unset")
+	}
+
+	// on: completions body carries {"enable_thinking": false}
+	c = customClient(t, mapSettings{"CUSTOM_OPENAI_DISABLE_THINKING": "true", "CUSTOM_OPENAI_BASE_URL": srv.URL + "/v1", "CUSTOM_OPENAI_MODEL": "my-model"})
+	if _, err := c.Complete(context.Background(), CompleteRequest{Prompt: "ping"}); err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := json.Marshal(m.last(t).Body["chat_template_kwargs"])
+	if string(raw) != `{"enable_thinking":false}` {
+		t.Fatalf("completions chat_template_kwargs: %s", raw)
+	}
+
+	// on: the chat cursor (what the copilot streams with) carries ExtraBody,
+	// and a stream over that cursor sends chat_template_kwargs.
+	reg, err := settings.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	c = New(Options{Settings: mapSettings{"LLM_DEFAULT_PROVIDER": CustomOpenAIID, "CUSTOM_OPENAI_DISABLE_THINKING": "true", "CUSTOM_OPENAI_BASE_URL": srv.URL + "/v1", "CUSTOM_OPENAI_MODEL": "my-model"}, HTTP: http.DefaultClient, Registry: reg, Jitter: func() float64 { return 0 }})
+	cur := c.ChatCursor(context.Background())
+	if cur.Provider.ExtraBody == nil {
+		t.Fatal("ChatCursor provider has no ExtraBody with flag on")
+	}
+	sm := &mockOpenAI{handler: func(w http.ResponseWriter, _ *http.Request, _ map[string]any) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		_, _ = io.WriteString(w, `data: {"choices":[{"delta":{"content":"x"},"finish_reason":"stop"}]}`+"\n\n")
+		_, _ = io.WriteString(w, "data: [DONE]\n\n")
+	}}
+	ssrv := httptest.NewServer(sm)
+	defer ssrv.Close()
+	cur.Provider.BaseURL = ssrv.URL
+	fs := drain(t, c.Stream(context.Background(), StreamRequest{
+		Messages: []map[string]string{{"role": "user", "content": "hi"}},
+		Cursor:   cur,
+	}))
+	_ = fs
+	if len(sm.requests) == 0 {
+		t.Fatal("stream reached no server")
+	}
+	sraw, _ := json.Marshal(sm.requests[0].Body["chat_template_kwargs"])
+	if string(sraw) != `{"enable_thinking":false}` {
+		t.Fatalf("stream chat_template_kwargs: %s", sraw)
+	}
 }

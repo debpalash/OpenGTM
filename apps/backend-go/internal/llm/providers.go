@@ -108,6 +108,14 @@ type Provider struct {
 	// (0 = use the default). custom_openai reads CUSTOM_OPENAI_HTTP_TIMEOUT so
 	// a slower local server need not inherit the global timeout.
 	Timeout time.Duration
+	// ExtraBody holds additional top-level JSON fields merged into every
+	// chat-completions request for this provider. custom_openai sets
+	// {"chat_template_kwargs":{"enable_thinking":false}} when
+	// CUSTOM_OPENAI_DISABLE_THINKING is on: reasoning models served by vLLM
+	// spend small max_tokens budgets entirely on thinking, which leaves the
+	// content empty and breaks structured calls (JSON extraction, tool
+	// schemas). Zero value = no extra fields.
+	ExtraBody map[string]any
 }
 
 // String never prints the key.

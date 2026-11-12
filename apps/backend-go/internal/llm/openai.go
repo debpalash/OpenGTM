@@ -64,9 +64,13 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 		msgs = append(msgs, orderedObject{{"role", "system"}, {"content", req.System}})
 	}
 	msgs = append(msgs, orderedObject{{"role", "user"}, {"content", req.Prompt}})
-	body, err := json.Marshal(orderedObject{
+	fields := orderedObject{
 		{"model", p.Model}, {"messages", msgs}, {p.TokenParam, req.MaxTokens}, {"temperature", temp},
-	})
+	}
+	for k, v := range p.ExtraBody {
+		fields = append(fields, kv{k, v})
+	}
+	body, err := json.Marshal(fields)
 	if err != nil {
 		return "", err
 	}

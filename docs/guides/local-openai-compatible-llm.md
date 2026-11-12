@@ -125,4 +125,5 @@ cd apps/backend-go && go test ./internal/llm/... ./internal/egress/... ./interna
 | `HTTP 401` | The server runs with `--api-key`; set `CUSTOM_OPENAI_API_KEY` to match. |
 | `HTTP 404 ... model does not exist` | The model ID does not match `/v1/models` exactly (vLLM returns the full cache path). |
 | `provider error` on the copilot but Settings → Test works | Check `docker compose logs api-go worker-go` for the provider-tagged line; streaming and tools are exercised by the copilot only. |
+| Repeated empty answers / `empty LLM response`, model seems to "think" forever | The served model is a reasoning model and spends the whole `max_tokens` budget on its thinking block, leaving `content` empty. Set `CUSTOM_OPENAI_DISABLE_THINKING=true` — every request then carries `chat_template_kwargs: {"enable_thinking": false}` (honoured by vLLM chat templates; ignored safely elsewhere). |
 | Agent/tool columns fail while plain chat works | The served model must support OpenAI tool calling (vLLM: `--enable-auto-tool-choice --tool-call-parser <parser>`). Without it chat still works; agent features degrade. |

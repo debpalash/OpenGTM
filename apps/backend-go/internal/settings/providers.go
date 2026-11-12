@@ -184,6 +184,15 @@ func providerErrorMessage(data any, raw string) string {
 	return truncRunes(raw, 200)
 }
 
+// truthyEnv parses an env-style boolean the way pydantic does.
+func truthyEnv(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "1", "true", "t", "yes", "y", "on":
+		return true
+	}
+	return false
+}
+
 func truthyStr(v any) string {
 	switch x := v.(type) {
 	case nil:
@@ -296,6 +305,14 @@ func (p *Providers) send(ctx context.Context, id string, prov Provider, key, bas
 			body["max_completion_tokens"] = 50
 		} else {
 			body["max_tokens"] = 50
+		}
+		if id == "custom_openai" {
+			// Mirror the runtime client: a thinking server that burns the tiny
+			// 50-token budget on reasoning would answer the test with empty
+			// content, so honour the same disable-thinking flag here.
+			if v, _ := p.App.Get(ctx, "CUSTOM_OPENAI_DISABLE_THINKING", ""); truthyEnv(v) {
+				body["chat_template_kwargs"] = map[string]any{"enable_thinking": false}
+			}
 		}
 		hdr := map[string]string{}
 		if key != "" {
