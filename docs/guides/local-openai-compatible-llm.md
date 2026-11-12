@@ -144,3 +144,12 @@ default when the ICP names no city/country. Set `DEFAULT_REGION=nl` (also
 `de`, `uk`, `fr`) for European deployments; unset keeps the legacy India
 default. When the ICP explicitly names a market, a `geo_relevance` stage
 drops leads with foreign-market evidence (foreign ccTLD, foreign HQ city).
+
+## Automations and watches
+
+Watches/automations are behind `AUTOMATIONS_ENABLED` (default off — the
+deployment ships with external side effects closed). Enabling it makes the
+CRUD/watch APIs and the scheduler's poller live, but **no outreach is sent**
+unless campaign send settings and a connected mailbox/webhook exist; outbound
+webhook destinations additionally obey `AUTOMATIONS_WEBHOOK_DOMAIN_ALLOWLIST`.
+Set it in `.env`, then `docker compose up -d api-go worker-go scheduler-go`.
