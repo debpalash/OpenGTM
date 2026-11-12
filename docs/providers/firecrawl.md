@@ -12,7 +12,7 @@ SEARCH_ENGINE_TIMEOUT=10
 ```
 
 Restart the API and worker after changing the server environment. The default
-keyed order is `serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl`.
+keyed order is `serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl,specstream`.
 Keyless results win first; news never invokes this chain. API-only search also
 works without the optional browser sidecar. Keys are operator-managed and its
 provider account pays for searches from its workspaces.

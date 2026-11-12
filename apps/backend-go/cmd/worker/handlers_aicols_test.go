@@ -45,7 +45,7 @@ func TestWireAICols(t *testing.T) {
 
 func TestWireAIColsWithFirecrawlWithoutBrowser(t *testing.T) {
 	for _, key := range []string{"BROWSER_SERVICE_URL", "BROWSER_SERVICE_TOKEN", "SERPAPI_KEY", "BING_SEARCH_KEY",
-		"GOOGLE_CSE_KEY", "GOOGLE_CSE_ID", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY", "SERPLY_API_KEY"} {
+		"GOOGLE_CSE_KEY", "GOOGLE_CSE_ID", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY", "SERPLY_API_KEY", "SPECSTREAM_API_KEY"} {
 		t.Setenv(key, "")
 	}
 	t.Setenv("FIRECRAWL_API_KEY", "fc-wire-test")
@@ -67,7 +67,7 @@ func TestWireAIColsWithFirecrawlWithoutBrowser(t *testing.T) {
 
 func TestWireAIColsWithSpicrawlWithoutBrowser(t *testing.T) {
 	for _, key := range []string{"BROWSER_SERVICE_URL", "BROWSER_SERVICE_TOKEN", "SERPAPI_KEY", "BING_SEARCH_KEY",
-		"GOOGLE_CSE_KEY", "GOOGLE_CSE_ID", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY", "SERPLY_API_KEY", "FIRECRAWL_API_KEY"} {
+		"GOOGLE_CSE_KEY", "GOOGLE_CSE_ID", "BRAVE_SEARCH_KEY", "SERPINGAPI_API_KEY", "SERPLY_API_KEY", "FIRECRAWL_API_KEY", "SPECSTREAM_API_KEY"} {
 		t.Setenv(key, "")
 	}
 	t.Setenv("SPICRAWL_API_KEY", "sp-wire-test")

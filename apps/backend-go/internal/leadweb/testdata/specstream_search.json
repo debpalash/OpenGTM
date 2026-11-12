@@ -1,0 +1,31 @@
+{
+  "query": "site:acme.example pricing",
+  "max_results": 5,
+  "response": {
+    "id": null,
+    "request_id": "req_fixture_0001",
+    "query": "site:acme.example pricing",
+    "kind": "list",
+    "columns": [],
+    "answer": null,
+    "rows": [],
+    "sources": [
+      {"url": "https://acme.example/pricing", "title": "Pricing | Acme", "site": "acme.example", "snippet": "Plans for teams of every size.", "cited": false, "published": "2026-09-14"},
+      {"url": "https://acme.example/blog/new-plans", "title": "New plans at Acme", "site": "acme.example", "snippet": "We changed our plans.", "cited": false, "published": null},
+      {"url": "http://127.0.0.1/admin", "title": "Private", "site": "127.0.0.1", "snippet": "dropped", "cited": false},
+      {"url": "javascript:alert(1)", "title": "Script", "site": "", "snippet": "dropped", "cited": false},
+      {"title": "No URL", "site": "acme.example", "snippet": "dropped", "cited": false},
+      {"url": "https://docs.acme.example/billing", "title": "Billing docs", "site": "docs.acme.example", "snippet": "How billing works.", "cited": false}
+    ],
+    "handoff": null,
+    "took_ms": 812,
+    "price_usd": 0.001,
+    "page": 1,
+    "next_page": 2
+  },
+  "want": [
+    {"title": "Pricing | Acme", "href": "https://acme.example/pricing", "body": "Plans for teams of every size.", "date": "2026-09-14"},
+    {"title": "New plans at Acme", "href": "https://acme.example/blog/new-plans", "body": "We changed our plans."},
+    {"title": "Billing docs", "href": "https://docs.acme.example/billing", "body": "How billing works."}
+  ]
+}

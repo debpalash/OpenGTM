@@ -5,6 +5,7 @@ The Go backend can use these operator-configured APIs independently:
 | Provider | Role | Setup |
 | --- | --- | --- |
 | Firecrawl | Opt-in fallback web search with plain snippets | [Firecrawl setup](providers/firecrawl.md) |
+| SpecStream | Opt-in fallback web search with plain snippets | [SpecStream setup](providers/specstream.md) |
 | Spicrawl | Recommended page/PDF-to-markdown provider for research | [Spicrawl setup](providers/spicrawl.md) |
 
 Each provider remains inactive without its own server-side API key. Research can

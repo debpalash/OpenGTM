@@ -20,7 +20,7 @@ type LeadwebSettings struct {
 	DDGSTimeout        time.Duration // DDGS_TIMEOUT seconds (default 10): the service-side search deadline
 
 	// keyed fallback engines, called from Go directly (keys never reach the browser service)
-	FallbackOrder   []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl; "none" = no keyed engines)
+	FallbackOrder   []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl,specstream; "none" = no keyed engines)
 	EngineTimeout   time.Duration // SEARCH_ENGINE_TIMEOUT seconds (default 10)
 	SerpAPIKey      Secret        // SERPAPI_KEY
 	BingKey         Secret        // BING_SEARCH_KEY
@@ -30,6 +30,7 @@ type LeadwebSettings struct {
 	SerpingAPIKey   Secret        // SERPINGAPI_API_KEY
 	SerplyKey       Secret        // SERPLY_API_KEY
 	FirecrawlKey    Secret        // FIRECRAWL_API_KEY
+	SpecStreamKey   Secret        // SPECSTREAM_API_KEY
 	SpicrawlKey     Secret        // SPICRAWL_API_KEY; opt-in markdown research fetches
 	SpicrawlTimeout time.Duration // SPICRAWL_TIMEOUT seconds (default 60)
 
@@ -59,7 +60,7 @@ type LeadwebSettings struct {
 
 const (
 	defaultSearchBackends = "duckduckgo, google, bing, brave, mojeek, yahoo"
-	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl"
+	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl,specstream"
 )
 
 // LeadwebFrom reads the leadweb settings. Unlike the Python readers (which
@@ -141,6 +142,7 @@ func LeadwebFrom(get func(string) string) (LeadwebSettings, error) {
 		{"GOOGLE_CSE_KEY", &s.GoogleCSEKey}, {"BRAVE_SEARCH_KEY", &s.BraveKey},
 		{"SERPINGAPI_API_KEY", &s.SerpingAPIKey}, {"SERPLY_API_KEY", &s.SerplyKey},
 		{"FIRECRAWL_API_KEY", &s.FirecrawlKey}, {"SPICRAWL_API_KEY", &s.SpicrawlKey},
+		{"SPECSTREAM_API_KEY", &s.SpecStreamKey},
 	} {
 		*k.dst = Secret(strings.TrimSpace(get(k.key)))
 	}

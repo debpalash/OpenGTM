@@ -19,7 +19,8 @@ import (
 type providerRequest struct {
 	endpoint string
 	key      config.Secret
-	body     any
+	body     any    // JSON POST body; nil sends a GET
+	query    string // encoded query string for a GET
 	accept   string
 	timeout  time.Duration
 	maxBytes int64
@@ -37,9 +38,15 @@ func postProvider(ctx context.Context, hc *http.Client, p providerRequest) (http
 	if err := ctx.Err(); err != nil {
 		return nil, nil, err
 	}
-	body, err := json.Marshal(p.body)
-	if err != nil {
-		return nil, nil, errProviderResponse
+	method, endpoint, payload := http.MethodGet, p.endpoint, io.Reader(nil)
+	if p.body != nil {
+		body, err := json.Marshal(p.body)
+		if err != nil {
+			return nil, nil, errProviderResponse
+		}
+		method, payload = http.MethodPost, bytes.NewReader(body)
+	} else if p.query != "" {
+		endpoint += "?" + p.query
 	}
 	timeout := p.timeout
 	if timeout <= 0 {
@@ -47,12 +54,14 @@ func postProvider(ctx context.Context, hc *http.Client, p providerRequest) (http
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.endpoint, bytes.NewReader(body))
+	req, err := http.NewRequestWithContext(ctx, method, endpoint, payload)
 	if err != nil {
 		return nil, nil, errProviderResponse
 	}
 	req.Header.Set("Authorization", "Bearer "+p.key.Reveal())
-	req.Header.Set("Content-Type", "application/json")
+	if payload != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	req.Header.Set("Accept", p.accept)
 	req.Header.Set("User-Agent", "OpenGTM")
 	client := *hc
