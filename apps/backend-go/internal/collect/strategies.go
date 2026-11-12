@@ -47,7 +47,15 @@ func (j *job) sleep(ctx context.Context, d time.Duration) error {
 	}
 }
 
-func hostOf(u string) string { return pyLower(urlparse(u).Netloc) }
+func hostOf(u string) string {
+	n := pyLower(urlparse(u).Netloc)
+	// strip userinfo: mailto-style or basic-auth prefixes are not part of the host
+	// (a page linking "https://security@tuv.nl" must yield tuv.nl, not security@tuv.nl)
+	if i := strings.LastIndex(n, "@"); i >= 0 {
+		n = n[i+1:]
+	}
+	return n
+}
 
 // baseDomain is ".".join(domain.split(".")[-2:]).
 func baseDomain(domain string) string {
@@ -79,7 +87,7 @@ func slice(xs []string, a, b int) []string {
 
 func (j *job) searchMaps(ctx context.Context) []*Lead {
 	j.progress("maps", "🗺️ Searching Google Maps...")
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	if city == "" {
 		return nil
 	}
@@ -109,7 +117,7 @@ const aiBudget = 3
 
 func (j *job) searchAndScrape(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	aiUsed := 0
 	var expanded []string
 	ectx, cancel := context.WithTimeout(ctx, 15*time.Second)
@@ -144,7 +152,7 @@ func (j *job) searchAndScrape(ctx context.Context) []*Lead {
 			}
 			emails := leadweb.EmailsFromHTML(page)
 			phones := leadweb.PhonesFromHTML(page)
-			name := CompanyFromDomain(domain)
+			name := CompanyFromDomainExtended(domain)
 			switch {
 			case name != "" && runeLen(name) >= 3 && (len(emails) > 0 || len(phones) > 0):
 				l := NewLead(Lead{Company: name, Website: r.Href, Email: first(emails), Phone: first(phones), City: city,
@@ -199,13 +207,13 @@ var directoryHosts = []string{"clutch.co", "goodfirms.co", "g2.com", "softwaresu
 
 func (j *job) searchDirectories(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	j.progress("directories", "📂 Searching directories...")
 	core := pyLower(j.query)
 	if city != "" {
 		core = pyStrip(strings.ReplaceAll(strings.ReplaceAll(core, pyLower(city), ""), " in ", " "))
 	}
-	cityOr := or(city, "India")
+	cityOr := or(city, cityDefault())
 	queries := []string{
 		j.query + " site:clutch.co",
 		j.query + " site:goodfirms.co",
@@ -330,9 +338,9 @@ var followersRe = mustRx(`(?i)(\d[\d,]+)\s*(?:employees|followers)`)
 
 func (j *job) searchLinkedin(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	j.progress("linkedin", "🔗 Searching LinkedIn companies...")
-	second := `site:linkedin.com/company "` + j.query + `" India`
+	second := `site:linkedin.com/company "` + j.query + `" ` + marketDefault()
 	if city != "" {
 		second = `site:linkedin.com/company "` + j.query + `" ` + city
 	}
@@ -363,7 +371,7 @@ func (j *job) searchLinkedin(ctx context.Context) []*Lead {
 			if r.Body != "" {
 				desc = truncRunes(r.Body, 300)
 			}
-			l := NewLead(Lead{Company: name, City: or(city, "India"), LinkedinURL: liURL, SourceURL: liURL,
+			l := NewLead(Lead{Company: name, City: or(city, cityDefault()), LinkedinURL: liURL, SourceURL: liURL,
 				CompanySize: size, Description: desc, Specialization: j.query, Source: "linkedin"})
 			leads = append(leads, l)
 			j.discovered("linkedin", "company", l.Company, "linkedin", liURL)
@@ -389,13 +397,13 @@ func titleSlug(slug string) string { return pyStrip(pyTitle(strings.ReplaceAll(s
 
 func (j *job) searchJobBoards(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	j.progress("job_boards", "💼 Searching job boards for employers...")
 	core := pyLower(j.query)
 	if city != "" {
 		core = pyStrip(strings.ReplaceAll(strings.ReplaceAll(core, pyLower(city), ""), " in ", " "))
 	}
-	c := or(city, "India")
+	c := or(city, cityDefault())
 	queries := []string{
 		"site:naukri.com " + core + " jobs " + c,
 		"site:indeed.com " + core + " company " + c,
@@ -471,13 +479,13 @@ var (
 
 func (j *job) searchReviewSites(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	j.progress("review_sites", "⭐ Searching review sites...")
 	core := pyLower(j.query)
 	if city != "" {
 		core = pyStrip(strings.ReplaceAll(strings.ReplaceAll(core, pyLower(city), ""), " in ", " "))
 	}
-	c := or(city, "India")
+	c := or(city, cityDefault())
 	queries := []string{
 		"site:ambitionbox.com " + core + " " + c + " reviews",
 		"ambitionbox.com " + core + " company reviews " + c,
@@ -560,7 +568,7 @@ const registryBatch = 10
 
 func (j *job) searchRegistrySources(ctx context.Context) []*Lead {
 	var leads []*Lead
-	city := ExtractCity(j.query)
+	city := GeoCity(j.query)
 	region := DetectRegion(j.query, city)
 	sources := AllSources(region, true)
 	if region != "global" {
@@ -693,10 +701,10 @@ func (j *job) searchSource(ctx context.Context, s Source, city string) []*Lead {
 		company, website := "", ""
 		switch {
 		case site != "" && !strings.Contains(domain, site):
-			company, website = CompanyFromDomain(domain), r.Href
+			company, website = CompanyFromDomainExtended(domain), r.Href
 		case site == "":
 			if !IsSkipDomain(domain) {
-				company, website = CompanyFromDomain(domain), r.Href
+				company, website = CompanyFromDomainExtended(domain), r.Href
 			}
 		}
 		onAggregator := site != "" && strings.Contains(domain, site)

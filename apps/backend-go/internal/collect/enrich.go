@@ -182,7 +182,11 @@ func DomainFromURL(u string) string {
 	if !strings.HasPrefix(u, "http") {
 		u = "https://" + u
 	}
-	return strings.TrimPrefix(urlparse(u).Netloc, "www.")
+	n := urlparse(u).Netloc
+	if i := strings.LastIndex(n, "@"); i >= 0 {
+		n = n[i+1:] // userinfo is not part of the host
+	}
+	return strings.TrimPrefix(n, "www.")
 }
 
 func splitName(full string) (string, string) {

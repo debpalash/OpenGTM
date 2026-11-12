@@ -143,7 +143,7 @@ func ExpandQuery(query string) []string {
 			break
 		}
 	}
-	out = append(out, "top "+base+" "+or(city, "India"), base+" list "+or(city, "India")+" 2024")
+	out = append(out, "top "+base+" "+or(city, cityDefault()), base+" list "+or(city, cityDefault())+" 2024")
 	if len(out) > 4 {
 		out = out[:4]
 	}
@@ -258,3 +258,21 @@ func CompanyFromDomain(domain string) string {
 
 // IsSkipDomain is _is_skip_domain (aggregators, social networks, directories).
 func IsSkipDomain(domain string) bool { return leadweb.IsSkipDomain(domain) }
+
+// marketTlds are the European ccTLDs the legacy TLD list misses. Stripping them
+// is opt-in via CompanyFromDomainExtended: the recorded vectors pin the legacy
+// behaviour of CompanyFromDomain (e.g. "cafe-münchen.de" -> "Cafe München.De").
+var marketTlds = []string{".co.uk", ".nl", ".de", ".uk", ".fr", ".be", ".eu", ".ie", ".at", ".pl", ".es", ".it", ".se", ".dk"}
+
+// CompanyFromDomainExtended is CompanyFromDomain with the European ccTLDs
+// stripped first, so a tuv.nl lead is named "Tuv", not "Tuv.Nl".
+func CompanyFromDomainExtended(domain string) string {
+	d := strings.TrimPrefix(domain, "www.")
+	for _, tld := range marketTlds {
+		if strings.HasSuffix(strings.ToLower(d), tld) {
+			d = d[:len(d)-len(tld)]
+			break
+		}
+	}
+	return CompanyFromDomain(d)
+}
