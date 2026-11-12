@@ -20,7 +20,7 @@ func TestDialRejectsPrivateLoopbackLinkLocalMapped(t *testing.T) {
 	}
 	for _, h := range blockedHosts {
 		called := false
-		dial := guardedDial(map[string]struct{}{}, &fakeResolver{seq: [][]netip.Addr{addrs("127.0.0.1")}},
+		dial := guardedDial(func() map[string]struct{} { return map[string]struct{}{} }, &fakeResolver{seq: [][]netip.Addr{addrs("127.0.0.1")}},
 			func(context.Context, string, string) (net.Conn, error) {
 				called = true
 				return nil, errors.New("must not dial")
@@ -35,7 +35,7 @@ func TestDialRejectsPrivateLoopbackLinkLocalMapped(t *testing.T) {
 	}
 	// A hostname resolving to a blocked address is refused as well.
 	for _, ip := range []string{"10.1.2.3", "100.100.0.1", "::ffff:192.168.0.1", "169.254.1.1"} {
-		dial := guardedDial(map[string]struct{}{}, &fakeResolver{seq: [][]netip.Addr{addrs("93.184.216.34", ip)}},
+		dial := guardedDial(func() map[string]struct{} { return map[string]struct{}{} }, &fakeResolver{seq: [][]netip.Addr{addrs("93.184.216.34", ip)}},
 			func(context.Context, string, string) (net.Conn, error) { return nil, errors.New("must not dial") })
 		if _, err := dial(context.Background(), "tcp", "mail.example:587"); !errors.Is(err, ErrBlocked) {
 			t.Errorf("resolves to %s: err = %v, want ErrBlocked", ip, err)
@@ -46,7 +46,7 @@ func TestDialRejectsPrivateLoopbackLinkLocalMapped(t *testing.T) {
 func TestDialRebindBlocked(t *testing.T) {
 	res := &fakeResolver{seq: [][]netip.Addr{addrs("93.184.216.34"), addrs("127.0.0.1")}}
 	var dialed []string
-	dial := guardedDial(map[string]struct{}{}, res, func(_ context.Context, _, addr string) (net.Conn, error) {
+	dial := guardedDial(func() map[string]struct{} { return map[string]struct{}{} }, res, func(_ context.Context, _, addr string) (net.Conn, error) {
 		dialed = append(dialed, addr)
 		return nil, errors.New("fake dial")
 	})

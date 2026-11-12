@@ -99,6 +99,47 @@ func IsBlockedIP(ip netip.Addr) bool {
 		inAny(v6Reserved, ip) || inAny(v6Multicast, ip)
 }
 
+// RuntimeProviderHost validates an operator-configured provider base URL for
+// dynamic allow-listing (NewOperatorClientFunc): scheme must be http(s) and the
+// host must not be a blocked hostname (localhost spelled as a name is allowed
+// here — the operator typed it) nor a cloud-metadata or link-local address.
+// Private and loopback addresses are intentionally allowed: the whole point is
+// a self-hosted model server (vLLM on the LAN, llama.cpp on localhost).
+// Returns the bare hostname to add to the operator allow-list (it matches
+// every port, as in operatorAllowSet).
+func RuntimeProviderHost(raw string) (string, bool) {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil {
+		return "", false
+	}
+	if s := strings.ToLower(u.Scheme); s != "http" && s != "https" {
+		return "", false
+	}
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return "", false
+	}
+	if _, ok := metadataHostnames[host]; ok {
+		return "", false
+	}
+	if ip, ok := parseIPAnyEncoding(host); ok {
+		if _, meta := metadataIPs[ip]; meta {
+			return "", false
+		}
+		if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return "", false
+		}
+	}
+	return host, true
+}
+
+// metadataHostnames are the names that must never be a provider target, even
+// when an operator types them (unlike "localhost", they only exist to leak
+// cloud credentials).
+var metadataHostnames = map[string]struct{}{
+	"metadata.google.internal": {}, "metadata": {},
+}
+
 var (
 	reSingleInt = regexp.MustCompile(`^(?:0[xX][0-9a-fA-F]+|0[0-7]+|[0-9]+)$`)
 	reDotPart   = regexp.MustCompile(`^(?:0[xX][0-9a-fA-F]+|[0-9]+)$`)
