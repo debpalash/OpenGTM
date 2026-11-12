@@ -14,7 +14,8 @@ import {
   Search,
   Bot,
   Radio,
-  Mail
+  Mail,
+  Monitor
 } from "lucide-react"
 
 // The API names provider icons with emoji; map them to Lucide components.
@@ -39,7 +40,8 @@ const PROVIDER_ICON_MAP: Record<
   "🚀": Zap,
   "📧": Mail,
   "📱": Radio,
-  "🌍": Globe
+  "🌍": Globe,
+  "🖥️": Monitor
 }
 
 export function ProviderIcon({ icon }: { icon: string }) {
