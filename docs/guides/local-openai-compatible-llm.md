@@ -127,3 +127,20 @@ cd apps/backend-go && go test ./internal/llm/... ./internal/egress/... ./interna
 | `provider error` on the copilot but Settings → Test works | Check `docker compose logs api-go worker-go` for the provider-tagged line; streaming and tools are exercised by the copilot only. |
 | Repeated empty answers / `empty LLM response`, model seems to "think" forever | The served model is a reasoning model and spends the whole `max_tokens` budget on its thinking block, leaving `content` empty. Set `CUSTOM_OPENAI_DISABLE_THINKING=true` — every request then carries `chat_template_kwargs: {"enable_thinking": false}` (honoured by vLLM chat templates; ignored safely elsewhere). |
 | Agent/tool columns fail while plain chat works | The served model must support OpenAI tool calling (vLLM: `--enable-auto-tool-choice --tool-call-parser <parser>`). Without it chat still works; agent features degrade. |
+
+## Thinking-mode reliability
+
+`custom_openai` auto-recovers from reasoning models that exhaust the token
+budget on thinking: a completion whose `content` is empty (or a streamed round
+with no content/tool-call deltas) is retried once with
+`chat_template_kwargs.enable_thinking=false`. Set `CUSTOM_OPENAI_DISABLE_THINKING=true`
+to make thinking-off the default for every request (skips the retry round-trip
+entirely). Hosted providers are never touched.
+
+## Discovery market defaults
+
+The collection pipeline builds some search queries from a primary-market
+default when the ICP names no city/country. Set `DEFAULT_REGION=nl` (also
+`de`, `uk`, `fr`) for European deployments; unset keeps the legacy India
+default. When the ICP explicitly names a market, a `geo_relevance` stage
+drops leads with foreign-market evidence (foreign ccTLD, foreign HQ city).
