@@ -73,9 +73,22 @@ answers 409.
 
 ## Upgrading from the Python stack
 
-Stop the old stack (`docker compose down`, keeping volumes), check out the new release, then
-`docker compose up -d --build`. `migrate` adopts an Alembic database at the final revision. Pending jobs that were
-enqueued for the Python worker are reassigned by `15-cutover.md`. The old `api`, `worker`, `scheduler` and `seed`
+**Do not treat `docker compose up` as a complete Python-to-Go upgrade.** The current schema 5 is
+incompatible with older Python and Go writers, and the complete upgrade and restore path has not yet
+passed the staging release gates in [#120](https://github.com/debpalash/OpenGTM/issues/120).
+Rehearse the cutover on an isolated copy before scheduling production work.
+
+Before migrating, follow [15-cutover.md](15-cutover.md) for the exact Alembic precondition, stopping
+new work and draining workers, tenant/job backfills, and the collection ledger. Account separately for
+workspace metadata and secrets, including the prerequisites in [api-cutover.md](api-cutover.md) and
+[audiences-destinations-cutover.md](audiences-destinations-cutover.md). Take database and
+data-directory backups and verify restoration. Follow the stopped-writer
+procedure in [migrations.md](migrations.md#upgrading-to-schema-5): stop every old writer before the
+migration, then deploy matching binaries together. A rollback requires restoring the verified backup;
+do not assume that starting the old stack against the upgraded database is safe. Validate the migrated
+data and queued work before reopening traffic.
+
+The old `api`, `worker`, `scheduler` and `seed`
 services, the root `Dockerfile`, `infra/nginx/go-split.conf` and `go-routes.conf` no longer exist; the per-plan
 `*-cutover.md` runbooks describe the side-by-side period and are kept as history.
 
