@@ -107,11 +107,31 @@ func (e LiveEnrich) Waterfall(ctx context.Context, ws string, l *Lead) error {
 	return nil
 }
 
+// keepHarvestClass protects the honest harvest class against a non-verdict.
+// prev is the confidence the lead already carries (role/free/found from tagging,
+// or a previous stage's verdict); res is a deliverability verdict for the kept
+// email. An "unknown" deliverability outcome (no verification vendor configured,
+// or the cascade failed) says NOTHING about the address, so it must not overwrite
+// a class we already know — absence of evidence is not evidence. Every other
+// verdict (verified/risky/dropped-side) wins as normal.
+func keepHarvestClass(prev string, keep bool, conf string) string {
+	if keep && conf == "unknown" && prev != "" && prev != "unknown" {
+		return prev
+	}
+	return conf
+}
+
 func (e LiveEnrich) Deliverability(ctx context.Context, ws string, l *Lead) (bool, string, bool) {
 	m := l.Map()
+	prev := l.EmailConfidence
 	res, err := emailverify.TagEmailConfidence(ctx, e.Mail, ws, m)
 	if err != nil || res == nil {
 		return false, "", false
+	}
+	conf := keepHarvestClass(prev, res.Keep, res.Confidence)
+	if conf != res.Confidence {
+		m["email_confidence"] = conf
+		res.Confidence = conf
 	}
 	l.SetFromMap(m)
 	return res.Keep, res.Confidence, true
