@@ -1,7 +1,7 @@
 {
  "area": "sec_funding",
- "scenario": "submissions_http_500_is_no_change",
- "description": "a 5xx from submissions degrades to [] (treated as 'no change', NOT a failure)",
+ "scenario": "submissions_http_500_is_error",
+ "description": "a 5xx from submissions fails the poll so the cursor is not advanced",
  "input": {
   "target": "sec_cik:2000934",
   "cursor": {
@@ -35,9 +35,6 @@
  ],
  "unrouted_requests": [],
  "result": {
-  "events": [],
-  "patch": {
-   "sec_known_execs": []
-  }
+  "error": "SEC returned HTTP 500"
  }
 }

@@ -65,9 +65,9 @@ func (p secEdgar) resolvePublic(ctx context.Context, s secClient, target string)
 }
 
 // SecListFormDSince is list_form_d_since: every D / D/A filing strictly newer
-// than since (dashes ignored, newest first, stops at the cursor). It never
-// fails on vendor errors: a 5xx or parse problem degrades to the filings
-// collected so far (Python returns out). Only a cancelled context is an error.
+// than since (dashes ignored, newest first, stops at the cursor). Lookup and
+// submissions request errors are returned so callers can preserve the cursor.
+// Individual filing document failures may still return the filings collected.
 func SecListFormDSince(ctx context.Context, c *http.Client, ua, target, since string) ([]SecFiling, error) {
 	s := secClient{c: c, ua: secUA(ua)}
 	p := secEdgar{}
