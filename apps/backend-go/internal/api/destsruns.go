@@ -32,7 +32,7 @@ const (
 )
 
 // drDeliveryStatuses is the delivery status vocabulary list_deliveries accepts.
-var drDeliveryStatuses = map[string]bool{"pending": true, "in_flight": true, "success": true, "failed": true, "cancelled": true}
+var drDeliveryStatuses = map[string]bool{"pending": true, "in_flight": true, "success": true, "failed": true, "skipped": true, "cancelled": true}
 
 // registerDestsRuns registers the six run routes. The static /runs/... paths and the /{destination_id}/... ones never
 // match the same request (different segment counts or literals), and Go's mux prefers the literal pattern anyway.
