@@ -23,9 +23,6 @@ func (f *renderFake) Render(_ context.Context, r browserclient.RenderRequest) (b
 	f.reqs = append(f.reqs, r)
 	return f.fn(r)
 }
-func (f *renderFake) Holehe(context.Context, browserclient.HoleheRequest) (browserclient.HoleheResult, error) {
-	return browserclient.HoleheResult{}, &browserclient.Error{Code: "busy"}
-}
 func (f *renderFake) StaffSpy(context.Context, browserclient.StaffSpyRequest) (browserclient.StaffSpyResult, error) {
 	return browserclient.StaffSpyResult{}, nil
 }
@@ -100,7 +97,7 @@ func TestPersonIntelDeepFailures(t *testing.T) {
 func TestScrapeProvidersAreGated(t *testing.T) {
 	for _, n := range []string{"website_scraper", "deep_scraper", "company_intel", "local_business", "crosslinked",
 		"email_harvester", "facebook_pages", "social_finder", "ddg_company", "ddg_email", "decision_maker", "jobspy",
-		"holehe", "staffspy", "mailscout", "company_size_heuristic", "lead_scorer"} {
+		"staffspy", "mailscout", "company_size_heuristic", "lead_scorer"} {
 		p, ok := providers.Get(n)
 		if !ok {
 			t.Fatalf("%s not registered", n)
@@ -212,10 +209,6 @@ func TestStaffSpyOffWithoutOptIn(t *testing.T) {
 		LinkedInCookies: func(context.Context, string) ([]browserclient.Cookie, error) { return nil, nil }})
 	if out, _ := (staffSpy{}).Enrich(context.Background(), nil, nil, in); out.Error != staffspyUnavailable {
 		t.Errorf("no li_at: %q", out.Error)
-	}
-	Configure(Deps{Browser: &renderFake{}})
-	if out, _ := (holehe{}).Enrich(context.Background(), nil, nil, providers.Input{Lead: map[string]any{"email": "a@b.co"}}); out.Error != "holehe unavailable: busy" {
-		t.Errorf("holehe: %q", out.Error)
 	}
 }
 

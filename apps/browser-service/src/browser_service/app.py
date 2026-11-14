@@ -40,8 +40,6 @@ from .models import (
     GoogleMapsResult,
     GoogleSearchRequest,
     Health,
-    HoleheRequest,
-    HoleheResult,
     JobBoardsRequest,
     JustDialPageRequest,
     JustDialPageResult,
@@ -61,7 +59,7 @@ from .models import (
     Stats,
     WebDirectoriesRequest,
 )
-from .scrapers import google_maps, holehe_check, justdial, search, staffspy_roster
+from .scrapers import google_maps, justdial, search, staffspy_roster
 
 logger = logging.getLogger("browser_service.app")
 
@@ -328,10 +326,6 @@ def create_app(
     @v1.post("/extract", response_model=ExtractResult)
     async def extract_content(req: ExtractRequest) -> ExtractResult:
         return await run("extract", req.timeout_s, lambda d: extract.extract(deps, req, d))
-
-    @v1.post("/holehe", response_model=HoleheResult)
-    async def holehe(req: HoleheRequest) -> HoleheResult:
-        return await run("holehe", req.timeout_s, lambda d: holehe_check.check(deps, req, d))
 
     @v1.post("/staffspy", response_model=StaffSpyResult)
     async def staffspy(req: StaffSpyRequest) -> StaffSpyResult:

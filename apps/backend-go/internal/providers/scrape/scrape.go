@@ -59,10 +59,9 @@ type Mail interface {
 }
 
 // Browser is the part of the browser-service client the providers call
-// directly (holehe, staffspy, the person_intel_deep page render).
+// directly (staffspy, the person_intel_deep page render).
 type Browser interface {
 	Render(ctx context.Context, req browserclient.RenderRequest) (browserclient.RenderResult, error)
-	Holehe(ctx context.Context, req browserclient.HoleheRequest) (browserclient.HoleheResult, error)
 	StaffSpy(ctx context.Context, req browserclient.StaffSpyRequest) (browserclient.StaffSpyResult, error)
 }
 

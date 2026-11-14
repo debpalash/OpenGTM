@@ -19,7 +19,7 @@ deep_scraper → jsonld_firmographics → website_scraper → email_harvester
 → ddg_email → mailscout → hunter_io → apollo_io → snovio → prospeo
 ```
 
-For `email_verify`: `mailscout → holehe → abstract_api → debounce`. For
+For `email_verify`: `mailscout → abstract_api → debounce`. For
 `mobile_phone`, which has no free tier: `leadmagic_mobile → prospeo_mobile`,
 cost-ordered. Chains exist for phone, description, decision makers, contact
 person and title, social URLs, company size, industry tags, address, founding

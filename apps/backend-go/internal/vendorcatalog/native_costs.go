@@ -15,7 +15,6 @@ var nativeFreeProviders = map[string]bool{
 	"email_harvester":      true,
 	"facebook_pages":       true,
 	"gleif":                true,
-	"holehe":               true,
 	"ipinfo":               true,
 	"jobspy":               true,
 	"jsonld_firmographics": true,

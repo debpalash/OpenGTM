@@ -16,11 +16,6 @@
     "errors": {},
     "ok": 2
    },
-   "holehe": {
-    "calls": 1,
-    "errors": {},
-    "ok": 1
-   },
    "search": {
     "calls": 2,
     "errors": {},

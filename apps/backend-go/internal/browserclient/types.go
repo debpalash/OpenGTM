@@ -420,45 +420,6 @@ type ExtractResult struct {
 	ElapsedMS         int    `json:"elapsed_ms"`
 }
 
-// ── holehe ──────────────────────────────────────────────────────────
-
-// HoleheRequest is POST /v1/holehe. MaxModules zero means 50 (legacy).
-// Timeout zero means 60 s.
-type HoleheRequest struct {
-	Email         string        `json:"email"`
-	MaxModules    int           `json:"max_modules,omitempty"`
-	UpstreamProxy ProxyURL      `json:"upstream_proxy,omitempty"`
-	Timeout       time.Duration `json:"-"`
-}
-
-func (r HoleheRequest) MarshalJSON() ([]byte, error) {
-	type alias HoleheRequest
-	return json.Marshal(struct {
-		alias
-		TimeoutS float64 `json:"timeout_s,omitempty"`
-	}{alias(r), secs(r.Timeout)})
-}
-
-type HoleheSite struct {
-	Name        string `json:"name"`
-	Domain      string `json:"domain"`
-	Method      string `json:"method"`
-	Exists      bool   `json:"exists"`
-	RateLimited bool   `json:"rate_limited"`
-}
-
-// HoleheResult: raw per-site results in module order. The verdict mapping
-// (legacy is_real = len(ExistsOn) >= 2, email_verify, confidence) is Go's.
-type HoleheResult struct {
-	Email        string       `json:"email"`
-	Sites        []HoleheSite `json:"sites"`
-	ExistsOn     []string     `json:"exists_on"`
-	TotalChecked int          `json:"total_checked"`
-	Errors       int          `json:"errors"`
-	Partial      bool         `json:"partial"`
-	ElapsedMS    int          `json:"elapsed_ms"`
-}
-
 // ── staffspy ────────────────────────────────────────────────────────
 
 // StaffSpyRequest is POST /v1/staffspy (503 engine_unavailable unless the

@@ -296,13 +296,6 @@ func (c *Client) Extract(ctx context.Context, req ExtractRequest) (ExtractResult
 	return out, c.post(ctx, "/v1/extract", req, req.Timeout, &out)
 }
 
-// Holehe checks which sites an email is registered on.
-func (c *Client) Holehe(ctx context.Context, req HoleheRequest) (HoleheResult, error) {
-	req.Timeout = clamp(req.Timeout, 60*time.Second)
-	var out HoleheResult
-	return out, c.post(ctx, "/v1/holehe", req, req.Timeout, &out)
-}
-
 // StaffSpy scrapes a company's LinkedIn roster.
 func (c *Client) StaffSpy(ctx context.Context, req StaffSpyRequest) (StaffSpyResult, error) {
 	req.Timeout = clamp(req.Timeout, 180*time.Second)

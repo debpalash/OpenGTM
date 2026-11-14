@@ -121,21 +121,9 @@ func TestRecordedExtract(t *testing.T) {
 	}
 }
 
-func TestRecordedHoleheStaffSpyStats(t *testing.T) {
-	f := loadFixture(t, "holehe")
+func TestRecordedStaffSpyStats(t *testing.T) {
+	f := loadFixture(t, "staffspy")
 	c, sent := replay(t, f)
-	h, err := c.Holehe(context.Background(), HoleheRequest{Email: "jane@acme.example"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	sameRequest(t, "holehe", *sent, f.Request)
-	strict(t, "holehe", f.Response, &HoleheResult{})
-	if !reflect.DeepEqual(h.ExistsOn, []string{"twitter"}) || h.TotalChecked != 2 || !h.Sites[1].RateLimited {
-		t.Fatalf("%+v", h)
-	}
-
-	f = loadFixture(t, "staffspy")
-	c, sent = replay(t, f)
 	s, err := c.StaffSpy(context.Background(), StaffSpyRequest{CompanyName: "Acme",
 		Cookies: []Cookie{{Name: "li_at", Value: "x", Domain: ".linkedin.com"}}})
 	if err != nil {
