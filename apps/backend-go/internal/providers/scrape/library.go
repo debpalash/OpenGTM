@@ -16,50 +16,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 )
 
-// ── holehe_verify.py (the holehe library runs as the browser op) ───────────
-
-type holehe struct{ gated }
-
-func (holehe) Name() string { return "holehe" }
-
-func (holehe) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
-	email := ls(in.Lead, "email")
-	if email == "" || !strings.Contains(email, "@") {
-		return fail(in, "No email to verify"), nil
-	}
-	b := current().Browser
-	if b == nil {
-		return fail(in, errNoWeb), nil
-	}
-	res, err := b.Holehe(ctx, browserclient.HoleheRequest{Email: email})
-	if err != nil {
-		if cerr := ctx.Err(); cerr != nil {
-			return providers.Output{}, cerr
-		}
-		// Deviation: Python reported the library exception text; the browser
-		// service returns fixed error codes only.
-		return fail(in, "holehe unavailable: "+browserCode(err)), nil
-	}
-	exists := res.ExistsOn
-	f := providers.NewObj()
-	f.Set("email", email)
-	var conf float64
-	switch {
-	case len(exists) >= 2:
-		f.Set("email_verify", "verified_active")
-		f.Set("email_presence", strings.Join(exists[:min(5, len(exists))], ", "))
-		conf = math.Min(0.95, 0.70+float64(len(exists))*0.05)
-	case len(exists) == 1:
-		f.Set("email_verify", "likely_valid")
-		f.Set("email_presence", strings.Join(exists, ", "))
-		conf = 0.65
-	default:
-		f.Set("email_verify", "no_presence")
-		conf = 0.30
-	}
-	return result(in, f, conf, ""), nil
-}
-
 func browserCode(err error) string {
 	var be *browserclient.Error
 	if errors.As(err, &be) && be.Code != "" {

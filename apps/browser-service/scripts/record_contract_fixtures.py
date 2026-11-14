@@ -2,7 +2,7 @@
 
 uv run python scripts/record_contract_fixtures.py ../backend-go/internal/browserclient/testdata/recorded
 
-Runs the FastAPI app in-process with fake browser / ddgs / holehe / staffspy
+Runs the FastAPI app in-process with fake browser / ddgs / staffspy
 backends (no network) and saves request + response pairs; extract runs the
 real trafilatura and markdownify.
 """
@@ -19,7 +19,7 @@ import httpx
 
 from browser_service.app import create_app
 from browser_service.config import Settings
-from browser_service.scrapers import holehe_check, staffspy_roster
+from browser_service.scrapers import staffspy_roster
 
 TOKEN = "r" * 40
 ARTICLE = (
@@ -79,19 +79,6 @@ async def fake_search(deps, method, search, max_results, deadline, **opts):
 
 async def main(out: Path) -> None:
 
-    async def fn(email, client, o, _n="twitter"):
-        o.append({"name": _n, "domain": "twitter.com", "method": "register", "rateLimit": False, "exists": True})
-
-    async def fn2(email, client, o):
-        o.append({"name": "spotify", "domain": "spotify.com", "method": "register", "rateLimit": True, "exists": False})
-
-    holehe_check.load_modules = lambda: [fn, fn2]
-
-    class C:
-        async def aclose(self):
-            pass
-
-    holehe_check.make_client = lambda p, t: C()
     staffspy_roster.check_logged_in = lambda s: True
     staffspy_roster.scrape_staff = lambda s, c, t, loc, n: [
         {
@@ -109,7 +96,6 @@ async def main(out: Path) -> None:
         "search_error": ("POST", "/v1/search", {"query": "fail", "max_results": 2}),
         "extract": ("POST", "/v1/extract", {"html": ARTICLE, "url": "https://acme.example/a"}),
         "extract_url": ("POST", "/v1/extract", {"url": "https://acme.example/a", "engine": "browser"}),
-        "holehe": ("POST", "/v1/holehe", {"email": "jane@acme.example"}),
         "staffspy": (
             "POST",
             "/v1/staffspy",

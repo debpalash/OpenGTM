@@ -323,8 +323,6 @@ func endpoints() []endpoint {
 		{"post", "/v1/extract", ExtractRequest{HTML: "<p>x</p>", URL: "https://e.com/a", Engine: "browser",
 			IncludeMarkdown: true, MaxBytes: 4096, UpstreamProxy: "http://1.2.3.4:8080", Timeout: 20 * time.Second},
 			"ExtractRequest", &ExtractResult{}, "ExtractResult"},
-		{"post", "/v1/holehe", HoleheRequest{Email: "a@b.example", MaxModules: 10, UpstreamProxy: "http://1.2.3.4:8080",
-			Timeout: 30 * time.Second}, "HoleheRequest", &HoleheResult{}, "HoleheResult"},
 		{"post", "/v1/staffspy", StaffSpyRequest{CompanyName: "Acme", SearchTerm: "ceo", Location: "Pune", MaxResults: 5,
 			Cookies: li, UpstreamProxy: "http://1.2.3.4:8080", Timeout: 60 * time.Second},
 			"StaffSpyRequest", &StaffSpyResult{}, "StaffSpyResult"},

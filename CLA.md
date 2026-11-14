@@ -117,6 +117,14 @@ remains in effect.
 
 ## How to sign
 
-Sign this Agreement once, before your first pull request is merged. The
-CLA check on your pull request links to the signing page. Your signature
-covers all of your past and future Contributions to the Project.
+Sign this Agreement once, before your first pull request is merged, by
+posting this line as a new comment on your pull request:
+
+```text
+I have read the OpenGTM CLA 1.0 and I hereby sign it.
+```
+
+The CLA check on your pull request records your signature against your
+GitHub account and tells you if anyone else on the pull request still needs
+to sign. Your signature covers all of your past and future Contributions to
+the Project.

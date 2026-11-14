@@ -2,6 +2,7 @@ package firmo
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"regexp"
 	"strings"
@@ -119,15 +120,15 @@ func (g gleif) run(ctx context.Context, c *http.Client, company string, in provi
 
 func (g gleif) resolve(ctx context.Context, c *http.Client, company string) (any, error) {
 	lei, err := g.fuzzyLEI(ctx, c, company)
+	var lookupErr error
 	if err != nil {
-		return nil, err
+		lookupErr = err
 	}
 	if providers.Truthy(lei) {
 		data, err := gleifGet(ctx, c, gleifRecords+"/"+providers.Str(lei), nil)
 		if err != nil {
-			return nil, err
-		}
-		if rec := firstRecord(data); providers.Truthy(rec) {
+			lookupErr = err
+		} else if rec := firstRecord(data); providers.Truthy(rec) {
 			return rec, nil
 		}
 	}
@@ -135,7 +136,10 @@ func (g gleif) resolve(ctx context.Context, c *http.Client, company string) (any
 	if err != nil {
 		return nil, err
 	}
-	return firstRecord(data), nil
+	if rec := firstRecord(data); providers.Truthy(rec) {
+		return rec, nil
+	}
+	return nil, lookupErr
 }
 
 func (g gleif) fuzzyLEI(ctx context.Context, c *http.Client, company string) (any, error) {
@@ -193,19 +197,29 @@ func orEmptyList(v any) any {
 	return []any{}
 }
 
-// gleifGet is _get_json: any non-200, transport or decode failure is None.
+// gleifGet returns an empty result only for a successful response without data.
 func gleifGet(ctx context.Context, c *http.Client, url string, q [][2]string) (any, error) {
+	return gleifGetOptional(ctx, c, url, q, false)
+}
+
+func gleifGetOptional(ctx context.Context, c *http.Client, url string, q [][2]string, optional bool) (any, error) {
 	resp, err := guardedGet(ctx, c, url, hopOpts{maxHops: httpxMaxRedirects, query: q,
 		header: [][2]string{{"Accept", gleifAccept}, {"User-Agent", gleifAgent}}, pre: gleifLimiter.acquire})
 	if cerr := ctx.Err(); cerr != nil {
 		return nil, cerr
 	}
-	if err != nil || resp.Status != 200 {
+	if err != nil {
+		return nil, err
+	}
+	if optional && resp.Status == http.StatusNotFound {
 		return nil, nil
+	}
+	if resp.Status != http.StatusOK {
+		return nil, fmt.Errorf("GLEIF returned HTTP %d", resp.Status)
 	}
 	d, perr := providers.ParseJSON(resp.Body)
 	if perr != nil {
-		return nil, nil
+		return nil, fmt.Errorf("GLEIF returned invalid JSON")
 	}
 	return d, nil
 }
@@ -353,7 +367,7 @@ func (g gleif) parent(ctx context.Context, c *http.Client, rels any, key string)
 		return nil, &providers.PyException{Msg: "Invalid type for url.  Expected str or httpx.URL, got <class '" +
 			providers.TypeName(link) + "'>"}
 	}
-	data, err := gleifGet(ctx, c, url, nil)
+	data, err := gleifGetOptional(ctx, c, url, nil, true)
 	if err != nil {
 		return nil, err
 	}

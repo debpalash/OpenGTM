@@ -38,7 +38,6 @@ The last four rows in the first group (`leadmagic_*`, `prospeo_mobile`) are
 | Provider id | Fills |
 |---|---|
 | `mailscout` | SMTP email verification (built in) |
-| `holehe` | email existence across 120+ sites |
 | `ddg_email`, `ddg_company` | email, website, phone, description via search |
 | `email_harvester`, `website_scraper`, `deep_scraper` | emails, phones, socials, description scraped from the company site |
 | `jsonld_firmographics` | schema.org firmographics |

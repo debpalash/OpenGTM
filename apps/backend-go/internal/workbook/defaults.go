@@ -13,8 +13,8 @@ var defaultWaterfalls = map[string][]string{
 		"ddg_email", "mailscout",
 		"hunter_io", "apollo_io", "snovio", "prospeo",
 	},
-	"email_confidence": {"mailscout", "holehe", "abstract_api", "debounce"},
-	"email_verify":     {"mailscout", "holehe", "abstract_api", "debounce"},
+	"email_confidence": {"mailscout", "abstract_api", "debounce"},
+	"email_verify":     {"mailscout", "abstract_api", "debounce"},
 	"phone": {
 		"deep_scraper", "jsonld_firmographics", "website_scraper", "local_business",
 		"ddg_company", "facebook_pages",

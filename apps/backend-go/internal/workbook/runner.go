@@ -105,6 +105,16 @@ func (rs *runState) serves(name string) bool {
 	return true
 }
 
+// registered reports whether name is a provider this build knows: a Go-native
+// provider, or one the runner serves (a verified manifest). A name that is
+// neither was removed or never existed.
+func (rs *runState) registered(name string) bool {
+	if _, ok := providers.Get(name); ok {
+		return true
+	}
+	return rs.serves(name)
+}
+
 // precheck refuses a call the runner can already tell will not reach the network.
 func (rs *runState) precheck(ctx context.Context, name string, lead map[string]any) string {
 	if pc, ok := rs.runner.(prechecker); ok {
