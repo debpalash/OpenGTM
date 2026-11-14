@@ -70,6 +70,15 @@ var genericTitlePatterns = rxAll(
 	`(?i)\b(verified|trusted)\s+(list|suppliers?|vendors?)\b`,
 	`(?i)\b\d+\s+\w+\s*(companies|agencies|firms|suppliers|vendors|based)\b`,
 	`(?i)^(placement|recruiting|staffing)\s+(services?|agencies?|companies?)\s+(in|near|at)\s+`,
+	// Service-category SERP headlines: the WHOLE name is the service being searched for, so it
+	// is a section title, not a company ("Cybersecurity Assessments", "Managed Detection and
+	// Response", "B2b Cybersecurity Sales"). Full-name anchored so real brands that merely
+	// contain the category ("Northwave Cyber Security", "Cybersecurity Bureau Veritas") pass.
+	// NL cybersecurity benchmark: 5/12 stored rows were these headlines.
+	`(?i)^(cyber\s*security|info(rmation)?\s+security|network\s+security|cloud\s+security|data\s+security|application\s+security|penetration\s+test(ing)?|red\s+team|incident\s+response|managed\s+detection(\s+and\s+response)?|vulnerability\s+(management|scanning|assessment)|security\s+(audit|assessment|testing|compliance))(?i)\s*(services?|solutions?|assessments?|audits?|tests?|companies|company)?\s*$`,
+	`(?i)^(cyber\s*security|it\s+security|security)\s+in\s+`,
+	`(?i)^b2b\b.*\bcyber`,
+	`(?i)^(auditing|compliance|assessment|testing|monitoring)(\s+(and|&)\s+(auditing|compliance|assessment|testing|monitoring))?\s*(services?|solutions?)?\s*$`,
 	`(?i)\b(directory|listing|catalogue|catalog)\b`,
 	`(?i)^(HR|IT)\s+(consulting|staffing|outsourcing)\s+(service|firm|company|agency)\s+\w+$`,
 	`(?i)^(HR|IT)\s+(staffing)\s+(\&|and)\s+(recruiting|recruitment)\s+`,
