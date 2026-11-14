@@ -52,6 +52,16 @@
         },
         {
           "api_key_masked": "",
+          "capability": "Local Business Data",
+          "configured": false,
+          "docs_url": "https://scavio.dev/google-maps-api",
+          "free_tier": "API key required",
+          "icon": "\ud83c\udf0d",
+          "id": "scavio_maps",
+          "name": "Scavio Maps"
+        },
+        {
+          "api_key_masked": "",
           "capability": "Company Data from Domain",
           "configured": false,
           "docs_url": "https://ipinfo.io/developers",

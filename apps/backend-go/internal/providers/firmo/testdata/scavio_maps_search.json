@@ -1,0 +1,88 @@
+{
+ "search_metadata": {
+  "google_maps_url": "https://www.google.com/maps/search/Epoch%20Coffee%20Austin/?gl=us&hl=en"
+ },
+ "search_parameters": {
+  "engine": "google_maps",
+  "type": "search",
+  "q": "Epoch Coffee Austin",
+  "google_domain": "google.com",
+  "hl": "en",
+  "gl": "us"
+ },
+ "search_information": {
+  "local_results_state": "Results for exact spelling",
+  "query_displayed": "Epoch Coffee Austin"
+ },
+ "local_results": [
+  {
+   "position": 1,
+   "title": "Epoch Coffee",
+   "place_id": "ChIJG-gJw2vKRIYROWi2uwOp8QE",
+   "data_id": "0x8644ca6bc309e81b:0x1f1a903bbb66839",
+   "data_cid": "140078896924485689",
+   "provider_id": "/g/1v76_180",
+   "gps_coordinates": {
+    "latitude": 30.318603699999997,
+    "longitude": -97.72454019999999
+   },
+   "rating": 4.5,
+   "reviews": 2534,
+   "type": "Coffee shop",
+   "types": [
+    "Coffee shop"
+   ],
+   "address": "221 W N Loop Blvd, Austin, TX 78751",
+   "open_state": "Open 24 hours",
+   "hours": "Open 24 hours",
+   "operating_hours": {
+    "friday": "Open 24 hours",
+    "monday": "12 AM–11:30 PM",
+    "saturday": "Open 24 hours",
+    "sunday": "Open 24 hours",
+    "thursday": "Open 24 hours",
+    "tuesday": "Open 24 hours",
+    "wednesday": "Open 24 hours"
+   },
+   "phone": "(512) 454-3762",
+   "website": "http://www.epochcoffee.com/",
+   "description": "Hip coffee shop with light bites. Cool, vibrant small-chain cafe featuring nibbles, tea & carefully brewed espresso drinks."
+  },
+  {
+   "position": 2,
+   "title": "Epoch Coffee - Village",
+   "place_id": "ChIJD-iIsaXLRIYRO6CY2r-11xo",
+   "data_id": "0x8644cba5b188e80f:0x1ad7b5bfda98a03b",
+   "data_cid": "1934214400589733947",
+   "provider_id": "/g/1ptyx9q3v",
+   "gps_coordinates": {
+    "latitude": 30.3593285,
+    "longitude": -97.73466429999999
+   },
+   "rating": 4.5,
+   "reviews": 884,
+   "type": "Coffee shop",
+   "types": [
+    "Coffee shop",
+    "Tea house"
+   ],
+   "address": "2700 W Anderson Ln., Austin, TX 78757",
+   "open_state": "Open · Closes 8 PM",
+   "hours": "Open · Closes 8 PM",
+   "operating_hours": {
+    "friday": "6:30 AM–6 PM",
+    "monday": "6:30 AM–6 PM",
+    "saturday": "7 AM–8 PM",
+    "sunday": "7 AM–8 PM",
+    "thursday": "6:30 AM–6 PM",
+    "tuesday": "6:30 AM–6 PM",
+    "wednesday": "6:30 AM–6 PM"
+   },
+   "phone": "(512) 956-4378",
+   "website": "http://www.epochcoffee.com/",
+   "description": "Hip coffee shop with light bites. Cool, vibrant small-chain cafe featuring nibbles, tea & carefully brewed espresso drinks."
+  }
+ ],
+ "credits_used": 1,
+ "credits_remaining": 49
+}

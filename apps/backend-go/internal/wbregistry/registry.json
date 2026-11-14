@@ -611,6 +611,26 @@
       "certification": null
     },
     {
+      "name": "scavio_maps",
+      "capabilities": [
+        "phone",
+        "address",
+        "description",
+        "industry_tags"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
       "name": "debounce",
       "capabilities": [
         "email_verify"

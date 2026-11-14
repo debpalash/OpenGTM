@@ -190,6 +190,14 @@
       "docs": "https://numverify.com/documentation",
       "icon": "📱"
     },
+    "scavio_maps": {
+      "name": "Scavio Maps",
+      "env_key": "SCAVIO_API_KEY",
+      "capability": "Local Business Data",
+      "free_tier": "API key required",
+      "docs": "https://scavio.dev/google-maps-api",
+      "icon": "🌍"
+    },
     "ipinfo": {
       "name": "IPInfo",
       "env_key": "IPINFO_TOKEN",
@@ -657,6 +665,7 @@
     "OPENROUTER_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
+    "SCAVIO_API_KEY",
     "SILICONFLOW_API_KEY"
   ]
 }

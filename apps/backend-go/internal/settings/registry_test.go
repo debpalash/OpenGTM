@@ -17,6 +17,14 @@ func mustLoad(t *testing.T) *Registry {
 	return r
 }
 
+func TestScavioEnrichmentKeyIsConfigurableAndSecret(t *testing.T) {
+	r := mustLoad(t)
+	p, ok := r.EnrichmentProviders.Get("scavio_maps")
+	if !ok || p.EnvKey != "SCAVIO_API_KEY" || !r.SecretSet()(p.EnvKey) {
+		t.Fatal("Scavio must be configurable and its API key encrypted")
+	}
+}
+
 func TestRegistryProviderOrderPreserved(t *testing.T) {
 	r := mustLoad(t)
 	fx := contract.Load(t, "settings/providers_list")

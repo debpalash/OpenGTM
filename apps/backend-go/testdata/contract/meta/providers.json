@@ -443,6 +443,26 @@
         },
         {
           "capabilities": [
+            "phone",
+            "address",
+            "description",
+            "industry_tags"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "scavio_maps",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
             "email_verify"
           ],
           "certification": null,

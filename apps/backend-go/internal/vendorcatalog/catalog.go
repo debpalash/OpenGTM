@@ -42,6 +42,7 @@ var vendors = []Vendor{
 	v("debounce", 0.008, "email_verify"),
 	v("numverify", 0.005, "phone"),
 	v("google_maps", 0.005, "phone", "address"),
+	v("scavio_maps", 0.0043, "phone", "address"),
 	v("leadmagic_email", 0.05, "email"),
 	v("leadmagic_mobile", 0.05, "mobile_phone", "phone"),
 	v("prospeo_mobile", 0.10, "mobile_phone"),
