@@ -1,0 +1,33 @@
+{
+ "scenario": "invalid_input_no_email",
+ "lead": {
+  "company": "Example Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001",
+  "PRECLEARED_SENDER_COUNTRY": "GB"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"Example Ltd\",\"pitch\":\"\",\"recipient_email\":\"\",\"sender_country\":\"GB\"}"
+ },
+ "response": {
+  "status": 400,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"error\": \"invalid_request\", \"message\": \"Give recipient_email or recipient_domain.\"}"
+ },
+ "result": {
+  "success": false,
+  "error": "http_400",
+  "http_status": 400,
+  "confidence": 0,
+  "fields": {}
+ }
+}

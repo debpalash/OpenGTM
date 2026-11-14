@@ -1,0 +1,83 @@
+# Precleared cold-email compliance check: declarative provider manifest.
+# Spec: https://precleared.dev/openapi.json (POST /api/v1/check, CheckRequest and
+# CheckResponse). One call per recipient answers whether a cold or marketing email
+# may be sent under the rules where the recipient is (UK PECR and UK GDPR, US
+# CAN-SPAM, Canada CASL, Germany UWG, France CNIL guidance, Australia Spam Act,
+# Ireland S.I. 336/2011, Netherlands Telecommunicatiewet), with the deciding rule,
+# its source, the next step and a signed receipt. Decision support with sources,
+# not legal advice and not a guarantee.
+#
+# Opt-in and inert by default:
+# - Bearer auth from PRECLEARED_API_KEY. With no key, manifest.Prepare refuses and
+#   no request is made, so Precleared's keyless free tier is never used.
+# - Every PRECLEARED_* setting is workspace-owned (secrets.WorkspaceOwned): only the
+#   workspace's own value counts, as for output-integration credentials. A
+#   single-tenant self-host opts back in to global values with
+#   ALLOW_GLOBAL_CREDENTIAL_FALLBACK=true. Workspaces save them through
+#   PUT /api/settings/workspace-integrations/precleared.
+# - Not in any default waterfall: it runs only in a column that names it.
+# - Never served from the shared enrichment cache (providerrun skips the cache for
+#   the compliance capability): every verdict is asked fresh, per recipient.
+#
+# Decision inputs: the lead's email and company, plus the workspace's declared
+# sender country (GB, US or AE), address provenance (published, bought, scraped,
+# given or unknown) and pitch. Nothing is inferred. An unset value is sent blank,
+# which Precleared reads as not given (address_source becomes unknown), and no
+# recipient country, consent or existing-customer fact is ever supplied.
+#
+# Cost: billed by Precleared to the workspace's own key (a free daily allowance,
+# then the key's plan or prepaid packs; 2,000 checks for 39 GBP at pack prices).
+# cost_per_lookup is the worst case used for spend estimates. A 400, 401, 402 or
+# 429 runs no check.
+#
+# Results: compliance is the verdict (ok_to_email, consent_needed, blocked or
+# unknown). unknown is a successful but uncertain answer; like consent_needed it
+# means do not send yet. Errors: http_400 (invalid input, such as no email),
+# http_401 (bad or revoked key), http_402 (allowance and credits used), http_429
+# (60 checks a minute per key), http_5xx and timeout.
+manifest_version: "1"
+name: precleared_compliance
+display_name: Precleared Cold Email Compliance Check
+author: OpenGTM
+homepage: https://precleared.dev
+tags: [compliance, enrichment, byok]
+capability: compliance
+capabilities: [compliance]
+description: Precleared /api/v1/check. Recipient email and workspace context in; cold-email verdict, deciding rule and source, next step and signed receipt out. Decision support, not legal advice.
+default_confidence: 0.8
+cost_per_lookup: 0.03
+input_fields: [email, company]
+auth:
+  type: bearer
+  env_var: PRECLEARED_API_KEY
+  extra_env: [PRECLEARED_SENDER_COUNTRY, PRECLEARED_ADDRESS_SOURCE, PRECLEARED_PITCH]
+request:
+  method: POST
+  url: https://precleared.dev/api/v1/check
+  query:
+    src: opengtm
+  headers:
+    Content-Type: application/json
+  body:
+    recipient_email: "{{input.email}}"
+    company_name: "{{input.company}}"
+    sender_country: "${env:PRECLEARED_SENDER_COUNTRY}"
+    address_source: "${env:PRECLEARED_ADDRESS_SOURCE}"
+    pitch: "${env:PRECLEARED_PITCH}"
+  timeout: 25
+response:
+  mappings:
+    compliance: "$.verdict"
+    compliance_confidence: "$.confidence"
+    compliance_rule: "$.rules_applied[0]"
+    compliance_rule_source: "$.reasons[].source_url"
+    compliance_reason: "$.reasons[].text"
+    compliance_note: "$.reasons[].note"
+    compliance_next_step: "$.next_step"
+    compliance_footer: "$.footer_text"
+    compliance_recipient_country: "$.facts.recipient_country"
+    compliance_receipt_id: "$.receipt.id"
+    compliance_receipt_url: "$.receipt.verify_url"
+    compliance_checked_at: "$.receipt.created_at"
+    compliance_rules_version: "$.rules_version"
+    compliance_disclaimer: "$.disclaimer"

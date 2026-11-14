@@ -1,0 +1,33 @@
+{
+ "scenario": "quota_payment_required",
+ "lead": {
+  "email": "jane.smith@example.co.uk",
+  "company": "Example Trading Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"Example Trading Ltd\",\"pitch\":\"\",\"recipient_email\":\"jane.smith@example.co.uk\",\"sender_country\":\"\"}"
+ },
+ "response": {
+  "status": 402,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"error\": \"payment_required\", \"message\": \"This key's free checks for today are used and it has no pack credits left.\", \"operator_message\": \"Buy a pack to keep checking: https://precleared.dev/checkout?t=fixture\", \"buy_url\": \"https://precleared.dev/checkout?t=fixture\", \"auto_topup\": false, \"enable_auto_topup_url\": \"https://precleared.dev/manage\", \"manage_url\": \"https://precleared.dev/manage\", \"packs\": [{\"id\": \"pack\", \"name\": \"2,000 checks\", \"price_gbp\": 39, \"checks\": 2000, \"url\": \"https://precleared.dev/checkout?t=fixture\"}], \"limit\": 25, \"resets_at\": \"2026-10-30T00:00:00.000Z\", \"retry_after\": 43200}"
+ },
+ "result": {
+  "success": false,
+  "error": "http_402",
+  "http_status": 402,
+  "confidence": 0,
+  "fields": {}
+ }
+}

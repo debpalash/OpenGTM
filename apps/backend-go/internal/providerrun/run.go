@@ -446,6 +446,11 @@ func (r *Runner) mode(ctx context.Context, provider string, in providers.Input) 
 	if r.d.Pool == nil || in.Operation != "" || in.Field == "" {
 		return cacheNone, "", false
 	}
+	if r.compliance(provider) {
+		// A compliance verdict is per recipient and must reflect the rules and facts when it is
+		// asked: never served from, or written to, a cache keyed per company or per record.
+		return cacheNone, "", false
+	}
 	if provider == "reacher" {
 		email := leadStr(in.Lead, "email")
 		if email == "" {

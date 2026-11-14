@@ -30,6 +30,27 @@ func (r *Runner) declarative(provider string) (manifest.Manifest, bool) {
 	return e.Manifest, true
 }
 
+// compliance reports a declarative provider of the compliance capability (a per-recipient legal
+// verdict with a receipt), which the provider cache must never serve.
+func (r *Runner) compliance(provider string) bool {
+	if _, native := providers.Get(provider); native {
+		return false
+	}
+	m, ok := r.declarative(provider)
+	if !ok {
+		return false
+	}
+	if m.Capability == "compliance" {
+		return true
+	}
+	for _, c := range m.Capabilities {
+		if c == "compliance" {
+			return true
+		}
+	}
+	return false
+}
+
 // nativeFor is the Go provider Run would execute for provider (a gated one only when served in process).
 func nativeFor(provider string, local bool) (providers.Provider, bool) {
 	p, ok := providers.Get(provider)

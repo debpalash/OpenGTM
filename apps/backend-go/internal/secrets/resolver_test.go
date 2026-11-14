@@ -158,3 +158,45 @@ func TestSetTrimsAndEncrypts(t *testing.T) {
 		t.Fatal("store error swallowed")
 	}
 }
+
+func TestResolverWorkspaceOwnedKeysNeedTheWorkspacesOwnValue(t *testing.T) {
+	ctx := context.Background()
+	t.Setenv("ALLOW_GLOBAL_CREDENTIAL_FALLBACK", "")
+	st := &fakeStore{app: map[string]string{"PRECLEARED_API_KEY": "operator-key"}, ws: map[string]string{}}
+	r, e := newTestResolver(t, st, map[string]string{
+		"PRECLEARED_API_KEY": "env-key", "PRECLEARED_SENDER_COUNTRY": "GB", "K": "env-v",
+	})
+	// An operator-wide key or setting never enrols a workspace.
+	for _, k := range []string{"PRECLEARED_API_KEY", "PRECLEARED_SENDER_COUNTRY"} {
+		if v, src, err := r.Get(ctx, "w1", k); err != nil || v != "" || src != SourceDefault {
+			t.Fatalf("%s: got (%q,%q,%v), want unset", k, v, src, err)
+		}
+	}
+	// The workspace's own value is used, and only by that workspace.
+	ct, _ := e.Encrypt(ctx, "ws-key")
+	st.ws["w1/PRECLEARED_API_KEY"] = ct
+	if v, src, err := r.Get(ctx, "w1", "PRECLEARED_API_KEY"); err != nil || v != "ws-key" || src != SourceWorkspace {
+		t.Fatalf("own key: got (%q,%q,%v)", v, src, err)
+	}
+	if v, src, _ := r.Get(ctx, "w2", "PRECLEARED_API_KEY"); v != "" || src != SourceDefault {
+		t.Fatalf("w2 got %q %q", v, src)
+	}
+	if v, err := r.Credential(ctx, "w2", "PRECLEARED_API_KEY"); err != nil || v != "" {
+		t.Fatalf("credential w2 got %q %v", v, err)
+	}
+	// Other keys keep the full chain.
+	if v, src, _ := r.Get(ctx, "w1", "K"); v != "env-v" || src != SourceGlobal {
+		t.Fatalf("K got %q %q", v, src)
+	}
+	// A single-tenant self-host opts back in to global values.
+	t.Setenv("ALLOW_GLOBAL_CREDENTIAL_FALLBACK", "true")
+	if v, src, err := r.Get(ctx, "w2", "PRECLEARED_API_KEY"); err != nil || v != "operator-key" || src != SourceGlobal {
+		t.Fatalf("fallback key: got (%q,%q,%v)", v, src, err)
+	}
+	if v, src, _ := r.Get(ctx, "w2", "PRECLEARED_SENDER_COUNTRY"); v != "GB" || src != SourceGlobal {
+		t.Fatalf("fallback setting: got %q %q", v, src)
+	}
+	if v, src, _ := r.Get(ctx, "w1", "PRECLEARED_API_KEY"); v != "ws-key" || src != SourceWorkspace {
+		t.Fatalf("own key still wins: got %q %q", v, src)
+	}
+}

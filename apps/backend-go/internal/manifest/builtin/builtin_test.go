@@ -14,6 +14,10 @@ import (
 
 const legacyManifests = "apps/api/services/leadgen/enrichment/declarative/manifests"
 
+// goOnly are manifests added after the Python application was retired: they have no legacy
+// counterpart to match.
+var goOnly = map[string]bool{"manifests/compliance/precleared.yaml": true}
+
 func TestEmbeddedManifestsMatchLegacy(t *testing.T) {
 	root := testutil.LegacyPath(t, filepath.FromSlash(legacyManifests))
 	seen := map[string]bool{}
@@ -37,7 +41,7 @@ func TestEmbeddedManifestsMatchLegacy(t *testing.T) {
 		t.Fatal(err)
 	}
 	_ = fs.WalkDir(files, "manifests", func(p string, d fs.DirEntry, _ error) error {
-		if !d.IsDir() && !seen[p] {
+		if !d.IsDir() && !seen[p] && !goOnly[p] {
 			t.Errorf("embedded %s has no legacy counterpart", p)
 		}
 		return nil
@@ -65,7 +69,7 @@ func TestPathsLoadBuiltins(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(idx) != 4 {
-		t.Fatalf("builtin index has %d manifests, want 4", len(idx))
+	if len(idx) != 5 {
+		t.Fatalf("builtin index has %d manifests, want 5", len(idx))
 	}
 }

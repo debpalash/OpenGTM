@@ -28,6 +28,19 @@ type WriteStore interface {
 // GlobalOnly keys never resolve from a workspace secret (verifier SSRF rule).
 var GlobalOnly = map[string]bool{"REACHER_URL": true}
 
+// WorkspaceOwned keys resolve like Credential: the workspace's own value only, so
+// a workspace is never enrolled by an operator-wide key or setting. A
+// single-tenant self-host opts back in to the global and environment levels with
+// ALLOW_GLOBAL_CREDENTIAL_FALLBACK. The Precleared compliance check reads these
+// (its manifest's auth.env_var and auth.extra_env): a workspace opts in by saving
+// its own key and context.
+var WorkspaceOwned = map[string]bool{
+	"PRECLEARED_API_KEY":        true,
+	"PRECLEARED_SENDER_COUNTRY": true,
+	"PRECLEARED_ADDRESS_SOURCE": true,
+	"PRECLEARED_PITCH":          true,
+}
+
 // Resolver resolves credentials: workspace > global (app_settings) > env.
 type Resolver struct {
 	env    *Envelope
@@ -50,8 +63,10 @@ const (
 )
 
 // Get resolves key for workspace ws (empty ws skips the workspace level).
-// Empty stored values count as unset. Both ciphertext and legacy plaintext
-// globals resolve; a decrypt failure is an error, never the raw ciphertext.
+// WorkspaceOwned keys stop at the workspace level unless
+// AllowGlobalCredentialFallback. Empty stored values count as unset. Both
+// ciphertext and legacy plaintext globals resolve; a decrypt failure is an
+// error, never the raw ciphertext.
 func (r *Resolver) Get(ctx context.Context, ws, key string) (value, source string, err error) {
 	if ws != "" && !GlobalOnly[key] {
 		raw, found, err := r.st.WorkspaceSetting(ctx, ws, key)
@@ -65,6 +80,9 @@ func (r *Resolver) Get(ctx context.Context, ws, key string) (value, source strin
 			}
 			return v, SourceWorkspace, nil
 		}
+	}
+	if WorkspaceOwned[key] && !AllowGlobalCredentialFallback() {
+		return "", SourceDefault, nil
 	}
 	raw, err := r.st.AppSetting(ctx, key)
 	if err != nil {

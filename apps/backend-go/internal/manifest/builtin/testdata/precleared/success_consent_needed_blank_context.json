@@ -1,0 +1,45 @@
+{
+ "scenario": "success_consent_needed_blank_context",
+ "lead": {
+  "email": "owner@example-plumbing.co.uk"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"\",\"pitch\":\"\",\"recipient_email\":\"owner@example-plumbing.co.uk\",\"sender_country\":\"\"}"
+ },
+ "response": {
+  "status": 200,
+  "headers": {
+   "content-type": "application/json"
+  },
+  "body": "{\"check_id\": \"00000000-0000-4000-8000-000000000002\", \"verdict\": \"consent_needed\", \"confidence\": \"medium\", \"reasons\": [{\"rule_key\": \"gb_unknown_form_default\", \"text\": \"No company could be matched for this UK recipient, so the safe reading is that they may be a sole trader, an individual subscriber under PECR, and consent is needed.\", \"source_title\": \"PECR 2003 regulation 22 and the Data (Use and Access) Act 2025 amendments\", \"source_url\": \"https://www.legislation.gov.uk/uksi/2003/2426/regulation/22\"}], \"rules_applied\": [\"gb_unknown_form_default\"], \"footer_text\": null, \"next_step\": \"Look for a company number on the site's terms, contact or policy pages, or at Companies House, and pass it to change the verdict. Otherwise do not cold email.\", \"facts\": {\"recipient_email_masked\": \"o***@example-plumbing.co.uk\", \"recipient_domain\": \"example-plumbing.co.uk\", \"recipient_country\": \"GB\", \"country_source\": \"domain\", \"legal_form\": \"unknown\", \"legal_form_source\": \"none\", \"company_number\": null, \"company_name\": null, \"company_status\": null, \"director_first_name\": null, \"address_type\": \"role\", \"syntax_ok\": true, \"mx_ok\": true, \"disposable\": false, \"suppressed\": null}, \"receipt\": {\"id\": \"cc_rcpt_0000000000000002\", \"created_at\": \"2026-10-29T12:00:02.000Z\", \"request_hash\": \"0000000000000000000000000000000000000000000000000000000000000002\", \"response_hash\": \"0000000000000000000000000000000000000000000000000000000000000066\", \"signature\": \"c2lnbmF0dXJlLWZpeHR1cmU=\", \"algorithm\": \"ed25519\", \"key_version\": \"v1\", \"verify_url\": \"https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000002\"}, \"rules_version\": \"v1\", \"usage\": {\"free_remaining_today\": 24, \"credits_remaining\": 0}, \"disclaimer\": \"Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms\"}"
+ },
+ "result": {
+  "success": true,
+  "error": "",
+  "http_status": 200,
+  "confidence": 0.8,
+  "fields": {
+   "compliance": "consent_needed",
+   "compliance_confidence": "medium",
+   "compliance_rule": "gb_unknown_form_default",
+   "compliance_rule_source": "https://www.legislation.gov.uk/uksi/2003/2426/regulation/22",
+   "compliance_reason": "No company could be matched for this UK recipient, so the safe reading is that they may be a sole trader, an individual subscriber under PECR, and consent is needed.",
+   "compliance_next_step": "Look for a company number on the site's terms, contact or policy pages, or at Companies House, and pass it to change the verdict. Otherwise do not cold email.",
+   "compliance_recipient_country": "GB",
+   "compliance_receipt_id": "cc_rcpt_0000000000000002",
+   "compliance_receipt_url": "https://precleared.dev/api/v1/receipt?id=cc_rcpt_0000000000000002",
+   "compliance_checked_at": "2026-10-29T12:00:02.000Z",
+   "compliance_rules_version": "v1",
+   "compliance_disclaimer": "Decision support with sources, not legal advice. The receipt proves what was asked and answered, not that an email was sent. Terms: https://precleared.dev/terms"
+  }
+ }
+}

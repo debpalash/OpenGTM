@@ -1,0 +1,34 @@
+{
+ "scenario": "rate_limited",
+ "lead": {
+  "email": "jane.smith@example.co.uk",
+  "company": "Example Trading Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"Example Trading Ltd\",\"pitch\":\"\",\"recipient_email\":\"jane.smith@example.co.uk\",\"sender_country\":\"\"}"
+ },
+ "response": {
+  "status": 429,
+  "headers": {
+   "content-type": "application/json",
+   "retry-after": "12"
+  },
+  "body": "{\"error\": \"rate_limited\", \"message\": \"Too many checks this minute. Try again in 12 seconds.\", \"retry_after\": 12}"
+ },
+ "result": {
+  "success": false,
+  "error": "http_429",
+  "http_status": 429,
+  "confidence": 0,
+  "fields": {}
+ }
+}

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
 func mustLoad(t *testing.T) *Registry {
@@ -118,4 +119,29 @@ func TestRegistrySecretAppKeys(t *testing.T) {
 			}
 		}
 	}
+}
+
+// The Precleared card saves only workspace-owned settings, so a workspace opts in by saving its
+// own key: nothing a global admin stores enrols every workspace (secrets.WorkspaceOwned).
+func TestRegistryPreclearedIntegrationIsWorkspaceOwned(t *testing.T) {
+	r := mustLoad(t)
+	for _, in := range r.Integrations {
+		if in.ID != "precleared" {
+			continue
+		}
+		var secret []string
+		for _, f := range in.Fields {
+			if !secrets.WorkspaceOwned[f.Key] {
+				t.Errorf("%s is not workspace-owned", f.Key)
+			}
+			if f.Secret {
+				secret = append(secret, f.Key)
+			}
+		}
+		if len(secret) != 1 || secret[0] != "PRECLEARED_API_KEY" {
+			t.Errorf("secret fields %v, want only PRECLEARED_API_KEY", secret)
+		}
+		return
+	}
+	t.Fatal("registry has no precleared integration")
 }

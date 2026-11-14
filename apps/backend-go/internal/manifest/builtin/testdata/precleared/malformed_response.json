@@ -1,0 +1,33 @@
+{
+ "scenario": "malformed_response",
+ "lead": {
+  "email": "jane.smith@example.co.uk",
+  "company": "Example Trading Ltd"
+ },
+ "credentials": {
+  "PRECLEARED_API_KEY": "pc_live_fixture_0001"
+ },
+ "request": {
+  "method": "POST",
+  "url": "https://precleared.dev/api/v1/check?src=opengtm",
+  "headers": {
+   "authorization": "Bearer {{secret:PRECLEARED_API_KEY}}",
+   "content-type": "application/json"
+  },
+  "body": "{\"address_source\":\"\",\"company_name\":\"Example Trading Ltd\",\"pitch\":\"\",\"recipient_email\":\"jane.smith@example.co.uk\",\"sender_country\":\"\"}"
+ },
+ "response": {
+  "status": 200,
+  "headers": {
+   "content-type": "text/html"
+  },
+  "body": "<html><body>Bad gateway</body></html>"
+ },
+ "result": {
+  "success": false,
+  "error": "non_json_response",
+  "http_status": 200,
+  "confidence": 0,
+  "fields": {}
+ }
+}
