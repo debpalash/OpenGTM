@@ -144,6 +144,40 @@ func TestCompanyDiscoveryCreatesSharedPeopleAndReplays(t *testing.T) {
 	}
 }
 
+func TestCompanyDiscoveryKeepsSelectedIdentityAfterRename(t *testing.T) {
+	s, ws := recordEnv(t)
+	ctx := context.Background()
+	company := mustRecord(t, s, ws, Company, Write{Company: map[string]any{"name": "Original Name"}}, "manual", "")
+	wb, err := s.Discover(ctx, ws, Discovery{IDs: []string{company.ID}, Titles: []string{"Director"}, MaxPerCompany: 2, MaxSearches: 2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = s.Patch(ctx, ws, Company, company.ID, company.Version, Write{Company: map[string]any{"name": "Renamed Company"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	other := mustRecord(t, s, ws, Company, Write{Company: map[string]any{"name": "Original Name", "domain": "other.test"}}, "import:other", "other")
+	if other.ID == company.ID {
+		t.Fatal("test requires a separate company using the old name")
+	}
+	if _, err = sourcewb.Materialize(ctx, sourcewb.Deps{Pool: s.Pool, People: discoveredPeople{}, PeopleSearchEnabled: true}, ws, wb, "people_source"); err != nil {
+		t.Fatal(err)
+	}
+	err = tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
+		var count int
+		if err := tx.QueryRow(ctx, `SELECT count(*) FROM record_workbook_rows WHERE workspace_id=$1 AND workbook_id=$2 AND person_entity_id IS NOT NULL AND company_entity_id=$3`, ws, wb, company.ID).Scan(&count); err != nil {
+			return err
+		}
+		if count != 1 {
+			return fmt.Errorf("discovery attached %d people to selected company, want 1", count)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestTenThousandRowImportPreviewCommitAndReplay(t *testing.T) {
 	s, ws := recordEnv(t)
 	ctx := context.Background()
