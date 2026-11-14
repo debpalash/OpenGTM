@@ -31,7 +31,7 @@ func NewClientForEnv(appEnv string, allowHosts []string) *http.Client {
 }
 
 func newClient(allowHosts []string, appEnv string, res resolver, dial dialFunc) *http.Client {
-	return newClientSet(allowSet(appEnv, allowHosts), res, dial)
+	return newClientSet(allowSetFn(appEnv, allowHosts), res, dial)
 }
 
 // NewOperatorClient is the provider egress client with the operator allow-list
@@ -46,10 +46,22 @@ func NewOperatorClient(allowHosts []string) *http.Client {
 }
 
 func newOperatorClient(allowHosts []string, res resolver, dial dialFunc) *http.Client {
-	return newClientSet(operatorAllowSet(allowHosts), res, dial)
+	set := operatorAllowSet(allowHosts)
+	return newClientSet(func() map[string]struct{} { return set }, res, dial)
 }
 
-func newClientSet(allow map[string]struct{}, res resolver, dial dialFunc) *http.Client {
+// NewOperatorClientFunc is NewOperatorClient with the allow-list re-read from
+// getAllowHosts on every dial, for operator-configured provider targets that
+// change at runtime (custom_openai's CUSTOM_OPENAI_BASE_URL). getAllowHosts is
+// called concurrently from the dial path: it must be cheap, lock-protected and
+// never block. Entries follow the same exact-match rules: "host" or
+// "host:port". Everything not listed is vetted exactly as NewClient does.
+func NewOperatorClientFunc(getAllowHosts func() []string) *http.Client {
+	d := &net.Dialer{Timeout: 30 * time.Second, KeepAlive: 30 * time.Second}
+	return newClientSet(func() map[string]struct{} { return operatorAllowSet(getAllowHosts()) }, net.DefaultResolver, d.DialContext)
+}
+
+func newClientSet(allow func() map[string]struct{}, res resolver, dial dialFunc) *http.Client {
 	tr := &http.Transport{
 		Proxy:               nil, // a proxy would bypass the dial-time vetting
 		DialContext:         guardedDial(allow, res, dial),
@@ -66,17 +78,18 @@ func newClientSet(allow map[string]struct{}, res resolver, dial dialFunc) *http.
 
 // guardedDial resolves the host once, rejects if ANY address is blocked, then
 // dials a vetted IP literal (never the hostname), closing the rebinding window.
-func guardedDial(allow map[string]struct{}, res resolver, dial dialFunc) dialFunc {
+func guardedDial(allow func() map[string]struct{}, res resolver, dial dialFunc) dialFunc {
 	return func(ctx context.Context, network, addr string) (net.Conn, error) {
 		host, port, err := net.SplitHostPort(addr)
 		if err != nil {
 			return nil, err
 		}
 		host = strings.ToLower(host)
-		if _, ok := allow[host]; ok {
+		allowSet := allow()
+		if _, ok := allowSet[host]; ok {
 			return dial(ctx, network, addr)
 		}
-		if _, ok := allow[net.JoinHostPort(host, port)]; ok {
+		if _, ok := allowSet[net.JoinHostPort(host, port)]; ok {
 			return dial(ctx, network, addr)
 		}
 		if _, ok := blockedHostnames[host]; ok {
@@ -122,6 +135,12 @@ func allowSet(appEnv string, allowHosts []string) map[string]struct{} {
 		}
 	}
 	return allow
+}
+
+// allowSetFn snapshots allowSet once for the dial-time guard.
+func allowSetFn(appEnv string, allowHosts []string) func() map[string]struct{} {
+	set := allowSet(appEnv, allowHosts)
+	return func() map[string]struct{} { return set }
 }
 
 // operatorAllowSet is the lower-cased operator allow-list, honoured in every

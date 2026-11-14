@@ -12,6 +12,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/identity"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/settings"
 )
@@ -30,7 +31,11 @@ func RegisterSettings(r *httpx.Router, d Deps) {
 		Secret: reg.SecretSet(), Getenv: d.getenv(),
 	}
 	s := settingsRoutes{
-		p:      &settings.Providers{Reg: reg, App: app, HTTP: d.Egress, Log: d.Log},
+		// The provider test call may target the runtime-configured
+		// custom_openai host, so it uses the operator egress client (static
+		// EGRESS_ALLOW_HOSTS plus the CUSTOM_OPENAI_BASE_URL host), not the
+		// strict user-URL client.
+		p:      &settings.Providers{Reg: reg, App: app, HTTP: llm.OperatorClient(d.EgressAllowHosts, app), Log: d.Log},
 		perf:   &settings.Perf{App: app, Reg: reg},
 		models: &settings.Models{Reg: reg, HTTP: d.Egress, OpenRouterURL: d.OpenRouterModelsURL},
 		enrich: &settings.EnrichmentProviders{Reg: reg, App: app, Log: d.Log},

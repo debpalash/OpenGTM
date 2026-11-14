@@ -17,5 +17,5 @@ type DialContext func(ctx context.Context, network, addr string) (net.Conn, erro
 // Allowlist hosts are honoured only when appEnv is test or bench.
 func NewDialContext(appEnv string, allowHosts []string) DialContext {
 	d := &net.Dialer{Timeout: 30 * time.Second}
-	return DialContext(guardedDial(allowSet(appEnv, allowHosts), net.DefaultResolver, d.DialContext))
+	return DialContext(guardedDial(allowSetFn(appEnv, allowHosts), net.DefaultResolver, d.DialContext))
 }
