@@ -19,7 +19,9 @@ const (
 	// Python keeps both forever and unbounded; an attacker-chosen domain stream
 	// must not grow memory without limit, and a transient DNS failure must heal.
 	cacheTTL = time.Hour
-	cacheMax = 20000
+	// MX misses expire quickly so transient DNS outages can recover.
+	mxNegativeTTL = time.Minute
+	cacheMax      = 20000
 )
 
 // MXResolver is the DNS seam (a *net.Resolver satisfies it).
@@ -150,6 +152,10 @@ func memoGet[T any](m map[string]memoEntry[T], k string, now time.Time) (T, bool
 }
 
 func memoPut[T any](m map[string]memoEntry[T], k string, v T, now time.Time) {
+	memoPutTTL(m, k, v, now, cacheTTL)
+}
+
+func memoPutTTL[T any](m map[string]memoEntry[T], k string, v T, now time.Time, ttl time.Duration) {
 	if len(m) >= cacheMax {
 		for key, e := range m { // drop expired first, then arbitrary entries
 			if !now.Before(e.exp) {
@@ -163,7 +169,7 @@ func memoPut[T any](m map[string]memoEntry[T], k string, v T, now time.Time) {
 			delete(m, key)
 		}
 	}
-	m[k] = memoEntry[T]{v: v, exp: now.Add(cacheTTL)}
+	m[k] = memoEntry[T]{v: v, exp: now.Add(ttl)}
 }
 
 // maxPerMX bounds concurrent SMTP sessions to one MX host, so N parallel
