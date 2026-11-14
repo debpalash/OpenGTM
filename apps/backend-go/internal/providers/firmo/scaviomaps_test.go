@@ -158,7 +158,8 @@ func TestScavioMapsNameMatching(t *testing.T) {
 		{"Café Olé LLC", "Cafe Ole", true},
 		{"McDonald's", "McDonald's", true},
 		{"Joe's Pizza", "Joe's Pizza Broadway", true},
-		{"Inc.", "Anything", true},
+		{"Inc.", "Anything", false},
+		{"Acme Plumbing", "Acme Dental", false},
 		{"Zxqv Nonexistent Widgets", "Whales of Iceland", false},
 		{"Blue Bottle Coffee", "Starbucks Coffee", false},
 		{"Acme", "", false},
@@ -166,6 +167,14 @@ func TestScavioMapsNameMatching(t *testing.T) {
 		if got := sameBusiness(tc.company, tc.title); got != tc.want {
 			t.Errorf("sameBusiness(%q, %q) = %v", tc.company, tc.title, got)
 		}
+	}
+}
+
+func TestScavioMapsSkipsUnrelatedBusinessWithSharedName(t *testing.T) {
+	body := `{"local_results":[{"title":"Acme Dental","phone":"wrong"},{"title":"Acme Plumbing","phone":"correct"}]}`
+	out, _, _ := scavioRun(t, 200, body, map[string]any{"company": "Acme Plumbing", "city": "Austin"})
+	if out.Value != "correct" {
+		t.Fatalf("got phone %v, want correct matching business", out.Value)
 	}
 }
 
@@ -186,7 +195,7 @@ func TestScavioMapsMissesAndErrors(t *testing.T) {
 		{"non-object place", 200, `{"local_results":["x"]}`, "No matching place found"},
 		{"other business", 200, `{"local_results":[{"title":"Whales of Iceland","phone":"+354 571 0077"}]}`, "No matching place found"},
 		{"top-level array", 200, `[]`, "No places found"},
-		{"nothing useful", 200, `{"local_results":[{"title":"Acme","rating":0,"phone":7}]}`, "No useful data from Scavio Maps"},
+		{"nothing useful", 200, `{"local_results":[{"title":"Acme Plumbing","rating":0,"phone":7}]}`, "No useful data from Scavio Maps"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			out, seen, _ := scavioRun(t, tc.status, tc.body, lead)

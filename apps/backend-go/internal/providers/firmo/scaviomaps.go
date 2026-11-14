@@ -19,7 +19,7 @@ const scavioMapsURL = "https://api.scavio.dev/api/v2/google/maps/search"
 // google_maps: same "<company> <city>" query, same fields and confidence, so
 // either can fill the same waterfall slot. Maps answers an unknown name with
 // whatever is nearby, so of the first three places the first whose title
-// shares the company's leading name word wins; none is a miss.
+// contains every significant company name word wins; none is a miss.
 type scavioMaps struct{}
 
 func (scavioMaps) Name() string     { return "scavio_maps" }
@@ -140,17 +140,21 @@ func nameTokens(s string) []string {
 	return out
 }
 
-// sameBusiness reports whether the place title contains the company's first
-// significant word (a name with none is not checked).
+// sameBusiness requires every significant company word in the place title.
+// When the company has no identifying words, do not guess a match.
 func sameBusiness(company, title string) bool {
 	want := nameTokens(company)
 	if len(want) == 0 {
-		return true
+		return false
 	}
-	for _, w := range nameTokens(title) {
-		if w == want[0] {
-			return true
+	words := make(map[string]bool)
+	for _, word := range nameTokens(title) {
+		words[word] = true
+	}
+	for _, word := range want {
+		if !words[word] {
+			return false
 		}
 	}
-	return false
+	return true
 }

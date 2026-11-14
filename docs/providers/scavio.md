@@ -16,7 +16,7 @@ Looks a company up on Google Maps and fills the same fields as `google_maps`:
 `phone`, `address`, `description`, `industry_tags`, `google_rating` and
 `google_maps_url`. The query is the lead's company name plus its city. Maps
 answers an unknown name with nearby places, so of the first three results the
-first whose title contains the company's leading name word is used; if none
+first whose title contains all significant company name words is used; if none
 does, the lookup is a miss (`No matching place found`) rather than another
 business's data. It needs no Google Cloud project.
 
