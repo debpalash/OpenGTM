@@ -199,6 +199,10 @@ func orEmptyList(v any) any {
 
 // gleifGet returns an empty result only for a successful response without data.
 func gleifGet(ctx context.Context, c *http.Client, url string, q [][2]string) (any, error) {
+	return gleifGetOptional(ctx, c, url, q, false)
+}
+
+func gleifGetOptional(ctx context.Context, c *http.Client, url string, q [][2]string, optional bool) (any, error) {
 	resp, err := guardedGet(ctx, c, url, hopOpts{maxHops: httpxMaxRedirects, query: q,
 		header: [][2]string{{"Accept", gleifAccept}, {"User-Agent", gleifAgent}}, pre: gleifLimiter.acquire})
 	if cerr := ctx.Err(); cerr != nil {
@@ -207,7 +211,7 @@ func gleifGet(ctx context.Context, c *http.Client, url string, q [][2]string) (a
 	if err != nil {
 		return nil, err
 	}
-	if resp.Status == http.StatusNotFound {
+	if optional && resp.Status == http.StatusNotFound {
 		return nil, nil
 	}
 	if resp.Status != http.StatusOK {
@@ -363,7 +367,7 @@ func (g gleif) parent(ctx context.Context, c *http.Client, rels any, key string)
 		return nil, &providers.PyException{Msg: "Invalid type for url.  Expected str or httpx.URL, got <class '" +
 			providers.TypeName(link) + "'>"}
 	}
-	data, err := gleifGet(ctx, c, url, nil)
+	data, err := gleifGetOptional(ctx, c, url, nil, true)
 	if err != nil {
 		return nil, err
 	}
