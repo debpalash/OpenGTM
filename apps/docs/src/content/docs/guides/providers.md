@@ -56,6 +56,22 @@ The last four rows in the first group (`leadmagic_*`, `prospeo_mobile`) are
 Every source must respect the target's terms of service; credentialed
 providers are inert until their key is set.
 
+## SMTP probe identity
+
+For a self-hosted installation, set `LEADGEN_SMTP_HELO` to your own fully
+qualified host name and `LEADGEN_SMTP_MAIL_FROM` to an email address on a
+domain you control. Otherwise the bundled verification probe announces
+`verify.yupcha.com` and `verify@yupcha.com` by default.
+
+```bash
+LEADGEN_SMTP_HELO=verify.example.com
+LEADGEN_SMTP_MAIL_FROM=verify@example.com
+```
+
+These identify the SMTP verification conversation; the probe does not send
+email. Restart the API, worker and MCP processes you run after updating
+their environment. This configuration is separate from Reacher's `REACHER_HELLO_NAME` and `REACHER_FROM_EMAIL`.
+
 ## Reacher (self-hosted verification)
 
 [Reacher](https://github.com/reacherhq/check-if-email-exists) adds unlimited,
