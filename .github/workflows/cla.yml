@@ -1,7 +1,8 @@
 # Contributor License Agreement check.
 #
 # Every pull request's opener and commit authors and co-authors sign
-# .github/CLA-1.0.md once, by comment. .github/scripts/cla_check.py records
+# CLA.md once, by comment or an explicit author declaration in the PR body.
+# .github/scripts/cla_check.py records
 # signatures on the `cla-signatures` branch (created on first use) and sets the
 # "CLA" commit status that branch protection requires alongside the native
 # "CLA gate" job, which blocks merging if a status API write fails. Past contributors can

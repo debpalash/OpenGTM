@@ -21,6 +21,18 @@
 - [ ] I did not add scraping of paywalled / pirated / login-gated content
 - [ ] Credentialed providers are **opt-in and inert by default**
 
+## CLA signature
+
+To sign as the PR author, add the explicit declaration described in
+[CONTRIBUTING.md](../CONTRIBUTING.md) after reading the [CLA](../CLA.md).
+Checking the box above does not sign it. Other contributors can sign in a
+new PR comment.
+
+<!-- The PR author may sign by writing a new, unquoted line consisting of
+     `CLA-Signature: ` followed by the exact declaration shown in CONTRIBUTING.md.
+     Opening this PR or checking the box above does not sign the CLA. Other
+     contributors must sign separately in a new PR comment. -->
+
 ## Security-sensitive?
 
 <!-- Does this touch auth, tenancy/RLS, the SSRF url guard, secrets, outbound
