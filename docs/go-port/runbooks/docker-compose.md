@@ -86,7 +86,9 @@ data-directory backups and verify restoration. Follow the stopped-writer
 procedure in [migrations.md](migrations.md#upgrading-to-schema-5): stop every old writer before the
 migration, then deploy matching binaries together. A rollback requires restoring the verified backup;
 do not assume that starting the old stack against the upgraded database is safe. Validate the migrated
-data and queued work before reopening traffic.
+data and queued work before reopening traffic. The linked cutover guides describe the historical
+canary and its data prerequisites; use the schema-5 procedure and current Compose configuration for
+the actual deployment rather than their retired side-by-side or flag instructions.
 
 The old `api`, `worker`, `scheduler` and `seed`
 services, the root `Dockerfile`, `infra/nginx/go-split.conf` and `go-routes.conf` no longer exist; the per-plan
