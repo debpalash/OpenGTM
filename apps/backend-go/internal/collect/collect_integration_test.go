@@ -451,9 +451,10 @@ func TestBulkEnrichOnPostgres(t *testing.T) {
 		t.Errorf("find_emails wrote %q / %q, want %q / iso", email, last, want)
 	}
 	// Review 3a L4: the email is stored with its confidence and source, so outreach can tell a
-	// searched address from an unverified info@ guess.
-	if conf != "verified" || prov != "email_finder" {
-		t.Errorf("find_emails confidence/source = %q / %q, want verified / email_finder", conf, prov)
+	// searched address from an unverified info@ guess. Honesty rule: a searched address is
+	// tagged "found" (discovered), never "verified" without verification evidence.
+	if conf != "found" || prov != "email_finder" {
+		t.Errorf("find_emails confidence/source = %q / %q, want found / email_finder", conf, prov)
 	}
 	types := []string{}
 	for _, e := range em.events {

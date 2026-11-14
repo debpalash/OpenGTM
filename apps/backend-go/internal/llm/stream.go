@@ -25,6 +25,9 @@ type ChatProvider struct {
 	BaseURL          string
 	Model            string
 	OpenAICompatible bool
+	// ExtraBody merges additional JSON fields into the streaming request
+	// (custom_openai with CUSTOM_OPENAI_DISABLE_THINKING → chat_template_kwargs).
+	ExtraBody map[string]any
 }
 
 // String never prints the key.
@@ -114,7 +117,7 @@ func (c *Client) streamRounds(ctx context.Context, req StreamRequest, send func(
 	finish := func() { send(Frame{Kind: FrameCursor, Cursor: &cursor}) }
 	for {
 		prov := cursor.Provider
-		if prov.APIKey == "" {
+		if prov.APIKey == "" && (prov.ID != CustomOpenAIID || prov.BaseURL == "") {
 			if !send(Frame{Kind: FrameError, Text: "No AI provider configured. Go to Settings to add an API key."}) {
 				return
 			}
@@ -147,6 +150,23 @@ type streamBody struct {
 	// Generative-UI answers embed lead data as OpenUI Lang and can be long; the
 	// room keeps the DSL from being cut off mid-structure.
 	MaxTokens int `json:"max_tokens"`
+	// ExtraBody holds provider-level fields (e.g. chat_template_kwargs to
+	// disable thinking on vLLM reasoning servers); keys must not collide with
+	// the fields above.
+	ExtraBody map[string]any `json:"-"`
+}
+
+// MarshalJSON emits the fixed fields then appends ExtraBody's (ExtraBody keys
+// must not collide with the fixed ones).
+func (b streamBody) MarshalJSON() ([]byte, error) {
+	fields := orderedObject{
+		{"model", b.Model}, {"messages", b.Messages}, {"tools", b.Tools},
+		{"stream", b.Stream}, {"temperature", b.Temperature}, {"max_tokens", b.MaxTokens},
+	}
+	for k, v := range b.ExtraBody {
+		fields = append(fields, kv{k, v})
+	}
+	return json.Marshal(fields)
 }
 
 // failover returns the cursor of the next fallback, or nil when none is left.
@@ -157,12 +177,20 @@ func (cur Cursor) failover() *Cursor {
 	return &Cursor{Provider: cur.Fallbacks[0], Fallbacks: cur.Fallbacks[1:]}
 }
 
+// streamRetryForEmpty is the streaming mirror of the callOpenAI reliability
+// retry: only a custom_openai round that produced neither content nor tool
+// calls and does not already have thinking disabled retries (once, because
+// the retry cursor carries the flag, so it can never loop).
+func (c *Client) streamRetryForEmpty(prov ChatProvider, gotContent, gotToolCalls bool) bool {
+	return prov.ID == CustomOpenAIID && !gotContent && !gotToolCalls && !hasDisableThinking(prov.ExtraBody)
+}
+
 // streamOnce talks to cursor.Provider once. It returns the cursor to retry on
 // (failover), or fin != nil when the round completed on this provider, or both
 // nil when the round is over without a result (error frame already sent, or EOF).
 func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Cursor, send func(Frame) bool) (next, fin *Cursor) {
 	prov := cursor.Provider
-	body, err := json.Marshal(streamBody{Model: prov.Model, Messages: req.Messages, Tools: req.Tools, Stream: true, Temperature: 0.7, MaxTokens: 4096})
+	body, err := json.Marshal(streamBody{Model: prov.Model, Messages: req.Messages, Tools: req.Tools, Stream: true, Temperature: 0.7, MaxTokens: 4096, ExtraBody: prov.ExtraBody})
 	if err != nil {
 		send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(err.Error(), 200)})
 		return nil, nil
@@ -191,7 +219,10 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 		send(Frame{Kind: FrameError, Text: "AI provider error: " + truncRunes(stripURL(err).Error(), 200)})
 		return nil, nil
 	}
-	hreq.Header.Set("Authorization", "Bearer "+prov.APIKey)
+	if prov.APIKey != "" {
+		// custom_openai may run against a server without authentication.
+		hreq.Header.Set("Authorization", "Bearer "+prov.APIKey)
+	}
 	hreq.Header.Set("Content-Type", "application/json")
 
 	resp, err := c.o.HTTP.Do(hreq)
@@ -234,6 +265,7 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 	}
 
 	acc := map[int]*ToolCall{}
+	gotContent, gotToolCalls := false, false
 	sc := bufio.NewScanner(resp.Body)
 	sc.Buffer(make([]byte, 0, min(64<<10, maxStreamLine)), maxStreamLine)
 	touch() // headers arrived
@@ -250,14 +282,28 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 		if data, ok := strings.CutPrefix(strings.TrimRight(line, "\r\n"), "data: "); ok && more {
 			touch()
 			if data == "[DONE]" {
+				// Reasoning-server reliability (mirrors callOpenAI): a
+				// thinking model can stream its whole budget into the
+				// reasoning block and finish with no content/tool-call
+				// deltas at all. Retry the round once against the same
+				// custom_openai server with thinking disabled.
+				if c.streamRetryForEmpty(prov, gotContent, gotToolCalls) {
+					prov2 := prov
+					prov2.ExtraBody = withDisableThinking(prov.ExtraBody)
+					return &Cursor{Provider: prov2, Fallbacks: cursor.Fallbacks}, nil
+				}
 				send(Frame{Kind: FrameDone})
 				return nil, &cursor
 			}
 			calls, content, done := parseChunk(data, acc)
-			if content != "" && !send(Frame{Kind: FrameContent, Text: content}) {
-				return nil, nil
+			if content != "" {
+				gotContent = true
+				if !send(Frame{Kind: FrameContent, Text: content}) {
+					return nil, nil
+				}
 			}
 			if done {
+				gotToolCalls = true
 				send(Frame{Kind: FrameToolCalls, ToolCalls: calls})
 				return nil, &cursor
 			}
@@ -268,6 +314,11 @@ func (c *Client) streamOnce(ctx context.Context, req StreamRequest, cursor Curso
 			}
 			rerr := sc.Err()
 			if rerr == nil {
+				if c.streamRetryForEmpty(prov, gotContent, gotToolCalls) {
+					prov2 := prov
+					prov2.ExtraBody = withDisableThinking(prov.ExtraBody)
+					return &Cursor{Provider: prov2, Fallbacks: cursor.Fallbacks}, nil
+				}
 				return nil, nil // EOF
 			}
 			if errors.Is(rerr, bufio.ErrTooLong) {

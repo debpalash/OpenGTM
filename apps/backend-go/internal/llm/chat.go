@@ -21,14 +21,19 @@ func (c *Client) resolveChat(ctx context.Context, id string) (ChatProvider, bool
 	if model == "" {
 		model = prov.DefaultModel
 	}
-	if key == "" || base == "" {
+	// custom_openai's key is optional; it still needs a URL and a model.
+	if (key == "" && id != CustomOpenAIID) || base == "" || model == "" {
 		return ChatProvider{}, false
 	}
 	name := prov.Name
 	if name == "" {
 		name = id
 	}
-	return ChatProvider{ID: id, Name: name, APIKey: key, BaseURL: base, Model: model, OpenAICompatible: prov.OpenAICompatible}, true
+	var extra map[string]any
+	if id == CustomOpenAIID && envTruthy(c.get(ctx, "CUSTOM_OPENAI_DISABLE_THINKING", "")) {
+		extra = map[string]any{"chat_template_kwargs": map[string]any{"enable_thinking": false}}
+	}
+	return ChatProvider{ID: id, Name: name, APIKey: key, BaseURL: base, Model: model, OpenAICompatible: prov.OpenAICompatible, ExtraBody: extra}, true
 }
 
 // ChatChain returns the configured chat providers in priority order: the

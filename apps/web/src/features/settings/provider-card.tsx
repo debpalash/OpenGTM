@@ -55,6 +55,14 @@ export function ProviderCard({ provider }: { provider: Provider }) {
     baseline: provider.model
   })
   const model = modelDraft.value
+  // Base URL is editable for the generic OpenAI-compatible provider (a
+  // self-hosted endpoint chosen per install); other providers have fixed URLs.
+  const baseURLEditable = provider.id === "custom_openai"
+  const [baseUrlDraft, setBaseUrlDraft] = useState({
+    value: provider.base_url,
+    baseline: provider.base_url
+  })
+  const baseUrl = baseUrlDraft.value
   useEffect(() => {
     setModelDraft((current) =>
       current.value === current.baseline
@@ -62,6 +70,13 @@ export function ProviderCard({ provider }: { provider: Provider }) {
         : current
     )
   }, [provider.model])
+  useEffect(() => {
+    setBaseUrlDraft((current) =>
+      current.value === current.baseline
+        ? { value: provider.base_url, baseline: provider.base_url }
+        : current
+    )
+  }, [provider.base_url])
   const [showKey, setShowKey] = useState(false)
   const [discardOpen, setDiscardOpen] = useState(false)
   const discardTrigger = useRef<HTMLButtonElement>(null)
@@ -94,7 +109,10 @@ export function ProviderCard({ provider }: { provider: Provider }) {
       alive.current = false
     }
   }, [])
-  const dirty = !!apiKey || model !== modelDraft.baseline
+  const dirty =
+    !!apiKey ||
+    model !== modelDraft.baseline ||
+    baseUrl !== baseUrlDraft.baseline
   const busy = saving || testing || settingDefault || checking
   useLeaveGuard({
     dirty: dirty || !!unknown,
@@ -144,6 +162,9 @@ export function ProviderCard({ provider }: { provider: Provider }) {
             ...(apiKey ? { api_key: apiKey } : {}),
             ...(model !== modelDraft.baseline
               ? { model: model || provider.default_model }
+              : {}),
+            ...(baseURLEditable && baseUrl !== baseUrlDraft.baseline
+              ? { base_url: baseUrl }
               : {})
           }
     active.current = true
@@ -172,6 +193,9 @@ export function ProviderCard({ provider }: { provider: Provider }) {
                       ...(effectiveModel !== undefined
                         ? { model: effectiveModel }
                         : {}),
+                      ...(input.base_url !== undefined
+                        ? { base_url: input.base_url }
+                        : {}),
                       ...(input.api_key
                         ? { configured: true, api_key_masked: "" }
                         : {})
@@ -187,6 +211,9 @@ export function ProviderCard({ provider }: { provider: Provider }) {
           value: effectiveModel ?? current.value,
           baseline: effectiveModel ?? current.value
         }))
+        if (input.base_url !== undefined) {
+          setBaseUrlDraft({ value: input.base_url, baseline: input.base_url })
+        }
       }
       setUnknown(null)
       setReceipt(
@@ -366,11 +393,50 @@ export function ProviderCard({ provider }: { provider: Provider }) {
               id={`provider-${provider.id}-key-help`}
               className="text-xs text-muted-foreground"
             >
-              {provider.configured
-                ? "Leave blank to keep the saved key."
-                : "Add a key to configure this provider."}
+              {provider.id === "custom_openai"
+                ? provider.configured
+                  ? "Leave blank to keep the saved key. A key is optional for servers that serve without authentication."
+                  : "Optional: only needed when the server was started with an API key."
+                : provider.configured
+                  ? "Leave blank to keep the saved key."
+                  : "Add a key to configure this provider."}
             </p>
           </div>
+
+          {baseURLEditable && (
+            <div className="space-y-1.5">
+              <Label
+                htmlFor={`provider-${provider.id}-base-url`}
+                className="text-xs"
+              >
+                Base URL
+              </Label>
+              <Input
+                id={`provider-${provider.id}-base-url`}
+                value={baseUrl}
+                disabled={busy || !canManage}
+                onChange={(e) => {
+                  setBaseUrlDraft((current) => ({
+                    ...current,
+                    value: e.target.value
+                  }))
+                  setTestResult(null)
+                  setReceipt("")
+                }}
+                placeholder="http://192.168.1.10:8000/v1"
+                aria-describedby={`provider-${provider.id}-base-url-help`}
+                className="font-mono text-xs"
+              />
+              <p
+                id={`provider-${provider.id}-base-url-help`}
+                className="text-xs text-muted-foreground break-words"
+              >
+                OpenAI-compatible server root, usually ending in /v1. Saved:{" "}
+                {baseUrlDraft.baseline || "not set"} — required together with a
+                model ID.
+              </p>
+            </div>
+          )}
 
           <div className="space-y-1.5">
             <Label
@@ -411,7 +477,9 @@ export function ProviderCard({ provider }: { provider: Provider }) {
               disabled={
                 busy ||
                 !canManage ||
-                (!apiKey && model === modelDraft.baseline) ||
+                (!apiKey &&
+                  model === modelDraft.baseline &&
+                  baseUrl === baseUrlDraft.baseline) ||
                 unknown?.kind === "default"
               }
               aria-busy={saving}
@@ -563,6 +631,10 @@ export function ProviderCard({ provider }: { provider: Provider }) {
                 setDiscardOpen(false)
                 setApiKey("")
                 setModelDraft((current) => ({
+                  value: current.baseline,
+                  baseline: current.baseline
+                }))
+                setBaseUrlDraft((current) => ({
                   value: current.baseline,
                   baseline: current.baseline
                 }))

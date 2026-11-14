@@ -155,6 +155,18 @@
       "free_tier": "1K RPM, 50K TPM",
       "icon": "🌊",
       "openai_compatible": true
+    },
+    "custom_openai": {
+      "name": "Custom OpenAI Compatible",
+      "env_key": "CUSTOM_OPENAI_API_KEY",
+      "env_url": "CUSTOM_OPENAI_BASE_URL",
+      "env_model": "CUSTOM_OPENAI_MODEL",
+      "default_url": "",
+      "default_model": "",
+      "docs": "https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html",
+      "free_tier": "Self-hosted server (vLLM, llama.cpp, Ollama, ...)",
+      "icon": "🖥️",
+      "openai_compatible": true
     }
   },
   "enrichment_providers": {
@@ -639,6 +651,7 @@
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",
     "COHERE_API_KEY",
+    "CUSTOM_OPENAI_API_KEY",
     "GITHUB_MODELS_API_KEY",
     "GOOGLE_ADS_ACCESS_TOKEN",
     "GOOGLE_ADS_DEVELOPER_TOKEN",

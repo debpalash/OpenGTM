@@ -69,7 +69,7 @@ func findPersonalEmail(ctx context.Context, d *Deps, name, company, domain strin
 		return "", "", nil
 	}
 	if e := personalViaSearch(ctx, d.Search, name, company, domain); e != "" {
-		return e, "verified", nil
+		return e, "found", nil // searched, not verified — honesty rule
 	}
 	if d.Mail == nil || !d.Mail.HasMX(ctx, domain) {
 		return "", "", ctx.Err()
@@ -150,7 +150,7 @@ func (ddgEmail) Enrich(ctx context.Context, _ *http.Client, _ func() (string, er
 		}
 	}
 	if email := emailViaSearch(ctx, d.Search, company, ls(in.Lead, "city"), domain); email != "" {
-		return ok(in, 0.6, "email", email, "email_confidence", "verified"), nil
+		return ok(in, 0.6, "email", email, "email_confidence", "found"), nil // searched, not verified
 	}
 	if err := ctx.Err(); err != nil {
 		return providers.Output{}, err
