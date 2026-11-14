@@ -72,3 +72,30 @@ func TestEnrichmentUndecryptableKeyDoesNotLeak(t *testing.T) {
 		t.Fatalf("%+v", views[0])
 	}
 }
+
+func TestCompanyEnrichCredentialUsesEncryptedSettings(t *testing.T) {
+	st := newFake()
+	e := newEnrichment(t, st)
+	key := "companyenrich-test-key-1234567890"
+	found, err := e.Update(context.Background(), "companyenrich", ProviderUpdate{APIKey: &key})
+	if !found || err != nil {
+		t.Fatalf("provider missing: %v %v", found, err)
+	}
+	raw := st.m["COMPANYENRICH_API_KEY"]
+	if !strings.HasPrefix(raw, "enc:") || strings.Contains(raw, key) {
+		t.Fatal("CompanyEnrich key was not encrypted")
+	}
+	views, err := e.List(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range views {
+		if v.ID == "companyenrich" {
+			if !v.Configured || v.APIKeyMasked == key {
+				t.Fatal("invalid masked view")
+			}
+			return
+		}
+	}
+	t.Fatal("CompanyEnrich settings entry missing")
+}

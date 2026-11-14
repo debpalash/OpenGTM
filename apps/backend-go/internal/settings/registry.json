@@ -197,6 +197,14 @@
       "free_tier": "50K/mo",
       "docs": "https://ipinfo.io/developers",
       "icon": "🌍"
+    },
+    "companyenrich": {
+      "name": "CompanyEnrich",
+      "env_key": "COMPANYENRICH_API_KEY",
+      "capability": "Company / people research, profile lookup and workforce",
+      "free_tier": "Paid credits; each action is opt-in",
+      "docs": "https://docs.companyenrich.com/reference",
+      "icon": "🏢"
     }
   },
   "integrations": [
@@ -639,6 +647,7 @@
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",
     "COHERE_API_KEY",
+    "COMPANYENRICH_API_KEY",
     "GITHUB_MODELS_API_KEY",
     "GOOGLE_ADS_ACCESS_TOKEN",
     "GOOGLE_ADS_DEVELOPER_TOKEN",
