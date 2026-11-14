@@ -225,7 +225,7 @@ func TestGleifParentLinkIsEgressGuarded(t *testing.T) {
 	p, _ := providers.Get("gleif")
 	out, err := p.Enrich(context.Background(), &http.Client{Transport: rt}, func() (string, error) { return "", nil },
 		providers.Input{Lead: map[string]any{"company": "Acme"}})
-	if err != nil || out.Error != "" {
+	if err != nil || out.Error != "ip '127.0.0.1' is private/blocked" {
 		t.Fatalf("Enrich: %v %q", err, out.Error)
 	}
 	if _, ok := out.Extra.Get("parent_lei"); ok {

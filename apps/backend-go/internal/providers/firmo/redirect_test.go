@@ -82,7 +82,7 @@ func TestGleifRedirects(t *testing.T) {
 		return reply(200, `{"data":[]}`), nil
 	}
 	out = enrichWith(t, "gleif", mixedClient(toLoop, "api.gleif.org"), map[string]any{"company": "Acme"})
-	if out.Error != "no_lei_match" || hits.Load() != 0 {
+	if out.Error != "ip '127.0.0.1' is private/blocked" || hits.Load() != 0 {
 		t.Errorf("redirect to loopback: error %q hits %d", out.Error, hits.Load())
 	}
 }
@@ -120,7 +120,7 @@ func TestSECRedirects(t *testing.T) {
 		return reply(200, `{}`), nil
 	}
 	out = enrichWith(t, "sec_edgar", mixedClient(toLoop, "www.sec.gov", "data.sec.gov", "efts.sec.gov"), map[string]any{"company": "Acme Inc"})
-	if out.Error != "no_cik_match" || hits.Load() != 0 {
+	if out.Error != "ip '127.0.0.1' is private/blocked" || hits.Load() != 0 {
 		t.Errorf("redirect to loopback: error %q hits %d", out.Error, hits.Load())
 	}
 }

@@ -19,6 +19,59 @@ OPENER = cla.Person("alice", 1001)
 MAINTAINER = cla.Person("debpalash", 4178343)
 
 
+def body_event(body, action="opened"):
+    user = {"login": "alice", "id": 1001, "type": "User"}
+    pr = {"number": 42, "user": user, "body": body,
+          "created_at": "2026-01-01T00:00:00Z", "updated_at": "2026-01-02T00:00:00Z"}
+    event = {"action": action, "sender": user, "pull_request": dict(pr)}
+    if action == "edited":
+        event["changes"] = {"body": {"from": "old description"}}
+    return event, pr
+
+
+def test_author_body_signature_records_provenance():
+    for action in ("opened", "edited"):
+        event, pr = body_event(cla.BODY_SIGNATURE, action)
+        result = cla.body_signature("pull_request_target", event, pr, 99)
+        assert result["id"] == 1001
+        assert result["declaration"] == cla.BODY_SIGNATURE
+        assert result["event_sender_id"] == 1001
+        assert result["source"] == "pull_request_body"
+        assert result["body_sha256"] == __import__("hashlib").sha256(pr["body"].encode()).hexdigest()
+
+
+@pytest.mark.parametrize("body", [
+    "", "- [x] I have signed the CLA", "> " + cla.BODY_SIGNATURE,
+    "    " + cla.BODY_SIGNATURE, "\t" + cla.BODY_SIGNATURE,
+    "<!--\n" + cla.BODY_SIGNATURE + "\n-->",
+    "```\n" + cla.BODY_SIGNATURE + "\n```",
+    "```\n~~~\n" + cla.BODY_SIGNATURE + "\n```",
+    "````\n```\n" + cla.BODY_SIGNATURE + "\n````",
+    "```\n```text\n" + cla.BODY_SIGNATURE + "\n```",
+])
+def test_body_examples_are_not_signatures(body):
+    event, pr = body_event(body)
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+
+
+def test_body_signature_requires_author_event_and_current_body():
+    event, pr = body_event(cla.BODY_SIGNATURE, "edited")
+    event["sender"] = {"id": 999}
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+    event["sender"] = pr["user"]
+    event["changes"]["body"]["from"] = cla.BODY_SIGNATURE
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+    event["changes"] = {}
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+    event["changes"] = {"body": {"from": "old"}}
+    pr["body"] = "changed after event"
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+    pr["body"] = cla.BODY_SIGNATURE
+    event["action"] = "reopened"
+    assert cla.body_signature("pull_request_target", event, pr, 99) is None
+    assert cla.body_signature("issue_comment", event, pr, 99) is None
+
+
 def actor(login=None, id=None, name="Someone", email="someone@example.com"):
     return {"name": name, "email": email, "login": login, "id": id}
 
@@ -221,6 +274,26 @@ class FakeGitHub:
             self.patched.append(body["body"])
             return 200, {}, {}
         raise AssertionError(f"unexpected {method} {path}")
+
+
+def test_pr_body_signature_is_recorded_and_passes_same_run():
+    gh = FakeGitHub([], [actor("alice", 1001)], pr={"body": cla.BODY_SIGNATURE})
+    pr = gh.get("/pulls/7")
+    pr["created_at"] = "2026-01-01T00:00:00Z"
+    event = {"action": "opened", "sender": pr["user"], "pull_request": pr}
+    assert cla.run(gh, "pull_request_target", event).passed
+    assert gh.files[cla.SIGNATURE_PATH]["signatures"][0]["declaration"] == cla.BODY_SIGNATURE
+    assert gh.statuses[-1]["state"] == "success"
+
+
+def test_pr_body_does_not_sign_other_contributors():
+    gh = FakeGitHub([], [actor("bob", 1002)], pr={"body": cla.BODY_SIGNATURE})
+    pr = gh.get("/pulls/7")
+    pr["created_at"] = "2026-01-01T00:00:00Z"
+    event = {"action": "opened", "sender": pr["user"], "pull_request": pr}
+    result = cla.run(gh, "pull_request_target", event)
+    assert [p.id for p in result.unsigned] == [1002]
+    assert [s["id"] for s in gh.files[cla.SIGNATURE_PATH]["signatures"]] == [1001]
 
 
 def test_first_signature_creates_the_store_and_turns_the_status_green():

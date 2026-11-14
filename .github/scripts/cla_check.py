@@ -11,7 +11,8 @@ git name, so changing `user.name` cannot impersonate a signer. Authors whose
 commit email is not linked to a GitHub account cannot be verified and fail the
 check with instructions.
 
-Each run rescans every comment on the pull request (or signing issue) and
+An authenticated PR author can also sign in the opening body or their own
+body edit. Each run rescans every comment on the pull request (or signing issue) and
 records any valid signature not yet stored, so the next run picks up anything a
 run cancelled while queued missed. Edited comments never count; the check
 replies once to a comment that looks like a signature but cannot be recorded,
@@ -43,6 +44,7 @@ from agent_identities import AGENT_EMAILS
 
 CLA_VERSION = "1.0"
 SIGN_PHRASE = f"I have read the OpenGTM CLA {CLA_VERSION} and I hereby sign it."
+BODY_SIGNATURE = "CLA-Signature: " + SIGN_PHRASE
 DOCUMENT_PATH = "CLA.md"
 SIGNATURE_BRANCH = "cla-signatures"
 SIGNATURE_PATH = f"signatures/v{CLA_VERSION}/cla.json"
@@ -159,6 +161,51 @@ def signature(user: dict, comment: dict, repo_id, **where) -> dict:
     return {"login": user["login"], "id": int(user["id"]), **where, "comment_id": comment["id"],
             "signed_at": comment["created_at"], "version": CLA_VERSION, "repo_id": repo_id,
             "body_sha256": hashlib.sha256((comment.get("body") or "").encode()).hexdigest()}
+
+
+def body_signature(event_name: str, event: dict, pr: dict, repo_id) -> dict | None:
+    """Capture the author's explicit declaration from an authenticated PR event.
+
+    Do not infer consent from a later API snapshot, another editor, or a
+    declaration already present before an edit. The event body must still be
+    current when evaluated, and code fences and blockquotes are not declarations.
+    """
+    if event_name != "pull_request_target" or event.get("action") not in ("opened", "edited"):
+        return None
+    payload = event.get("pull_request") or {}
+    author, sender = payload.get("user") or {}, event.get("sender") or {}
+    if (author.get("type") != "User" or not author.get("id") or
+            sender.get("id") != author["id"] or author["id"] != (pr.get("user") or {}).get("id") or
+            payload.get("number") != pr.get("number") or payload.get("body") != pr.get("body")):
+        return None
+
+    def declared(body: str) -> bool:
+        fence = None
+        visible = re.sub(r"<!--.*?(?:-->|\Z)", "", body or "", flags=re.S)
+        for line in visible.splitlines():
+            marker = re.match(r"^ {0,3}(`{3,}|~{3,})", line)
+            if marker and fence is None:
+                fence = marker.group(1)
+            elif (marker and fence and marker.group(1)[0] == fence[0] and
+                  len(marker.group(1)) >= len(fence) and not line[marker.end():].strip()):
+                fence = None
+            elif fence is None and line == BODY_SIGNATURE:
+                return True
+        return False
+
+    if not declared(payload.get("body")):
+        return None
+    if event["action"] == "edited":
+        change = (event.get("changes") or {}).get("body") or {}
+        if "from" not in change or declared(change["from"]):
+            return None
+    body = payload.get("body") or ""
+    return {"login": author["login"], "id": int(author["id"]), "pull_request": pr["number"],
+            "source": "pull_request_body", "event_action": event["action"],
+            "declaration": BODY_SIGNATURE, "event_sender_id": int(sender["id"]),
+            "signed_at": payload.get("updated_at") if event["action"] == "edited" else payload.get("created_at"),
+            "version": CLA_VERSION, "repo_id": repo_id,
+            "body_sha256": hashlib.sha256(body.encode()).hexdigest()}
 
 
 def exempt(person: Person) -> bool:
@@ -670,6 +717,14 @@ def run(gh: GitHub, event_name: str, event: dict, server_url: str = "https://git
     signed_ids = {int(s["id"]) for s in store["signatures"]}
     evaluation = evaluate(opener, opener_is_bot, actors, signed_ids)
 
+    body_record = body_signature(event_name, event, pr, pr["base"]["repo"]["id"])
+    body_new = []
+    if body_record and opener.id in {p.id for p in evaluation.unsigned}:
+        save_signatures(gh, [body_record], number)
+        body_new = [body_record]
+        signed_ids.add(opener.id)
+        evaluation = evaluate(opener, opener_is_bot, actors, signed_ids)
+
     # Record signatures from any comment by someone who still has to sign.
     new, _ = scan_comments(gh, number, pr["base"]["repo"]["id"], {"pull_request": number},
                            signers={p.id for p in evaluation.unsigned})
@@ -687,7 +742,7 @@ def run(gh: GitHub, event_name: str, event: dict, server_url: str = "https://git
         description = "Close duplicate pull requests sharing this head"
     cleared = evaluation.passed and bool(evaluation.signed)
     if cleared:
-        records = {int(s["id"]): s for s in [*store["signatures"], *new]}
+        records = {int(s["id"]): s for s in [*store["signatures"], *body_new, *new]}
         signatures = {p.login: signature_permalink(gh, server_url, records.get(p.id)) for p in evaluation.signed}
         body = render_comment(evaluation, document_permalink(gh, doc_url, server_url), signatures)
     else:

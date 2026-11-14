@@ -15,7 +15,7 @@ const dnsTimeout = 6 * time.Second
 
 // ResolveMX is resolve_mx: the highest-priority MX host (lowest preference,
 // first listed on a tie, trailing dot stripped) or "" when there is none or the
-// lookup failed. Results, failures included, are remembered for an hour.
+// lookup failed. Hosts are remembered for an hour; misses for one minute.
 func ResolveMX(ctx context.Context, d Deps, domain string) string {
 	if domain == "" {
 		return ""
@@ -42,8 +42,12 @@ func ResolveMX(ctx context.Context, d Deps, domain string) string {
 		}
 		host = strings.TrimRight(best.Host, ".")
 	}
+	ttl := cacheTTL
+	if host == "" {
+		ttl = mxNegativeTTL
+	}
 	m.mu.Lock()
-	memoPut(m.mx, domain, host, now)
+	memoPutTTL(m.mx, domain, host, d.now(), ttl)
 	m.mu.Unlock()
 	return host
 }
