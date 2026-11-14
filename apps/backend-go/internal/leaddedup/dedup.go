@@ -119,14 +119,48 @@ func emailDomain(e string) (string, bool) {
 	return strings.Split(e, "@")[1], true
 }
 
+// domainOfLastAt is the mail domain of an address ("" without an "@").
+func domainOfLastAt(e string) string {
+	if i := strings.LastIndex(e, "@"); i >= 0 {
+		return e[i+1:]
+	}
+	return ""
+}
+
+// sameMailbox is true when two normalized addresses are the exact same mailbox.
+func sameMailbox(a, b string) bool {
+	return a != "" && a == b
+}
+
+// platformDomains are social/profile platforms whose host appears in many leads' website field
+// (linkedin.com/in/…, twitter.com/…). Two leads sharing one says nothing about company identity.
+var platformDomains = map[string]bool{
+	"linkedin.com": true, "twitter.com": true, "x.com": true, "facebook.com": true,
+	"instagram.com": true, "youtube.com": true, "github.com": true, "crunchbase.com": true,
+	"glassdoor.com": true, "indeed.com": true, "medium.com": true,
+}
+
+// freeMailDomains are consumer providers: a shared one identifies a person, not a company.
+var freeMailDomains = map[string]bool{
+	"gmail.com": true, "googlemail.com": true, "yahoo.com": true, "hotmail.com": true,
+	"outlook.com": true, "live.com": true, "aol.com": true, "icloud.com": true,
+	"me.com": true, "proton.me": true, "protonmail.com": true, "yandex.com": true,
+	"mail.ru": true, "gmx.com": true, "web.de": true, "t-online.de": true,
+}
+
 func compareP(a, b *prepared) MatchResult {
 	var fs [5]float64
 	if a.company != "" && b.company != "" {
 		fs[0] = jaroWinklerRunes(a.cRunes, b.cRunes)
 	}
 	if a.domain != "" && b.domain != "" {
-		if a.domain == b.domain {
+		if a.domain == b.domain && !platformDomains[a.domain] {
 			fs[1] = 1.0
+		} else if a.domain == b.domain {
+			// A shared social/profile platform (linkedin.com/in/…) identifies the page host,
+			// not the company behind it: two profiles on the same platform are no evidence of
+			// being the same lead. Treat as no domain evidence rather than a match.
+			fs[1] = 0
 		} else {
 			fs[1] = jaroWinklerRunes(a.dRunes, b.dRunes)
 		}
@@ -155,6 +189,13 @@ func compareP(a, b *prepared) MatchResult {
 	}
 	if fs[2] == 1.0 {
 		total = math.Max(total, 0.92)
+	}
+	// Same exact mailbox (identical local part and domain) plus strong name agreement:
+	// harvested variants of ONE contact where the website was lost on one side (the domain floor
+	// cannot fire). Same-domain-but-different-local stays weak on purpose — different people at
+	// one company share a domain (pinned by the synthetic_5000 find_duplicates vectors).
+	if fs[3] == 1.0 && fs[0] >= 0.80 && sameMailbox(a.email, b.email) {
+		total = math.Max(total, 0.85)
 	}
 	res := MatchResult{
 		LeadAID: a.rec.idOr(int64(0)), LeadBID: b.rec.idOr(int64(0)),
