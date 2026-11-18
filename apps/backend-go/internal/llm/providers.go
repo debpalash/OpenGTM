@@ -40,6 +40,10 @@ type providerSpec struct {
 // custom_openai is deliberately absent: it is a self-hosted endpoint with an
 // optional key, so it must never receive traffic (or an operator URL) unless it
 // is the explicit default provider (see Client.DefaultProvider / Providers).
+// openai (paid, api.openai.com) is absent for a different reason: OPENAI_API_KEY
+// is commonly set in an environment for other tools, so listing it here would
+// silently send prospect data to OpenAI and bill the key as a fallback. Unlike
+// anthropic it only runs when explicitly chosen.
 var ProviderOrder = []string{
 	"cerebras", "groq", "sambanova", "nvidia",
 	"mistral", "openrouter", "github_models", "siliconflow",
@@ -90,6 +94,14 @@ var providerSpecs = map[string]providerSpec{
 	"openrouter":    {"openrouter", "OPENROUTER_API_KEY", "OPENROUTER_BASE_URL", "OPENROUTER_MODEL", "https://openrouter.ai/api/v1", "meta-llama/llama-3.3-70b-instruct:free", "max_tokens", false},
 	"github_models": {"github_models", "GITHUB_MODELS_API_KEY", "GITHUB_MODELS_BASE_URL", "GITHUB_MODELS_MODEL", "https://models.inference.ai.azure.com", "gpt-4o", "max_tokens", false},
 	"siliconflow":   {"siliconflow", "SILICONFLOW_API_KEY", "SILICONFLOW_BASE_URL", "SILICONFLOW_MODEL", "https://api.siliconflow.cn/v1", "Qwen/Qwen3-8B", "max_tokens", false},
+	// openai is the paid first-party OpenAI API. It is deliberately NOT in
+	// ProviderOrder: it only runs when chosen explicitly (LLM_DEFAULT_PROVIDER
+	// or the workspace default). max_completion_tokens is the current parameter;
+	// max_tokens is deprecated and rejected by o-series/reasoning models:
+	// https://platform.openai.com/docs/api-reference/chat/create
+	// gpt-6-luna is the small, low-cost model on https://platform.openai.com/docs/models
+	// (served from https://developers.openai.com/api/docs/models).
+	"openai": {"openai", "OPENAI_API_KEY", "OPENAI_BASE_URL", "OPENAI_MODEL", "https://api.openai.com/v1", "gpt-6-luna", "max_completion_tokens", false},
 	// custom_openai has no committed default URL or model on purpose: a
 	// self-hosted endpoint is install-specific and is configured through the
 	// environment, .env or the Settings UI (see docs/guides/local-openai-compatible-llm.md).

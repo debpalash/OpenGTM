@@ -22,6 +22,7 @@ have free tiers.
 | `openrouter` | `OPENROUTER_API_KEY` | `meta-llama/llama-3.3-70b-instruct:free` | `OPENROUTER_BASE_URL` |
 | `github_models` | `GITHUB_MODELS_API_KEY` | `gpt-4o` | `GITHUB_MODELS_BASE_URL` |
 | `siliconflow` | `SILICONFLOW_API_KEY` | `Qwen/Qwen3-8B` | `SILICONFLOW_BASE_URL` |
+| `openai` | `OPENAI_API_KEY` | `gpt-6-luna` | `OPENAI_BASE_URL` |
 
 Each has a `<PROVIDER>_MODEL` variable to change the model. The Settings UI
 additionally lists Google AI (`GOOGLE_AI_API_KEY`, `gemini-2.5-flash`),
@@ -37,7 +38,9 @@ Anthropic uses the native Messages API; the others are OpenAI-compatible.
 
 Failover order after the default is `cerebras, groq, sambanova, nvidia,
 mistral, openrouter, github_models, siliconflow, anthropic`. Anthropic sits
-last so the free tier is never displaced as a fallback. A call tries up to
+last so the free tier is never displaced as a fallback. `openai` and
+`custom_openai` are not in this list: they are paid or self-hosted, so they
+only run when you choose them with `LLM_DEFAULT_PROVIDER` or the Settings UI. A call tries up to
 three providers, with exponential backoff and jitter on rate limits.
 
 Keys saved in the Settings UI override environment variables.
