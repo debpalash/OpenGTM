@@ -11,6 +11,8 @@ build/
 # ── Node ────────────────────────────────────
 node_modules/
 apps/web/dist/
+apps/web/playwright-report/
+apps/web/test-results/
 
 # ── Build output / local run state (Makefile) ───────────────
 /bin/
