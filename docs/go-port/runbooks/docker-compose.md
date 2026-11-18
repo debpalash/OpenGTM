@@ -66,7 +66,8 @@ answers 409.
 - `api-go`, `worker-go`, `scheduler-go` and `mcp` also read `.env` (`env_file`): provider and LLM keys,
   `GOOGLE_API_KEY`/`GOOGLE_CSE_ID`/`GOOGLE_BOOKS_API_KEY`, `LINKEDIN_LI_AT_COOKIE`, SMTP, SSO. The browser service
   does not.
-- `lead_net` has a fixed subnet (`LEAD_NET_SUBNET`, default `172.29.250.0/24`); `TRUST_PROXY_CIDRS` defaults to it.
+- `lead_net` has a fixed subnet (`LEAD_NET_SUBNET`, default `172.29.250.0/24`); `TRUST_PROXY_CIDRS` defaults to it. A second stack on the same host needs its own `LEAD_NET_SUBNET`, project name and host ports (`install.sh` picks a free subnet for a new `.env`). Fixed `container_name`s were removed; containers are `<project>-<service>-1`.
+- Low-memory install: `docker compose -f docker-compose.yml -f docker-compose.lite.yml up -d` does not start `browser` (see the Docker guide); collect/scrape jobs then fail with a browser-service error.
 - `OUTREACH_PUBLIC_BASE_URL` must be https once outreach is used (`APP_ENV=dev` allows http).
 - After upgrading from a Python install, run `suppressnorm` once:
   `docker compose run --rm --entrypoint /suppressnorm worker-go --dry-run`, then without `--dry-run`.

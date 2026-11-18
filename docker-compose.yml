@@ -40,7 +40,6 @@ services:
   # ── Postgres (primary store) ───
   postgres:
     image: postgres:16-alpine
-    container_name: lead-data-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-yupcha}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required - run scripts/install.sh or set it in .env (see .env.example)}
@@ -271,7 +270,6 @@ services:
   # ── Nginx (reverse proxy in front of api-go) ───────────────
   nginx:
     image: nginx:alpine
-    container_name: lead-data-web
     ports:
       - "${PORT:-3000}:80"
     volumes:
@@ -291,7 +289,6 @@ services:
   # ── Redis (live pub/sub; durable jobs live in Postgres) ─────────
   redis:
     image: redis:7-alpine
-    container_name: lead-data-redis
     ports:
       # Redis has no authentication in this self-host profile; never expose it
       # to the LAN. Containers reach it through the private lead_net network.
@@ -326,7 +323,6 @@ services:
   # NOT published on a host port (internal lead_net only) — never expose it.
   reacher:
     image: reacherhq/backend:v0.10.0   # pinned (do NOT track `latest`)
-    container_name: lead-data-reacher
     profiles: [reacher]
     environment:
       - RCH__BACKEND_NAME=yupcha-reacher
