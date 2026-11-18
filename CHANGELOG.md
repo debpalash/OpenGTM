@@ -40,9 +40,13 @@ readiness is tracked in [#120](https://github.com/debpalash/OpenGTM/issues/120).
 - Retired flags: the `GO_EXECUTOR_*`, `GO_*_ROUTES_ENABLED`, `GO_SCHEDULER_ENABLED`, `COPILOT_GO_ENABLED` family and
   the worker's `PY_WORKER_*` settings no longer have any effect (a leftover `false` is ignored with a warning).
   See `docs/go-port/runbooks/15-cutover.md`.
-- Python installations: the Go migrator adopts only Alembic revision `e7b2c4d6f8a0`. v3.0.0's head is
-  `3f4051627384`, so a v3.0.0 database is refused until an intermediate Python release at `e7b2c4d6f8a0` exists;
-  see `docs/operations/release-rehearsals.md`.
+- Python installations: `opengtm-migrate` upgrades a v3.0.0 database (Alembic `3f4051627384`) directly: it applies the
+  eight intervening Alembic revisions' DDL and the job-queue steps in one transaction, stamps `e7b2c4d6f8a0`
+  and continues. `opengtm-migrate import-v3 --data-dir DIR [--dry-run]` copies the SQLite stores (workspaces and
+  members, workspace secrets, provider keys, chat history, workbook functions, chat memories); use the same
+  `SECRET_KEY`. The pre-Postgres `leads.db`, `outreach.db`, `signals.db`, `enrichment_cache.db` and `openmemory.db`
+  are not imported and are listed with row counts. Any other Alembic revision is refused. Runbook:
+  `docs/go-port/runbooks/migrations.md`; rehearsal: `scripts/release/rehearse-upgrade.sh`.
 - Toolchain go1.27.4 and `golang.org/x/net` v0.62.0. The patched HTML tokenizer keeps the first of duplicated
   attributes, as browsers do (#158).
 - Email verification: `angi.com` is no longer treated as disposable (#130); negative MX lookups are retried after

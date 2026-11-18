@@ -158,12 +158,25 @@ explains the services and scaling.
 
 ### Upgrade an existing Python installation
 
-Take and verify a database and data-directory backup before cutover. The Go
-migration runner adopts the exact Alembic revision `e7b2c4d6f8a0`; older schemas
-must be upgraded with the previous Python release first. Drain Python workers,
-backfill pending jobs, and rehearse restoring the previous release before a
-production cutover. Follow the [cutover runbook](docs/go-port/runbooks/15-cutover.md)
-and [migration guide](docs/go-port/runbooks/migrations.md).
+A v3.0.0 installation upgrades directly to the Go runtime; no intermediate release and no Python are needed. The
+upgrade is forward-only, so take and verify a database and data-directory backup first, keep the same `SECRET_KEY`
+(workspace secrets are copied still encrypted), and stop the Python services (let the Python worker drain). Then, from the new release
+checkout with the existing `.env` and volumes:
+
+```bash
+docker compose up -d postgres
+docker compose run --rm migrate                      # bridges the v3.0.0 schema, then applies the Go migrations
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data --dry-run
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data
+docker compose up -d --build
+```
+
+`import-v3` copies the SQLite stores (workspaces and members, workspace secrets, provider keys, chat history,
+workbook functions, chat memories), never modifies them, can be re-run, and lists what it does not import (the
+pre-Postgres `leads.db` among them: move those rows with v3.0.0's `scripts/migrate_sqlite_to_pg.py` before upgrading).
+Sign in with your existing v3.0.0 account. `scripts/release/rehearse-upgrade.sh` rehearses exactly this on a throwaway
+v3.0.0 install. See the [migration guide](docs/go-port/runbooks/migrations.md) and the
+[cutover runbook](docs/go-port/runbooks/15-cutover.md).
 
 ### Operate it
 
