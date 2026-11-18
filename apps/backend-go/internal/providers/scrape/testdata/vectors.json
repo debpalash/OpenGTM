@@ -1578,9 +1578,9 @@
    "success": true,
    "fields": {
     "email": "priya.s@acme.in",
-    "email_confidence": "verified"
+    "email_confidence": "found"
    },
-   "confidence": 0.7,
+   "confidence": 0.4,
    "error": "",
    "billing_evidence": null,
    "license": "unknown"
@@ -1708,7 +1708,7 @@
    "success": true,
    "fields": {
     "email": "contact@acme.in",
-    "email_confidence": "verified"
+    "email_confidence": "found"
    },
    "confidence": 0.6,
    "error": "",
@@ -1827,7 +1827,7 @@
    "success": true,
    "fields": {
     "email": "real@acme.org",
-    "email_confidence": "verified"
+    "email_confidence": "found"
    },
    "confidence": 0.6,
    "error": "",

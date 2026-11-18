@@ -350,6 +350,11 @@ func (j *job) run(ctx context.Context) error {
 		return j.stopCancelled(err)
 	}
 
+	if unique, err = j.geoStage(ctx, unique); err != nil {
+		return err
+	}
+	tagHarvestedEmails(unique)
+
 	scored, err := j.scoreStage(ctx, unique)
 	if err != nil {
 		return err
