@@ -1,0 +1,38 @@
+# Compose override used only by the release rehearsal scripts (rehearse-*.sh). It is layered on top of the
+# root docker-compose.yml with `-f docker-compose.yml -f scripts/release/rehearsal.compose.yml` and does not change
+# the defaults of the real stack.
+#
+# What it overrides, and why:
+#   - container_name: the root file pins lead-data-postgres / -redis / -web, which would collide with any
+#     other OpenGTM stack on the machine. Reset so Compose names containers after the (unique) project.
+#   - image: separate tags, so a rehearsal never replaces the images of a stack you run yourself.
+#   - env_file: the Go services read an optional repo-root `.env`; a developer's .env must not leak into a
+#     rehearsal, so it is ignored. The rehearsal passes its own generated env file with `--env-file`.
+#   - seed-go: SEED_START_RUN=0 seeds the demo workbook without starting the enrichment run, which would call
+#     external providers. The rehearsal needs data, not live-provider traffic.
+# Host ports (PORT, POSTGRES_PORT, REDIS_PORT, API_GO_PORT) and LEAD_NET_SUBNET are plain env variables of the
+# root file; the scripts set them, so no ports are overridden here.
+services:
+  postgres:
+    container_name: !reset null
+  redis:
+    container_name: !reset null
+  nginx:
+    container_name: !reset null
+  migrate:
+    image: opengtm-rehearsal-migrate-go:local
+  api-go:
+    image: opengtm-rehearsal-api-go:local
+    env_file: !reset []
+  worker-go:
+    image: opengtm-rehearsal-worker-go:local
+    env_file: !reset []
+  scheduler-go:
+    image: opengtm-rehearsal-scheduler-go:local
+    env_file: !reset []
+  seed-go:
+    image: opengtm-rehearsal-scheduler-go:local
+    environment:
+      SEED_START_RUN: "0"
+  browser:
+    image: opengtm-rehearsal-browser:local

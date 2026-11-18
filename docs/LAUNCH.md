@@ -88,7 +88,7 @@ Social preview**; upload `opengtm-social-preview.png` there.
 1. Verify a clean-machine `docker compose up` and time first useful screen.
 2. Set the GitHub description to: `Open-source, self-hosted Clay alternative — source, enrich, research, and route leads with your own keys.`
 3. Add GitHub topics: `clay-alternative`, `lead-enrichment`, `sales-automation`,
-   `gtm`, `self-hosted`, `ai-agents`, `fastapi`, `react`, and `mcp`.
+   `gtm`, `self-hosted`, `ai-agents`, `go`, `react`, and `mcp`.
 4. Upload `docs/assets/opengtm-social-preview.png` as the GitHub social image.
 5. Publish a tagged release with accurate release notes.
 6. Post Show HN first; stay available to answer technical questions.
