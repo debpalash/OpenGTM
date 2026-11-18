@@ -1,0 +1,14 @@
+{
+  "email": "test@example.com",
+  "quality": "",
+  "result": "error",
+  "resultcode": 4,
+  "subresult": "",
+  "free": false,
+  "role": false,
+  "didyoumean": "bademail@gmail.com",
+  "credits": 3454,
+  "executiontime": 2,
+  "error": "apikey_not_found",
+  "livemode": true
+}

@@ -1,0 +1,47 @@
+{
+  "docs": [
+    "https://app.findymail.com/docs/ (Reverse email lookup)"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "app.findymail.com",
+    "path": "/api/search/reverse-email",
+    "query": {},
+    "headers": {
+      "Authorization": "Bearer test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "email": "ada@acme.com"
+    }
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "linkedin_url": "https://www.linkedin.com/in/johndoe"
+      }
+    },
+    {
+      "name": "not_found",
+      "status": 200,
+      "file": "not_found.json",
+      "error": "no_data"
+    },
+    {
+      "name": "vendor_error",
+      "status": 402,
+      "file": "error.json",
+      "error": "http_402"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

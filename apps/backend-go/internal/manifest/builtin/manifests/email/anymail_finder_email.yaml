@@ -1,0 +1,37 @@
+# Anymail Finder "Find Person Email" -- declarative provider manifest.
+# Docs: https://anymailfinder.com/email-finder-api/docs/find-person-email
+# Spec: https://api.anymailfinder.com/openapi.json (POST /v5.1/find-email/person).
+# Auth: raw API key in the Authorization header (no "Bearer" prefix), see
+# https://anymailfinder.com/email-finder-api/docs/authentication
+# Synchronous. Billing: 1 credit only when a valid email is found; the credit
+# price depends on the plan, so cost_per_lookup is 0 (unknown).
+# The docs recommend a 180 s client timeout; the connector validator caps
+# request.timeout at 120 s, so a slow search can end as a timeout.
+# We map valid_email (set only when email_status is "valid"), not email.
+manifest_version: "1"
+name: anymail_finder_email
+display_name: Anymail Finder Email Finder
+author: OpenGTM
+homepage: https://anymailfinder.com/email-finder-api/docs/find-person-email
+tags: [email, enrichment, byok]
+capability: email
+capabilities: [email]
+description: Anymail Finder /v5.1/find-email/person - full name + company domain -> verified work email.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: header
+  param: Authorization
+  env_var: ANYMAIL_FINDER_API_KEY
+request:
+  method: POST
+  url: https://api.anymailfinder.com/v5.1/find-email/person
+  headers:
+    Content-Type: application/json
+  body:
+    domain: "{{input.domain}}"
+    full_name: "{{input.full_name}}"
+  timeout: 120
+response:
+  mappings:
+    email: "$.valid_email"

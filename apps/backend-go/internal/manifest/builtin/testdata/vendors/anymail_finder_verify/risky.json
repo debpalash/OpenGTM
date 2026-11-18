@@ -1,0 +1,9 @@
+{
+  "input": {
+    "email": "ada@acme.com"
+  },
+  "credits_charged": 1,
+  "email_status": "risky",
+  "mx_domain": "google.com",
+  "mx_host": "aspmx.l.google.com"
+}

@@ -1,0 +1,15 @@
+{
+  "input": {
+    "domain": "microsoft.com",
+    "full_name": "Satya Nadella"
+  },
+  "credits_charged": 1,
+  "email": "satyan@microsoft.com",
+  "email_status": "valid",
+  "mx_domain": "google.com",
+  "mx_host": "aspmx.l.google.com",
+  "person_company_name": "Microsoft",
+  "person_full_name": "Satya Nadella",
+  "person_job_title": "Chairman and CEO",
+  "valid_email": "satyan@microsoft.com"
+}

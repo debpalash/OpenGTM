@@ -1,0 +1,47 @@
+{
+  "docs": [
+    "https://app.findymail.com/docs/ (Find phone)"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "app.findymail.com",
+    "path": "/api/search/phone",
+    "query": {},
+    "headers": {
+      "Authorization": "Bearer test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+    }
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "phone": "+1234567890"
+      }
+    },
+    {
+      "name": "not_found",
+      "status": 200,
+      "file": "not_found.json",
+      "error": "no_data"
+    },
+    {
+      "name": "vendor_error",
+      "status": 423,
+      "file": "error.json",
+      "error": "http_423"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

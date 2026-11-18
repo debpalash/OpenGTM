@@ -1,0 +1,11 @@
+{
+  "status_code": 200,
+  "profile": {
+    "url": "https://www.linkedin.com/in/example-person",
+    "email": [],
+    "work_email": [],
+    "personal_email": [],
+    "phone": [],
+    "github": []
+  }
+}

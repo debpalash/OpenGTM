@@ -57,6 +57,18 @@ var vendors = []Vendor{
 	{Name: "companyenrich_people", BaseCost: 0.196, BYOK: true, Capabilities: []string{"companyenrich_people"}, Notes: "Up to 20 credits for 10 profiles; no email addresses"},
 	{Name: "companyenrich_search", BaseCost: 0.196, BYOK: true, Capabilities: []string{"companyenrich_search"}, Notes: "Up to 20 credits for 10 semantic-search companies"},
 	{Name: "companyenrich_similar", BaseCost: 0.49, BYOK: true, Capabilities: []string{"companyenrich_similar"}, Notes: "Up to 50 credits for 10 similar companies"},
+	// Manifest pack (internal/manifest/builtin/manifests). The vendors bill credits at a
+	// plan-dependent price and publish no single per-lookup price, so BaseCost is 0 (unknown,
+	// not free). Each entry matches its manifest's cost_per_lookup and capabilities.
+	{Name: "anymail_finder_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "1 credit per valid email; plan-dependent price (unknown)"},
+	{Name: "anymail_finder_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "plan-dependent price (unknown)"},
+	{Name: "bouncer_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "volume-tiered price (unknown per lookup); https://www.usebouncer.com/pricing/"},
+	{Name: "millionverifier_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "plan-dependent price (unknown)"},
+	{Name: "findymail_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "1 finder credit per email found; plan-dependent price (unknown)"},
+	{Name: "findymail_phone", BYOK: true, Capabilities: []string{"phone"}, PerPageSize: 25, Notes: "10 finder credits per phone found; plan-dependent price (unknown)"},
+	{Name: "findymail_linkedin", BYOK: true, Capabilities: []string{"linkedin_url"}, PerPageSize: 25, Notes: "1 finder credit per profile found; plan-dependent price (unknown)"},
+	{Name: "contactout_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "1 email credit per email found; plan-dependent price (unknown)"},
+	{Name: "contactout_phone", BYOK: true, Capabilities: []string{"phone"}, PerPageSize: 25, Notes: "1 phone credit per number found; plan-dependent price (unknown)"},
 }
 
 var vendorIndex = func() map[string]*Vendor {

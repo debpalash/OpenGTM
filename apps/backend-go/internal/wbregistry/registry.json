@@ -1054,6 +1054,159 @@
       ],
       "maturity": "beta",
       "certification": null
+    },
+    {
+      "name": "anymail_finder_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "anymail_finder_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "bouncer_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "millionverifier_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "findymail_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "findymail_phone",
+      "capabilities": [
+        "phone"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "findymail_linkedin",
+      "capabilities": [
+        "linkedin_url"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "contactout_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "contactout_phone",
+      "capabilities": [
+        "phone"
+      ],
+      "confidence": 0.7,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
     }
   ],
   "recipes": {

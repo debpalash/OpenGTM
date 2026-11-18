@@ -1,0 +1,49 @@
+{
+  "docs": [
+    "https://docs.usebouncer.com/api-reference/real-time/verify-email",
+    "https://docs.usebouncer.com/api-reference/openapi.yml"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.usebouncer.com",
+    "path": "/v1.1/email/verify",
+    "query": {
+      "email": "ada@acme.com"
+    },
+    "headers": {
+      "x-api-key": "test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "deliverable",
+      "status": 200,
+      "file": "deliverable.json",
+      "fields": {
+        "email_verify": "deliverable"
+      }
+    },
+    {
+      "name": "undeliverable",
+      "status": 200,
+      "file": "undeliverable.json",
+      "fields": {
+        "email_verify": "undeliverable"
+      }
+    },
+    {
+      "name": "vendor_error",
+      "status": 402,
+      "file": "error.json",
+      "error": "http_402"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

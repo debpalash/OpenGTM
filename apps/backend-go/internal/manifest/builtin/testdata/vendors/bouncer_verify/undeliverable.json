@@ -1,0 +1,6 @@
+{
+  "email": "john1234 @gnail.com.",
+  "status": "undeliverable",
+  "reason": "invalid_email",
+  "didYouMean": "john1234@gmail.com"
+}
