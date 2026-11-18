@@ -1,0 +1,50 @@
+title = "OpenGTM gitleaks config"
+
+[extend]
+useDefault = true
+
+# Every entry below was reviewed: the matches are fake keys, test vectors or
+# false positives, not live credentials. Do not add a path here without the same
+# review.
+
+[[allowlists]]
+# Test vectors and fake credentials (e.g. sk_live_abcd..., JWTs signed with test
+# secrets) used to assert redaction, signing and auth behaviour.
+description = "Go test fixtures and testdata vectors"
+paths = [
+  '''(^|/)testdata/''',
+  '''_test\.go$''',
+]
+
+[[allowlists]]
+# Playwright result dumps; the "keys" are hashed bundle file names
+# (auth-XXXX.js) and binary digests, not secrets.
+description = "Dashboard workbench test result dumps"
+paths = [
+  '''^docs/testing/dashboard-workbench/.*results\.json$''',
+]
+
+[[allowlists]]
+# Third-party README/API-doc snapshots that contain placeholder curl examples
+# (Authorization: Bearer YOUR_API_KEY, sample site keys, example env values).
+description = "Vendored third-party research context snapshots"
+paths = [
+  '''^reference/research-ai-context/''',
+  # Earlier history locations of the same snapshots (history scans only).
+  '''^research-(ai-context|summaries)/''',
+]
+
+[[allowlists]]
+# Prose plan text ("no auth 401, ...") trips generic-api-key; no credential.
+description = "Go port planning docs (prose false positives)"
+paths = [
+  '''^docs/go-port/plans/.*\.md$''',
+]
+
+[[allowlists]]
+# The string literal "linkedin_url" is a column name, not a LinkedIn client id.
+description = "linkedin_url field name false positive"
+targetRules = ["linkedin-client-id"]
+paths = [
+  '''^apps/backend-go/internal/api/leadenrich\.go$''',
+]
