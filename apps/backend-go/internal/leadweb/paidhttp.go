@@ -23,6 +23,9 @@ type providerRequest struct {
 	accept   string
 	timeout  time.Duration
 	maxBytes int64
+	// headers are extra non-secret request headers; keyless permits an empty key (no Authorization is sent).
+	headers map[string]string
+	keyless bool
 }
 
 var errProviderResponse = errors.New("web provider request failed")
@@ -31,7 +34,7 @@ var errProviderResponse = errors.New("web provider request failed")
 // 307/308 body replays), and bounds the complete decompressed response. No URL,
 // query, response body, or key is included in returned errors or logs.
 func postProvider(ctx context.Context, hc *http.Client, p providerRequest) (http.Header, []byte, error) {
-	if hc == nil || p.key == "" {
+	if hc == nil || (p.key == "" && !p.keyless) {
 		return nil, nil, errProviderResponse
 	}
 	if err := ctx.Err(); err != nil {
@@ -51,7 +54,12 @@ func postProvider(ctx context.Context, hc *http.Client, p providerRequest) (http
 	if err != nil {
 		return nil, nil, errProviderResponse
 	}
-	req.Header.Set("Authorization", "Bearer "+p.key.Reveal())
+	if p.key != "" {
+		req.Header.Set("Authorization", "Bearer "+p.key.Reveal())
+	}
+	for k, v := range p.headers {
+		req.Header.Set(k, v)
+	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", p.accept)
 	req.Header.Set("User-Agent", "OpenGTM")

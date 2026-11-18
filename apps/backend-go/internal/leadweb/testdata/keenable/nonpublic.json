@@ -1,0 +1,1 @@
+{"query":"x","results":[{"title":"Local","url":"http://127.0.0.1/admin","snippet":"no"},{"title":"Meta","url":"http://169.254.169.254/latest","snippet":"no"},{"title":"Cred","url":"https://user:pw@acme.example/","snippet":"no"},{"title":"JS","url":"javascript:alert(1)","snippet":"no"},{"title":"Public","url":"https://acme.example/ok","snippet":"yes"}]}
