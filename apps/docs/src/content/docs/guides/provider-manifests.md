@@ -23,9 +23,6 @@ It cannot:
 - poll or wait for a webhook (vendors with async results are out of scope);
 - send a request in more than one step;
 - send form-encoded or multipart bodies (JSON bodies and query strings only);
-- leave out a parameter when the lead has no value for it (the parameter is
-  sent as an empty string);
-- translate a value (a vendor word such as `deliverable` is stored as it is);
 - join or loop over arrays (`items[]` takes the first non-empty item);
 - use two credentials in the Settings screen (a second key needs
   `auth.extra_env` and is not covered by the Settings key field).
@@ -95,6 +92,7 @@ If the credential is missing, no request is made and the result is
 | `query` | | Map of parameter name to template. Added to any query already in `url`. |
 | `body` (or `body_template`) | | JSON body. Strings anywhere inside are templates. Sent with `Content-Type: application/json` unless you set that header. |
 | `timeout` | `20` | Seconds. Must be above 0 and at most 120. |
+| `omit_empty` | none | List of header names, query parameter names and top-level body keys. Each one is left out of the request when its rendered value is the empty string. Without it an empty input is sent as `""`. Credentials added by `auth` are never removed. |
 
 The response body is read up to 1 MiB and must be JSON.
 
@@ -105,6 +103,45 @@ The response body is read up to 1 MiB and must be JSON.
 | `mappings` | Required, not empty. Map of OpenGTM field name to a path in the response. |
 | `error_path` | Optional path. If it holds a truthy value (non-empty string, `true`, non-zero), the call is a failure even though the HTTP status was 2xx. |
 | `error_message_path` | Optional path of the text to report. Cut to 120 characters. |
+| `value_maps` | Optional. Translates the value of a mapped field. See below. |
+
+#### `value_maps`
+
+Use it when the vendor's words differ from the words OpenGTM uses for the
+field. The key is a field name from `mappings`.
+
+```yaml
+response:
+  mappings:
+    email_verify: "$.status"
+  value_maps:
+    email_verify:
+      values:
+        deliverable: valid
+        undeliverable: invalid
+        risky: risky
+      default: unknown
+```
+
+- `values` maps the vendor's value (matched exactly, as text, so the number
+  `1` matches the key `"1"`) to the value to store. Quote keys that YAML
+  could read as a boolean (`"yes"`, `"no"`, `"on"`, `"off"`).
+- `default` is stored for any vendor value that is not listed. If you leave it
+  out, an unlisted value is stored as it is. State the fallback in the
+  manifest; there is no built-in one.
+- A missing or empty vendor value is never mapped, so the result is still
+  `no_data`. A vendor error is reported before any mapping.
+- Both sides are plain text. They are never treated as templates, so a map
+  cannot pull in a lead value or a credential.
+- Every key must also be in `mappings` (the connector validator checks it).
+
+**`email_verify` rule.** Downstream code reads these words: `valid`,
+`invalid`, `catch_all`, `risky`, `unknown`. A manifest that maps
+`email_verify` must carry a `value_maps` entry with `default: unknown` whose
+values are only those five words. A test enforces it. Follow the cascade:
+`ok`, `deliverable`, `safe` become `valid`; `undeliverable`, `rejected`,
+`bad` and `disposable` become `invalid`; `accept_all` and `catch_all` become
+`catch_all`.
 
 Path syntax in `mappings`, `error_path` and `error_message_path`:
 
@@ -129,6 +166,11 @@ mapping is dropped the result is `no_data`. The fields `phone` and
   `website`, without scheme and `www.`), `email`, `linkedin_url`, `city`,
   `contact_person`, `full_name` (same as `contact_person`), `first_name`,
   `last_name`, `phone`.
+- Values substituted into `request.url` are escaped. In the path, `/`, `?`,
+  `#`, `%` and spaces are percent-encoded and a value of `.` or `..` cannot
+  act as a path element. After a `?` the value is query-escaped. A lead value
+  therefore cannot add path segments, parameters or a fragment. Defaults and
+  your own text are written as you typed them.
 - `${env:NAME}` is replaced by a credential. It works only in text you
   wrote in the manifest, never in a lead value, and only for `auth.env_var`
   and `auth.extra_env`.
@@ -283,11 +325,16 @@ Rules for the fixtures:
   value with a realistic one and say so in `docs`.
 - Do not add a field the docs do not show.
 - Include at least one hit, one answer with no data (when the vendor documents
-  one), and one vendor error. For a vendor that reports errors with HTTP
+  one), and one vendor error. For a verifier, add one case per vendor word you
+  translate. For a vendor that reports errors with HTTP
   status 200 and an error field, add a case for it and set `error_path`.
 - `"error": "no_data"` means a successful call with nothing to map.
   `"error": "http_402"` means an HTTP error status.
 - `body` is `null` for a `GET`.
+- The fixture lead is fixed per manifest. A parameter listed in `omit_empty`
+  is tested on the absent side by leaving that lead field out of `lead`; the
+  engine tests in `internal/manifest/extensions_test.go` cover the present
+  side.
 
 Run it from `apps/backend-go`:
 
@@ -338,6 +385,7 @@ Copy this into the PR description.
 - [ ] The call is synchronous and needs one request.
 - [ ] `request.url` is https; the key is in `auth.env_var`; no secret in any file.
 - [ ] `cost_per_lookup` is the published price, or 0 with a comment saying it is unknown.
+- [ ] Verifiers write only valid, invalid, catch_all, risky, unknown (value_maps with `default: unknown`).
 - [ ] `capability` is an existing one (email, email_verify, phone, mobile_phone, linkedin_url, company_size, ...).
 - [ ] Fixture directory with a hit, an empty answer and a vendor error, copied from the docs.
 - [ ] vendorcatalog, wbregistry (and the two meta fixtures), settings registry

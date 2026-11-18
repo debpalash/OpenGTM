@@ -48,10 +48,17 @@ func TestPackManifestsAreWiredIntoTheApp(t *testing.T) {
 	}
 
 	for name, e := range builtinIndex(t) {
-		if legacyManifests[name] {
-			continue
-		}
 		m := e.Manifest
+		// Every manifest needs its key field in Settings, the first four included.
+		if !cardKeys[m.Auth.EnvVar] {
+			t.Errorf("%s: %s has no enrichment_providers entry in settings/registry.json", name, m.Auth.EnvVar)
+		}
+		if !secret(m.Auth.EnvVar) {
+			t.Errorf("%s: %s is not in settings/registry.json secret_app_keys, so it would be stored in plain text", name, m.Auth.EnvVar)
+		}
+		if legacyManifests[name] {
+			continue // their catalog and registry entries predate this test
+		}
 		caps := []string{m.Capability}
 		for _, c := range m.Capabilities {
 			if c != m.Capability {
@@ -72,12 +79,6 @@ func TestPackManifestsAreWiredIntoTheApp(t *testing.T) {
 			if !reflect.DeepEqual(p.Capabilities, caps) || p.Confidence != m.DefaultConfidence {
 				t.Errorf("%s: wbregistry %v/%v, manifest %v/%v", name, p.Capabilities, p.Confidence, caps, m.DefaultConfidence)
 			}
-		}
-		if !cardKeys[m.Auth.EnvVar] {
-			t.Errorf("%s: %s has no enrichment_providers entry in settings/registry.json", name, m.Auth.EnvVar)
-		}
-		if !secret(m.Auth.EnvVar) {
-			t.Errorf("%s: %s is not in settings/registry.json secret_app_keys, so it would be stored in plain text", name, m.Auth.EnvVar)
 		}
 	}
 }

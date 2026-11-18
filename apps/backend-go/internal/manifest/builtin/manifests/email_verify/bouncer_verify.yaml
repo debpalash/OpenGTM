@@ -3,9 +3,11 @@
 # Spec: https://docs.usebouncer.com/api-reference/openapi.yml (GET /v1.1/email/verify).
 # Auth: x-api-key header. Synchronous; the docs say it answers within 10 s
 # (30 s at most).
-# status is one of deliverable, risky, undeliverable, unknown. The manifest
-# format cannot translate values, so those words are written to email_verify
-# as they are (the native verifiers write valid, risky, invalid, unknown).
+# status is one of deliverable, risky, undeliverable, unknown. value_maps
+# translates it to the words the native verifiers write to email_verify
+# (valid, risky, invalid, unknown); any other word becomes unknown. Bouncer
+# reports catch-all in domain.acceptAll, which a single mapping cannot read,
+# so catch_all is never produced here.
 # Pricing is per credit and tiered by volume (https://www.usebouncer.com/pricing/),
 # so cost_per_lookup is 0 (unknown).
 manifest_version: "1"
@@ -32,3 +34,11 @@ request:
 response:
   mappings:
     email_verify: "$.status"
+  value_maps:
+    email_verify:
+      values:
+        deliverable: valid
+        undeliverable: invalid
+        risky: risky
+        unknown: unknown
+      default: unknown

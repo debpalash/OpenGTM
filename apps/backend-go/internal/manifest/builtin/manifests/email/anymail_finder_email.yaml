@@ -7,6 +7,8 @@
 # price depends on the plan, so cost_per_lookup is 0 (unknown).
 # The docs recommend a 180 s client timeout; the connector validator caps
 # request.timeout at 120 s, so a slow search can end as a timeout.
+# Only the inputs the lead has are sent (omit_empty); the docs accept a name plus
+# company, or a LinkedIn URL alone.
 # We map valid_email (set only when email_status is "valid"), not email.
 manifest_version: "1"
 name: anymail_finder_email
@@ -30,7 +32,10 @@ request:
     Content-Type: application/json
   body:
     domain: "{{input.domain}}"
+    company_name: "{{input.company}}"
     full_name: "{{input.full_name}}"
+    linkedin_url: "{{input.linkedin_url}}"
+  omit_empty: [domain, company_name, full_name, linkedin_url]
   timeout: 120
 response:
   mappings:

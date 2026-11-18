@@ -129,6 +129,26 @@
           "icon": "\ud83d\udc64",
           "id": "contactout",
           "name": "ContactOut"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email, Mobile + Company Finder",
+          "configured": false,
+          "docs_url": "https://leadmagic.io",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83e\uddf2",
+          "id": "leadmagic",
+          "name": "LeadMagic"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email + Mobile Finder",
+          "configured": false,
+          "docs_url": "https://prospeo.io",
+          "free_tier": "75 credits/month",
+          "icon": "\ud83d\udd2d",
+          "id": "prospeo",
+          "name": "Prospeo"
         }
       ]
     },

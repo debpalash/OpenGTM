@@ -44,10 +44,9 @@ The `leadmagic_*`, `prospeo_mobile`, `anymail_finder_*`, `bouncer_verify`,
 `millionverifier_verify`, `findymail_*` and `contactout_*` rows are
 [declarative YAML manifests](#adding-a-provider-with-a-yaml-manifest). Where the
 vendor does not publish a per-call price, the cost is recorded as 0, which
-means unknown, not free. The verifiers `bouncer_verify` and
-`millionverifier_verify` store the vendor's own result words (`deliverable`,
-`ok`, `catch_all`) in `email_verify`; the manifest format cannot translate them
-to `valid` or `invalid`.
+means unknown, not free. The three verifiers translate the vendor's result
+words to `valid`, `invalid`, `catch_all`, `risky` or `unknown` before they
+are stored.
 
 ## Free and keyless
 
@@ -155,8 +154,9 @@ response:
 
 Templates are `{{input.field}}` (`company`, `domain`, `website`, `email`,
 `linkedin_url`, `full_name`, `first_name`, `last_name`, `phone`, and more).
-`request.url` must be `https://`. The provider stays inert until the key is
-set.
+`request.url` must be `https://`. List a parameter in `request.omit_empty` to
+leave it out when the lead has no value, and use `response.value_maps` to
+translate a vendor word. The provider stays inert until the key is set.
 
 A manifest also needs entries in the vendor catalog, the workbook provider
 registry and the settings registry, plus a fixture copied from the vendor's

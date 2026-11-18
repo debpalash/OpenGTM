@@ -14,7 +14,8 @@
     },
     "body": {
       "domain": "acme.com",
-      "full_name": "Ada Lovelace"
+      "full_name": "Ada Lovelace",
+      "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
     }
   },
   "responses": [

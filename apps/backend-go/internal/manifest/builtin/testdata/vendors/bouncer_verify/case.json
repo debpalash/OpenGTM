@@ -21,7 +21,7 @@
       "status": 200,
       "file": "deliverable.json",
       "fields": {
-        "email_verify": "deliverable"
+        "email_verify": "valid"
       }
     },
     {
@@ -29,7 +29,15 @@
       "status": 200,
       "file": "undeliverable.json",
       "fields": {
-        "email_verify": "undeliverable"
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "timeout_unknown",
+      "status": 200,
+      "file": "timeout.json",
+      "fields": {
+        "email_verify": "unknown"
       }
     },
     {

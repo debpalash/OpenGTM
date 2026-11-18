@@ -265,6 +265,22 @@
       "free_tier": "Paid, API key required",
       "docs": "https://api.contactout.com/",
       "icon": "👤"
+    },
+    "leadmagic": {
+      "name": "LeadMagic",
+      "env_key": "LEADMAGIC_API_KEY",
+      "capability": "Email, Mobile + Company Finder",
+      "free_tier": "Paid, API key required",
+      "docs": "https://leadmagic.io",
+      "icon": "🧲"
+    },
+    "prospeo": {
+      "name": "Prospeo",
+      "env_key": "PROSPEO_API_KEY",
+      "capability": "Email + Mobile Finder",
+      "free_tier": "75 credits/month",
+      "docs": "https://prospeo.io",
+      "icon": "🔭"
     }
   },
   "integrations": [
@@ -723,6 +739,7 @@
     "HUGGINGFACE_API_KEY",
     "HUNTER_API_KEY",
     "IPINFO_TOKEN",
+    "LEADMAGIC_API_KEY",
     "LINKEDIN_ACCESS_TOKEN",
     "META_ACCESS_TOKEN",
     "MILLIONVERIFIER_API_KEY",
@@ -730,6 +747,7 @@
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
     "OPENROUTER_API_KEY",
+    "PROSPEO_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
     "SCAVIO_API_KEY",

@@ -87,7 +87,7 @@ func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead m
 		return Result{Error: truncRunes(providers.Scrub(msg, p.Secrets...), 120), HTTPStatus: resp.StatusCode, DurationMS: dur}
 	}
 
-	fields := Normalize(Project(data, rs.Mappings))
+	fields := Normalize(ApplyValueMaps(Project(data, rs.Mappings), rs.ValueMaps))
 	res := Result{
 		Success: len(fields) > 0, Fields: fields, Confidence: m.DefaultConfidence,
 		DurationMS: dur, HTTPStatus: resp.StatusCode,
@@ -167,7 +167,7 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 	}
 	tctx := map[string]any{"input": InputContext(lead)}
 	req := m.Request
-	target := RenderString(req.URL, tctx, env)
+	target := renderURL(req.URL, tctx, env)
 	headers := make(map[string]string, len(req.Headers)+1)
 	for k, v := range req.Headers {
 		headers[k] = RenderString(pyStr(v), tctx, env)
@@ -180,6 +180,7 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 	if req.BodyTemplate != nil {
 		body = Render(req.BodyTemplate, tctx, env)
 	}
+	omitEmpty(req.OmitEmpty, headers, params, body)
 
 	// Fail fast on a config error (missing key) before any network work.
 	if a := m.Auth; a.Type != "none" && a.Type != "" {
@@ -357,4 +358,44 @@ func blockedReason(err error) string {
 		return be.Reason
 	}
 	return err.Error()
+}
+
+// omitEmpty drops the named headers, query parameters and top-level body keys whose rendered
+// value is "" (request.omit_empty). Credentials are added afterwards and are never affected.
+func omitEmpty(names []string, headers, params map[string]string, body any) {
+	obj, _ := body.(map[string]any)
+	for _, n := range names {
+		if headers[n] == "" {
+			delete(headers, n)
+		}
+		if params[n] == "" {
+			delete(params, n)
+		}
+		if s, ok := obj[n].(string); ok && s == "" {
+			delete(obj, n)
+		}
+	}
+}
+
+// ApplyValueMaps applies response.value_maps to projected fields. The input map is not mutated.
+func ApplyValueMaps(fields map[string]any, maps map[string]ValueMap) map[string]any {
+	if len(maps) == 0 || len(fields) == 0 {
+		return fields
+	}
+	out := make(map[string]any, len(fields))
+	for k, v := range fields {
+		out[k] = v
+	}
+	for field, vm := range maps {
+		v, ok := out[field]
+		if !ok {
+			continue
+		}
+		if mapped, hit := vm.Values[pyStr(v)]; hit {
+			out[field] = mapped
+		} else if vm.Default != nil {
+			out[field] = *vm.Default
+		}
+	}
+	return out
 }

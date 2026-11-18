@@ -2,9 +2,9 @@
 # Docs: https://anymailfinder.com/email-finder-api/docs/verify-email
 # Spec: https://api.anymailfinder.com/openapi.json (POST /v5.1/verify-email).
 # Auth: raw API key in the Authorization header (no "Bearer" prefix).
-# email_status is one of valid, risky, invalid, the same words the native
-# verifiers write to email_verify. The credit price depends on the plan, so
-# cost_per_lookup is 0 (unknown).
+# email_status is one of valid, risky, invalid. value_maps keeps those words
+# (they are native email_verify words) and turns any other word into unknown.
+# The credit price depends on the plan, so cost_per_lookup is 0 (unknown).
 manifest_version: "1"
 name: anymail_finder_verify
 display_name: Anymail Finder Email Verifier
@@ -31,3 +31,10 @@ request:
 response:
   mappings:
     email_verify: "$.email_status"
+  value_maps:
+    email_verify:
+      values:
+        valid: valid
+        risky: risky
+        invalid: invalid
+      default: unknown

@@ -288,6 +288,11 @@ func checkManifest(m manifest.Manifest, names map[string]bool) string {
 	if m.Auth.Type != "none" && m.Auth.EnvVar == "" {
 		return "authenticated connectors require auth.env_var"
 	}
+	for field := range m.Response.ValueMaps {
+		if _, mapped := m.Response.Mappings[field]; !mapped {
+			return "response.value_maps names a field that is not in response.mappings"
+		}
+	}
 	return ""
 }
 

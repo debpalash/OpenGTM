@@ -31,10 +31,17 @@ request:
     first_name: "{{input.first_name}}"
     last_name: "{{input.last_name}}"
     domain: "{{input.domain}}"
+  omit_empty: [domain]    # optional: leave these out when the lead has no value
   timeout: 20             # seconds, 1 to 120
 response:
   error_path: error       # optional: a truthy value here marks the call failed
   error_message_path: message
   mappings:
     email: "$.data.email"
+  # Optional: translate a vendor word. Needed for email_verify (native words
+  # are valid, invalid, catch_all, risky, unknown; default must be unknown).
+  # value_maps:
+  #   email_verify:
+  #     values: {deliverable: valid, undeliverable: invalid}
+  #     default: unknown
 input_fields: [first_name, last_name, domain]

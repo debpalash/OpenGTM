@@ -350,6 +350,56 @@ func orEmpty(m map[string]string) map[string]string {
 	return m
 }
 
+// Downstream code keys on these words for email_verify (emailverify.StatusFromVendor, the
+// native verifiers), so a manifest may not write the vendor's own vocabulary there.
+func TestEmailVerifyManifestsEmitNativeWords(t *testing.T) {
+	native := map[string]bool{"valid": true, "invalid": true, "catch_all": true, "risky": true, "unknown": true}
+	n := 0
+	for name, e := range builtinIndex(t) {
+		if _, ok := e.Manifest.Response.Mappings["email_verify"]; !ok {
+			continue
+		}
+		n++
+		vm, ok := e.Manifest.Response.ValueMaps["email_verify"]
+		if !ok || vm.Default == nil || *vm.Default != "unknown" {
+			t.Errorf("%s: response.value_maps.email_verify needs default: unknown", name)
+			continue
+		}
+		for from, to := range vm.Values {
+			if !native[to] {
+				t.Errorf("%s: %q maps to %q, which is not a native email_verify word", name, from, to)
+			}
+		}
+	}
+	if n < 3 {
+		t.Errorf("found %d email_verify manifests, expected at least 3", n)
+	}
+}
+
+func TestValueMapsMustNameMappedFields(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(dir, "email"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	yaml := `manifest_version: "1"
+name: vm_bad
+capability: email
+auth: {type: none}
+request: {method: GET, url: "https://api.example.com/x", timeout: 5}
+response:
+  mappings: {email: "$.e"}
+  value_maps:
+    email_verify: {values: {a: b}}
+`
+	if err := os.WriteFile(filepath.Join(dir, "email", "vm_bad.yaml"), []byte(yaml), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	rep := connectors.ValidateDirectory(dir, "optional", manifest.TrustStore{})
+	if rep.OK || len(rep.Errors) != 1 || !strings.Contains(rep.Errors[0].Error, "value_maps") {
+		t.Fatalf("%+v", rep)
+	}
+}
+
 // docs/connectors/connector.template.yaml is what contributors copy; it must stay valid.
 func TestConnectorTemplateIsValid(t *testing.T) {
 	raw, err := os.ReadFile(filepath.Join("..", "..", "..", "..", "..", "docs", "connectors", "connector.template.yaml"))

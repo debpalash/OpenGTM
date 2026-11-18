@@ -1,0 +1,22 @@
+{
+  "email": "john@usebouncer.com",
+  "status": "unknown",
+  "reason": "timeout",
+  "domain": {
+    "name": "usebouncer.com",
+    "acceptAll": "unknown",
+    "disposable": "no",
+    "free": "no"
+  },
+  "account": {
+    "role": "no",
+    "disabled": "unknown",
+    "fullMailbox": "unknown"
+  },
+  "dns": {
+    "type": "MX",
+    "record": "aspmx.l.google.com."
+  },
+  "provider": "google.com",
+  "toxicity": 0
+}

@@ -28,6 +28,7 @@ request:
   body:
     name: "{{input.full_name}}"
     domain: "{{input.domain}}"
+  omit_empty: [domain]
   timeout: 30
 response:
   error_path: error

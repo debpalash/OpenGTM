@@ -15,11 +15,43 @@
   },
   "responses": [
     {
-      "name": "hit",
+      "name": "invalid",
       "status": 200,
       "file": "hit.json",
       "fields": {
         "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "ok_is_valid",
+      "status": 200,
+      "file": "ok.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "catch_all",
+      "status": 200,
+      "file": "catch_all.json",
+      "fields": {
+        "email_verify": "catch_all"
+      }
+    },
+    {
+      "name": "disposable_is_invalid",
+      "status": 200,
+      "file": "disposable.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": 200,
+      "file": "unknown.json",
+      "fields": {
+        "email_verify": "unknown"
       }
     },
     {
