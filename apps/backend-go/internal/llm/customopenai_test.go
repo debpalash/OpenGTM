@@ -401,6 +401,7 @@ func TestExistingProvidersUnaffected(t *testing.T) {
 		{"github_models", "GITHUB_MODELS_API_KEY", "https://models.inference.ai.azure.com"},
 		{"siliconflow", "SILICONFLOW_API_KEY", "https://api.siliconflow.cn/v1"},
 		{"anthropic", "ANTHROPIC_API_KEY", "https://api.anthropic.com"},
+		{"openai", "OPENAI_API_KEY", "https://api.openai.com/v1"},
 	} {
 		spec, ok := providerSpecs[tc.id]
 		if !ok {

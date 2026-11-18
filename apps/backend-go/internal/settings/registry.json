@@ -156,6 +156,18 @@
       "icon": "🌊",
       "openai_compatible": true
     },
+    "openai": {
+      "name": "OpenAI",
+      "env_key": "OPENAI_API_KEY",
+      "env_url": "OPENAI_BASE_URL",
+      "env_model": "OPENAI_MODEL",
+      "default_url": "https://api.openai.com/v1",
+      "default_model": "gpt-6-luna",
+      "docs": "https://platform.openai.com/api-keys",
+      "free_tier": "Paid (gpt-6-luna: $0.10 / $0.50 per 1M tok)",
+      "icon": "🧠",
+      "openai_compatible": true
+    },
     "custom_openai": {
       "name": "Custom OpenAI Compatible",
       "env_key": "CUSTOM_OPENAI_API_KEY",
@@ -564,6 +576,32 @@
         "free": true
       }
     ],
+    "openai": [
+      {
+        "id": "gpt-6-luna",
+        "name": "GPT-6 Luna",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.1-terra",
+        "name": "GPT-6.1 Terra",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.2-sol",
+        "name": "GPT-6.2 Sol",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.2-astra",
+        "name": "GPT-6.2 Astra",
+        "context": 1050000,
+        "free": false
+      }
+    ],
     "github_models": [
       {
         "id": "gpt-4o",
@@ -684,6 +722,7 @@
     "MISTRAL_API_KEY",
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
+    "OPENAI_API_KEY",
     "OPENROUTER_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
