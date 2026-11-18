@@ -139,3 +139,17 @@ export const emailLeads = [
   { id: 1, company: "Northwind Logistics", email: "ada@northwind.example", score: 82 },
   { id: 2, company: "Globex Software", email: "ben@globex.example", score: 74 }
 ]
+
+// First-run checklist on /overview: two steps done, the rest open, no sample yet, so the card renders both states.
+export const onboarding = {
+  steps: [
+    { id: "llm_provider", done: true },
+    { id: "data_source", done: true },
+    { id: "data", done: false },
+    { id: "enrichment", done: false }
+  ],
+  done_count: 2,
+  total: 4,
+  complete: false,
+  sample_workbook_id: null
+}

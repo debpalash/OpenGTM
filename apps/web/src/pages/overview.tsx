@@ -27,6 +27,7 @@ import {
   SectionHeading,
   StatusBadge
 } from "@/design-system/patterns/workbench"
+import { GetStartedCard } from "@/features/onboarding/get-started-card"
 import "./overview.css"
 
 const number = new Intl.NumberFormat()
@@ -83,6 +84,7 @@ export default function OverviewPage() {
           </>
         }
       />
+      <GetStartedCard />
       {!data && query.isError ? (
         <ErrorState
           title="Your overview is temporarily unavailable"
