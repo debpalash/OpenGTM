@@ -88,3 +88,28 @@ for (const c of cases) {
     expect(regressions, `New or worse serious/critical a11y violations on ${key}`).toEqual([])
   })
 }
+
+// UI-01 / audit A01: analytics requests failing with 503 must show an honest
+// error state (alert + retry), never zeros or a "Live" claim.
+test("/analytics | 503 unavailable | light | 1440x1000", async ({ page }) => {
+  await page.setViewportSize(DESKTOP)
+  await installMocks(page, "light")
+  await page.route(
+    (url) => url.pathname.startsWith("/api/analytics/"),
+    (route) => route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Temporarily unavailable" }) })
+  )
+  await page.goto("/analytics")
+  await expect(page.locator("#main-content")).toBeVisible()
+  await expect(page.getByRole("alert").filter({ hasText: "temporarily unavailable" })).toBeVisible({ timeout: 15_000 })
+  await expect(page.getByRole("button", { name: /try again|retry/i })).toBeVisible()
+  await expect(page.getByText(/\blive\b/i)).toHaveCount(0)
+  await page.waitForLoadState("networkidle")
+  await page.evaluate(() => document.fonts.ready)
+
+  const gated: Counts = {}
+  for (const v of await runAxe(page)) if (v.impact && GATED.has(v.impact)) gated[v.id] = v.nodes
+  // Only debt shared with the normal /analytics case is allowed.
+  const base = loadBaseline()["/analytics | light | 1440x1000"] ?? {}
+  const regressions = Object.entries(gated).filter(([id, n]) => (base[id] ?? 0) < n).map(([id, n]) => `${id}: ${n}`)
+  expect(regressions, "New serious/critical a11y violations on /analytics 503").toEqual([])
+})
