@@ -49,6 +49,6 @@
   "success": false,
   "fields": {},
   "confidence": 0.0,
-  "error": "no_cik_match"
+  "error": "SEC returned invalid JSON"
  }
 }

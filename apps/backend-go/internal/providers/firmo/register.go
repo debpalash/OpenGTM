@@ -13,4 +13,5 @@ func init() {
 	providers.Register(techStack{})
 	providers.Register(atsHiring{})
 	providers.Register(googleMaps{})
+	providers.Register(scavioMaps{})
 }

@@ -241,6 +241,56 @@ func TestDeliveriesFiltersAndBounds(t *testing.T) {
 	}
 }
 
+func TestSkippedDeliveriesFilterPaginationAndTenant(t *testing.T) {
+	e := newDrEnv(t, nil)
+	_, err := audOwner(t).Exec(context.Background(), `
+		INSERT INTO destination_deliveries
+		  (id, workspace_id, run_id, destination_id, operation, idempotency_key, payload_fingerprint, status, attempts)
+		SELECT v.id, d.workspace_id, d.run_id, d.destination_id, d.operation,
+		       d.idempotency_key || v.suffix, d.payload_fingerprint, v.status, 0
+		FROM destination_deliveries d
+		CROSS JOIN (VALUES (900011, '-extra-skipped', 'skipped'), (900012, '-extra-success', 'success')) AS v(id, suffix, status)
+		WHERE d.id = 11`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := drBase + "/runs/run-act-w3/deliveries?status=skipped&limit=1"
+	readIDs := func(path string) []int {
+		t.Helper()
+		code, _, raw := e.drJSON(t, "alice", "ws-alpha", "GET", path)
+		if code != 200 {
+			t.Fatalf("%s: %d %s", path, code, raw)
+		}
+		var rows []struct {
+			ID     int    `json:"id"`
+			Status string `json:"status"`
+		}
+		if err := json.Unmarshal([]byte(raw), &rows); err != nil {
+			t.Fatal(err)
+		}
+		var ids []int
+		for _, row := range rows {
+			if row.Status != "skipped" {
+				t.Fatalf("unfiltered row: %s", raw)
+			}
+			ids = append(ids, row.ID)
+		}
+		return ids
+	}
+	if ids := readIDs(path); len(ids) != 1 || ids[0] != 11 {
+		t.Fatalf("first page: %v", ids)
+	}
+	if ids := readIDs(path + "&after_id=11"); len(ids) != 1 || ids[0] != 900011 {
+		t.Fatalf("second page: %v", ids)
+	}
+	if ids := readIDs(path + "&after_id=900011"); len(ids) != 0 {
+		t.Fatalf("past end: %v", ids)
+	}
+	if code, _, raw := e.drJSON(t, "bob", "ws-beta", "GET", path); code != 404 {
+		t.Fatalf("cross-workspace filter: %d %s", code, raw)
+	}
+}
+
 func TestSyncCreatesRunAndJob(t *testing.T) {
 	// cohort + GO_DEST_TYPES: webhook goes to Go, hubspot (not listed) and an out-of-cohort workspace stay on Python
 	vars := map[string]string{"GO_EXECUTOR_ENABLED": "true", "GO_EXECUTOR_WORKSPACES": "ws-alpha", "GO_DEST_TYPES": "webhook,airtable"}

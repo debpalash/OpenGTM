@@ -1,8 +1,9 @@
 // Package firmo ports the firmographic and registry HTTP providers: ipinfo,
 // gleif, companies house, mca, wikidata, sec edgar, jsonld, tech stack, ats
 // hiring and google maps. Each file is a port of the Python module of the
-// same name under legacy/python/.../enrichment/providers/. Registration is in
-// register.go; consumers blank-import this package.
+// same name under legacy/python/.../enrichment/providers/; scavio_maps
+// (scaviomaps.go) is Go-native. Registration is in register.go; consumers
+// blank-import this package.
 package firmo
 
 import (

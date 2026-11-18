@@ -203,6 +203,10 @@ make test    # go vet + go test, web lint + build
 `make run` uses the environment of the shell (`DATABASE_URL`, `SECRET_KEY`, ...); set `SERVE_UI=false` to
 serve the API only.
 
+For a non-Docker install, `make migrate` needs an owner-privileged `DATABASE_URL`. Runtime-role
+provisioning is optional and disabled by default; see the [Go migration runbook](docs/go-port/runbooks/migrations.md#schema-migrations-go-runner)
+for the provisioning variables and the runtime connection setup before starting the app processes.
+
 ## What you can build
 
 - **Workbooks:** import leads, add formulas, HTTP columns, enrichment waterfalls,

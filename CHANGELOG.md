@@ -7,6 +7,12 @@ All notable changes to OpenGTM are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- Opt-in `scavio_maps` enrichment provider (`SCAVIO_API_KEY`): Google Maps
+  phone, address, category and rating for local businesses, with the same
+  fields as `google_maps`. Not in any default waterfall. See
+  `docs/providers/scavio.md`.
+
 ### Changed
 - Replaced the docs homepage's synthetic product examples with a restrained,
   real-workspace presentation and direct laptop/server install paths.

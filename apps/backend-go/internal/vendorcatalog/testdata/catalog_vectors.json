@@ -458,6 +458,16 @@
    "notes": ""
   },
   {
+   "name": "scavio_maps",
+   "base_cost": 0.0043,
+   "byok": true,
+   "capabilities": [
+    "phone",
+    "address"
+   ],
+   "notes": ""
+  },
+  {
    "name": "leadmagic_email",
    "base_cost": 0.05,
    "byok": true,
@@ -796,6 +806,22 @@
    "name": "google_maps",
    "research_flag": true,
    "base_cost": 0.005,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "scavio_maps",
+   "research_flag": false,
+   "base_cost": 0.0043,
+   "is_paid": true,
+   "has_known_cost": true,
+   "is_byok": true
+  },
+  {
+   "name": "scavio_maps",
+   "research_flag": true,
+   "base_cost": 0.0043,
    "is_paid": true,
    "has_known_cost": true,
    "is_byok": true

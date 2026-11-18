@@ -52,6 +52,16 @@
         },
         {
           "api_key_masked": "",
+          "capability": "Local Business Data",
+          "configured": false,
+          "docs_url": "https://scavio.dev/google-maps-api",
+          "free_tier": "API key required",
+          "icon": "\ud83c\udf0d",
+          "id": "scavio_maps",
+          "name": "Scavio Maps"
+        },
+        {
+          "api_key_masked": "",
           "capability": "Company Data from Domain",
           "configured": false,
           "docs_url": "https://ipinfo.io/developers",
@@ -59,6 +69,16 @@
           "icon": "\ud83c\udf0d",
           "id": "ipinfo",
           "name": "IPInfo"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Company / people research, profile lookup and workforce",
+          "configured": false,
+          "docs_url": "https://docs.companyenrich.com/reference",
+          "free_tier": "Paid credits; each action is opt-in",
+          "icon": "\ud83c\udfe2",
+          "id": "companyenrich",
+          "name": "CompanyEnrich"
         }
       ]
     },

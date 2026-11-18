@@ -259,8 +259,16 @@ func (p *PyEnrichPort) Py(ctx context.Context, ws, provider string, in any) (jso
 	if res.Err != nil {
 		return nil, res.Err
 	}
+	if res.Status == "error" && len(res.Output) > 0 {
+		// The provider ran and reported no result (success=false): a miss, not an infrastructure failure.
+		return nil, ErrProviderMiss
+	}
 	if res.Status != "ok" {
 		return nil, errors.New("provider call " + res.Status)
 	}
 	return res.Output, nil
 }
+
+// ErrProviderMiss is returned by an EnrichPort when the provider ran but reported no result (success=false).
+// Waterfall callers treat it as "no value from this provider" and try the next one.
+var ErrProviderMiss = errors.New("provider call error")

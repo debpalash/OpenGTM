@@ -12,7 +12,7 @@ func TestLeadwebDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if s.SearchBackends != "duckduckgo, google, bing, brave, mojeek, yahoo" || !slices.Equal(s.SearchAttemptOrder, []string{"direct", "proxy"}) ||
-		!slices.Equal(s.FallbackOrder, []string{"serpapi", "bing", "google_cse", "brave", "serpingapi", "serply", "firecrawl"}) ||
+		!slices.Equal(s.FallbackOrder, []string{"serpapi", "bing", "google_cse", "brave", "serpingapi", "serply", "firecrawl", "keenable"}) ||
 		s.DDGSTimeout != 10*time.Second || s.EngineTimeout != 10*time.Second || !s.CacheEnabled || s.CacheTTL != 600*time.Second ||
 		s.CacheEmptyTTL != 60*time.Second || s.CacheMaxEntries != 2000 || !s.BackoffEnabled || s.BackoffBase != 15*time.Second ||
 		s.BackoffCap != 900*time.Second || s.ProxyManagerURL.Reveal() != "http://localhost:3050" || s.ProxyList != "" ||

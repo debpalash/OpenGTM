@@ -252,6 +252,17 @@
    "is_free": false,
    "is_disposable": false,
    "is_personal_corporate": true
+  },
+  {
+   "input": "person@angi.com",
+   "email": "person@angi.com",
+   "valid_syntax": true,
+   "local_part": "person",
+   "domain": "angi.com",
+   "is_role": false,
+   "is_free": false,
+   "is_disposable": false,
+   "is_personal_corporate": true
   }
  ],
  "data_files": {
@@ -318,8 +329,8 @@
    ]
   },
   "disposable_domains": {
-   "count": 123312,
-   "sha256_of_sorted_lines": "86c0704ba9e5df5aa16fcdd847f060a9f9106ef0bf3efc2d978589cc701e3632",
+   "count": 123311,
+   "sha256_of_sorted_lines": "d99217b4783d1651f0e81c019187fab89d4e81129c47c658d406d3ad76aed368",
    "head": [
     "0-180.com",
     "0-30-24.com",

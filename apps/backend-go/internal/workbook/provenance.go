@@ -27,6 +27,7 @@ var providerLicense = map[string]string{
 	"mca_registry": "public-record", "companies_house": "public-record", "sec": "public-record", "sec_edgar": "public-record",
 	"hunter_io": "proprietary-api", "apollo_io": "proprietary-api", "snovio": "proprietary-api", "prospeo": "proprietary-api",
 	"people_data_labs": "proprietary-api", "clearbit": "proprietary-api", "abstract_api": "proprietary-api", "debounce": "proprietary-api",
+	"scavio_maps":  "proprietary-api",
 	"deep_scraper": "scraped", "website_scraper": "scraped", "jsonld_firmographics": "scraped", "email_harvester": "scraped",
 	"ddg_email": "scraped", "ddg_company": "scraped", "mailscout": "scraped", "social_finder": "scraped",
 	"crosslinked": "scraped", "staffspy": "scraped", "decision_maker": "scraped", "local_business": "scraped",

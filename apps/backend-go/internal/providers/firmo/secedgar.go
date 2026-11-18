@@ -66,8 +66,8 @@ func (s secClient) do(ctx context.Context, url string, q [][2]string, maxBody in
 		header: [][2]string{{"User-Agent", s.ua}}, pre: secLimiter.acquire})
 }
 
-// json is _get_json: non-200, transport and decode failures are None (nil,
-// false); the raw body is returned for order-sensitive callers.
+// json returns an empty result only for a successful response without data;
+// the raw body is returned for order-sensitive callers.
 func (s secClient) json(ctx context.Context, url string, q [][2]string) (any, []byte, error) {
 	limit := 0
 	if url == secTickersURL {
@@ -77,12 +77,15 @@ func (s secClient) json(ctx context.Context, url string, q [][2]string) (any, []
 	if cerr := ctx.Err(); cerr != nil {
 		return nil, nil, cerr
 	}
-	if err != nil || resp.Status != 200 {
-		return nil, nil, nil
+	if err != nil {
+		return nil, nil, err
+	}
+	if resp.Status != http.StatusOK {
+		return nil, nil, fmt.Errorf("SEC returned HTTP %d", resp.Status)
 	}
 	d, perr := providers.ParseJSON(resp.Body)
 	if perr != nil {
-		return nil, nil, nil
+		return nil, nil, fmt.Errorf("SEC returned invalid JSON")
 	}
 	return d, resp.Body, nil
 }
@@ -156,11 +159,18 @@ func (p secEdgar) run(ctx context.Context, s secClient, company string, in provi
 }
 
 func (p secEdgar) resolveCIK(ctx context.Context, s secClient, company string) (string, error) {
-	cik, err := p.fromTickers(ctx, s, company)
-	if err != nil || cik != "" {
-		return cik, err
+	tickerCIK, tickerErr := p.fromTickers(ctx, s, company)
+	if tickerCIK != "" {
+		return tickerCIK, nil
 	}
-	return p.fromFulltext(ctx, s, company)
+	fulltextCIK, fulltextErr := p.fromFulltext(ctx, s, company)
+	if fulltextCIK != "" {
+		return fulltextCIK, nil
+	}
+	if fulltextErr != nil {
+		return "", fulltextErr
+	}
+	return "", tickerErr
 }
 
 func (p secEdgar) fromTickers(ctx context.Context, s secClient, company string) (string, error) {

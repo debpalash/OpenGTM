@@ -784,14 +784,21 @@ func TestFundingExecTranscripts(t *testing.T) {
 		tr := tr
 		t.Run(tr.file, func(t *testing.T) {
 			evs, patch, err := secTranscriptRun(t, tr)
-			if err != nil {
-				t.Fatal(err)
-			}
 			var want struct {
-				Events any `json:"events"`
-				Patch  any `json:"patch"`
+				Events any    `json:"events"`
+				Patch  any    `json:"patch"`
+				Error  string `json:"error"`
 			}
 			if err := json.Unmarshal(tr.Result, &want); err != nil {
+				t.Fatal(err)
+			}
+			if want.Error != "" {
+				if err == nil || err.Error() != want.Error || evs != nil || patch != nil {
+					t.Fatalf("want error %q and no events or cursor patch; got %v, %v, %v", want.Error, evs, patch, err)
+				}
+				return
+			}
+			if err != nil {
 				t.Fatal(err)
 			}
 			eqVec(t, "events", eventsVec(t, evs), norm(t, want.Events))

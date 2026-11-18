@@ -20,7 +20,7 @@ type LeadwebSettings struct {
 	DDGSTimeout        time.Duration // DDGS_TIMEOUT seconds (default 10): the service-side search deadline
 
 	// keyed fallback engines, called from Go directly (keys never reach the browser service)
-	FallbackOrder   []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl; "none" = no keyed engines)
+	FallbackOrder   []string      // SEARCH_FALLBACK_ORDER (default serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl,keenable; "none" = no keyed engines)
 	EngineTimeout   time.Duration // SEARCH_ENGINE_TIMEOUT seconds (default 10)
 	SerpAPIKey      Secret        // SERPAPI_KEY
 	BingKey         Secret        // BING_SEARCH_KEY
@@ -30,6 +30,8 @@ type LeadwebSettings struct {
 	SerpingAPIKey   Secret        // SERPINGAPI_API_KEY
 	SerplyKey       Secret        // SERPLY_API_KEY
 	FirecrawlKey    Secret        // FIRECRAWL_API_KEY
+	KeenableKey     Secret        // KEENABLE_API_KEY; enables the keenable engine (keyed endpoint)
+	KeenableEnabled bool          // KEENABLE_ENABLED=true; enables the keenable engine keyless (public endpoint). Off by default
 	SpicrawlKey     Secret        // SPICRAWL_API_KEY; opt-in markdown research fetches
 	SpicrawlTimeout time.Duration // SPICRAWL_TIMEOUT seconds (default 60)
 
@@ -59,7 +61,7 @@ type LeadwebSettings struct {
 
 const (
 	defaultSearchBackends = "duckduckgo, google, bing, brave, mojeek, yahoo"
-	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl"
+	defaultFallbackOrder  = "serpapi,bing,google_cse,brave,serpingapi,serply,firecrawl,keenable"
 )
 
 // LeadwebFrom reads the leadweb settings. Unlike the Python readers (which
@@ -133,6 +135,9 @@ func LeadwebFrom(get func(string) string) (LeadwebSettings, error) {
 	if s.BackoffEnabled, err = boolVar(get, "SEARCH_BACKOFF_ENABLED", true); err != nil {
 		return s, err
 	}
+	if s.KeenableEnabled, err = boolVar(get, "KEENABLE_ENABLED", false); err != nil {
+		return s, err
+	}
 	for _, k := range []struct {
 		key string
 		dst *Secret
@@ -140,7 +145,7 @@ func LeadwebFrom(get func(string) string) (LeadwebSettings, error) {
 		{"SERPAPI_KEY", &s.SerpAPIKey}, {"BING_SEARCH_KEY", &s.BingKey}, {"GOOGLE_CSE_ID", &s.GoogleCSEID},
 		{"GOOGLE_CSE_KEY", &s.GoogleCSEKey}, {"BRAVE_SEARCH_KEY", &s.BraveKey},
 		{"SERPINGAPI_API_KEY", &s.SerpingAPIKey}, {"SERPLY_API_KEY", &s.SerplyKey},
-		{"FIRECRAWL_API_KEY", &s.FirecrawlKey}, {"SPICRAWL_API_KEY", &s.SpicrawlKey},
+		{"FIRECRAWL_API_KEY", &s.FirecrawlKey}, {"KEENABLE_API_KEY", &s.KeenableKey}, {"SPICRAWL_API_KEY", &s.SpicrawlKey},
 	} {
 		*k.dst = Secret(strings.TrimSpace(get(k.key)))
 	}

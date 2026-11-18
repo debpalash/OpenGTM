@@ -1,7 +1,9 @@
-import { useMemo } from "react"
+import { useMemo, type ReactNode } from "react"
+import type { UseQueryResult } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { ErrorState, PageHeader } from "@/design-system/patterns/workbench"
 import { relativeTime } from "@/lib/record-overview"
+import { analyticsFreshness, analyticsRegionState } from "@/lib/analytics-state"
 import {
   TrendingUp, Users, Mail, Phone, Globe,
   Link2, Target, Zap, Brain, CheckCircle2,
@@ -117,21 +119,22 @@ function GaugeRing({ value, max, label, color }: { value: number; max: number; l
 
 export default function AnalyticsPage() {
   const overviewQuery = useAnalyticsOverview()
-  const { data: overview, isLoading: lo } = overviewQuery
+  const { data: overview } = overviewQuery
   const pipelineQuery = useAnalyticsPipeline()
-  const { data: pipeline, isLoading: lp } = pipelineQuery
+  const { data: pipeline } = pipelineQuery
   const collectionQuery = useAnalyticsCollection()
-  const { data: collection, isLoading: lc } = collectionQuery
+  const { data: collection } = collectionQuery
   const enrichmentQuery = useAnalyticsEnrichment()
-  const { data: enrichment, isLoading: le } = enrichmentQuery
+  const { data: enrichment } = enrichmentQuery
   const llmQuery = useAnalyticsLLM()
-  const { data: llm, isLoading: ll } = llmQuery
-  const isLoading = lo || lp || lc || le || ll
-  const requests = [overviewQuery,pipelineQuery,collectionQuery,enrichmentQuery,llmQuery]
-  const unavailable = requests.some(query => query.isError && query.data === undefined)
-  const stale = requests.some(query => query.isError)
-  const lastLoaded = Math.min(...requests.map(query => query.dataUpdatedAt).filter(Boolean))
+  const { data: llm } = llmQuery
+  const requests = [overviewQuery, pipelineQuery, collectionQuery, enrichmentQuery, llmQuery]
+  const allLoading = requests.every(query => query.data === undefined && !query.isError)
+  const allUnavailable = requests.every(query => query.data === undefined && query.isError)
+  const staleCount = requests.filter(query => query.data !== undefined && query.isError).length
+  const lastLoaded = analyticsFreshness(requests)
   const retry = () => { for (const query of requests) void query.refetch() }
+  const retryFailed = () => { for (const query of requests) if (query.isError) void query.refetch() }
 
   // ── Derived data ──
   const funnelData = useMemo(() => {
@@ -159,9 +162,9 @@ export default function AnalyticsPage() {
   const softPct = (pct: number, count: number) => (pct <= 0 && count > 0 ? "<1%" : `${pct}%`)
   const qualifiedCount = (pipeline?.statuses?.["qualified"] || 0) + (pipeline?.statuses?.["converted"] || 0)
 
-  if (unavailable) return <div className="workbench-page"><PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
-  if (isLoading) return (
-    <div className="p-3 space-y-3">
+  if (allUnavailable) return <div className="workbench-page"><PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
+  if (allLoading) return (
+    <div className="p-3 space-y-3" role="status" aria-label="Loading analytics">
       <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." />
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
         {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-20 rounded-lg" />)}
@@ -169,6 +172,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
         {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-52 rounded-lg" />)}
       </div>
+      <span className="sr-only">Loading analytics…</span>
     </div>
   )
 
@@ -177,33 +181,35 @@ export default function AnalyticsPage() {
       <div className="p-3 space-y-3 max-w-[1600px] mx-auto">
 
         <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." actions={<Link to="/overview" className="workbench-text-action">Company & people overview</Link>} />
-        {stale && <div className="overview-notice" role="alert">The latest refresh failed. Showing the last successful data. <button onClick={retry}>Try again</button></div>}
-        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{stale ? "Last successful load" : "Loaded"} {Number.isFinite(lastLoaded) ? relativeTime(new Date(lastLoaded).toISOString()).toLowerCase() : "time unavailable"}</span></div>
+        {staleCount > 0 && <div className="overview-notice" role="alert">The latest refresh failed for {staleCount === 1 ? "one section" : `${staleCount} sections`}. Showing the last successful data, which may be out of date. <button type="button" onClick={retryFailed}>Retry</button></div>}
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{lastLoaded === null ? "Not loaded yet" : `Updated ${relativeTime(new Date(lastLoaded).toISOString()).toLowerCase()}`}</span></div>
 
         <details className="analytics-data-tables"><summary>View chart data as tables</summary><div>
-          <AnalyticsTable title="Pipeline stages" columns={["Stage","Leads"]} rows={funnelData.map(row=>[row.status,row.count])}/>
-          <AnalyticsTable title="Score tiers" columns={["Tier","Leads"]} rows={tierData.map(row=>[row.name,row.value])}/>
-          <AnalyticsTable title="Leads collected by day" columns={["Day","Leads"]} rows={collection?.leads_by_day.map(row=>[row.day,row.count])??[]}/>
-          <AnalyticsTable title="Score distribution" columns={["Range","Leads"]} rows={scoreDist.map(row=>[row.range,row.count])}/>
-          <AnalyticsTable title="Jobs and leads by day" columns={["Day","Jobs","Leads","Completed jobs"]} rows={collection?.jobs_by_day.map(row=>[row.day,row.jobs,row.leads,row.completed])??[]}/>
-          <AnalyticsTable title="LLM usage by day" columns={["Day","Tokens","Calls","Providers"]} rows={llm?.by_day.map(row=>[row.day,row.tokens,row.calls,row.providers])??[]}/>
+          <AnalyticsTable title="Pipeline stages" columns={["Stage","Leads"]} rows={funnelData.map(row=>[row.status,row.count])} query={pipelineQuery}/>
+          <AnalyticsTable title="Score tiers" columns={["Tier","Leads"]} rows={tierData.map(row=>[row.name,row.value])} query={overviewQuery}/>
+          <AnalyticsTable title="Leads collected by day" columns={["Day","Leads"]} rows={collection?.leads_by_day.map(row=>[row.day,row.count])??[]} query={collectionQuery}/>
+          <AnalyticsTable title="Score distribution" columns={["Range","Leads"]} rows={scoreDist.map(row=>[row.range,row.count])} query={enrichmentQuery}/>
+          <AnalyticsTable title="Jobs and leads by day" columns={["Day","Jobs","Leads","Completed jobs"]} rows={collection?.jobs_by_day.map(row=>[row.day,row.jobs,row.leads,row.completed])??[]} query={collectionQuery}/>
+          <AnalyticsTable title="LLM usage by day" columns={["Day","Tokens","Calls","Providers"]} rows={llm?.by_day.map(row=>[row.day,row.tokens,row.calls,row.providers])??[]} query={llmQuery}/>
         </div></details>
         {/* ── Row 1: KPI Metrics (6 tiles) ── */}
+        <Region query={overviewQuery} label="Summary metrics" emptyHint="" loadingHeight="h-20">{() => (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <Metric label="Total Leads" value={fmt(totalLeads)} icon={Database} delta={overview?.leads_this_week} sub={`${overview?.leads_this_month || 0} this month`} />
           <Metric label="Avg Score" value={overview?.avg_score || 0} icon={Target} color="text-amber-500" sub={`${overview?.tiers?.hot || 0} hot · ${overview?.tiers?.warm || 0} warm`} />
           <Metric label="Email Rate" value={softPct(overview?.enrichment?.email_pct || 0, overview?.enrichment?.with_email || 0)} icon={Mail} color="text-emerald-500" sub={`${fmt(overview?.enrichment?.with_email || 0)} verified`} />
-          <Metric label="Conversion" value={softPct(conversionRate, qualifiedCount)} icon={TrendingUp} color="text-violet-500" sub={`${fmt(qualifiedCount)} qualified`} />
+          <Metric label="Conversion" value={pipeline ? softPct(conversionRate, qualifiedCount) : "—"} icon={TrendingUp} color="text-violet-500" sub={pipeline ? `${fmt(qualifiedCount)} qualified` : pipelineQuery.isError ? "Pipeline unavailable" : "Loading pipeline"} />
           <Metric label="Data Quality" value={softPct(dataQuality, overview?.enrichment?.with_contact || 0)} icon={Shield} color="text-cyan-500" sub="email+contact+linkedin" />
           <Metric label="Job Success" value={`${overview?.jobs?.success_rate || 0}%`} icon={Zap} color="text-orange-500" sub={`${overview?.jobs?.completed || 0}/${overview?.jobs?.total || 0} done`} />
         </div>
+        )}</Region>
 
         {/* ── Row 2: Coverage Gauges + Pipeline + Tiers ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
 
           {/* Enrichment Coverage Gauges */}
           <Panel title="Enrichment Coverage" icon={CheckCircle2} className="lg:col-span-3" badge={`${enrichRate}% avg`}>
-            {overview?.enrichment ? (
+            <Region query={overviewQuery} label="Enrichment coverage" isEmpty={o => o.total_leads === 0} emptyHint="No leads yet. Coverage appears once leads are collected." loadingHeight="h-40">{(overview) => (
               <div className="space-y-3">
                 <div className="grid grid-cols-3 gap-1">
                   <GaugeRing value={overview.enrichment.with_email} max={overview.enrichment.total} label="Email" color="var(--gtm-success)" />
@@ -227,12 +233,12 @@ export default function AnalyticsPage() {
                   </div>
                 )}
               </div>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
 
           {/* Pipeline Funnel */}
           <Panel title="Pipeline Funnel" icon={Activity} className="lg:col-span-5" badge={`${funnelData.length} stages`}>
-            {funnelData.length > 0 ? (
+            <Region query={pipelineQuery} label="Pipeline funnel" isEmpty={p => !Object.values(p.statuses).some(v => v > 0)} emptyHint="No leads in the pipeline yet. Stages fill in as leads are collected." loadingHeight="h-40">{() => (
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={funnelData} layout="vertical" margin={{ left: 10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -244,12 +250,12 @@ export default function AnalyticsPage() {
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
 
           {/* Tier Distribution */}
           <Panel title="Score Tiers" icon={Sparkles} className="lg:col-span-4">
-            {tierData.length > 0 ? (
+            <Region query={overviewQuery} label="Score tiers" isEmpty={o => !Object.values(o.tiers).some(v => v > 0)} emptyHint="No scored leads yet. Tiers fill in once leads are scored." loadingHeight="h-40">{() => (
               <div className="flex items-center gap-3">
                 <ResponsiveContainer width="50%" height={160}>
                   <PieChart>
@@ -279,14 +285,14 @@ export default function AnalyticsPage() {
                   })}
                 </div>
               </div>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
         </div>
 
         {/* ── Row 3: Trends (leads + scores) ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <Panel title="Lead Collection (30d)" icon={TrendingUp} badge={collection?.leads_by_day ? `${collection.leads_by_day.reduce((s, d) => s + d.count, 0)} total` : undefined}>
-            {collection?.leads_by_day?.length ? (
+            <Region query={collectionQuery} label="Lead collection" isEmpty={c => c.leads_by_day.length === 0} emptyHint="No leads collected in the last 30 days. Run a collection job to fill this." loadingHeight="h-40">{(collection) => (
               <ResponsiveContainer width="100%" height={160}>
                 <AreaChart data={collection.leads_by_day}>
                   <defs><linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--gtm-chart-purple)" stopOpacity={0.3} /><stop offset="95%" stopColor="var(--gtm-chart-purple)" stopOpacity={0} /></linearGradient></defs>
@@ -297,11 +303,11 @@ export default function AnalyticsPage() {
                   <Area type="monotone" dataKey="count" stroke="var(--gtm-chart-purple)" fillOpacity={1} fill="url(#gl)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
 
           <Panel title="Score Distribution" icon={Target}>
-            {scoreDist.length > 0 ? (
+            <Region query={enrichmentQuery} label="Score distribution" isEmpty={e => e.score_distribution.length === 0} emptyHint="No scores yet. This fills in once leads are enriched and scored." loadingHeight="h-40">{() => (
               <ResponsiveContainer width="100%" height={160}>
                 <BarChart data={scoreDist}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
@@ -311,14 +317,14 @@ export default function AnalyticsPage() {
                   <Bar dataKey="count" fill="var(--gtm-success)" radius={[3, 3, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
         </div>
 
         {/* ── Row 4: Cities + Source Quality ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
           <Panel title="Top Cities" icon={Globe} badge={enrichment?.by_city ? `${enrichment.by_city.length} cities` : undefined}>
-            {enrichment?.by_city?.length ? (
+            <Region query={enrichmentQuery} label="Top cities" isEmpty={e => e.by_city.length === 0} emptyHint="No city data yet. Cities appear once collected leads include a location.">{(enrichment) => (
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                 {enrichment.by_city.slice(0, 12).map((c, i) => (
                   <div key={c.city} className="flex items-center gap-2 text-xs">
@@ -335,11 +341,11 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
 
           <Panel title="Source Quality" icon={Layers} badge={sourceData.length ? `${sourceData.length} sources` : undefined}>
-            {sourceData.length > 0 ? (
+            <Region query={enrichmentQuery} label="Source quality" isEmpty={e => e.source_quality.length === 0} emptyHint="No source data yet. This fills in as jobs collect leads.">{() => (
               <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
                 {sourceData.map((s, i) => (
                   <div key={s.source} className="flex items-center gap-2 text-xs">
@@ -356,7 +362,7 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
         </div>
 
@@ -364,7 +370,7 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
           <Panel title="LLM Token Usage (30d)" icon={Brain} className="lg:col-span-8"
             badge={llm?.total_tokens ? `${fmt(llm.total_tokens)} tokens · ${llm.total_calls} calls` : undefined}>
-            {llm?.by_day?.length ? (
+            <Region query={llmQuery} label="LLM token usage" isEmpty={l => l.by_day.length === 0} emptyHint="No LLM calls in the last 30 days. Usage appears when AI columns or enrichment run." loadingHeight="h-40">{(llm) => (
               <ResponsiveContainer width="100%" height={140}>
                 <AreaChart data={llm.by_day}>
                   <defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="var(--gtm-chart-teal)" stopOpacity={0.3} /><stop offset="95%" stopColor="var(--gtm-chart-teal)" stopOpacity={0} /></linearGradient></defs>
@@ -375,11 +381,11 @@ export default function AnalyticsPage() {
                   <Area type="monotone" dataKey="tokens" stroke="var(--gtm-chart-teal)" fillOpacity={1} fill="url(#gt)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
 
           <Panel title="LLM Providers" icon={Zap} className="lg:col-span-4">
-            {llm?.by_provider?.length ? (
+            <Region query={llmQuery} label="LLM providers" isEmpty={l => l.by_provider.length === 0} emptyHint="No provider usage yet.">{(llm) => (
               <div className="space-y-2">
                 {llm.by_provider.map(p => (
                   <div key={p.provider} className="flex items-center gap-2 text-xs">
@@ -389,14 +395,14 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
               </div>
-            ) : <Empty />}
+            )}</Region>
           </Panel>
         </div>
 
         {/* ── Row 6: Collection Jobs Trend ── */}
-        {collection?.jobs_by_day && collection.jobs_by_day.length > 0 && (
-          <Panel title="Jobs vs Leads (30d)" icon={Activity} badge={`avg ${avgLeadsPerJob.toFixed(1)} leads/job`}>
-            <ResponsiveContainer width="100%" height={140}>
+          <Panel title="Jobs vs Leads (30d)" icon={Activity} badge={collection?.jobs_by_day?.length ? `avg ${avgLeadsPerJob.toFixed(1)} leads/job` : undefined}>
+            <Region query={collectionQuery} label="Jobs and leads" isEmpty={c => c.jobs_by_day.length === 0} emptyHint="No collection jobs in the last 30 days. Run a job to fill this.">{(collection) => (
+              <ResponsiveContainer width="100%" height={140}>
               <BarChart data={collection.jobs_by_day}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
                 <XAxis dataKey="day" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
@@ -406,21 +412,44 @@ export default function AnalyticsPage() {
                 <Bar dataKey="leads" fill="var(--gtm-success)" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
+            )}</Region>
           </Panel>
-        )}
 
       </div>
     </div>
   )
 }
 
-function Empty() {
+function Empty({ hint = "No data available" }: { hint?: string }) {
   return (
-    <div className="h-20 flex flex-col items-center justify-center gap-1">
-      <Database className="size-4 text-muted-foreground/20" />
-      <span className="text-xs text-muted-foreground">No data available</span>
+    <div className="h-20 flex flex-col items-center justify-center gap-1 text-center">
+      <Database className="size-4 text-muted-foreground/20" aria-hidden="true" />
+      <span className="text-xs text-muted-foreground">{hint}</span>
     </div>
   )
 }
 
-function AnalyticsTable({title,columns,rows}:{title:string;columns:string[];rows:(string|number)[][]}) { return <section><h2>{title}</h2>{rows.length?<table><caption className="sr-only">{title}</caption><thead><tr>{columns.map(column=><th scope="col" key={column}>{column}</th>)}</tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((value,column)=><td key={column}>{value}</td>)}</tr>)}</tbody></table>:<p>No series returned.</p>}</section> }
+/** One analytics data region: loading, error (with Retry), empty, or loaded. */
+function Region<T>({ query, label, isEmpty, emptyHint, loadingHeight = "h-20", children }: {
+  query: UseQueryResult<T>
+  label: string
+  isEmpty?: (data: T) => boolean
+  emptyHint: string
+  loadingHeight?: string
+  children: (data: T) => ReactNode
+}) {
+  const state = analyticsRegionState(query, isEmpty)
+  if (state.kind === "loading") return (
+    <div role="status" aria-label={`Loading ${label}`}>
+      <Skeleton className={`${loadingHeight} rounded-lg`} />
+      <span className="sr-only">Loading {label}…</span>
+    </div>
+  )
+  if (state.kind === "error") return (
+    <ErrorState title={`${label} is unavailable`} error={query.error} retry={() => void query.refetch()} />
+  )
+  if (state.kind === "empty") return <Empty hint={emptyHint} />
+  return <>{children(query.data as T)}</>
+}
+
+function AnalyticsTable({title,columns,rows,query}:{title:string;columns:string[];rows:(string|number)[][];query:{data:unknown;isError:boolean}}) { return <section><h2>{title}</h2>{rows.length?<table><caption className="sr-only">{title}</caption><thead><tr>{columns.map(column=><th scope="col" key={column}>{column}</th>)}</tr></thead><tbody>{rows.map((row,index)=><tr key={index}>{row.map((value,column)=><td key={column}>{value}</td>)}</tr>)}</tbody></table>:<p>{query.data===undefined?(query.isError?"Unavailable: this data could not be loaded.":"Loading…"):"No series returned."}</p>}</section> }

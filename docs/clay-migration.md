@@ -41,8 +41,8 @@ On Companies, **Find people** builds a people-search workbook from the selected 
 
 Clay's CSV export cannot provide hidden object contents, skipped results, provider credentials, credit balances, or executable Clay workflow definitions that were not exported. The migration imports the data supplied in the file. It does not claim access to a private Clay API or automatic workflow conversion.
 
-## Local preview
+## Upgrade and validation
 
-The implementation is on branch `feat/company-person-clay-migration` in `OpenGTM-entities`. Open `http://localhost:8002`. Login details are in the worktree's private `.opengtm-initial-credentials` file. This instance has its own database and Redis port; the Python instance on 8000 and original Go PR instance on 8001 are separate.
+Shared-record code is present in the Go application, but issue #20 remains open while the connected migration and release acceptance are verified. The [validation report](testing/company-person-clay-migration.md) describes an earlier local run and its limits; it is not evidence for a particular deployment.
 
-After building the UI and Go binaries, `scripts/run-records-local.sh` starts the API, worker, and scheduler using the worktree's `.env`. Production upgrades should take a database backup and run `opengtm-migrate up` with owner credentials before starting schema-version-5 binaries. Runtime connections use a restricted RLS role.
+For upgrades, take a database backup and follow the [migration runbook](go-port/runbooks/migrations.md) for the version being deployed. Use a restricted runtime role after applying migrations with the appropriate owner credentials.

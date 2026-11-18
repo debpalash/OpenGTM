@@ -1,0 +1,1 @@
+{"query":"acme pricing","mode":"pro","results":[{"title":"Acme Pricing","url":"https://acme.example/pricing","snippet":"Plans start at $10.","published_at":"2026-01-02T00:00:00Z","acquired_at":"2026-01-03T00:00:00Z","description":""},{"title":"Acme About","url":"https://acme.example/about","snippet":"About Acme."}],"usage":{"sku":"search","amount":1,"credits":1,"paid":false}}

@@ -3,6 +3,7 @@ package wbregistry
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/contract"
 	"reflect"
 	"sort"
 	"testing"
@@ -188,5 +189,21 @@ func TestRecipeSummaryKeysMatchFixture(t *testing.T) {
 	}
 	if _, ok := r.Template("missing"); ok {
 		t.Error("missing template found")
+	}
+}
+
+func TestProviderCatalogMatchesAPIFixtures(t *testing.T) {
+	r := mustLoad(t)
+	for _, name := range []string{"meta/providers", "meta/providers_no_ws_header"} {
+		fx := contract.Load(t, name)
+		var body struct {
+			Providers []Provider `json:"providers"`
+		}
+		if err := json.Unmarshal(fx.Response.Body, &body); err != nil {
+			t.Fatal(err)
+		}
+		if !reflect.DeepEqual(r.Providers(), body.Providers) {
+			t.Errorf("%s provider response no longer matches catalog", name)
+		}
 	}
 }

@@ -1,8 +1,10 @@
 # Shared records and Clay data migration
 
-Implements issue #20 on the Go backend. A Company is valid without a Lead or any Person. People have independent identities and employment histories. Workbooks reference shared records; accepted edits and enrichment become visible through other workbooks, audiences, monitoring, and activation.
+The Go backend includes shared-record implementation from the company/person migration branch. A Company is intended to be valid without a Lead or any Person. People have independent identities and employment histories; workbooks reference shared records.
 
-## Acceptance matrix
+**Status:** issue #20 remains open. The matrix below records the scope reported for the original local implementation, not verified release acceptance. Its checked items do not certify that every supported writer, queued job, upgrade path, or connected workflow has been validated on current main. See the issue's acceptance checklist and [local validation report](../testing/company-person-clay-migration.md) for the remaining release evidence and the limits of the original tests.
+
+## Original local implementation matrix
 
 - [x] Company/Person records and field ownership with employment history, observations, and protected accepted edits.
 - [x] Company-only import and warehouse before person discovery.

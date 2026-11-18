@@ -53,6 +53,6 @@
   "success": false,
   "fields": {},
   "confidence": 0.0,
-  "error": "no_lei_match"
+  "error": "GLEIF returned HTTP 401"
  }
 }

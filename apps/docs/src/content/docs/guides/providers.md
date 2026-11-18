@@ -23,6 +23,7 @@ API key at the vendor's direct price. Keys go in **Settings → API Keys**
 | `numverify` | phone verify, carrier, line type | `NUMVERIFY_API_KEY` | 100/month | $0.005 |
 | `ipinfo` | company from IP/domain, org, location, ASN | `IPINFO_TOKEN` | 50,000 requests/month | free tier |
 | `google_maps` | phone, address for local businesses | `GOOGLE_MAPS_API_KEY` | $200/month credit | $0.005 |
+| `scavio_maps` | phone, address, category, rating for local businesses ([Scavio](https://scavio.dev/google-maps-api)) | `SCAVIO_API_KEY` | 50 credits on signup | $0.0043 (1 credit) |
 | `leadmagic_email` | email | `LEADMAGIC_API_KEY` | | $0.05 |
 | `leadmagic_company` | company size, description | `LEADMAGIC_API_KEY` | | $0.05 |
 | `leadmagic_mobile` | mobile phone | `LEADMAGIC_API_KEY` | | $0.05 (0 if not found) |
@@ -55,6 +56,22 @@ The last four rows in the first group (`leadmagic_*`, `prospeo_mobile`) are
 
 Every source must respect the target's terms of service; credentialed
 providers are inert until their key is set.
+
+## SMTP probe identity
+
+For a self-hosted installation, set `LEADGEN_SMTP_HELO` to your own fully
+qualified host name and `LEADGEN_SMTP_MAIL_FROM` to an email address on a
+domain you control. Otherwise the bundled verification probe announces
+`verify.yupcha.com` and `verify@yupcha.com` by default.
+
+```bash
+LEADGEN_SMTP_HELO=verify.example.com
+LEADGEN_SMTP_MAIL_FROM=verify@example.com
+```
+
+These identify the SMTP verification conversation; the probe does not send
+email. Restart the API, worker and MCP processes you run after updating
+their environment. This configuration is separate from Reacher's `REACHER_HELLO_NAME` and `REACHER_FROM_EMAIL`.
 
 ## Reacher (self-hosted verification)
 
@@ -116,3 +133,14 @@ input_fields: [website_domain, contact_person]
 The manifest compiler validates it at load, registers it under `name`, and the
 vendor catalog picks up `cost_per_lookup` for estimates. Ship a golden fixture
 with it so its accuracy can be checked, not just its presence.
+
+## CompanyEnrich
+
+CompanyEnrich provides company and people research APIs. Configure `COMPANYENRICH_API_KEY`
+in the environment or save it in Settings → Enrichment providers. Six separate, paid,
+opt-in workbook providers cover company profiles (`companyenrich_company`), existing-email
+person lookup (`companyenrich_person`), workforce (`companyenrich_workforce`), company-domain
+people search (`companyenrich_people`), semantic company search (`companyenrich_search`)
+and lookalikes (`companyenrich_similar`). Search actions fetch one page of at most ten
+results, preserve the full response as JSON text, and do not discover email addresses.
+No default waterfall is changed. See the [setup, fields, costs and scope guide](https://github.com/debpalash/OpenGTM/blob/main/docs/providers/companyenrich.md).
