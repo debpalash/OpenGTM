@@ -219,12 +219,12 @@ func (j *job) searchDirectories(ctx context.Context) []*Lead {
 		j.query + " site:goodfirms.co",
 		"site:clutch.co " + core + " companies " + cityOr,
 		"site:goodfirms.co " + core + " companies " + cityOr,
-		j.query + " companies list India",
+		j.query + " companies list " + marketDefault(),
 	}
 	if city != "" {
 		queries = append(queries, j.query+" top firms "+city, "site:justdial.com "+core+" "+city)
 	} else {
-		queries = append(queries, j.query+" top firms India")
+		queries = append(queries, j.query+" top firms "+marketDefault())
 	}
 	for _, dq := range queries {
 		if ctx.Err() != nil {

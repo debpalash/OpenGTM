@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync/atomic"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -25,10 +25,10 @@ type mockOpenAI struct {
 }
 
 type mockReq struct {
-	Path   string
-	Auth   string
-	Body   map[string]any
-	Raw    string
+	Path string
+	Auth string
+	Body map[string]any
+	Raw  string
 }
 
 func (m *mockOpenAI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
