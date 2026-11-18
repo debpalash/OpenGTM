@@ -1,0 +1,22 @@
+{
+ "vendor": "attio",
+ "scenario": "no_email",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "company": "Acme",
+    "contact_person": "Ada Lovelace"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Lead has no email — required for Attio person"
+ }
+}

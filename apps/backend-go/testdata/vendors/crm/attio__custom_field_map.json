@@ -1,0 +1,60 @@
+{
+ "vendor": "attio",
+ "scenario": "custom_field_map",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "a@b.co",
+    "contact_title": "VP",
+    "city": "Austin",
+    "company": "Acme"
+   },
+   "field_map": {
+    "city": "city_custom",
+    "contact_title": "job_title",
+    "email": "email_addresses",
+    "company": "not_attio"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"a@b.co\"],\"job_title\":\"VP\"}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "a@b.co"
+       ],
+       "job_title": "VP"
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":{\"workspace_id\":\"w1\",\"object_id\":\"o1\",\"record_id\":\"9c1f2a60-0000-4000-8000-000000000001\"},\"created_at\":\"2026-11-19T00:00:00.000000000Z\",\"web_url\":\"https://app.attio.com/x\",\"values\":{}}}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "action": "upserted",
+  "attio_id": "9c1f2a60-0000-4000-8000-000000000001"
+ }
+}

@@ -21,7 +21,7 @@ var DefaultOutboundRefPrefixes = []string{"WEBHOOK_", "AUTOMATION_", "DEST_", "S
 // user-chosen URL, whatever the prefix list says: provider/CRM/mail credentials and the
 // server's own secrets (OIDC client secret, signing keys, database and Redis URLs).
 var deniedOutboundPrefixes = []string{
-	"SMTP_", "IMAP_", "HUBSPOT_", "SALESFORCE_", "META_", "LINKEDIN_", "GOOGLE_ADS_",
+	"SMTP_", "IMAP_", "HUBSPOT_", "SALESFORCE_", "ATTIO_", "META_", "LINKEDIN_", "GOOGLE_ADS_",
 	"OIDC_", "STRIPE_", "SECRET_", "JWT_", "DATABASE_", "REDIS_", "INSTANTLY_", "SMARTLEAD_", "HEYREACH_", "LEMLIST_", "AIRTABLE_",
 }
 

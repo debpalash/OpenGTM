@@ -78,7 +78,7 @@ func buildAutomations(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, w
 	if local != nil { // never a typed-nil resolver behind the interface
 		sec = local
 	}
-	crmDeps := crmpush.Deps{HubSpot: &crm.HubSpot{Secrets: local}, Salesforce: &crm.Salesforce{Secrets: local}, Pool: pool, Log: log}
+	crmDeps := crmpush.Deps{HubSpot: &crm.HubSpot{Secrets: local}, Salesforce: &crm.Salesforce{Secrets: local}, Attio: &crm.Attio{Secrets: local}, Pool: pool, Log: log}
 	evalDeps := autoengine.Deps{Pool: pool, Log: log, Enabled: cfg.Flags.AutomationsEnabled, BillingEnabled: cfg.BillingEnabled,
 		MaxRowsPerEval: a.MaxRowsPerEval, GlobalDailyUSD: a.GlobalDailyUSD,
 		Actions: autoactions.Deps{Webhook: autoactions.NewWebhookDeps(cfg.AppEnv, cfg.EgressAllowHosts, a, sec, log),

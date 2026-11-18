@@ -70,6 +70,11 @@ export const SETUP_TYPES: Record<
     fields: [policy],
     help: "Uses the workspace Salesforce connection. Saving does not verify the connection or configure inbound callbacks."
   },
+  attio: {
+    label: "Attio",
+    fields: [policy],
+    help: "Upserts each eligible member as an Attio person matched by email, and links or creates its company when the member has a website domain. Uses the workspace Attio connection (ATTIO_ACCESS_TOKEN with record_permission:read-write and object_configuration:read). Members need an email. Re-delivery updates the same person."
+  },
   instantly: {
     label: "Instantly",
     fields: [{ key: "campaign_id", label: "Campaign ID" }],

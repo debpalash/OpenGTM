@@ -491,7 +491,7 @@ func TestIntegrationCatalogMatchesVector(t *testing.T) {
 	if seen != 1 {
 		t.Fatalf("vector missing (%d)", seen)
 	}
-	if n := len(IntegrationCatalog(Options{Path: "none"})); n != 14 {
+	if n := len(IntegrationCatalog(Options{Path: "none"})); n != 15 {
 		t.Fatalf("%d integrations", n)
 	}
 }

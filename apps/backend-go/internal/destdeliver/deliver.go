@@ -310,7 +310,7 @@ func (d *Deliverer) deliver(ctx context.Context, dest Destination, leadID int, s
 			return notWired(dest.Type)
 		}
 		return d.webhook(ctx, dest, leadID, snapshot, mapped, idem, sec)
-	case "hubspot", "salesforce":
+	case "hubspot", "salesforce", "attio":
 		if d.ports.CRM == nil {
 			return notWired(dest.Type)
 		}

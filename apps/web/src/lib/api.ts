@@ -169,7 +169,7 @@ export interface AudienceDestination {
   id: string
   audience_id: string
   name: string
-  destination_type: "webhook" | "hubspot" | "salesforce" | "warehouse_http" | "meta_ads" | "google_ads" | "linkedin_ads" | "instantly" | "smartlead" | "heyreach" | "lemlist" | "google_sheets" | "airtable" | "slack"
+  destination_type: "webhook" | "hubspot" | "salesforce" | "attio" | "warehouse_http" | "meta_ads" | "google_ads" | "linkedin_ads" | "instantly" | "smartlead" | "heyreach" | "lemlist" | "google_sheets" | "airtable" | "slack"
   enabled: boolean
   config: Record<string, unknown>
   field_map: Record<string, string>

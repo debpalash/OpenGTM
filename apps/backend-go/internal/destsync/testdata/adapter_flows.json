@@ -2816,6 +2816,316 @@
       }
     },
     {
+      "name": "attio_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "attio",
+          "enabled": true,
+          "config": {},
+          "field_map": {},
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "data": {
+                "id": {
+                  "workspace_id": "w",
+                  "object_id": "o",
+                  "record_id": "rec-1"
+                },
+                "values": {}
+              }
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "data": {
+                "id": {
+                  "workspace_id": "w",
+                  "object_id": "o",
+                  "record_id": "rec-2"
+                },
+                "values": {}
+              }
+            }
+          },
+          {
+            "status": 401,
+            "json": {
+              "status_code": 401,
+              "type": "auth_error",
+              "code": "unauthorized",
+              "message": "bad token"
+            }
+          }
+        ],
+        "secrets": {
+          "ATTIO_ACCESS_TOKEN": "at-test-token"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload_fingerprint": "58296e4b79d3d06d6b510deeffd7db312559c1528a2480eb6c67de3433b22ea6",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Attio: upserted rec-1",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload_fingerprint": "f66ead46682e9f7a308708d0690140227dce4e7de5275268cb2ac11dbcd9092f",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Attio: upserted rec-2",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload_fingerprint": "4b15a867aa956034c3cd8ff09419060ec61bc623a5ec321171164b08eddcb783",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "Attio auth failed (invalid ATTIO_ACCESS_TOKEN)",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "PUT",
+            "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+            "headers": {
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "data": {
+                "values": {
+                  "email_addresses": [
+                    "u1@x.test"
+                  ],
+                  "name": {
+                    "first_name": "Pat",
+                    "last_name": "Lee1",
+                    "full_name": "Pat Lee1"
+                  },
+                  "phone_numbers": [
+                    "+1 555 010 0001"
+                  ],
+                  "company": [
+                    {
+                      "target_object": "companies",
+                      "match": {
+                        "domains": [
+                          "co1.test"
+                        ]
+                      },
+                      "if_unmatched": "create",
+                      "create": {
+                        "name": "Co 1"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "method": "PUT",
+            "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+            "headers": {
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "data": {
+                "values": {
+                  "email_addresses": [
+                    "u2@x.test"
+                  ],
+                  "name": {
+                    "first_name": "Pat",
+                    "last_name": "Lee2",
+                    "full_name": "Pat Lee2"
+                  },
+                  "phone_numbers": [
+                    "+1 555 010 0002"
+                  ],
+                  "company": [
+                    {
+                      "target_object": "companies",
+                      "match": {
+                        "domains": [
+                          "co2.test"
+                        ]
+                      },
+                      "if_unmatched": "create",
+                      "create": {
+                        "name": "Co 2"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "method": "PUT",
+            "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+            "headers": {
+              "authorization": "Bearer at-test-token",
+              "content-type": "application/json"
+            },
+            "json": {
+              "data": {
+                "values": {
+                  "email_addresses": [
+                    "u3@x.test"
+                  ],
+                  "name": {
+                    "first_name": "Pat",
+                    "last_name": "Lee3",
+                    "full_name": "Pat Lee3"
+                  },
+                  "phone_numbers": [
+                    "+1 555 010 0003"
+                  ],
+                  "company": [
+                    {
+                      "target_object": "companies",
+                      "match": {
+                        "domains": [
+                          "co3.test"
+                        ]
+                      },
+                      "if_unmatched": "create",
+                      "create": {
+                        "name": "Co 3"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
       "name": "salesforce_mixed",
       "input": {
         "destination": {

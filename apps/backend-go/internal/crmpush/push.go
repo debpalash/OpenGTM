@@ -71,9 +71,16 @@ type SalesforceAPI interface {
 	PushLeadAsContact(ctx context.Context, ws string, lead crm.Lead, fieldMap crm.FieldMap) crm.SalesforcePushResult
 }
 
+// AttioAPI is the part of *crm.Attio the push uses.
+type AttioAPI interface {
+	IsConnected(ctx context.Context, ws string) bool
+	PushLeadAsPerson(ctx context.Context, ws string, lead crm.Lead, fieldMap crm.FieldMap) crm.AttioPushResult
+}
+
 var (
 	_ HubSpotAPI    = (*crm.HubSpot)(nil)
 	_ SalesforceAPI = (*crm.Salesforce)(nil)
+	_ AttioAPI      = (*crm.Attio)(nil)
 )
 
 // Deps are the collaborators of Push. Credentials are resolved per workspace
@@ -81,6 +88,7 @@ var (
 type Deps struct {
 	HubSpot    HubSpotAPI
 	Salesforce SalesforceAPI
+	Attio      AttioAPI
 	Pool       *pgxpool.Pool
 	Log        *slog.Logger
 	// StoreRowID overrides the row stamp (tests). nil: StoreRowCRMID on Pool.
@@ -152,6 +160,20 @@ func Push(ctx context.Context, d Deps, ws string, cfg map[string]any, leadData m
 		if d.Salesforce == nil || !d.Salesforce.IsConnected(ctx, ws) {
 			return fail(label + " not connected")
 		}
+	case "attio":
+		// Push only, upserted by email: there is no write-back by external id and no import, so a row never
+		// carries an Attio id to update.
+		if d.Attio == nil || !d.Attio.IsConnected(ctx, ws) {
+			return fail("Attio not connected")
+		}
+		res := d.Attio.PushLeadAsPerson(ctx, ws, dictLead(leadData), c.FieldMap)
+		if !res.Success {
+			if res.Error == "" {
+				res.Error = "Attio push failed"
+			}
+			return fail(res.Error)
+		}
+		return Result{Success: true, Value: "Attio: " + res.Action + " " + res.AttioID}
 	default:
 		return fail("unsupported crm '" + c.Type + "'")
 	}

@@ -63,6 +63,32 @@ ID of the connected LinkedIn sender account as well as the campaign. Adding
 members can enrol people in outbound sequences, so review the audience first.
 The lead's email and LinkedIn URL are never written to logs.
 
+## Attio (audience destination)
+
+The `attio` destination type upserts each member as an Attio **person**, matched
+on email, so re-delivery updates the same record instead of creating a
+duplicate. It uses the workspace secret `ATTIO_ACCESS_TOKEN` (an Attio access
+token with the `record_permission:read-write` and `object_configuration:read`
+scopes). It is push only: nothing is imported from Attio, and it is not a
+workbook output column.
+
+| Lead field | Attio attribute | Notes |
+|---|---|---|
+| `email` | `email_addresses` | Required; the match key |
+| `contact_person` | `name` | "First Last" is split on the first space; a single word is a first name |
+| `phone` | `phone_numbers` | Sent only in international format (`+` and country code), otherwise omitted |
+| `contact_title` | `job_title` | |
+| `linkedin_url` | `linkedin` | |
+| `website` | `company` | Reduced to its domain; the person is linked to the company with that domain, which is created if missing |
+| `company` | company `name` | Used only when the company has to be created |
+
+The destination's field map can re-target fields to these Attio attributes
+(`email_addresses`, `name`, `phone_numbers`, `job_title`, `linkedin`,
+`company_domain`, `company_name`). Custom attributes are not supported yet and
+a field mapped to one is ignored. A field that is empty is left out of the
+request, never sent blank. Attio allows 25 writes per second; a 429 is retried
+with backoff. Tokens and member data are never written to logs or error text.
+
 ## Webhook safety
 
 Webhook URLs must be `http` or `https` without embedded credentials, and the

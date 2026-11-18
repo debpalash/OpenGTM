@@ -32,6 +32,7 @@ var integrations = []Subject{
 	{ID: "webhook", Category: "activation", Capabilities: []string{"outbound"}},
 	{ID: "hubspot", Category: "crm", Capabilities: []string{"outbound", "inbound"}},
 	{ID: "salesforce", Category: "crm", Capabilities: []string{"outbound", "inbound"}},
+	{ID: "attio", Category: "crm", Capabilities: []string{"outbound"}},
 	{ID: "warehouse_http", Category: "warehouse", Capabilities: []string{"outbound"}},
 	{ID: "meta_ads", Category: "ads", Capabilities: []string{"audience_sync"}},
 	{ID: "google_ads", Category: "ads", Capabilities: []string{"audience_sync"}},

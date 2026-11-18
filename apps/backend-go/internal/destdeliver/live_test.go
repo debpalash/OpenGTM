@@ -63,7 +63,7 @@ func livePorts(rt *liveRT, ws map[string]string, sleeps *[]time.Duration) Ports 
 func TestLivePortsSupportEveryType(t *testing.T) {
 	p := NewLivePorts(LiveConfig{})
 	p.Webhook = AutoWebhook{}
-	for _, typ := range []string{"webhook", "hubspot", "salesforce", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads",
+	for _, typ := range []string{"webhook", "hubspot", "salesforce", "attio", "warehouse_http", "meta_ads", "google_ads", "linkedin_ads",
 		"instantly", "smartlead", "heyreach", "lemlist", "google_sheets", "airtable", "slack"} {
 		if !p.Supports(typ) {
 			t.Errorf("%s unsupported", typ)
