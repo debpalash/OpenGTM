@@ -243,8 +243,11 @@
   border-radius: 6px;
 }
 .gtm-checkbox-target input {
+  /* 16px box, padded to a 24px rendered hit area (WCAG 2.5.8) without growing it. */
+  box-sizing: content-box;
   width: 16px;
   height: 16px;
+  padding: calc((max(24px, var(--gtm-target-min)) - 16px) / 2);
   accent-color: var(--gtm-accent);
   cursor: pointer;
 }

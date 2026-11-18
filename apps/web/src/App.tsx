@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider, Outlet, Routes, Route, Navigate, L
 import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { DialogProvider } from "@/components/dialog-provider"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
 import { getPageTitle } from "@/components/app-shell/navigation"
@@ -50,14 +51,16 @@ function NotificationBell() {
   const items = query.data ?? []
   const critical = items.filter(item => item.severity === "critical").length
   const urgent = items.length - critical
+  const shown = items.length > 99 ? "99+" : String(items.length)
+  // The accessible name starts with the visible count (WCAG 2.5.3 label in name).
   const label = query.isPending ? "Loading notifications" : query.isError
-    ? "Notifications unavailable" : `Notifications: ${critical} critical, ${urgent} urgent`
+    ? "Notifications unavailable" : `${shown} notifications: ${critical} critical, ${urgent} urgent`
 
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger render={<button type="button" className="gtm-notification-trigger" aria-label={label} />}>
       <span className="gtm-notification-symbol"><BellRing className="size-[18px]" aria-hidden="true" /></span>
       <span className="gtm-notification-count" data-severity={critical ? "critical" : urgent ? "urgent" : undefined}>
-        {query.isPending ? "…" : query.isError ? "!" : items.length > 99 ? "99+" : items.length}
+        {query.isPending ? "…" : query.isError ? "!" : shown}
       </span>
     </PopoverTrigger>
     <PopoverContent align="end" sideOffset={10} className="w-[min(410px,calc(100vw-24px))] gap-0 overflow-hidden p-0">
@@ -303,7 +306,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <TooltipProvider>
-      <RouterProvider router={router} />
+      <DialogProvider>
+        <RouterProvider router={router} />
+      </DialogProvider>
     </TooltipProvider>
   )
 }

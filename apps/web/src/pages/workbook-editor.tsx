@@ -7,6 +7,7 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue, createContext, useContext } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import {
   useTable, tableFeatures, createSortedRowModel, sortFns,
@@ -509,6 +510,7 @@ function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
 // ── Main Editor Page ─────────────────────────────────────────────────────
 
 export default function WorkbookEditorPage() {
+  const confirm = useConfirm()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -958,13 +960,13 @@ export default function WorkbookEditorPage() {
             const isRerunningCell = cellRunPending
               && cellRunVariables?.rowId === cellRowId
               && cellRunVariables?.colId === col.id
-            const handleRerun = () => {
+            const handleRerun = async () => {
               if (cellRowId == null) {
                 toast.error("This row has no workbook identity")
                 return
               }
               if (col.type === "output") {
-                if (!confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push this row to the destination AGAIN. Continue?`)) return
+                if (!await confirm({ title: `Re-run output column “${col.name}” for this row?`, description: "Output columns run once per row. Force re-running pushes this row to the destination again.", confirmLabel: "Re-run and push" })) return
               }
               runCell({ rowId: cellRowId, colId: col.id, force: true }, {
                 onSuccess: (res) => {
@@ -1087,12 +1089,12 @@ export default function WorkbookEditorPage() {
     setCtxMenu(null)
   }, [runMut])
 
-  const handleForceRunColumn = useCallback((colId: string) => {
+  const handleForceRunColumn = useCallback(async (colId: string) => {
     const col = columns.find(c => c.id === colId)
     if (!col) return
     // Output columns are run-once + side-effecting: force re-pushes EVERY row.
     if (col.type === "output"
-        && !confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push EVERY row to the destination again. Continue?`)) {
+        && !await confirm({ title: `Re-run output column “${col.name}” for every row?`, description: "Output columns run once per row. Force re-running pushes every row to the destination again.", confirmLabel: "Re-run all rows" })) {
       setCtxMenu(null)
       return
     }
@@ -1101,7 +1103,7 @@ export default function WorkbookEditorPage() {
       onError: () => toast.error("Failed to start force re-run"),
     })
     setCtxMenu(null)
-  }, [columns, runMut])
+  }, [columns, runMut, confirm])
 
   // Close context menu on click outside
   useEffect(() => {

@@ -13,6 +13,7 @@ import { Inbox } from "lucide-react"
 import { ChannelIcon, CHANNEL_META, type Channel } from "@/components/semantic-icons"
 import { updateStatus, deleteLead, type Lead } from "@/lib/api"
 import { quickLookProps } from "@/components/quick-look/quick-look"
+import { useConfirm } from "@/components/dialog-provider"
 
 const TIER_STYLES: Record<string, { bg: string; text: string; glow?: string }> = {
   hot: { bg: "bg-red-500/15", text: "text-red-400", glow: "score-hot" },
@@ -72,15 +73,16 @@ function signals(lead: Lead): Channel[] {
 }
 
 export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
+  const confirm = useConfirm()
   const navigate = useNavigate()
   const handleStatus = async (id: number, status: string) => {
     await updateStatus(id, status)
     onStatusChange()
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm("Delete this lead?")) return
-    await deleteLead(id)
+  const handleDelete = async (lead: Lead) => {
+    if (!await confirm({ title: `Delete lead “${lead.company}”?`, description: "This cannot be undone.", confirmLabel: "Delete lead", destructive: true })) return
+    await deleteLead(lead.id)
     onStatusChange()
   }
 
@@ -239,7 +241,7 @@ export function LeadsTable({ leads, onRowClick, onStatusChange }: Props) {
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-xs text-destructive" onClick={() => handleDelete(lead.id)}>
+                    <DropdownMenuItem className="text-xs text-destructive" onClick={() => handleDelete(lead)}>
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>

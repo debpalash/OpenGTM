@@ -122,7 +122,7 @@ html:has(.gtm-dashboard) body {
 [data-sidebar="group-label"] { min-height:max(24px, 1.5rem); font-size:.75rem; color:var(--muted-foreground); font-weight:500; padding-inline:12px; }
 [data-sidebar="menu-button"] { min-height:var(--gtm-sidebar-row); height:var(--gtm-sidebar-row); padding-inline:10px; gap:8px; border-radius:7px; font-size:.8125rem; color:var(--muted-foreground); }
 [data-sidebar="menu-button"][data-active=true] { color:var(--gtm-link); background:var(--gtm-selection); font-weight:600; }
-[data-sidebar="menu-action"] { min-width:28px; min-height:28px; top:4px; right:4px; }
+[data-sidebar="menu-action"] { min-width:max(28px, var(--gtm-target-min)); min-height:max(28px, var(--gtm-target-min)); top:4px; right:4px; }
 [data-sidebar="menu-action"]~[data-sidebar="menu-button"] { padding-right:36px; }
 [data-slot="sidebar-header"] { padding:8px 10px 6px; }
 [data-slot="sidebar-footer"] { padding:8px; }
@@ -141,27 +141,29 @@ html:has(.gtm-dashboard) body {
 [data-sidebar="menu-action"] { top:1px; right:2px; }
 [data-sidebar="menu"] { gap:0; }
 
-[data-sidebar="group-label"] { height:max(24px, 1.5rem); }
+[data-sidebar="group-label"] { height:max(24px, 1.5rem, var(--gtm-target-min)); }
 
 /* Keep desktop navigation dense enough to leave recent conversations in view. */
 @media (min-width:768px) and (pointer:fine) {
   .gtm-dashboard [data-slot="sidebar-content"] { padding:4px 8px; }
-  .gtm-dashboard [data-sidebar="group"] { padding-block:4px; }
+  /* Rows keep their 28px rhythm; the group label grows to the 24px rendered
+     target minimum and its group padding gives that space back. */
+  .gtm-dashboard [data-sidebar="group"] { padding-block:1px; }
   .gtm-dashboard [data-sidebar="group-label"] {
-    height:max(22px, 1.375rem);
-    min-height:max(22px, 1.375rem);
+    height:max(24px, var(--gtm-target-min));
+    min-height:max(24px, var(--gtm-target-min));
   }
   .gtm-dashboard [data-sidebar="menu-button"]:not([data-size="lg"]) {
-    height:max(28px, 1.75rem);
-    min-height:max(28px, 1.75rem);
+    height:var(--gtm-sidebar-row);
+    min-height:var(--gtm-sidebar-row);
     padding:4px 12px;
   }
   .gtm-dashboard [data-sidebar="menu-action"] {
-    top:2px;
-    min-width:24px;
-    min-height:24px;
-    width:24px;
-    height:24px;
+    top:0;
+    min-width:var(--gtm-target-min);
+    min-height:var(--gtm-target-min);
+    width:var(--gtm-target-min);
+    height:var(--gtm-target-min);
   }
 }
 

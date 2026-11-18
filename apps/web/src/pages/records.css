@@ -57,7 +57,7 @@
   padding-block: 0;
 }
 .records-table[data-density="compact"] .gtm-checkbox-target {
-  height: 24px;
+  height: max(24px, var(--gtm-target-min));
 }
 .records-table[data-density="comfortable"] td {
   height: 48px;
@@ -311,7 +311,7 @@
   line-height: 16px;
 }
 .records-table[data-density="compact"] .records-name {
-  min-height: 24px;
+  min-height: max(24px, var(--gtm-target-min));
 }
 .records-table[data-density="compact"] .records-avatar {
   width: 24px;

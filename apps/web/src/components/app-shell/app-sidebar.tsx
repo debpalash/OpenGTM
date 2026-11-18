@@ -1,4 +1,5 @@
 import { type FormEvent, useEffect, useRef, useState } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
@@ -32,6 +33,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 const initials = (name: string) => name.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join("") || "?"
 
 export function AppSidebar() {
+  const confirm = useConfirm()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -81,8 +83,8 @@ export function AppSidebar() {
     finally { setSwitching(false) }
   }
 
-  async function removeChat(id: string) {
-    if (!confirm("Delete this conversation?")) return
+  async function removeChat(id: string, title: string) {
+    if (!await confirm({ title: `Delete conversation “${title || "Untitled chat"}”?`, description: "This cannot be undone.", confirmLabel: "Delete conversation", destructive: true })) return
     try {
       await deleteConversation(id)
       await queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
@@ -192,7 +194,7 @@ export function AppSidebar() {
                 <MoreHorizontal aria-hidden="true" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start">
-                <DropdownMenuItem variant="destructive" onClick={() => void removeChat(chat.id)}>
+                <DropdownMenuItem variant="destructive" onClick={() => void removeChat(chat.id, chat.title)}>
                   <Trash2 aria-hidden="true" />Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

@@ -83,3 +83,59 @@ export const signalAnalytics = {
   ],
   top_accounts: [{ lead_id: 1, company: "Northwind Logistics", count: 5, weight: 20 }]
 }
+
+// /agents, /notifications (failed task), /campaigns (leads with emails).
+const jobRow = (id: string, query: string, status: string, leads: number) => ({
+  id, query, intent: "companies", status, tier: 1, attempts: 1, max_attempts: 3, leads_found: leads,
+  workspace_id: "ws-1", proxy_used: "", error: status === "failed" ? "Provider timeout" : "",
+  created_at: stamp, started_at: stamp, completed_at: status === "running" ? "" : stamp
+})
+export const jobs = [
+  jobRow("job-1", "Logistics companies in Rotterdam", "done", 12),
+  jobRow("job-2", "Healthcare SaaS in Leeds", "running", 3),
+  jobRow("job-3", "Fintech founders in Austin", "failed", 0)
+]
+
+export const researchPlaybooks = [{
+  id: "pb-1", name: "Funding research", description: "Find the latest funding round",
+  prompt_template: "Find the latest funding round for {company}.", steps: [], output_format: "text", max_steps: 3,
+  cell_budget_usd: 0.1, version: 1, enabled: true, schedule_audience_id: null, schedule_interval_minutes: null,
+  next_run_at: null, created_at: stamp, updated_at: stamp
+}]
+
+export const featureFlags = { automations_enabled: true, intent_poller_enabled: true, pg_lead_store: true, allow_legacy_outreach: false }
+
+export const watches = {
+  watches: [{
+    id: "w-1", workspace_id: "ws-1", kind: "sec_filings", target: "Northwind Logistics", resolved_cik: null, lead_id: 1,
+    signal_types: ["filing"], interval: "daily", enabled: true, next_poll_at: stamp, last_polled_at: stamp,
+    last_error: null, consecutive_failures: 0, cursor: {}, created_at: stamp, state: "active"
+  }],
+  limit: 50, offset: 0, has_more: false, next_cursor: null
+}
+
+export const signals = {
+  signals: [{
+    id: "s-1", workspace_id: "ws-1", lead_id: 1, company: "Northwind Logistics", signal_type: "funding",
+    title: "Northwind raised a Series B", description: "Announced a new funding round.", source: "news",
+    source_url: null, weight: 9, created_at: 1760950800, read: 0
+  }],
+  total: 1
+}
+
+export const galleryRecipes = {
+  recipes: [
+    { slug: "lead-enrichment", name: "Lead enrichment", description: "Enrich a lead list with email and company data.", category: "enrichment", icon: "rocket", columns_count: 4, column_types: { lead_field: 2, enrichment: 2 } },
+    { slug: "intent-scoring", name: "Intent scoring", description: "Score accounts by recent buying signals.", category: "scoring", icon: "star", columns_count: 3, column_types: { ai: 3 } }
+  ],
+  categories: {
+    enrichment: { label: "Enrichment", icon: "rocket", color: "blue" },
+    scoring: { label: "Scoring", icon: "star", color: "amber" }
+  },
+  total: 2
+}
+
+export const emailLeads = [
+  { id: 1, company: "Northwind Logistics", email: "ada@northwind.example", score: 82 },
+  { id: 2, company: "Globex Software", email: "ben@globex.example", score: 74 }
+]
