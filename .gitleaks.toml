@@ -48,3 +48,14 @@ targetRules = ["linkedin-client-id"]
 paths = [
   '''^apps/backend-go/internal/api/leadenrich\.go$''',
 ]
+
+[[allowlists]]
+# data.gov.in's published sample API key (documented on data.gov.in, shared and
+# rate-limited), used as the MCA lookup fallback when DATA_GOV_IN_KEY is unset.
+# Exact value only: any other key in these files is still reported.
+description = "data.gov.in public sample key"
+targetRules = ["generic-api-key"]
+regexTarget = "match"
+regexes = [
+  '''579b464db66ec23bdd000001cdd3946e44ce4aad7209ff7b23ac571b''',
+]
