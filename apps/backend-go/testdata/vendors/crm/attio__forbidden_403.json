@@ -1,0 +1,49 @@
+{
+ "vendor": "attio",
+ "scenario": "forbidden_403",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "solo@example.com"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 403,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status_code\":403,\"type\":\"auth_error\",\"code\":\"unauthorized\",\"message\":\"missing scope\"}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Attio token lacks permission (needs record_permission:read-write and object_configuration:read)"
+ }
+}

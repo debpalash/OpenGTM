@@ -331,6 +331,20 @@
       ]
     },
     {
+      "id": "attio",
+      "name": "Attio",
+      "icon": "attio",
+      "description": "Upsert leads as Attio people, linked to their company (audience destination).",
+      "fields": [
+        {
+          "key": "ATTIO_ACCESS_TOKEN",
+          "label": "Access Token",
+          "secret": true,
+          "placeholder": "Attio access token"
+        }
+      ]
+    },
+    {
       "id": "airtable",
       "name": "Airtable",
       "icon": "airtable",
@@ -787,6 +801,7 @@
     "ANTHROPIC_API_KEY",
     "ANYMAIL_FINDER_API_KEY",
     "APOLLO_API_KEY",
+    "ATTIO_ACCESS_TOKEN",
     "BOUNCER_API_KEY",
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",

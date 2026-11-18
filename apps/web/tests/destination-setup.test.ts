@@ -76,6 +76,7 @@ test("every supported type builds an explicit enablement choice and its own conf
     },
     hubspot: {},
     salesforce: {},
+    attio: {},
     instantly: { campaign_id: "campaign1" },
     smartlead: { campaign_id: "campaign2" },
     heyreach: { campaign_id: "235", linkedin_account_id: "123" },

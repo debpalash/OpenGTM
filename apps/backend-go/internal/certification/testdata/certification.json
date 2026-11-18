@@ -8059,6 +8059,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -9129,6 +9145,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -10153,6 +10185,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],
@@ -11184,6 +11232,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],
@@ -12781,6 +12845,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],
@@ -13584,6 +13664,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],
@@ -14193,6 +14289,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14458,6 +14570,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14716,6 +14844,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],
@@ -15036,6 +15180,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -15342,6 +15502,22 @@
       "external_write",
       "idempotency",
       "inbound_reconciliation",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
       "retry_recovery",
       "tenant_isolation"
      ],

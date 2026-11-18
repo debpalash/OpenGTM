@@ -1,0 +1,47 @@
+{
+ "vendor": "attio",
+ "scenario": "answer_without_record_id",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "solo@example.com"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {},
+    "body": "{}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Attio answered without a record id"
+ }
+}

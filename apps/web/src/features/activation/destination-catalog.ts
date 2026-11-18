@@ -4,6 +4,7 @@ const knownTypes = new Set([
   "webhook",
   "hubspot",
   "salesforce",
+  "attio",
   "warehouse_http",
   "meta_ads",
   "google_ads",

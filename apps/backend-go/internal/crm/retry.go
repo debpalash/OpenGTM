@@ -80,6 +80,11 @@ func RequestWithRetry(ctx context.Context, c *http.Client, req func() (*http.Req
 func retryDelay(header string, attempt int) time.Duration {
 	secs, ok := pyFloat(header)
 	if !ok {
+		if t, err := http.ParseTime(strings.TrimSpace(header)); err == nil { // an HTTP-date (Attio)
+			secs, ok = time.Until(t).Seconds(), true
+		}
+	}
+	if !ok {
 		secs = math.Pow(2, float64(attempt))
 	}
 	if math.IsNaN(secs) {

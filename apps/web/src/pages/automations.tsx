@@ -122,7 +122,7 @@ const ACTION_TYPE_LABELS: Record<ActionType, string> = {
 }
 
 const SCHEDULE_INTERVALS = ["hourly", "daily", "weekly"] as const
-const CRM_TYPES = ["hubspot", "salesforce", "pipedrive"] as const
+const CRM_TYPES = ["hubspot", "salesforce", "attio", "pipedrive"] as const
 const WEBHOOK_METHODS = ["POST", "PUT", "GET"] as const
 
 const usd = (n: number) =>

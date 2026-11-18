@@ -58,7 +58,7 @@ type (
 	}
 )
 
-// CRMPusher mirrors crmpush.Push (HubSpot/Salesforce; field_map travels inside cfg).
+// CRMPusher mirrors crmpush.Push (HubSpot/Salesforce/Attio; field_map travels inside cfg).
 // crmpush.Result carries Value, not Summary.
 type CRMPusher interface {
 	Push(ctx context.Context, ws string, cfg, leadData map[string]any, workbookID string, leadID int64) crmpush.Result
@@ -124,7 +124,7 @@ func (p Ports) Supports(destinationType string) bool {
 	switch strings.ToLower(strings.TrimSpace(destinationType)) {
 	case "webhook", "slack":
 		return p.Webhook != nil
-	case "hubspot", "salesforce":
+	case "hubspot", "salesforce", "attio":
 		return p.CRM != nil
 	case "instantly":
 		return p.Instantly != nil

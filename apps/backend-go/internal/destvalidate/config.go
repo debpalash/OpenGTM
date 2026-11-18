@@ -19,7 +19,7 @@ import (
 
 // Types are the supported destination types, in Python's declaration order.
 var Types = []string{
-	"webhook", "hubspot", "salesforce", "warehouse_http",
+	"webhook", "hubspot", "salesforce", "attio", "warehouse_http",
 	"meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead", "heyreach", "lemlist",
 	"google_sheets", "airtable", "slack",
 }
