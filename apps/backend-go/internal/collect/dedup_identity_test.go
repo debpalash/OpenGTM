@@ -17,18 +17,18 @@ func withIdentityDedup(t *testing.T) {
 
 func TestRegistrableDomain(t *testing.T) {
 	cases := map[string]string{
-		"www.bsm.nl":            "bsm.nl",
+		"www.bsm.nl":             "bsm.nl",
 		"security.example.co.uk": "example.co.uk",
-		"blog.acme.com":         "acme.com",
-		"deep.sub.northwave.nl": "northwave.nl",
-		"":                      "",
-		"localhost":             "",
-		"substack.com":          "", // platform host: no company identity
-		"acme.substack.com":     "", // its registrable domain IS the platform
-		"acme.github.io":        "",
-		"news.medium.com":       "",
-		"tuv.nl":                "tuv.nl",
-		"WWW.Example.COM":       "example.com",
+		"blog.acme.com":          "acme.com",
+		"deep.sub.northwave.nl":  "northwave.nl",
+		"":                       "",
+		"localhost":              "",
+		"substack.com":           "", // platform host: no company identity
+		"acme.substack.com":      "", // its registrable domain IS the platform
+		"acme.github.io":         "",
+		"news.medium.com":        "",
+		"tuv.nl":                 "tuv.nl",
+		"WWW.Example.COM":        "example.com",
 	}
 	for in, want := range cases {
 		if got := registrableDomain(in); got != want {

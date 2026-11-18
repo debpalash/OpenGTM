@@ -119,14 +119,6 @@ func emailDomain(e string) (string, bool) {
 	return strings.Split(e, "@")[1], true
 }
 
-// domainOfLastAt is the mail domain of an address ("" without an "@").
-func domainOfLastAt(e string) string {
-	if i := strings.LastIndex(e, "@"); i >= 0 {
-		return e[i+1:]
-	}
-	return ""
-}
-
 // sameMailbox is true when two normalized addresses are the exact same mailbox.
 func sameMailbox(a, b string) bool {
 	return a != "" && a == b
@@ -138,14 +130,6 @@ var platformDomains = map[string]bool{
 	"linkedin.com": true, "twitter.com": true, "x.com": true, "facebook.com": true,
 	"instagram.com": true, "youtube.com": true, "github.com": true, "crunchbase.com": true,
 	"glassdoor.com": true, "indeed.com": true, "medium.com": true,
-}
-
-// freeMailDomains are consumer providers: a shared one identifies a person, not a company.
-var freeMailDomains = map[string]bool{
-	"gmail.com": true, "googlemail.com": true, "yahoo.com": true, "hotmail.com": true,
-	"outlook.com": true, "live.com": true, "aol.com": true, "icloud.com": true,
-	"me.com": true, "proton.me": true, "protonmail.com": true, "yandex.com": true,
-	"mail.ru": true, "gmx.com": true, "web.de": true, "t-online.de": true,
 }
 
 func compareP(a, b *prepared) MatchResult {
