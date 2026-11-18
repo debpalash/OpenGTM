@@ -44,7 +44,9 @@ readiness is tracked in [#120](https://github.com/debpalash/OpenGTM/issues/120).
   eight intervening Alembic revisions' DDL and the job-queue steps in one transaction, stamps `e7b2c4d6f8a0`
   and continues. `opengtm-migrate import-v3 --data-dir DIR [--dry-run]` copies the SQLite stores (workspaces and
   members, workspace secrets, provider keys, chat history, workbook functions, chat memories); use the same
-  `SECRET_KEY`. The pre-Postgres `leads.db`, `outreach.db`, `signals.db`, `enrichment_cache.db` and `openmemory.db`
+  `SECRET_KEY`. A default v3.0.0 install keeps leads, outreach and signals in PostgreSQL, so the bridge upgrades them
+  in place; `import-v3` stops before writing anything if a fallback `leads.db`, `outreach.db` or `signals.db` holds
+  rows (override with `--skip-unmigrated`). `enrichment_cache.db` and `openmemory.db`
   are not imported and are listed with row counts. Any other Alembic revision is refused. Runbook:
   `docs/go-port/runbooks/migrations.md`; rehearsal: `scripts/release/rehearse-upgrade.sh`.
 - Toolchain go1.27.4 and `golang.org/x/net` v0.62.0. The patched HTML tokenizer keeps the first of duplicated

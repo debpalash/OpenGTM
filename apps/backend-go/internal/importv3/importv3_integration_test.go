@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -142,7 +143,7 @@ func TestImportCopiesEveryStoreVerbatimAndIsIdempotent(t *testing.T) {
 	ctx := context.Background()
 	db := scratchPG(t)
 	dir := dataDir(t)
-	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir})
+	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir, SkipUnmigrated: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -230,7 +231,7 @@ func TestImportCopiesEveryStoreVerbatimAndIsIdempotent(t *testing.T) {
 	if _, err := db.Exec(`UPDATE app_settings SET value = 'changed-in-go' WHERE key = 'ANTHROPIC_API_KEY'`); err != nil {
 		t.Fatal(err)
 	}
-	rep2, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir})
+	rep2, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir, SkipUnmigrated: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -247,7 +248,7 @@ func TestImportCopiesEveryStoreVerbatimAndIsIdempotent(t *testing.T) {
 func TestImportDryRunWritesNothing(t *testing.T) {
 	db := scratchPG(t)
 	before := count(t, db, `SELECT count(*) FROM app_settings`) // migration 3 writes one marker row
-	rep, err := importv3.Run(context.Background(), db, importv3.Options{DataDir: dataDir(t), DryRun: true})
+	rep, err := importv3.Run(context.Background(), db, importv3.Options{DataDir: dataDir(t), DryRun: true, SkipUnmigrated: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -276,7 +277,7 @@ func TestImportRefusesOrphanedMembersAndWritesNothing(t *testing.T) {
 		t.Fatal(err)
 	}
 	lite.Close()
-	_, err = importv3.Run(ctx, db, importv3.Options{DataDir: dir})
+	_, err = importv3.Run(ctx, db, importv3.Options{DataDir: dir, SkipUnmigrated: true})
 	if err == nil || !strings.Contains(err.Error(), "ws-gone") || !strings.Contains(err.Error(), "Nothing was written") {
 		t.Fatalf("err = %v", err)
 	}
@@ -297,7 +298,7 @@ func TestImportNeedsWorkspacesDBUnlessAllowed(t *testing.T) {
 	if err == nil || !strings.Contains(err.Error(), "workspaces.db not found") {
 		t.Fatalf("err = %v", err)
 	}
-	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir, AllowMissingWorkspaces: true})
+	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: dir, AllowMissingWorkspaces: true, SkipUnmigrated: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -318,7 +319,7 @@ func TestImportNeverModifiesTheSourceFiles(t *testing.T) {
 		b, _ := os.ReadFile(filepath.Join(dir, e.Name()))
 		before[e.Name()] = b
 	}
-	if _, err := importv3.Run(context.Background(), db, importv3.Options{DataDir: dir}); err != nil {
+	if _, err := importv3.Run(context.Background(), db, importv3.Options{DataDir: dir, SkipUnmigrated: true}); err != nil {
 		t.Fatal(err)
 	}
 	after, _ := os.ReadDir(dir)
@@ -330,5 +331,48 @@ func TestImportNeverModifiesTheSourceFiles(t *testing.T) {
 		if !bytes.Equal(got, b) {
 			t.Errorf("%s was modified", name)
 		}
+	}
+}
+
+// A data dir whose leads.db holds rows is refused before anything is written, unless SkipUnmigrated.
+func TestImportStopsOnNonEmptyLeadsDBBeforeWritingAnything(t *testing.T) {
+	ctx := context.Background()
+	db := scratchPG(t)
+	var before int
+	if err := db.QueryRow(`SELECT count(*) FROM workspaces`).Scan(&before); err != nil {
+		t.Fatal(err)
+	}
+	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: dataDir(t)})
+	if !errors.Is(err, importv3.ErrUnmigratedData) {
+		t.Fatalf("err = %v, want ErrUnmigratedData", err)
+	}
+	for _, want := range []string{"migrate_sqlite_to_pg.py", "--skip-unmigrated", "Nothing was imported"} {
+		if !strings.Contains(err.Error(), want) {
+			t.Errorf("message lacks %q: %v", want, err)
+		}
+	}
+	if len(rep.Tables) != 0 || len(rep.NotMigrated) == 0 {
+		t.Errorf("report: %d tables, %d not migrated", len(rep.Tables), len(rep.NotMigrated))
+	}
+	var after int
+	if err := db.QueryRow(`SELECT count(*) FROM workspaces`).Scan(&after); err != nil || after != before {
+		t.Errorf("workspaces %d -> %d (err %v): the refusal must write nothing", before, after, err)
+	}
+}
+
+// A leads.db with no rows (v3.0.0 creates the file empty) and the enrichment cache do not block the import.
+func TestImportIgnoresEmptyLeadsDBAndCaches(t *testing.T) {
+	db := scratchPG(t)
+	dir := dataDir(t, "leads.db")
+	lite, err := sql.Open("sqlite", filepath.Join(dir, "leads.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := lite.Exec(`CREATE TABLE leads (id INTEGER PRIMARY KEY, company TEXT)`); err != nil {
+		t.Fatal(err)
+	}
+	lite.Close()
+	if _, err := importv3.Run(context.Background(), db, importv3.Options{DataDir: dir}); err != nil {
+		t.Fatalf("an empty leads.db plus the enrichment cache must not block: %v", err)
 	}
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 )
 
-const importUsage = "usage: opengtm-migrate import-v3 --data-dir DIR [--dry-run] [--allow-missing-workspaces]"
+const importUsage = "usage: opengtm-migrate import-v3 --data-dir DIR [--dry-run] [--allow-missing-workspaces] [--skip-unmigrated]"
 
 // runImportV3 copies a v3.0.0 installation's SQLite stores into PostgreSQL (internal/importv3). Run it after
 // `opengtm-migrate up` has bridged the schema and before the Go services start.
@@ -24,6 +24,7 @@ func runImportV3(args []string, getenv func(string) string, out io.Writer) error
 	dir := fs.String("data-dir", getenv("V3_DATA_DIR"), "the v3.0.0 data/ directory (or V3_DATA_DIR)")
 	dry := fs.Bool("dry-run", false, "read, import and verify inside a transaction, print counts, roll back")
 	allow := fs.Bool("allow-missing-workspaces", false, "accept a data dir without workspaces.db")
+	skip := fs.Bool("skip-unmigrated", false, "proceed although leads.db/outreach.db/signals.db hold rows that are not imported")
 	if err := fs.Parse(args); err != nil || fs.NArg() > 0 {
 		return errors.New(importUsage)
 	}
@@ -49,7 +50,7 @@ func runImportV3(args []string, getenv func(string) string, out io.Writer) error
 	if err := db.QueryRowContext(ctx, `SELECT coalesce(max(version_id), 0) FROM public.`+migrate.VersionTable).Scan(&v); err != nil || v < migrate.BaselineVersion {
 		return errors.New("import-v3: the schema is not migrated yet: run `opengtm-migrate up` first")
 	}
-	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: *dir, DryRun: *dry, AllowMissingWorkspaces: *allow, Out: out})
+	rep, err := importv3.Run(ctx, db, importv3.Options{DataDir: *dir, DryRun: *dry, AllowMissingWorkspaces: *allow, SkipUnmigrated: *skip, Out: out})
 	rep.Print(out)
 	return err
 }

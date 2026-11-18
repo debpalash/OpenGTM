@@ -5,8 +5,10 @@ against the PostgreSQL named by DATABASE_URL, with the v3 data directory mounted
 API (uvicorn), creates the data through that API, and writes /data/seed.json describing what it created so the
 rehearsal can look for exactly those rows after the upgrade.
 
-Through the v3 HTTP API: login, a second workspace, a saved provider key, a workspace secret, a lead, a workbook
-function. In-process with v3's own code, because the HTTP route needs a live LLM: a chat conversation (the v3
+Through the v3 HTTP API: login, a second workspace, a saved provider key, a workspace secret, leads, an outreach
+sequence with an enrolled lead, a workbook function. A signal is written with v3's own store (only the external
+scan produces them). The application connects as a non-superuser role, as a default deployment does, so leads,
+outreach and signals land in PostgreSQL (the SQLite fallback files are never created). In-process with v3's own code, because the HTTP route needs a live LLM: a chat conversation (the v3
 chat_history module the copilot route calls). Directly in PostgreSQL: the first admin (v3 has no signup route; its
 seed_demo script does the same) and one queue row.
 
@@ -90,6 +92,17 @@ def main():
                          tok, headers={"X-Workspace-Id": main_ws})
         func = call("POST", "/api/functions", {"name": "Rehearsal function", "description": "d", "columns_chain": [{"id": "c1", "name": "Email"}]}, tok)
 
+        seq = call("POST", "/api/outreach/sequences", {"name": "Rehearsal sequence", "consent_basis": "interest",
+                   "steps": [{"step_number": 1, "subject": "Hi", "body_html": "<p>hello</p>", "delay_hours": 0}]},
+                   tok, headers={"X-Workspace-Id": acme["id"]})
+        call("POST", f"/api/outreach/sequences/{seq['id']}/enroll", {"lead_ids": [lead["id"]]}, tok,
+             headers={"X-Workspace-Id": acme["id"]})
+        # Signals are only produced by the (external) scan, so write one through v3's own store.
+        from apps.api.services.signals.monitor import Signal
+        from apps.api.services.signals.store import get_signal_store
+        get_signal_store(acme["id"]).add_signal(Signal(workspace_id=acme["id"], lead_id=lead["id"], company="Rehearsal Co",
+                                                       signal_type="hiring", title="Rehearsal signal", source="rehearsal"))
+
         from apps.api.services import chat_history
         conv = chat_history.create_conversation(acme["id"], str(admin_id), title="Rehearsal chat")
         conv_id = conv["id"] if isinstance(conv, dict) else conv
@@ -110,7 +123,7 @@ def main():
         out = {
             "admin_id": admin_id, "main_ws": main_ws, "acme_ws": acme["id"], "acme_slug": acme["slug"],
             "lead_id": lead["id"], "lead_main_id": lead_main["id"], "function_id": func.get("id"),
-            "conversation_id": conv_id,
+            "conversation_id": conv_id, "sequence_id": seq["id"],
         }
         json.dump(out, open("/data/seed.json", "w"))
         print("v3 seeded:", json.dumps(out))

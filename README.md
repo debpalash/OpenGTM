@@ -172,8 +172,11 @@ docker compose up -d --build
 ```
 
 `import-v3` copies the SQLite stores (workspaces and members, workspace secrets, provider keys, chat history,
-workbook functions, chat memories), never modifies them, can be re-run, and lists what it does not import (the
-pre-Postgres `leads.db` among them: move those rows with v3.0.0's `scripts/migrate_sqlite_to_pg.py` before upgrading).
+workbook functions, chat memories), never modifies them and can be re-run. Leads, outreach and signals of a default
+install are in PostgreSQL and are upgraded in place by the migrator. If your v3.0.0 had `PG_LEAD_STORE` off, or
+connected as a superuser, it kept them in `leads.db`/`outreach.db`/`signals.db`: `import-v3` then stops without
+writing anything; move them with v3.0.0's `scripts/migrate_sqlite_to_pg.py` first (or pass `--skip-unmigrated` to
+leave them behind).
 Sign in with your existing v3.0.0 account. `scripts/release/rehearse-upgrade.sh` rehearses exactly this on a throwaway
 v3.0.0 install. See the [migration guide](docs/go-port/runbooks/migrations.md) and the
 [cutover runbook](docs/go-port/runbooks/15-cutover.md).

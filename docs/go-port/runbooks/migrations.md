@@ -141,10 +141,9 @@ Inventory (v3.0.0 data directory):
 | `chat_history.db`: conversations, messages, tool_approvals | `chat_conversations`, `chat_messages`, `chat_tool_approvals` |
 | `functions.db`: functions | `workbook_functions` |
 | `chat_memory.db`: memories | `chat_memories` |
-| `leads.db` (pre-Postgres lead store) | **no destination**. v3.0.0 reads it only with `PG_LEAD_STORE` off; move such rows with v3.0.0's `scripts/migrate_sqlite_to_pg.py` before upgrading |
-| `outreach.db`, `signals.db` | no destination (no caller in v3.0.0; outreach and signals live in Postgres) |
-| `enrichment_cache.db` | no destination (a cache; rebuilt on demand) |
-| `openmemory.db` | no destination (optional third-party backend) |
+| `leads.db`, `outreach.db`, `signals.db` (top level and `workspaces/*/leads.db`): written by v3.0.0 only when `PG_LEAD_STORE` is off or its login is a superuser/BYPASSRLS role; a default install has none | **no destination**. A non-empty one makes `import-v3` stop before writing (message names the file and the v3.0.0 step, `scripts/migrate_sqlite_to_pg.py`); `--skip-unmigrated` leaves those rows behind. A default install's leads, outreach and signals are in PostgreSQL and are upgraded in place by the bridge |
+| `enrichment_cache.db` | no destination (a cache with a per-row expiry; rebuilt on demand; never stops the import) |
+| `openmemory.db` | no destination (optional third-party backend; never stops the import) |
 
 Skipped with a count: chat conversations with no workspace or user (invisible in v3.0.0 too) and their messages.
 Everything that was already in PostgreSQL in v3.0.0 (leads, workbooks, outreach, signals, jobs, users, audit)

@@ -10,7 +10,7 @@ the first failure, and removes everything it created.
 | `scripts/release/rehearse-backup-restore.sh` | A `pg_dump -Fc` backup restores into a fresh stack with identical row counts in every table, the admin logs in with the old password, and a saved provider key still decrypts. | passes |
 | `scripts/release/rehearse-upgrade.sh` | A real v3.0.0 installation (built from the tag's own code and migrations, seeded through its API) is bridged by the Go migrator, its SQLite stores are imported, and the same admin logs in and sees every seeded item through the Go API. | passes (run it locally; see "Upgrade from v3.0.0") |
 
-CI runs the first two on every push to `main` and on demand (`.github/workflows/release-rehearsals.yml`). They are
+CI runs all three on every push to `main` and on demand (`.github/workflows/release-rehearsals.yml`). They are
 not in the pull request workflow because building every image and running two stacks takes far longer than the
 ~5 minutes a PR should wait.
 
@@ -113,8 +113,9 @@ that the workspace, the lead (visible only in its own workspace), the function, 
 the provider key (masked) and the workspace secret (integration listed, value never echoed) are
 there. `--python-ref <ref>` builds another ref (the checks assume v3.0.0's data model).
 
-It is not part of the scheduled CI workflow: it builds a Python environment and takes several minutes on top of the
-image builds.
+The seed follows the default deployment path (the v3 application connects as a non-superuser role), and the script
+fails if any SQLite lead/outreach/signal store appears. It also runs in the CI workflow after the other two, reusing
+their images (about 90 s locally with cached images, including building the v3 Python environment).
 
 ## Upgrade from v3.0.0
 
@@ -126,13 +127,20 @@ an existing Python installation" and the mechanism, including the table of what 
 
 Known limits, all reported by `import-v3` rather than hidden:
 
-- v3.0.0 keeps leads in PostgreSQL only when its application connects as a non-superuser role (the default deployment).
-  Run as a superuser, or with `PG_LEAD_STORE=false`, it silently falls back to per-workspace SQLite `leads.db` files;
-  the rehearsal found this when its first seed ran as the owner. Such rows are not imported (next item).
-- `leads.db` (the pre-Postgres lead store) has no importer in the Go runtime. v3.0.0 only reads it when
-  `PG_LEAD_STORE` is off; move such rows with v3.0.0's `scripts/migrate_sqlite_to_pg.py` before upgrading.
-- `outreach.db`, `signals.db`, `enrichment_cache.db` and `openmemory.db` are not imported (no caller in v3.0.0, a
-  cache, or an optional third-party backend).
+- A default v3.0.0 install keeps leads, outreach history and signals in PostgreSQL, not in SQLite files. Established
+  by running the quick start from the tag (`scripts/install.sh`, then `docker compose up`, the seed service, then a
+  lead and an outreach sequence with an enrolled lead through the API): the api connects as `yupcha_runtime`
+  (a non-superuser, from `APP_DATABASE_URL`), the rows land in `leads` and `outreach_sequences`, and `data/` holds only
+  `workspaces.db`, `data.db` and `chat_history.db`. `signals.db` is documented in the v3.0.0 source as no longer
+  written or read. The bridge upgrades those PostgreSQL rows in place; `import-v3` has nothing to copy for them.
+- v3.0.0 falls back to per-workspace SQLite `leads.db` files (and `outreach.db`/`signals.db`) only when `PG_LEAD_STORE`
+  is off or its database login is a superuser/BYPASSRLS role (the rehearsal hit this when its first seed ran as the
+  database owner). `import-v3` does not copy those files. It therefore **stops before writing anything** when one has
+  rows, naming the file and the v3.0.0 step to run first (`scripts/migrate_sqlite_to_pg.py`, in `apps/api/scripts/`
+  of the v3.0.0 tree); `--skip-unmigrated` imports the rest and leaves those rows behind in the SQLite files.
+  Empty files do not stop it.
+- `enrichment_cache.db` (a provider-result cache with an `expires_at` per row) and `openmemory.db` (an optional
+  third-party memory backend) are not imported and never stop the import; the cache is rebuilt on demand.
 - Pending jobs with no derivable workspace are failed with a reason by the bridge; running jobs are re-queued.
 - Not covered by the rehearsal: SCIM/OIDC rows, per-workspace SQLite stores, and real provider traffic. The
   integration tests cover the import of the SCIM/OIDC/permission tables from committed fixtures.

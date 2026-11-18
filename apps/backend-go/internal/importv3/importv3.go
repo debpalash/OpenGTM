@@ -22,7 +22,9 @@ type Options struct {
 	DryRun  bool   // do everything, verify, then roll back
 	// AllowMissingWorkspaces accepts a data dir without workspaces.db (an install that never created a workspace).
 	AllowMissingWorkspaces bool
-	Out                    io.Writer
+	// SkipUnmigrated proceeds although leads.db, outreach.db or signals.db hold rows this tool does not import.
+	SkipUnmigrated bool
+	Out            io.Writer
 }
 
 // TableReport is the outcome for one table.
@@ -55,6 +57,10 @@ type Report struct {
 // Mismatch is returned (with the Report) when verification fails; nothing was committed.
 var ErrVerification = errors.New("importv3: verification failed: not every source row is present in PostgreSQL")
 
+// ErrUnmigratedData is returned, before anything is written, when a SQLite store that v3.0.0 only uses outside its
+// default configuration (leads.db, outreach.db, signals.db) holds rows this tool does not import.
+var ErrUnmigratedData = errors.New("importv3: leads.db / outreach.db / signals.db hold rows that import-v3 does not copy")
+
 var storeOrder = []string{wsFile, "data.db", "chat_history.db", "functions.db", "chat_memory.db"}
 
 // Run imports every store found in opts.DataDir. db must connect as a role that can write the tenant tables (the
@@ -78,6 +84,13 @@ func Run(ctx context.Context, db *sql.DB, opts Options) (Report, error) {
 	defer os.RemoveAll(tmp)
 
 	specs := Specs()
+	rep.NotMigrated = scanNotMigrated(tmp, opts.DataDir, specs)
+	if rows := blockingRows(rep.NotMigrated); rows > 0 && !opts.SkipUnmigrated {
+		return rep, fmt.Errorf("%w (%d rows, listed above). Nothing was imported. v3.0.0 writes these files only when PG_LEAD_STORE is off or its "+
+			"database login is a superuser/BYPASSRLS role. Move them into PostgreSQL first with v3.0.0's "+
+			"scripts/migrate_sqlite_to_pg.py (apps/api/scripts/migrate_sqlite_to_pg.py in the v3.0.0 tree) and re-run, or pass --skip-unmigrated to "+
+			"import the rest and leave those rows behind in the SQLite files", ErrUnmigratedData, rows)
+	}
 	var firstErr error
 	for _, file := range storeOrder {
 		path := filepath.Join(opts.DataDir, file)
@@ -97,7 +110,6 @@ func Run(ctx context.Context, db *sql.DB, opts Options) (Report, error) {
 			break
 		}
 	}
-	rep.NotMigrated = scanNotMigrated(tmp, opts.DataDir, specs)
 	return rep, firstErr
 }
 

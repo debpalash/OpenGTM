@@ -78,6 +78,11 @@ seed_v3() {
   tail -n 1 "$RH_WORK/seed.out"
   [[ -s "$SEEDJSON" ]] || { echo "seed.json missing"; return 1; }
   echo "v3 data dir: $(cd "$RH_WORK/v3data" && ls ./*.db 2>/dev/null | tr '\n' ' ')"
+  # A default install keeps leads, outreach and signals in PostgreSQL: no SQLite fallback file may exist.
+  if ls "$RH_WORK"/v3data/leads.db "$RH_WORK"/v3data/outreach.db "$RH_WORK"/v3data/signals.db "$RH_WORK"/v3data/workspaces/*/leads.db >/dev/null 2>&1; then
+    echo "a SQLite lead/outreach/signal store was created: the seed did not follow the default PostgreSQL path"; return 1
+  fi
+  echo "v3 PostgreSQL rows: leads=$(rh_psql 'SELECT count(*) FROM leads') outreach_sequences=$(rh_psql 'SELECT count(*) FROM outreach_sequences') signals=$(rh_psql 'SELECT count(*) FROM signals')"
   echo "v3 rows: users=$(rh_psql 'SELECT count(*) FROM users') jobs=$(rh_psql 'SELECT count(*) FROM jobs')"
 }
 
@@ -119,6 +124,11 @@ verify_through_go_api() {
   has "$body" "Rehearsal Co" || { echo "lead 'Rehearsal Co' not visible in workspace $acme: $(head -c 300 <<<"$body")"; return 1; }
   has "$body" "Main Workspace Co" && { echo "lead of the other workspace leaked into $acme"; return 1; }
   echo "leads: 'Rehearsal Co' visible in its workspace, the other workspace's lead is not"
+  body="$(rh_api /api/outreach/sequences -H "X-Workspace-Id: $acme")" || return 1
+  has "$body" "Rehearsal sequence" || { echo "outreach sequence not listed: $(head -c 300 <<<"$body")"; return 1; }
+  [[ "$(rh_psql "SELECT (SELECT count(*) FROM outreach_enrollments) || '/' || (SELECT count(*) FROM signals)")" == "1/1" ]] \
+    || { echo "enrollment/signal counts are not 1/1"; return 1; }
+  echo "outreach: the sequence is listed, its enrollment and the signal survived (kept in PostgreSQL by the bridge)"
   body="$(rh_api /api/functions)" || return 1
   has "$body" "Rehearsal function" || { echo "function not listed: $(head -c 300 <<<"$body")"; return 1; }
   echo "functions: 'Rehearsal function' listed"

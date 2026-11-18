@@ -13,8 +13,8 @@ import (
 // Spec covers is reported with its row count, so nothing is skipped silently.
 var reasons = map[string]string{
 	"enrichment_cache.db": "provider-result cache (also email-verify cache); the Go runtime rebuilds it on demand",
-	"leads.db": "pre-Postgres lead store; v3.0.0 reads it only when PG_LEAD_STORE is off. Rows you still need must be moved " +
-		"with v3.0.0's scripts/migrate_sqlite_to_pg.py BEFORE upgrading; the Go runtime has no importer for it",
+	"leads.db": "fallback lead store, used only when PG_LEAD_STORE is off or the database login bypasses RLS; move rows with " +
+		"v3.0.0's scripts/migrate_sqlite_to_pg.py BEFORE upgrading (import-v3 stops on non-empty ones unless --skip-unmigrated)",
 	"outreach.db":   "legacy sequence store with no caller in v3.0.0 (outreach lives in the Postgres outreach_* tables)",
 	"signals.db":    "legacy signal store (v3.0.0 reads and writes signals through the Postgres store)",
 	"openmemory.db": "optional third-party memory backend; its format is not documented here",
@@ -73,6 +73,22 @@ func count(db *sql.DB, table string) int {
 	var n int
 	if db.QueryRow(`SELECT count(*) FROM "`+strings.ReplaceAll(table, `"`, `""`)+`"`).Scan(&n) != nil {
 		return -1
+	}
+	return n
+}
+
+// blockingFiles are the stores whose rows a user would miss: v3.0.0 keeps leads, outreach history and signals in
+// PostgreSQL by default and only falls back to these files when PG_LEAD_STORE is off or its login bypasses RLS.
+var blockingFiles = map[string]bool{"leads.db": true, "outreach.db": true, "signals.db": true}
+
+// blockingRows counts rows in blocking files (full-text-search shadow tables derive from the real tables and are
+// ignored). Caches (enrichment_cache.db) and openmemory.db never block.
+func blockingRows(list []NotMigrated) int {
+	n := 0
+	for _, x := range list {
+		if blockingFiles[filepath.Base(x.File)] && x.Rows > 0 && !strings.Contains(x.Table, "_fts") {
+			n += x.Rows
+		}
 	}
 	return n
 }
