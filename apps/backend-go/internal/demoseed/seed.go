@@ -70,32 +70,11 @@ func Seed(ctx context.Context, pool *pgxpool.Pool, o Options) (Result, error) {
 		if _, err := tx.Exec(ctx, `SELECT pg_advisory_xact_lock(hashtext($1))`, "opengtm-demoseed:"+ws); err != nil {
 			return err
 		}
-		tag, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, description, status, workspace_id, source_type, source_config,
-		    filter_criteria, columns_config, total_rows, completed_rows, sync_to_leads, budget_max_usd, budget_spent_usd, refresh_policy)
-		  VALUES ($1, $2, $3, 'draft', $4, 'empty', '{}', '{}', $5::json, $6, 0, false, 0, 0, '{}')
-		  ON CONFLICT (id) DO NOTHING`, WorkbookID, WorkbookName, WorkbookDescription, ws, string(ColumnsJSON()), len(companies))
+		created, err := ensureWorkbook(ctx, tx, ws, WorkbookID, WorkbookName, WorkbookDescription)
 		if err != nil {
-			return fmt.Errorf("demoseed: insert workbook: %w", err)
+			return err
 		}
-		res.Created = tag.RowsAffected() == 1
-		if res.Created {
-			b := &pgx.Batch{}
-			for i, c := range companies {
-				data, _ := json.Marshal(map[string]string{"company": c.Name, "website": c.Domain})
-				b.Queue(`INSERT INTO workbook_rows (workbook_id, workspace_id, position, data, enrichments) VALUES ($1, $2, $3, $4::json, '{}')`,
-					WorkbookID, ws, i, string(data))
-			}
-			br := tx.SendBatch(ctx, b)
-			for range companies {
-				if _, err := br.Exec(); err != nil {
-					_ = br.Close()
-					return fmt.Errorf("demoseed: insert rows: %w", err)
-				}
-			}
-			if err := br.Close(); err != nil {
-				return err
-			}
-		}
+		res.Created = created
 		if err := tx.QueryRow(ctx, `SELECT coalesce(status, '') FROM workbooks WHERE id = $1 AND workspace_id = $2`, WorkbookID, ws).Scan(&status); err != nil {
 			return fmt.Errorf("demoseed: workbook %s exists in another workspace: %w", WorkbookID, err)
 		}
@@ -181,4 +160,33 @@ func (r APIRunner) StartRun(ctx context.Context, t RunTarget) error {
 		return fmt.Errorf("demoseed: start run: API answered HTTP %d", resp.StatusCode)
 	}
 	return nil
+}
+
+// ensureWorkbook inserts the demo workbook and its rows under id unless it already exists (it reports whether it
+// created them). The caller holds the workspace's seeder lock inside a tenancy transaction.
+func ensureWorkbook(ctx context.Context, tx pgx.Tx, ws, id, name, description string) (bool, error) {
+	tag, err := tx.Exec(ctx, `INSERT INTO workbooks (id, name, description, status, workspace_id, source_type, source_config,
+	    filter_criteria, columns_config, total_rows, completed_rows, sync_to_leads, budget_max_usd, budget_spent_usd, refresh_policy)
+	  VALUES ($1, $2, $3, 'draft', $4, 'empty', '{}', '{}', $5::json, $6, 0, false, 0, 0, '{}')
+	  ON CONFLICT (id) DO NOTHING`, id, name, description, ws, string(ColumnsJSON()), len(companies))
+	if err != nil {
+		return false, fmt.Errorf("demoseed: insert workbook: %w", err)
+	}
+	if tag.RowsAffected() != 1 {
+		return false, nil
+	}
+	b := &pgx.Batch{}
+	for i, c := range companies {
+		data, _ := json.Marshal(map[string]string{"company": c.Name, "website": c.Domain})
+		b.Queue(`INSERT INTO workbook_rows (workbook_id, workspace_id, position, data, enrichments) VALUES ($1, $2, $3, $4::json, '{}')`,
+			id, ws, i, string(data))
+	}
+	br := tx.SendBatch(ctx, b)
+	for range companies {
+		if _, err := br.Exec(); err != nil {
+			_ = br.Close()
+			return false, fmt.Errorf("demoseed: insert rows: %w", err)
+		}
+	}
+	return true, br.Close()
 }
