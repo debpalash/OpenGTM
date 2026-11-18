@@ -9,6 +9,7 @@
     "build": "tsc -b && vite build",
     "build:ui-preview": "tsc -b && vite build --config vite.ui-preview.config.ts",
     "lint": "eslint .",
+    "test:a11y": "playwright test",
     "preview": "vite preview",
     "portless:domain": "portless proxy start --tld sh",
     "portless:local": "portless proxy start --no-tls --port 1355 --tld sh",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.65.0",
     "@types/node": "^26.6.5",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.3.0",

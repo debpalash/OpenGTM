@@ -128,6 +128,18 @@ jobs:
           bun run lint
           bun test tests
           bun run build
+      - name: Web accessibility gate (Playwright + axe, mocked API)
+        working-directory: apps/web
+        run: |
+          bunx playwright install --with-deps chromium
+          bun run test:a11y
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-a11y-report
+          path: apps/web/playwright-report/
+          retention-days: 7
       - name: Chrome extension (packages/chrome-extension)
         working-directory: packages/chrome-extension
         run: |
