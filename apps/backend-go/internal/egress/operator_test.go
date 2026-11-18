@@ -52,3 +52,51 @@ func TestOperatorClientNeverFollowsRedirects(t *testing.T) {
 		t.Fatal("operator client must refuse redirects")
 	}
 }
+
+// An allow-listed name is still resolved, and an answer in the metadata or
+// link-local ranges is refused: listing a host must not open a path to cloud
+// instance credentials (for example a CUSTOM_OPENAI_BASE_URL hostname that
+// resolves or is rebound to 169.254.169.254).
+func TestOperatorAllowListedHostRefusesMetadataAndLinkLocal(t *testing.T) {
+	var dialed string
+	dial := func(_ context.Context, _, addr string) (net.Conn, error) {
+		dialed = addr
+		return nil, errors.New("dialed " + addr)
+	}
+	for _, c := range []struct {
+		name  string
+		ips   []netip.Addr
+		url   string
+		block bool
+		want  string
+	}{
+		{"name to metadata v4", addrs("169.254.169.254"), "http://llm.internal:8008/", true, ""},
+		{"name to link-local", addrs("169.254.10.10"), "http://llm.internal:8008/", true, ""},
+		{"name to metadata v6", addrs("fd00:ec2::254"), "http://llm.internal:8008/", true, ""},
+		{"mixed answer", addrs("10.0.0.5", "169.254.169.254"), "http://llm.internal:8008/", true, ""},
+		{"name to private ip dials vetted ip", addrs("10.0.0.5"), "http://llm.internal:8008/", false, "10.0.0.5:8008"},
+		{"name to loopback allowed", addrs("127.0.0.1"), "http://llm.internal:8008/", false, "127.0.0.1:8008"},
+	} {
+		dialed = ""
+		res := &fakeResolver{seq: [][]netip.Addr{c.ips}}
+		cl := newOperatorClient([]string{"llm.internal:8008"}, res, dial)
+		resp, err := cl.Get(c.url)
+		if resp != nil {
+			resp.Body.Close()
+		}
+		if got := errors.Is(err, ErrBlocked); got != c.block {
+			t.Errorf("%s: blocked=%v want %v (err=%v)", c.name, got, c.block, err)
+		}
+		if dialed != c.want {
+			t.Errorf("%s: dialed %q want %q", c.name, dialed, c.want)
+		}
+	}
+	// A literal metadata IP is refused even when listed exactly.
+	cl := newOperatorClient([]string{"169.254.169.254:80"}, &fakeResolver{}, dial)
+	if resp, err := cl.Get("http://169.254.169.254/latest/meta-data"); !errors.Is(err, ErrBlocked) {
+		if resp != nil {
+			resp.Body.Close()
+		}
+		t.Errorf("listed metadata literal: err=%v, want blocked", err)
+	}
+}
