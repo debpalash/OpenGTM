@@ -4,7 +4,6 @@
 <p align="center">
   <a href="https://opengtm.palash.dev">Docs</a> ·
   <a href="#run-it">Install</a> ·
-  <a href="#co-maintainer-wanted">Co-maintainer wanted</a> ·
   <a href="https://github.com/debpalash/OpenGTM/releases">Releases</a> ·
   <a href="LICENSE">AGPL-3.0</a>
 </p>
@@ -80,16 +79,6 @@ The preview keeps import and enrichment as separate actions.
 [Open the static dashboard screenshot](docs/assets/opengtm-workbench-preview.png).
 
 </details>
-
-## Co-maintainer wanted
-
-We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
-ship releases, and build a faster enrichment backend. Experience with **Go,
-PostgreSQL, browser automation, or provider integrations** is especially welcome.
-
-Interested? [Join contributor and design-partner onboarding](https://github.com/debpalash/OpenGTM/issues/122)
-with a short introduction and the areas you'd like to own. Focused contributions
-are welcome too; start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Run it
 
