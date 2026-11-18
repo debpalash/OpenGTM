@@ -36,5 +36,19 @@ is released.
 
 ## Supported versions
 
-OpenGTM is pre-1.0 and moving fast. Security fixes land on `main`; run a recent
-build. Once tagged releases stabilize, this section will list supported lines.
+| Line | Runtime | Status | Security fixes |
+| --- | --- | --- | --- |
+| `main` | Go | Development | Yes. Fixes land here first. |
+| 4.x | Go | Supported from the v4.0.0 release (not yet published) | Yes |
+| 3.x (v3.0.0) | Python | Legacy | Security fixes only, until 90 days after v4.0.0 is published |
+| Older than 3.0 | Python | End of life | No |
+
+**Legacy Python policy.** Until v4.0.0 is published, v3.0.0 is the latest
+release. After that, the 3.x line gets fixes only for high- and
+critical-severity vulnerabilities that affect code present in 3.x, for 90 days.
+It gets no feature backports. The v4.0.0 release notes will state the exact
+end-of-support date. After that date, 3.x receives no fixes, and the supported
+path is the documented upgrade to 4.x.
+
+Security advisories name the affected and fixed versions for each supported
+line.
