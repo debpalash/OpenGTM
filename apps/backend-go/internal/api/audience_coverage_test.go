@@ -316,7 +316,7 @@ func assertWorkerHandlesExactly(t *testing.T, file string, allowed, handled map[
 	}
 }
 
-// The 12 destination types are Python's TYPES set. Ads and warehouse_http deliver natively in Go; every other type
+// The 14 destination types are Python's TYPES set plus the Go-only heyreach and lemlist. Ads and warehouse_http deliver natively in Go; every other type
 // needs its port wired (plan 07/08) and its name in GO_DEST_TYPES, otherwise its runs go to Python.
 func TestEveryDestinationTypeHasDriverOrPort(t *testing.T) {
 	src := pythonAPIFile(t, "routers", "destinations.py")
@@ -328,16 +328,19 @@ func TestEveryDestinationTypeHasDriverOrPort(t *testing.T) {
 	for _, m := range regexp.MustCompile(`"([a-z_]+)"`).FindAllStringSubmatch(blk[1], -1) {
 		py = append(py, m[1])
 	}
+	// heyreach and lemlist are Go-only sequencer destinations (no Python router entry).
+	py = append(py, "heyreach", "lemlist")
 	sort.Strings(py)
 	goTypes := append([]string(nil), destvalidate.Types...)
 	sort.Strings(goTypes)
-	if len(py) != 12 || strings.Join(py, ",") != strings.Join(goTypes, ",") {
+	if len(py) != 14 || strings.Join(py, ",") != strings.Join(goTypes, ",") {
 		t.Fatalf("destination types differ: python %v, go %v", py, goTypes)
 	}
 	native := map[string]bool{"meta_ads": true, "google_ads": true, "linkedin_ads": true, "warehouse_http": true}
 	var none destdeliver.Ports
 	all := destdeliver.Ports{Webhook: struct{ destdeliver.WebhookSender }{}, CRM: struct{ destdeliver.CRMPusher }{},
 		Instantly: struct{ destdeliver.CampaignAdder }{}, Smartlead: struct{ destdeliver.CampaignAdder }{},
+		HeyReach: struct{ destdeliver.CampaignAdder }{}, Lemlist: struct{ destdeliver.CampaignAdder }{},
 		Sheets: struct{ destdeliver.SheetsUpserter }{}, Airtable: struct{ destdeliver.AirtableUpserter }{}}
 	for _, ty := range py {
 		if !destvalidate.IsType(ty) {

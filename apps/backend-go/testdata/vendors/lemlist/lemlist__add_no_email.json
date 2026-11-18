@@ -1,0 +1,22 @@
+{
+ "vendor": "lemlist",
+ "scenario": "add_no_email",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "cam_abc123",
+   "lead": {
+    "first_name": "Ada"
+   }
+  }
+ },
+ "secrets": {
+  "LEMLIST_API_KEY": "ctk_lemlist_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "no_email"
+ }
+}

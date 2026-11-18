@@ -40,6 +40,29 @@ screen; only its hash is stored. Tokens expire after 90 days by default
 and expose prefix, expiry, and last-use telemetry without revealing plaintext.
 Tokens created before lifecycle enforcement must be rotated before reuse.
 
+## Audience sequencer destinations
+
+An audience destination adds each member to a campaign in the sequencer you
+already use, with your own API key (a workspace secret under **Settings →
+Integrations**). Delivery is idempotent: a lead the vendor already holds in the
+campaign is reported as "Lead already in campaign", and a vendor rate limit
+(HTTP 429) is retried with backoff before the member is marked failed. These
+types are available to audiences and automations; they are not workbook output
+columns.
+
+| `destination_type` | `config` | Credential | Member fields used |
+|---|---|---|---|
+| `instantly` | `campaign_id`, `skip_if_in_campaign` | `INSTANTLY_API_KEY` | `email` |
+| `smartlead` | `campaign_id`, `settings` | `SMARTLEAD_API_KEY` | `email` |
+| `heyreach` | `campaign_id` (number), `linkedin_account_id` (number) | `HEYREACH_API_KEY` | `linkedin_url` (required), `first_name`, `last_name`, `company_name`, `position`, `email` |
+| `lemlist` | `campaign_id` (`cam_…`) | `LEMLIST_API_KEY` | `email` (required), `first_name`, `last_name`, `company_name`, `job_title`, `linkedin_url`, `phone` |
+
+Map your fields to these names with the destination's field map; any other
+mapped field is sent as a custom field or variable. HeyReach needs the numeric
+ID of the connected LinkedIn sender account as well as the campaign. Adding
+members can enrol people in outbound sequences, so review the audience first.
+The lead's email and LinkedIn URL are never written to logs.
+
 ## Webhook safety
 
 Webhook URLs must be `http` or `https` without embedded credentials, and the

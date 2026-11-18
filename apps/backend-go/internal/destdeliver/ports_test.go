@@ -36,7 +36,7 @@ func TestPortsSupports(t *testing.T) {
 	for typ, want := range map[string]bool{
 		"meta_ads": true, "google_ads": true, "linkedin_ads": true, "warehouse_http": true,
 		"webhook": false, "slack": false, "hubspot": false, "salesforce": false,
-		"instantly": false, "smartlead": false, "google_sheets": false, "airtable": false, "nope": false,
+		"instantly": false, "smartlead": false, "heyreach": false, "lemlist": false, "google_sheets": false, "airtable": false, "nope": false,
 	} {
 		if got := none.Supports(typ); got != want {
 			t.Errorf("empty ports Supports(%q)=%v want %v", typ, got, want)

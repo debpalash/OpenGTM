@@ -8175,6 +8175,40 @@
      "certification": null
     },
     {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "google_sheets",
      "category": "warehouse",
      "capabilities": [
@@ -9211,6 +9245,40 @@
      "certification": null
     },
     {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "google_sheets",
      "category": "warehouse",
      "capabilities": [
@@ -10192,6 +10260,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -11189,6 +11291,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -12752,6 +12888,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -13521,6 +13691,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -14105,6 +14309,40 @@
      "certification": null
     },
     {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "google_sheets",
      "category": "warehouse",
      "capabilities": [
@@ -14336,6 +14574,40 @@
      "certification": null
     },
     {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "google_sheets",
      "category": "warehouse",
      "capabilities": [
@@ -14551,6 +14823,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -14846,6 +15152,40 @@
      "certification": null
     },
     {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "google_sheets",
      "category": "warehouse",
      "capabilities": [
@@ -15109,6 +15449,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"

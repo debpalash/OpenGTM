@@ -345,6 +345,34 @@
       ]
     },
     {
+      "id": "heyreach",
+      "name": "HeyReach",
+      "icon": "heyreach",
+      "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
+      "fields": [
+        {
+          "key": "HEYREACH_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "HeyReach API key"
+        }
+      ]
+    },
+    {
+      "id": "lemlist",
+      "name": "lemlist",
+      "icon": "lemlist",
+      "description": "Add leads to a lemlist email campaign (audience destination).",
+      "fields": [
+        {
+          "key": "LEMLIST_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "lemlist API key"
+        }
+      ]
+    },
+    {
       "id": "sheets",
       "name": "Google Sheets",
       "icon": "sheets",
@@ -773,11 +801,13 @@
     "GOOGLE_AI_API_KEY",
     "GOOGLE_SHEETS_TOKEN",
     "GROQ_API_KEY",
+    "HEYREACH_API_KEY",
     "HUBSPOT_TOKEN",
     "HUGGINGFACE_API_KEY",
     "HUNTER_API_KEY",
     "IPINFO_TOKEN",
     "LEADMAGIC_API_KEY",
+    "LEMLIST_API_KEY",
     "LINKEDIN_ACCESS_TOKEN",
     "META_ACCESS_TOKEN",
     "MILLIONVERIFIER_API_KEY",

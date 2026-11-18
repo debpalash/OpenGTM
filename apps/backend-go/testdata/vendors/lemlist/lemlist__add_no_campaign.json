@@ -1,0 +1,22 @@
+{
+ "vendor": "lemlist",
+ "scenario": "add_no_campaign",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {
+  "LEMLIST_API_KEY": "ctk_lemlist_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "lemlist campaign_id is required"
+ }
+}

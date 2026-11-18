@@ -1065,6 +1065,504 @@
       }
     },
     {
+      "name": "lemlist_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "lemlist",
+          "enabled": true,
+          "config": {
+            "campaign_id": "cam_77"
+          },
+          "field_map": {
+            "email": "email",
+            "company": "company_name",
+            "phone": "phone_number",
+            "city": "city"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://co1.test"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://co2.test"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://co3.test"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "_id": "lea_1",
+              "campaignId": "cam_77"
+            }
+          },
+          {
+            "status": 400,
+            "text": "Lead already in the campaign"
+          },
+          {
+            "status": 401,
+            "text": "The authentication you supplied is incorrect"
+          }
+        ],
+        "secrets": {
+          "LEMLIST_API_KEY": "ll-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:6f2879d648f5552911430c1ee1572cf4293a95e51d97d4105d2541b41098d539",
+            "payload_fingerprint": "6f2879d648f5552911430c1ee1572cf4293a95e51d97d4105d2541b41098d539",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead added to campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:9691c384d258abf76154bdb47ba9682bb98b4bb2e4e7d8158d5b1b8ad0e22a66",
+            "payload_fingerprint": "9691c384d258abf76154bdb47ba9682bb98b4bb2e4e7d8158d5b1b8ad0e22a66",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead already in campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:8df9dd42b927488ec76181394f14b3dc477c3da5e8869220dd00a50d238a1719",
+            "payload_fingerprint": "8df9dd42b927488ec76181394f14b3dc477c3da5e8869220dd00a50d238a1719",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "lemlist auth failed (invalid LEMLIST_API_KEY)",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.lemlist.com/api/campaigns/cam_77/leads/",
+            "headers": {
+              "authorization": "Basic OmxsLXRlc3Qta2V5",
+              "content-type": "application/json"
+            },
+            "json": {
+              "city": "Austin",
+              "companyName": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001"
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.lemlist.com/api/campaigns/cam_77/leads/",
+            "headers": {
+              "authorization": "Basic OmxsLXRlc3Qta2V5",
+              "content-type": "application/json"
+            },
+            "json": {
+              "city": "Austin",
+              "companyName": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002"
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.lemlist.com/api/campaigns/cam_77/leads/",
+            "headers": {
+              "authorization": "Basic OmxsLXRlc3Qta2V5",
+              "content-type": "application/json"
+            },
+            "json": {
+              "city": "Austin",
+              "companyName": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003"
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
+      "name": "heyreach_mixed",
+      "input": {
+        "destination": {
+          "id": "dest-1",
+          "type": "heyreach",
+          "enabled": true,
+          "config": {
+            "campaign_id": "235",
+            "linkedin_account_id": "123"
+          },
+          "field_map": {
+            "email": "email",
+            "company": "company_name",
+            "website": "linkedin_url",
+            "city": "city"
+          },
+          "health_status": "unverified"
+        },
+        "destination_missing": false,
+        "members": [
+          {
+            "lead_id": 1,
+            "snapshot": {
+              "id": 1,
+              "company": "Co 1",
+              "email": "u1@x.test",
+              "phone": "+1 555 010 0001",
+              "city": "Austin",
+              "score": 1,
+              "contact_person": "Pat Lee1",
+              "website": "https://www.linkedin.com/in/pat-lee1"
+            }
+          },
+          {
+            "lead_id": 2,
+            "snapshot": {
+              "id": 2,
+              "company": "Co 2",
+              "email": "u2@x.test",
+              "phone": "+1 555 010 0002",
+              "city": "Austin",
+              "score": 2,
+              "contact_person": "Pat Lee2",
+              "website": "https://www.linkedin.com/in/pat-lee2"
+            }
+          },
+          {
+            "lead_id": 3,
+            "snapshot": {
+              "id": 3,
+              "company": "Co 3",
+              "email": "u3@x.test",
+              "phone": "+1 555 010 0003",
+              "city": "Austin",
+              "score": 3,
+              "contact_person": "Pat Lee3",
+              "website": "https://www.linkedin.com/in/pat-lee3"
+            }
+          }
+        ],
+        "prior_deliveries": [],
+        "run_status": "pending",
+        "run_started_at_set": false,
+        "payload": {
+          "workspace_id": "ws-vec",
+          "run_id": "run-1"
+        },
+        "script": {},
+        "member_page_size": 500,
+        "ad_batch_size": 5000,
+        "cancel": {
+          "at_check": null,
+          "after_call": null
+        },
+        "http": [
+          {
+            "status": 200,
+            "json": {
+              "addedLeadsCount": 1,
+              "updatedLeadsCount": 0,
+              "failedLeadsCount": 0
+            }
+          },
+          {
+            "status": 200,
+            "json": {
+              "addedLeadsCount": 0,
+              "updatedLeadsCount": 1,
+              "failedLeadsCount": 0
+            }
+          },
+          {
+            "status": 401,
+            "json": {
+              "type": "x",
+              "title": "Unauthorized",
+              "status": 401,
+              "detail": "bad key",
+              "instance": "/"
+            }
+          }
+        ],
+        "secrets": {
+          "HEYREACH_API_KEY": "hr-test-key"
+        }
+      },
+      "output": {
+        "raises": null,
+        "run": {
+          "status": "completed_with_errors",
+          "error": null,
+          "attempted": 3,
+          "succeeded": 2,
+          "failed": 1,
+          "skipped": 0,
+          "started_at": "2026-08-29T10:40:00",
+          "finished_at": "2026-08-29T10:40:00"
+        },
+        "destination": {
+          "health_status": "degraded",
+          "last_error": "1 deliveries failed",
+          "last_success_at": "2026-08-29T10:40:00"
+        },
+        "deliveries": [
+          {
+            "id": 1,
+            "run_id": "run-1",
+            "lead_id": 1,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:1:60bce842df9c5ddade9788490347ca2c96a290b88bafb765940dbc0ac3632073",
+            "payload_fingerprint": "60bce842df9c5ddade9788490347ca2c96a290b88bafb765940dbc0ac3632073",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead added to campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 2,
+            "run_id": "run-1",
+            "lead_id": 2,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:2:0295dd7dbc5277f0d9c2475f3a45611f8e110d6aefb61f7f30c251c2bc325010",
+            "payload_fingerprint": "0295dd7dbc5277f0d9c2475f3a45611f8e110d6aefb61f7f30c251c2bc325010",
+            "payload": {},
+            "status": "success",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "Lead already in campaign",
+            "error": null,
+            "delivered_at": "2026-08-29T10:40:00"
+          },
+          {
+            "id": 3,
+            "run_id": "run-1",
+            "lead_id": 3,
+            "operation": "upsert",
+            "idempotency_key": "dest:dest-1:lead:3:d608c4f997ff5eab8e9909803f08a3a18250d7280b45a3538131d1dc7eaf6a2b",
+            "payload_fingerprint": "d608c4f997ff5eab8e9909803f08a3a18250d7280b45a3538131d1dc7eaf6a2b",
+            "payload": {},
+            "status": "failed",
+            "attempts": 1,
+            "external_id": null,
+            "summary": "",
+            "error": "HeyReach auth failed (invalid HEYREACH_API_KEY)",
+            "delivered_at": null
+          }
+        ],
+        "calls": [
+          {
+            "kind": "deliver",
+            "lead_id": 1
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 2
+          },
+          {
+            "kind": "deliver",
+            "lead_id": 3
+          }
+        ],
+        "cancellation_checks": 4,
+        "cancel_fired": null,
+        "requests": [
+          {
+            "method": "POST",
+            "url": "https://api.heyreach.io/api/public/campaign/AddLeadsToCampaignV2",
+            "headers": {
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaignId": 235,
+              "accountLeadPairs": [
+                {
+                  "linkedInAccountId": 123,
+                  "lead": {
+                    "companyName": "Co 1",
+                    "emailAddress": "u1@x.test",
+                    "profileUrl": "https://www.linkedin.com/in/pat-lee1",
+                    "customUserFields": [
+                      {
+                        "name": "city",
+                        "value": "Austin"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resumeFinishedCampaign": false,
+              "resumePausedCampaign": false
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.heyreach.io/api/public/campaign/AddLeadsToCampaignV2",
+            "headers": {
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaignId": 235,
+              "accountLeadPairs": [
+                {
+                  "linkedInAccountId": 123,
+                  "lead": {
+                    "companyName": "Co 2",
+                    "emailAddress": "u2@x.test",
+                    "profileUrl": "https://www.linkedin.com/in/pat-lee2",
+                    "customUserFields": [
+                      {
+                        "name": "city",
+                        "value": "Austin"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resumeFinishedCampaign": false,
+              "resumePausedCampaign": false
+            }
+          },
+          {
+            "method": "POST",
+            "url": "https://api.heyreach.io/api/public/campaign/AddLeadsToCampaignV2",
+            "headers": {
+              "content-type": "application/json"
+            },
+            "json": {
+              "campaignId": 235,
+              "accountLeadPairs": [
+                {
+                  "linkedInAccountId": 123,
+                  "lead": {
+                    "companyName": "Co 3",
+                    "emailAddress": "u3@x.test",
+                    "profileUrl": "https://www.linkedin.com/in/pat-lee3",
+                    "customUserFields": [
+                      {
+                        "name": "city",
+                        "value": "Austin"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "resumeFinishedCampaign": false,
+              "resumePausedCampaign": false
+            }
+          }
+        ],
+        "unused_http": 0
+      }
+    },
+    {
       "name": "google_sheets_mixed",
       "input": {
         "destination": {

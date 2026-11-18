@@ -80,6 +80,34 @@ export const SETUP_TYPES: Record<
     fields: [{ key: "campaign_id", label: "Campaign ID" }],
     help: "Adds eligible members to this campaign through the workspace connection. This may enroll people in outbound sequences."
   },
+  heyreach: {
+    label: "HeyReach",
+    fields: [
+      {
+        key: "campaign_id",
+        label: "Campaign ID",
+        help: "The numeric HeyReach campaign ID."
+      },
+      {
+        key: "linkedin_account_id",
+        label: "LinkedIn account ID",
+        help: "The numeric ID of the connected HeyReach LinkedIn sender account. Members need a LinkedIn profile URL field."
+      }
+    ],
+    help: "Adds eligible members to this LinkedIn campaign through the workspace HeyReach connection (HEYREACH_API_KEY). This may enroll people in outbound sequences."
+  },
+  lemlist: {
+    label: "lemlist",
+    fields: [
+      {
+        key: "campaign_id",
+        label: "Campaign ID",
+        placeholder: "cam_…",
+        help: "The lemlist campaign ID, starting with cam_."
+      }
+    ],
+    help: "Adds eligible members to this email campaign through the workspace lemlist connection (LEMLIST_API_KEY). Members need an email field. This may enroll people in outbound sequences."
+  },
   google_sheets: {
     label: "Google Sheets",
     fields: [

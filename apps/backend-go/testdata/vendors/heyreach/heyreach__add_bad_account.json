@@ -1,0 +1,24 @@
+{
+ "vendor": "heyreach",
+ "scenario": "add_bad_account",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "235",
+   "linkedin_account_id": "",
+   "lead": {
+    "linkedin_url": "https://www.linkedin.com/in/ada-example",
+    "first_name": "Ada"
+   }
+  }
+ },
+ "secrets": {
+  "HEYREACH_API_KEY": "ctk_heyreach_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HeyReach linkedin_account_id must be a number"
+ }
+}

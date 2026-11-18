@@ -84,7 +84,7 @@ environment. Provider keys can also be set per workspace in
 
 `HUBSPOT_TOKEN`, `SALESFORCE_INSTANCE_URL`, `SALESFORCE_ACCESS_TOKEN`,
 `AIRTABLE_TOKEN`, `GOOGLE_SHEETS_TOKEN`, `INSTANTLY_API_KEY`,
-`SMARTLEAD_API_KEY`. See [Providers](/guides/providers/) and
+`SMARTLEAD_API_KEY`, `HEYREACH_API_KEY`, `LEMLIST_API_KEY`. See [Providers](/guides/providers/) and
 [Outputs](/guides/outputs/).
 
 `REACHER_ENABLED`, `REACHER_URL`, `REACHER_API_KEY`, `REACHER_TIMEOUT`,

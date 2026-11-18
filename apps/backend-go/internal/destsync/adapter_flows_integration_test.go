@@ -292,7 +292,7 @@ func TestAdapterSyncMatchesPythonTranscripts(t *testing.T) {
 			}
 		})
 	}
-	for _, typ := range []string{"hubspot", "salesforce", "instantly", "smartlead", "google_sheets", "airtable"} {
+	for _, typ := range []string{"hubspot", "salesforce", "instantly", "smartlead", "heyreach", "lemlist", "google_sheets", "airtable"} {
 		if !seen[typ] {
 			t.Errorf("no transcript for %s", typ)
 		}
