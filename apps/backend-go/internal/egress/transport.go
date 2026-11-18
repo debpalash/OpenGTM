@@ -86,11 +86,12 @@ func guardedDial(allow func() map[string]struct{}, res resolver, dial dialFunc) 
 		}
 		host = strings.ToLower(host)
 		allowSet := allow()
-		if _, ok := allowSet[host]; ok {
-			return dial(ctx, network, addr)
+		_, listed := allowSet[host]
+		if !listed {
+			_, listed = allowSet[net.JoinHostPort(host, port)]
 		}
-		if _, ok := allowSet[net.JoinHostPort(host, port)]; ok {
-			return dial(ctx, network, addr)
+		if listed {
+			return dialAllowListed(ctx, res, dial, network, host, port)
 		}
 		if _, ok := blockedHostnames[host]; ok {
 			return nil, blocked("host '%s' is blocked", host)
@@ -168,4 +169,50 @@ type Resolver = resolver
 // used, exactly as NewClient.
 func NewClientWith(appEnv string, allowHosts []string, res Resolver, dial DialContext) *http.Client {
 	return newClient(allowHosts, appEnv, res, dialFunc(dial))
+}
+
+// dialAllowListed dials an operator allow-listed host. Private and loopback
+// addresses are allowed (self-hosted model servers, internal SMTP), but cloud
+// metadata and link-local addresses never are: an allow-listed name that
+// resolves (or is rebound) to 169.254.169.254 must not reach instance
+// credentials. The host is resolved once and the vetted IP is dialled, as in
+// guardedDial, so a second lookup cannot change the answer.
+func dialAllowListed(ctx context.Context, res resolver, dial dialFunc, network, host, port string) (net.Conn, error) {
+	var ips []netip.Addr
+	if ip, ok := parseIPAnyEncoding(host); ok {
+		ips = []netip.Addr{ip}
+	} else {
+		var err error
+		if ips, err = res.LookupNetIP(ctx, "ip", host); err != nil {
+			return nil, err
+		}
+	}
+	if len(ips) == 0 {
+		return nil, blocked("host %q did not resolve", host)
+	}
+	for _, ip := range ips {
+		if isMetadataOrLinkLocal(ip) {
+			slog.Warn("egress: allow-listed host resolves to a metadata or link-local address", "host", host, "ip", ip.String())
+			return nil, blocked("host resolves to a metadata or link-local address")
+		}
+	}
+	var lastErr error
+	for _, ip := range ips {
+		c, err := dial(ctx, network, net.JoinHostPort(ip.Unmap().String(), port))
+		if err == nil {
+			return c, nil
+		}
+		lastErr = err
+	}
+	return nil, errors.Join(lastErr)
+}
+
+// isMetadataOrLinkLocal reports cloud-metadata and link-local addresses, which
+// stay blocked even for operator allow-listed hosts.
+func isMetadataOrLinkLocal(ip netip.Addr) bool {
+	ip = ip.Unmap()
+	if _, ok := metadataIPs[ip]; ok {
+		return true
+	}
+	return ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast()
 }
