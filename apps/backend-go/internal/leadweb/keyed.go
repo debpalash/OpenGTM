@@ -124,6 +124,11 @@ var keyedRegistry = []keyedEngine{
 		configured: func(e *KeyedEngines) bool { return e.cfg.FirecrawlKey != "" },
 		search:     firecrawlSearch,
 	},
+	{
+		name:       "keenable",
+		configured: func(e *KeyedEngines) bool { return e.cfg.KeenableKey != "" || e.cfg.KeenableEnabled },
+		search:     keenableSearch,
+	},
 }
 
 func obj(d map[string]any, k string) map[string]any {
