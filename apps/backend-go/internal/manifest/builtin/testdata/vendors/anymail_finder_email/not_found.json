@@ -1,0 +1,15 @@
+{
+  "input": {
+    "domain": "microsoft.com",
+    "full_name": "Satya Nadella"
+  },
+  "credits_charged": 0,
+  "email": null,
+  "email_status": "not_found",
+  "mx_domain": null,
+  "mx_host": null,
+  "person_company_name": null,
+  "person_full_name": null,
+  "person_job_title": null,
+  "valid_email": null
+}

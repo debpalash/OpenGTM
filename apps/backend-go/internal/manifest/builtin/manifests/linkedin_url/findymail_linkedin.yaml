@@ -1,0 +1,34 @@
+# Findymail "Reverse email lookup" -- declarative provider manifest.
+# Docs: https://app.findymail.com/docs/ (POST /api/search/reverse-email).
+# Auth: Authorization: Bearer <key>. Synchronous.
+# Billing: 1 finder credit when a profile is found, free otherwise. The credit
+# price depends on the plan, so cost_per_lookup is 0 (unknown).
+# Not found is HTTP 200 with {"linkedin_url": null}. with_profile is left at
+# its default (false) so no second credit is charged.
+manifest_version: "1"
+name: findymail_linkedin
+display_name: Findymail Reverse Email Lookup
+author: OpenGTM
+homepage: https://app.findymail.com/docs/
+tags: [linkedin, enrichment, byok]
+capability: linkedin_url
+capabilities: [linkedin_url]
+description: Findymail /api/search/reverse-email - email -> LinkedIn profile URL.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: bearer
+  env_var: FINDYMAIL_API_KEY
+request:
+  method: POST
+  url: https://app.findymail.com/api/search/reverse-email
+  headers:
+    Content-Type: application/json
+  body:
+    email: "{{input.email}}"
+  timeout: 30
+response:
+  error_path: error
+  error_message_path: error
+  mappings:
+    linkedin_url: "$.linkedin_url"

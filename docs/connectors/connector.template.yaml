@@ -1,31 +1,47 @@
+# Provider manifest template. Copy to
+# apps/backend-go/internal/manifest/builtin/manifests/<capability>/<name>.yaml
+# and fill every value from the vendor's official API documentation.
+# Guide: apps/docs/src/content/docs/guides/provider-manifests.md
+#
+# Docs: https://provider.example/docs/email-finder   (the page you read)
+# Auth: how the key is sent, as the vendor documents it.
+# Billing: what one call costs, as the vendor documents it. If the vendor does
+# not publish a per-call price, keep cost_per_lookup at 0 and say "unknown".
 manifest_version: "1"
 name: acme_email
 display_name: Acme Email Finder
 author: your-github-handle
-homepage: https://provider.example
+homepage: https://provider.example/docs/email-finder
 license: Apache-2.0
 tags: [email, enrichment, byok]
 capability: email
 capabilities: [email]
-description: Find a work email from a name and company domain.
+description: Acme /v1/email/find - first name, last name, domain -> work email.
 default_confidence: 0.8
-cost_per_lookup: 0.05
+cost_per_lookup: 0
 auth:
-  type: bearer
-  env_var: ACME_API_KEY
+  type: bearer            # header | bearer | query | none
+  env_var: ACME_API_KEY   # never put the key itself in this file
 request:
-  method: POST
-  url: https://api.provider.example/v1/email/find
+  method: POST            # GET | POST | PUT | PATCH
+  url: https://api.provider.example/v1/email/find   # https only
   headers:
     Content-Type: application/json
   body:
     first_name: "{{input.first_name}}"
     last_name: "{{input.last_name}}"
     domain: "{{input.domain}}"
-  timeout: 20
+  omit_empty: [domain]    # optional: leave these out when the lead has no value
+  timeout: 20             # seconds, 1 to 120
 response:
-  error_path: error
+  error_path: error       # optional: a truthy value here marks the call failed
   error_message_path: message
   mappings:
     email: "$.data.email"
+  # Optional: translate a vendor word. Needed for email_verify (native words
+  # are valid, invalid, catch_all, risky, unknown; default must be unknown).
+  # value_maps:
+  #   email_verify:
+  #     values: {deliverable: valid, undeliverable: invalid}
+  #     default: unknown
 input_fields: [first_name, last_name, domain]

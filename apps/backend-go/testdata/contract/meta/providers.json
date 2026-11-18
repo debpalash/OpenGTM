@@ -885,6 +885,159 @@
             "quality_sample",
             "tenant_isolation"
           ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "anymail_finder_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "anymail_finder_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "bouncer_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "millionverifier_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "findymail_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "findymail_phone",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "linkedin_url"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "findymail_linkedin",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "contactout_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone"
+          ],
+          "certification": null,
+          "confidence": 0.7,
+          "maturity": "beta",
+          "name": "contactout_phone",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
         }
       ]
     },

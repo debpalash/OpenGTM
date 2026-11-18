@@ -237,6 +237,62 @@
       "free_tier": "Paid credits; each action is opt-in",
       "docs": "https://docs.companyenrich.com/reference",
       "icon": "🏢"
+    },
+    "anymail_finder": {
+      "name": "Anymail Finder",
+      "env_key": "ANYMAIL_FINDER_API_KEY",
+      "capability": "Email Finder + Verifier",
+      "free_tier": "Paid, API key required",
+      "docs": "https://anymailfinder.com/email-finder-api/docs",
+      "icon": "📬"
+    },
+    "bouncer": {
+      "name": "Bouncer",
+      "env_key": "BOUNCER_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.usebouncer.com/",
+      "icon": "🛡"
+    },
+    "millionverifier": {
+      "name": "MillionVerifier",
+      "env_key": "MILLIONVERIFIER_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developer.millionverifier.com/",
+      "icon": "✅"
+    },
+    "findymail": {
+      "name": "Findymail",
+      "env_key": "FINDYMAIL_API_KEY",
+      "capability": "Email, Phone + LinkedIn Finder",
+      "free_tier": "Paid, API key required",
+      "docs": "https://app.findymail.com/docs/",
+      "icon": "🔎"
+    },
+    "contactout": {
+      "name": "ContactOut",
+      "env_key": "CONTACTOUT_API_KEY",
+      "capability": "Email + Phone from LinkedIn",
+      "free_tier": "Paid, API key required",
+      "docs": "https://api.contactout.com/",
+      "icon": "👤"
+    },
+    "leadmagic": {
+      "name": "LeadMagic",
+      "env_key": "LEADMAGIC_API_KEY",
+      "capability": "Email, Mobile + Company Finder",
+      "free_tier": "Paid, API key required",
+      "docs": "https://leadmagic.io",
+      "icon": "🧲"
+    },
+    "prospeo": {
+      "name": "Prospeo",
+      "env_key": "PROSPEO_API_KEY",
+      "capability": "Email + Mobile Finder",
+      "free_tier": "75 credits/month",
+      "docs": "https://prospeo.io",
+      "icon": "🔭"
     }
   },
   "integrations": [
@@ -701,12 +757,16 @@
     "ABSTRACT_API_KEY",
     "AIRTABLE_TOKEN",
     "ANTHROPIC_API_KEY",
+    "ANYMAIL_FINDER_API_KEY",
     "APOLLO_API_KEY",
+    "BOUNCER_API_KEY",
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",
     "COHERE_API_KEY",
     "COMPANYENRICH_API_KEY",
+    "CONTACTOUT_API_KEY",
     "CUSTOM_OPENAI_API_KEY",
+    "FINDYMAIL_API_KEY",
     "GITHUB_MODELS_API_KEY",
     "GOOGLE_ADS_ACCESS_TOKEN",
     "GOOGLE_ADS_DEVELOPER_TOKEN",
@@ -717,13 +777,16 @@
     "HUGGINGFACE_API_KEY",
     "HUNTER_API_KEY",
     "IPINFO_TOKEN",
+    "LEADMAGIC_API_KEY",
     "LINKEDIN_ACCESS_TOKEN",
     "META_ACCESS_TOKEN",
+    "MILLIONVERIFIER_API_KEY",
     "MISTRAL_API_KEY",
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
     "OPENAI_API_KEY",
     "OPENROUTER_API_KEY",
+    "PROSPEO_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
     "SCAVIO_API_KEY",

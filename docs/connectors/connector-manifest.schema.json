@@ -23,9 +23,9 @@
     },
     "request": {
       "type": "object", "required": ["url"],
-      "properties": {"method": {"enum": ["GET", "POST", "PUT", "PATCH"]}, "url": {"type": "string", "pattern": "^https://"}, "headers": {"type": "object"}, "query": {"type": "object"}, "body": {}, "body_template": {}, "timeout": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}}
+      "properties": {"method": {"enum": ["GET", "POST", "PUT", "PATCH"]}, "url": {"type": "string", "pattern": "^https://"}, "headers": {"type": "object"}, "query": {"type": "object"}, "body": {}, "body_template": {}, "timeout": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "omit_empty": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}
     },
-    "response": {"type": "object", "required": ["mappings"], "properties": {"error_path": {"type": ["string", "null"]}, "error_message_path": {"type": ["string", "null"]}, "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}}},
+    "response": {"type": "object", "required": ["mappings"], "properties": {"error_path": {"type": ["string", "null"]}, "error_message_path": {"type": ["string", "null"]}, "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}, "value_maps": {"type": "object", "additionalProperties": {"type": "object", "required": ["values"], "properties": {"values": {"type": "object", "additionalProperties": {"type": "string"}}, "default": {"type": ["string", "null"]}}}}}},
     "input_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
   }
 }

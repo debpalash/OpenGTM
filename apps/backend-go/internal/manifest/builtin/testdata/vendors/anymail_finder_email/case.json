@@ -1,0 +1,56 @@
+{
+  "docs": [
+    "https://anymailfinder.com/email-finder-api/docs/find-person-email",
+    "https://api.anymailfinder.com/openapi.json (schemas Api51FindEmailPersonResponseSuccessDto, Api51ErrorResponseDto; bodies are built from the schema examples)"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "api.anymailfinder.com",
+    "path": "/v5.1/find-email/person",
+    "query": {},
+    "headers": {
+      "Authorization": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "domain": "acme.com",
+      "full_name": "Ada Lovelace",
+      "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+    }
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "email": "satyan@microsoft.com"
+      }
+    },
+    {
+      "name": "not_found",
+      "status": 200,
+      "file": "not_found.json",
+      "error": "no_data"
+    },
+    {
+      "name": "blacklisted_is_not_returned",
+      "status": 200,
+      "file": "blacklisted.json",
+      "error": "no_data"
+    },
+    {
+      "name": "vendor_error",
+      "status": 400,
+      "file": "error.json",
+      "error": "http_400"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

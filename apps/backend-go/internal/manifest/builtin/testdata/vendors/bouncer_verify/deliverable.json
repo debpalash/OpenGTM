@@ -1,0 +1,24 @@
+{
+  "email": "john@usebouncer.com",
+  "status": "deliverable",
+  "reason": "accepted_email",
+  "domain": {
+    "name": "usebouncer.com",
+    "acceptAll": "no",
+    "disposable": "no",
+    "free": "no"
+  },
+  "account": {
+    "role": "no",
+    "disabled": "no",
+    "fullMailbox": "no"
+  },
+  "dns": {
+    "type": "MX",
+    "record": "aspmx.l.google.com."
+  },
+  "provider": "google.com",
+  "score": 100,
+  "toxic": "unknown",
+  "toxicity": 0
+}

@@ -1,0 +1,37 @@
+# ContactOut "Contact Info API - Single from LinkedIn Profile" -- declarative
+# provider manifest.
+# Docs: https://api.contactout.com/ (GET /v1/people/linkedin).
+# Auth: "token" header. include_phone is left at its default (false) so no
+# phone credit is spent. email_type=work asks for work emails; the docs say
+# real-time verification of work emails happens only then, and it can be
+# slower.
+# Billing: 1 email credit when an email is found. The credit price depends on
+# the plan, so cost_per_lookup is 0 (unknown).
+# Not found: the docs show {"status_code": 404, "message": "Not Found"}; an
+# HTTP error status is the failure, and a 200 body without a work email is
+# reported as no_data.
+manifest_version: "1"
+name: contactout_email
+display_name: ContactOut Email Finder
+author: OpenGTM
+homepage: https://api.contactout.com/
+tags: [email, enrichment, byok]
+capability: email
+capabilities: [email]
+description: ContactOut /v1/people/linkedin - LinkedIn profile URL -> work email.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: header
+  param: token
+  env_var: CONTACTOUT_API_KEY
+request:
+  method: GET
+  url: https://api.contactout.com/v1/people/linkedin
+  query:
+    profile: "{{input.linkedin_url}}"
+    email_type: work
+  timeout: 30
+response:
+  mappings:
+    email: "$.profile.work_email[]"

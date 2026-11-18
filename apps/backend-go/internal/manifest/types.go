@@ -27,6 +27,9 @@ type RequestSpec struct {
 	Query        map[string]any `json:"query"`
 	BodyTemplate any            `json:"body_template"`
 	Timeout      float64        `json:"timeout"` // seconds
+	// OmitEmpty names headers, query parameters and top-level body keys that are left out of the
+	// request when their rendered value is the empty string (Go-only extension; absent = none).
+	OmitEmpty []string `json:"omit_empty"`
 }
 
 // ResponseSpec mirrors ResponseSpec.
@@ -34,6 +37,19 @@ type ResponseSpec struct {
 	ErrorPath        string            `json:"error_path"`
 	ErrorMessagePath string            `json:"error_message_path"`
 	Mappings         map[string]string `json:"mappings"`
+	// ValueMaps translates the projected value of a mapped field (Go-only extension; absent =
+	// values pass through unchanged).
+	ValueMaps map[string]ValueMap `json:"value_maps"`
+}
+
+// ValueMap translates one mapped field's value. Values maps the vendor's text (exact,
+// case-sensitive match on the value as text) to the text to store. Default, when set, is stored
+// for any vendor value not in Values; when nil an unlisted value passes through. Both sides are
+// literals: they are never rendered as templates. A missing or empty vendor value is not mapped
+// (the field stays absent and the result is no_data).
+type ValueMap struct {
+	Values  map[string]string `json:"values"`
+	Default *string           `json:"default"`
 }
 
 // Manifest mirrors ProviderManifest.model_dump(mode="json"). Decode it from
@@ -64,6 +80,7 @@ type rawRequest struct {
 	Query        map[string]json.RawMessage `json:"query"`
 	BodyTemplate json.RawMessage            `json:"body_template"`
 	Timeout      *float64                   `json:"timeout"`
+	OmitEmpty    []string                   `json:"omit_empty"`
 }
 
 // UnmarshalJSON applies the Pydantic defaults (method POST, timeout 20.0) and
@@ -73,7 +90,7 @@ func (r *RequestSpec) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	out := RequestSpec{Method: "POST", URL: raw.URL, Timeout: 20.0}
+	out := RequestSpec{Method: "POST", URL: raw.URL, Timeout: 20.0, OmitEmpty: raw.OmitEmpty}
 	if raw.Method != nil {
 		out.Method = *raw.Method
 	}

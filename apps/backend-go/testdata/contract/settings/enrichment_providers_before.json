@@ -79,6 +79,76 @@
           "icon": "\ud83c\udfe2",
           "id": "companyenrich",
           "name": "CompanyEnrich"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Finder + Verifier",
+          "configured": false,
+          "docs_url": "https://anymailfinder.com/email-finder-api/docs",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udcec",
+          "id": "anymail_finder",
+          "name": "Anymail Finder"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Verification",
+          "configured": false,
+          "docs_url": "https://docs.usebouncer.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udee1",
+          "id": "bouncer",
+          "name": "Bouncer"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Verification",
+          "configured": false,
+          "docs_url": "https://developer.millionverifier.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\u2705",
+          "id": "millionverifier",
+          "name": "MillionVerifier"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email, Phone + LinkedIn Finder",
+          "configured": false,
+          "docs_url": "https://app.findymail.com/docs/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udd0e",
+          "id": "findymail",
+          "name": "Findymail"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email + Phone from LinkedIn",
+          "configured": false,
+          "docs_url": "https://api.contactout.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udc64",
+          "id": "contactout",
+          "name": "ContactOut"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email, Mobile + Company Finder",
+          "configured": false,
+          "docs_url": "https://leadmagic.io",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83e\uddf2",
+          "id": "leadmagic",
+          "name": "LeadMagic"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email + Mobile Finder",
+          "configured": false,
+          "docs_url": "https://prospeo.io",
+          "free_tier": "75 credits/month",
+          "icon": "\ud83d\udd2d",
+          "id": "prospeo",
+          "name": "Prospeo"
         }
       ]
     },

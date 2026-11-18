@@ -1,0 +1,48 @@
+{
+  "docs": [
+    "https://api.contactout.com/ (Contact Info API - Single from LinkedIn Profile)",
+    "The docs show placeholder values (obfuscated emails); the fixture uses example addresses in the documented shape. The empty-arrays body is built from the documented field list."
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.contactout.com",
+    "path": "/v1/people/linkedin",
+    "query": {
+      "profile": "https://www.linkedin.com/in/ada-lovelace",
+      "email_type": "work"
+    },
+    "headers": {
+      "token": "test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "email": "jane@example.org"
+      }
+    },
+    {
+      "name": "no_work_email",
+      "status": 200,
+      "file": "no_work_email.json",
+      "error": "no_data"
+    },
+    {
+      "name": "vendor_error",
+      "status": 404,
+      "file": "error.json",
+      "error": "http_404"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

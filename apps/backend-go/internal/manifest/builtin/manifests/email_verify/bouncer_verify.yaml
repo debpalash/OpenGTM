@@ -1,0 +1,44 @@
+# Bouncer real-time "Verify email" -- declarative provider manifest.
+# Docs: https://docs.usebouncer.com/api-reference/real-time/verify-email
+# Spec: https://docs.usebouncer.com/api-reference/openapi.yml (GET /v1.1/email/verify).
+# Auth: x-api-key header. Synchronous; the docs say it answers within 10 s
+# (30 s at most).
+# status is one of deliverable, risky, undeliverable, unknown. value_maps
+# translates it to the words the native verifiers write to email_verify
+# (valid, risky, invalid, unknown); any other word becomes unknown. Bouncer
+# reports catch-all in domain.acceptAll, which a single mapping cannot read,
+# so catch_all is never produced here.
+# Pricing is per credit and tiered by volume (https://www.usebouncer.com/pricing/),
+# so cost_per_lookup is 0 (unknown).
+manifest_version: "1"
+name: bouncer_verify
+display_name: Bouncer Email Verifier
+author: OpenGTM
+homepage: https://docs.usebouncer.com/api-reference/real-time/verify-email
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: Bouncer /v1.1/email/verify - email -> deliverable, risky, undeliverable or unknown.
+default_confidence: 0.9
+cost_per_lookup: 0
+auth:
+  type: header
+  param: x-api-key
+  env_var: BOUNCER_API_KEY
+request:
+  method: GET
+  url: https://api.usebouncer.com/v1.1/email/verify
+  query:
+    email: "{{input.email}}"
+  timeout: 30
+response:
+  mappings:
+    email_verify: "$.status"
+  value_maps:
+    email_verify:
+      values:
+        deliverable: valid
+        undeliverable: invalid
+        risky: risky
+        unknown: unknown
+      default: unknown

@@ -1,0 +1,48 @@
+{
+  "docs": [
+    "https://app.findymail.com/docs/ (Find from name, error responses). The docs show an <email> placeholder; the fixture uses an example address."
+  ],
+  "request": {
+    "method": "POST",
+    "host": "app.findymail.com",
+    "path": "/api/search/name",
+    "query": {},
+    "headers": {
+      "Authorization": "Bearer test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "name": "Ada Lovelace",
+      "domain": "acme.com"
+    }
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "email": "john.doe@website.com"
+      }
+    },
+    {
+      "name": "vendor_error",
+      "status": 402,
+      "file": "error.json",
+      "error": "http_402"
+    },
+    {
+      "name": "vendor_error_in_200_body",
+      "status": 200,
+      "file": "error.json",
+      "error": "Not enough credits"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

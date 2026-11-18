@@ -1,0 +1,34 @@
+# ContactOut "Contact Info API - Single from LinkedIn Profile" (phone) --
+# declarative provider manifest.
+# Docs: https://api.contactout.com/ (GET /v1/people/linkedin).
+# Auth: "token" header. include_phone=true asks for phone numbers and spends
+# phone credits; email_type=none returns no emails and spends no email credits.
+# Billing: 1 phone credit when a number is found. The credit price depends on
+# the plan, so cost_per_lookup is 0 (unknown).
+# profile.phone is an array; the first non-empty entry is mapped.
+manifest_version: "1"
+name: contactout_phone
+display_name: ContactOut Phone Finder
+author: OpenGTM
+homepage: https://api.contactout.com/
+tags: [phone, enrichment, byok]
+capability: phone
+capabilities: [phone]
+description: ContactOut /v1/people/linkedin - LinkedIn profile URL -> phone number.
+default_confidence: 0.7
+cost_per_lookup: 0
+auth:
+  type: header
+  param: token
+  env_var: CONTACTOUT_API_KEY
+request:
+  method: GET
+  url: https://api.contactout.com/v1/people/linkedin
+  query:
+    profile: "{{input.linkedin_url}}"
+    include_phone: "true"
+    email_type: none
+  timeout: 30
+response:
+  mappings:
+    phone: "$.profile.phone[]"
