@@ -75,3 +75,7 @@ func SplitKeys(s string) []string { return strings.Split(s, keySep) }
 
 // NewObj returns an empty ordered fields object.
 func NewObj() *Obj { return wbcrud.NewObj() }
+
+// InputCached providers require the complete input and provider identity in their
+// cache key, including email or research criteria not represented by domain keys.
+type InputCached interface{ CacheByInput() }
