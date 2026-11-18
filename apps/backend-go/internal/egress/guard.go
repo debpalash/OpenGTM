@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"net"
 	"net/netip"
 	"net/url"
 	"regexp"
@@ -97,6 +98,55 @@ func IsBlockedIP(ip netip.Addr) bool {
 	}
 	return (inAny(v6Private, ip) && !inAny(v6PrivateExceptions, ip)) || inAny(v6GoOnly, ip) ||
 		inAny(v6Reserved, ip) || inAny(v6Multicast, ip)
+}
+
+// RuntimeProviderHost validates an operator-configured provider base URL for
+// dynamic allow-listing (NewOperatorClientFunc): scheme must be http(s) and the
+// host must not be a blocked hostname (localhost spelled as a name is allowed
+// here — the operator typed it) nor a cloud-metadata or link-local address.
+// Private and loopback addresses are intentionally allowed: the whole point is
+// a self-hosted model server (vLLM on the LAN, llama.cpp on localhost).
+// Returns "host:port" (the scheme's default port when none is given) so the
+// allow-list entry admits only the configured port, never other services on
+// the same host.
+func RuntimeProviderHost(raw string) (string, bool) {
+	u, err := url.Parse(strings.TrimSpace(raw))
+	if err != nil {
+		return "", false
+	}
+	if s := strings.ToLower(u.Scheme); s != "http" && s != "https" {
+		return "", false
+	}
+	host := strings.ToLower(u.Hostname())
+	if host == "" {
+		return "", false
+	}
+	if _, ok := metadataHostnames[host]; ok {
+		return "", false
+	}
+	if ip, ok := parseIPAnyEncoding(host); ok {
+		if _, meta := metadataIPs[ip]; meta {
+			return "", false
+		}
+		if ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() {
+			return "", false
+		}
+	}
+	port := u.Port()
+	if port == "" {
+		port = "80"
+		if strings.EqualFold(u.Scheme, "https") {
+			port = "443"
+		}
+	}
+	return net.JoinHostPort(host, port), true
+}
+
+// metadataHostnames are the names that must never be a provider target, even
+// when an operator types them (unlike "localhost", they only exist to leak
+// cloud credentials).
+var metadataHostnames = map[string]struct{}{
+	"metadata.google.internal": {}, "metadata": {},
 }
 
 var (

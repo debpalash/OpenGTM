@@ -132,7 +132,7 @@ func (h *llmRoutes) defaultLLM(ctx context.Context, ws string) llmBundle {
 		cfg, _ = config.LLMFrom(func(string) string { return "" })
 	}
 	app := &settings.App{Store: secrets.NewPgStore(h.d.Pool), Env: h.d.Envelope, Secret: h.d.Registry.SecretSet(), Getenv: h.d.getenv()}
-	c := llm.New(llm.Options{Settings: app, HTTP: h.httpc, Usage: &llm.PgUsage{Pool: h.d.Pool}, WorkspaceID: ws, Config: cfg,
+	c := llm.New(llm.Options{Settings: app, HTTP: llm.OperatorClient(h.d.EgressAllowHosts, app), Usage: &llm.PgUsage{Pool: h.d.Pool}, WorkspaceID: ws, Config: cfg,
 		Registry: h.d.Registry, Log: h.log})
 	return llmBundle{Extract: orderedLLM{c: c}, Chat: c}
 }

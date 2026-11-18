@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -99,6 +100,15 @@ func (c *Client) Usage() TokenUsage { return c.usage.snapshot() }
 // ResetUsage starts a new usage window (a new job).
 func (c *Client) ResetUsage() { c.usage.reset() }
 
+// envTruthy parses an operator env/setting boolean the way pydantic does.
+func envTruthy(v string) bool {
+	switch strings.ToLower(strings.TrimSpace(v)) {
+	case "1", "true", "t", "yes", "y", "on":
+		return true
+	}
+	return false
+}
+
 func (c *Client) get(ctx context.Context, key, def string) string {
 	if key == "" {
 		return def
@@ -133,23 +143,52 @@ func (c *Client) providerConfig(ctx context.Context, id string) (Provider, bool)
 		return Provider{}, false
 	}
 	key, keySrc := c.getSource(ctx, spec.EnvKey, "")
-	if key == "" {
+	// custom_openai's API key is optional (vLLM serves without auth unless
+	// --api-key was passed). It still needs an explicit base URL and model:
+	// there is no committed default to fall back to.
+	keyless := id == CustomOpenAIID
+	if key == "" && !keyless {
 		return Provider{}, false
 	}
 	baseURL, urlSrc := c.getSource(ctx, spec.EnvURL, spec.DefaultURL)
-	if keySrc != "" && urlSrc != "" && urlSrc != keySrc && baseURL != spec.DefaultURL {
+	if key != "" && keySrc != "" && urlSrc != "" && urlSrc != keySrc && baseURL != spec.DefaultURL {
 		// The URL was set at another level than the key (a workspace URL beside the global key, or the
 		// reverse): never send this key there. The provider default is used instead.
 		c.o.Log.Warn("llm: base URL ignored, it is not set at the same level as the API key", "provider", id)
 		baseURL = spec.DefaultURL
 	}
+	model := c.get(ctx, spec.EnvModel, spec.DefaultModel)
+	if baseURL == "" || model == "" {
+		return Provider{}, false
+	}
+	var timeout time.Duration
+	var extraBody map[string]any
+	if id == CustomOpenAIID {
+		if secs := c.get(ctx, "CUSTOM_OPENAI_HTTP_TIMEOUT", ""); secs != "" {
+			if f, err := strconv.ParseFloat(secs, 64); err == nil && f > 0 {
+				timeout = time.Duration(f * float64(time.Second))
+			} else {
+				c.o.Log.Warn("llm: ignoring invalid CUSTOM_OPENAI_HTTP_TIMEOUT", "value", secs)
+			}
+		}
+		// Reasoning servers (vLLM thinking models) can spend the whole token
+		// budget on reasoning, leaving content empty for JSON/tool calls.
+		// The operator opts out of thinking with this flag; vLLM honours it
+		// via the chat template, and servers that ignore unknown body fields
+		// are unaffected.
+		if envTruthy(c.get(ctx, "CUSTOM_OPENAI_DISABLE_THINKING", "")) {
+			extraBody = map[string]any{"chat_template_kwargs": map[string]any{"enable_thinking": false}}
+		}
+	}
 	return Provider{
 		ID:         id,
 		APIKey:     key,
 		BaseURL:    baseURL,
-		Model:      c.get(ctx, spec.EnvModel, spec.DefaultModel),
+		Model:      model,
 		TokenParam: spec.TokenParam,
 		Native:     spec.Native,
+		Timeout:    timeout,
+		ExtraBody:  extraBody,
 	}, true
 }
 

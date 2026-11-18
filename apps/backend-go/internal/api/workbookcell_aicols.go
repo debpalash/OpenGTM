@@ -38,7 +38,7 @@ func aiColumns(d Deps, log *slog.Logger) *workbook.AIColumns {
 		return nil
 	}
 	app := &settings.App{Store: secrets.NewPgStore(d.Pool), Env: d.Envelope, Secret: d.Registry.SecretSet(), Getenv: getenv}
-	httpc := egress.NewOperatorClient(d.EgressAllowHosts)
+	httpc := llm.OperatorClient(d.EgressAllowHosts, app)
 	appEnv, allow := d.Config.AppEnv, d.EgressAllowHosts
 	bc, web := d.browser(), d.leadweb()
 	if !bc.Configured() {

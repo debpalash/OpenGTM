@@ -192,6 +192,20 @@
           "model": "Qwen/Qwen3-8B",
           "name": "SiliconFlow",
           "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
+          "base_url": "",
+          "configured": false,
+          "default_model": "",
+          "docs_url": "https://docs.vllm.ai/en/latest/serving/openai_compatible_server.html",
+          "free_tier": "Self-hosted server (vLLM, llama.cpp, Ollama, ...)",
+          "icon": "\ud83d\udda5\ufe0f",
+          "id": "custom_openai",
+          "is_default": false,
+          "model": "",
+          "name": "Custom OpenAI Compatible",
+          "openai_compatible": true
         }
       ]
     },

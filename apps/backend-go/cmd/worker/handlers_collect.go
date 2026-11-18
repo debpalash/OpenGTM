@@ -10,7 +10,6 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/collect"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadprogress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/leadweb"
@@ -72,7 +71,7 @@ func liveCollectDeps(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, ge
 	}
 	bc, web := sw.Browser, sw.Web
 	app, reg, llmCfg, local := sh.app, sh.reg, sh.llmCfg, sh.local
-	httpc := egress.NewOperatorClient(cfg.EgressAllowHosts)
+	httpc := llm.OperatorClient(cfg.EgressAllowHosts, app)
 	var py emailverify.ProviderCaller
 	if prov != nil {
 		py = prov

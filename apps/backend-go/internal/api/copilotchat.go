@@ -21,7 +21,6 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/config"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilot"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/copilotauth"
-	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/llm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
@@ -140,7 +139,9 @@ func (h *chatHandler) enableNative() {
 		return
 	}
 	h.native, h.llmCfg = true, cfg
-	h.llmHTTP = egress.NewOperatorClient(h.d.EgressAllowHosts)
+	// Provider egress: the static operator allow-list plus the runtime-configured
+	// custom_openai base URL host (so a Settings change works without a restart).
+	h.llmHTTP = llm.OperatorClient(h.d.EgressAllowHosts, h.settings)
 	h.ab = newAmbitionBoxClient(h.d)
 	h.tools = newCopilotTools(h.d, h.settings)
 }

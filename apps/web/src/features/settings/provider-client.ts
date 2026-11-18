@@ -20,6 +20,7 @@ export interface ProviderSettings {
 
 export interface ProviderUpdate {
   api_key?: string
+  base_url?: string
   model?: string
   set_default?: true
 }

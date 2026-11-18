@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"strings"
+	"time"
 )
 
 // Settings reads one setting (workspace secret, global setting or environment,
@@ -36,11 +37,39 @@ type providerSpec struct {
 
 // ProviderOrder is the failover priority. Anthropic is last so the free tier is
 // never displaced as a fallback; it only leads when it is the default.
+// custom_openai is deliberately absent: it is a self-hosted endpoint with an
+// optional key, so it must never receive traffic (or an operator URL) unless it
+// is the explicit default provider (see Client.DefaultProvider / Providers).
 var ProviderOrder = []string{
 	"cerebras", "groq", "sambanova", "nvidia",
 	"mistral", "openrouter", "github_models", "siliconflow",
 	"anthropic",
 }
+
+// allKeys returns every setting key of one spec: the key, the base-URL and
+// model overrides, plus the runtime timeout override when the provider accepts
+// one. It is the single source for "may this provider run without an API key"
+// (client.providerConfig) and for the egress allow-on-use rule
+// (llmroutes / copilotchat), so both always watch the same keys.
+func (s providerSpec) allKeys() []string {
+	keys := []string{s.EnvKey}
+	if s.EnvURL != "" {
+		keys = append(keys, s.EnvURL)
+	}
+	if s.EnvModel != "" {
+		keys = append(keys, s.EnvModel)
+	}
+	if s.ID == CustomOpenAIID {
+		keys = append(keys, "CUSTOM_OPENAI_HTTP_TIMEOUT")
+	}
+	return keys
+}
+
+// CustomOpenAIID is the generic OpenAI-compatible provider id: a self-hosted
+// server (vLLM, llama.cpp, Ollama's OpenAI layer, ...) configured per install
+// through CUSTOM_OPENAI_BASE_URL / CUSTOM_OPENAI_API_KEY (optional) /
+// CUSTOM_OPENAI_MODEL. It only runs as the explicit default provider.
+const CustomOpenAIID = "custom_openai"
 
 const (
 	// AnthropicID is the provider id handled by the native Messages API.
@@ -61,6 +90,10 @@ var providerSpecs = map[string]providerSpec{
 	"openrouter":    {"openrouter", "OPENROUTER_API_KEY", "OPENROUTER_BASE_URL", "OPENROUTER_MODEL", "https://openrouter.ai/api/v1", "meta-llama/llama-3.3-70b-instruct:free", "max_tokens", false},
 	"github_models": {"github_models", "GITHUB_MODELS_API_KEY", "GITHUB_MODELS_BASE_URL", "GITHUB_MODELS_MODEL", "https://models.inference.ai.azure.com", "gpt-4o", "max_tokens", false},
 	"siliconflow":   {"siliconflow", "SILICONFLOW_API_KEY", "SILICONFLOW_BASE_URL", "SILICONFLOW_MODEL", "https://api.siliconflow.cn/v1", "Qwen/Qwen3-8B", "max_tokens", false},
+	// custom_openai has no committed default URL or model on purpose: a
+	// self-hosted endpoint is install-specific and is configured through the
+	// environment, .env or the Settings UI (see docs/guides/local-openai-compatible-llm.md).
+	"custom_openai": {CustomOpenAIID, "CUSTOM_OPENAI_API_KEY", "CUSTOM_OPENAI_BASE_URL", "CUSTOM_OPENAI_MODEL", "", "", "max_tokens", false},
 }
 
 // Provider is a resolved completion provider (key, URL and model looked up).
@@ -71,6 +104,18 @@ type Provider struct {
 	Model      string
 	TokenParam string
 	Native     bool
+	// Timeout overrides the client's LLM_HTTP_TIMEOUT for this provider
+	// (0 = use the default). custom_openai reads CUSTOM_OPENAI_HTTP_TIMEOUT so
+	// a slower local server need not inherit the global timeout.
+	Timeout time.Duration
+	// ExtraBody holds additional top-level JSON fields merged into every
+	// chat-completions request for this provider. custom_openai sets
+	// {"chat_template_kwargs":{"enable_thinking":false}} when
+	// CUSTOM_OPENAI_DISABLE_THINKING is on: reasoning models served by vLLM
+	// spend small max_tokens budgets entirely on thinking, which leaves the
+	// content empty and breaks structured calls (JSON extraction, tool
+	// schemas). Zero value = no extra fields.
+	ExtraBody map[string]any
 }
 
 // String never prints the key.
