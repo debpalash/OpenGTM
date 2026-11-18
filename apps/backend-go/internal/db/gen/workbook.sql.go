@@ -466,15 +466,18 @@ func (q *Queries) MergeRowOverlay(ctx context.Context, arg MergeRowOverlayParams
 const recordProviderAttempt = `-- name: RecordProviderAttempt :exec
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,
-   cooldown_until, updated_at, accuracy_samples)
+   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts)
 VALUES ($1::text, $2::text, 1,
   CASE WHEN $3::bool THEN 1 ELSE 0 END,
   CASE WHEN $3::bool THEN $4::float8 ELSE 0.0 END,
   $5::float8,
   CASE WHEN $3::bool THEN $6::float8 ELSE 0.0 END,
-  CASE WHEN $7::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $7::int) END,
-  (now() AT TIME ZONE 'UTC'), 0)
+  CASE WHEN $7::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $8::int)
+       WHEN $9::bool AND 1 >= $10::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $11::int) END,
+  (now() AT TIME ZONE 'UTC'), 0,
+  CASE WHEN $9::bool AND NOT $7::bool THEN 1 ELSE 0 END)
 ON CONFLICT (provider, field) DO UPDATE SET
   attempts = COALESCE(provider_stats.attempts, 0) + 1,
   hits = COALESCE(provider_stats.hits, 0) + CASE WHEN $3::bool THEN 1 ELSE 0 END,
@@ -482,22 +485,32 @@ ON CONFLICT (provider, field) DO UPDATE SET
   total_latency_ms = COALESCE(provider_stats.total_latency_ms, 0.0) + $5::float8,
   total_cost_usd = COALESCE(provider_stats.total_cost_usd, 0.0) + CASE WHEN $3::bool THEN $6::float8 ELSE 0.0 END,
   updated_at = (now() AT TIME ZONE 'UTC'),
-  cooldown_until = CASE WHEN $7::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $7::int)
+  consecutive_timeouts = CASE WHEN $9::bool AND NOT $7::bool
+       THEN provider_stats.consecutive_timeouts + 1 ELSE 0 END,
+  cooldown_until = CASE WHEN $7::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $8::int)
+       WHEN $9::bool AND provider_stats.consecutive_timeouts + 1 >= $10::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $11::int)
        ELSE provider_stats.cooldown_until END
 `
 
 type RecordProviderAttemptParams struct {
-	Provider        string
-	Field           string
-	Success         bool
-	Confidence      float64
-	LatencyMs       float64
-	CostUsd         float64
-	CooldownSeconds int32
+	Provider         string
+	Field            string
+	Success          bool
+	Confidence       float64
+	LatencyMs        float64
+	CostUsd          float64
+	RateLimited      bool
+	RateLimitSeconds int32
+	TimedOut         bool
+	TimeoutThreshold int32
+	TimeoutSeconds   int32
 }
 
-// Port of planner.record_attempt: one atomic additive upsert.
+// Port of planner.record_attempt: one atomic additive upsert. The cooldown policy lives in internal/cooldown:
+// a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts (the run is
+// consecutive_timeouts, reset by any attempt that did not time out).
 func (q *Queries) RecordProviderAttempt(ctx context.Context, arg RecordProviderAttemptParams) error {
 	_, err := q.db.Exec(ctx, recordProviderAttempt,
 		arg.Provider,
@@ -506,7 +519,11 @@ func (q *Queries) RecordProviderAttempt(ctx context.Context, arg RecordProviderA
 		arg.Confidence,
 		arg.LatencyMs,
 		arg.CostUsd,
-		arg.CooldownSeconds,
+		arg.RateLimited,
+		arg.RateLimitSeconds,
+		arg.TimedOut,
+		arg.TimeoutThreshold,
+		arg.TimeoutSeconds,
 	)
 	return err
 }

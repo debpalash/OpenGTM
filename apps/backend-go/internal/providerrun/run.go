@@ -16,13 +16,13 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strings"
 	"sync/atomic"
 	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/enrichcache"
@@ -53,10 +53,6 @@ const (
 	maxTimeout     = 120 * time.Second
 	defaultTimeout = 10 * time.Second
 	defaultWorkers = 16
-
-	// Python planner.COOLDOWN_SECONDS / TIMEOUT_COOLDOWN_SECONDS.
-	cooldownSeconds        = 300
-	timeoutCooldownSeconds = 180
 
 	ledgerTimeout = 5 * time.Second
 )
@@ -208,6 +204,7 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 		return providers.Output{}, err
 	}
 	success := out.Error == "" && out.Extra != nil && out.Extra.Len() > 0
+	rateLimited = !timedOut && cooldown.LooksRateLimited(out.Error)
 	r.record(ctx, workspaceID, provider, in.Field, success, out.Confidence,
 		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut)
 	if out.Error == "" {
@@ -386,17 +383,6 @@ func firstNonEmpty(ss ...string) string {
 	return ""
 }
 
-// looksRateLimited ports planner.looks_rate_limited.
-func looksRateLimited(err string) bool {
-	e := strings.ToLower(err)
-	for _, s := range []string{"429", "rate limit", "too many requests", "quota", "throttle"} {
-		if strings.Contains(e, s) {
-			return true
-		}
-	}
-	return false
-}
-
 // ---- ledger -----------------------------------------------------------------
 
 // record is the planner.record_attempt upsert in its own short transaction. It
@@ -406,18 +392,12 @@ func (r *Runner) record(ctx context.Context, ws, provider, field string, success
 	if r.d.Pool == nil {
 		return
 	}
-	cd := int32(0)
-	if rateLimited {
-		cd = cooldownSeconds
-	} else if timedOut {
-		cd = timeoutCooldownSeconds
-	}
 	lctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), ledgerTimeout)
 	defer cancel()
 	err := tenancy.InWorkspace(lctx, r.d.Pool, ws, func(tx pgx.Tx) error {
-		return gen.New(tx).RecordProviderAttempt(lctx, gen.RecordProviderAttemptParams{
+		return cooldown.Record(lctx, gen.New(tx), cooldown.Attempt{
 			Provider: provider, Field: field, Success: success, Confidence: conf,
-			LatencyMs: latencyMS, CostUsd: r.d.Cost(provider), CooldownSeconds: cd,
+			LatencyMS: latencyMS, CostUSD: r.d.Cost(provider), RateLimited: rateLimited, TimedOut: timedOut,
 		})
 	})
 	if err != nil {

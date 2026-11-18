@@ -783,19 +783,20 @@ type PollBudgetLedger struct {
 }
 
 type ProviderStat struct {
-	ID                int32
-	Provider          string
-	Field             string
-	Attempts          pgtype.Int4
-	Hits              pgtype.Int4
-	TotalConfidence   pgtype.Float8
-	TotalLatencyMs    pgtype.Float8
-	TotalCostUsd      pgtype.Float8
-	CooldownUntil     pgtype.Timestamp
-	UpdatedAt         pgtype.Timestamp
-	AccuracyScore     pgtype.Float8
-	AccuracySamples   pgtype.Int4
-	AccuracyUpdatedAt pgtype.Timestamp
+	ID                  int32
+	Provider            string
+	Field               string
+	Attempts            pgtype.Int4
+	Hits                pgtype.Int4
+	TotalConfidence     pgtype.Float8
+	TotalLatencyMs      pgtype.Float8
+	TotalCostUsd        pgtype.Float8
+	CooldownUntil       pgtype.Timestamp
+	UpdatedAt           pgtype.Timestamp
+	AccuracyScore       pgtype.Float8
+	AccuracySamples     pgtype.Int4
+	AccuracyUpdatedAt   pgtype.Timestamp
+	ConsecutiveTimeouts int32
 }
 
 type RecordExternalIdentity struct {

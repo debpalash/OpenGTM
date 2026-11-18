@@ -59,8 +59,8 @@ func TestReservedTimeoutIsAccountingUncertain(t *testing.T) {
 	if msg := e.str(wsA, `SELECT error FROM workbook_enrichments`); msg != "accounting_uncertain" {
 		t.Fatalf("error %q", msg)
 	}
-	if n := e.one(wsA, `SELECT count(*) FROM provider_stats WHERE provider='p1' AND cooldown_until IS NOT NULL AND attempts=1 AND hits=0`); n != 1 {
-		t.Fatal("timeout must bench the provider (circuit breaker)")
+	if n := e.one(wsA, `SELECT count(*) FROM provider_stats WHERE provider='p1' AND cooldown_until IS NULL AND attempts=1 AND hits=0 AND consecutive_timeouts=1`); n != 1 {
+		t.Fatal("one timeout is counted but must not bench the provider")
 	}
 }
 
@@ -82,8 +82,31 @@ func TestFreeTimeoutFallsThroughAndBenchesProvider(t *testing.T) {
 	if err != nil || res.Completed != 1 {
 		t.Fatalf("%+v %v", res, err)
 	}
-	if n := e.one(wsA, `SELECT count(*) FROM provider_stats WHERE provider='slow' AND cooldown_until IS NOT NULL`); n != 1 {
-		t.Fatal("slow provider not benched")
+	if n := e.one(wsA, `SELECT count(*) FROM provider_stats WHERE provider='slow' AND cooldown_until IS NULL AND consecutive_timeouts=1`); n != 1 {
+		t.Fatal("one timeout must be counted without benching the provider")
+	}
+}
+
+func TestFreeTimeoutsBenchProviderAfterThreeInARow(t *testing.T) {
+	e := setup(t, wsA)
+	e.seed(wsA, "wb-fto3", "["+colJSON("c1", "slow3", "ok3")+"]", 3, 0)
+	s := newSim(t, func(name string, _ int, w http.ResponseWriter, r *http.Request) {
+		if name == "slow3" {
+			select {
+			case <-r.Context().Done():
+			case <-time.After(3 * time.Second):
+			}
+			return
+		}
+		fmt.Fprint(w, `{"v":"5"}`)
+	})
+	c := e.claim(wsA, payloadFor(wsA, "wb-fto3", map[string]float64{"slow3": 0, "ok3": 0}, map[string]any{"provider_timeout": 0.15}))
+	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
+	if err != nil || res.Completed != 3 {
+		t.Fatalf("%+v %v", res, err)
+	}
+	if n := e.one(wsA, `SELECT count(*) FROM provider_stats WHERE provider='slow3' AND cooldown_until IS NOT NULL AND consecutive_timeouts=3`); n != 1 {
+		t.Fatal("three consecutive timeouts must bench the provider")
 	}
 }
 

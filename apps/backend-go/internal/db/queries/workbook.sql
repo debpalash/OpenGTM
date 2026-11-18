@@ -95,18 +95,23 @@ WHERE provider = sqlc.arg(provider)::text AND accuracy_score IS NOT NULL
 LIMIT 1;
 
 -- name: RecordProviderAttempt :exec
--- Port of planner.record_attempt: one atomic additive upsert.
+-- Port of planner.record_attempt: one atomic additive upsert. The cooldown policy lives in internal/cooldown:
+-- a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts (the run is
+-- consecutive_timeouts, reset by any attempt that did not time out).
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,
-   cooldown_until, updated_at, accuracy_samples)
+   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts)
 VALUES (sqlc.arg(provider)::text, sqlc.arg(field)::text, 1,
   CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
   CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(confidence)::float8 ELSE 0.0 END,
   sqlc.arg(latency_ms)::float8,
   CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(cost_usd)::float8 ELSE 0.0 END,
-  CASE WHEN sqlc.arg(cooldown_seconds)::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(cooldown_seconds)::int) END,
-  (now() AT TIME ZONE 'UTC'), 0)
+  CASE WHEN sqlc.arg(rate_limited)::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(rate_limit_seconds)::int)
+       WHEN sqlc.arg(timed_out)::bool AND 1 >= sqlc.arg(timeout_threshold)::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int) END,
+  (now() AT TIME ZONE 'UTC'), 0,
+  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN 1 ELSE 0 END)
 ON CONFLICT (provider, field) DO UPDATE SET
   attempts = COALESCE(provider_stats.attempts, 0) + 1,
   hits = COALESCE(provider_stats.hits, 0) + CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
@@ -114,8 +119,12 @@ ON CONFLICT (provider, field) DO UPDATE SET
   total_latency_ms = COALESCE(provider_stats.total_latency_ms, 0.0) + sqlc.arg(latency_ms)::float8,
   total_cost_usd = COALESCE(provider_stats.total_cost_usd, 0.0) + CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(cost_usd)::float8 ELSE 0.0 END,
   updated_at = (now() AT TIME ZONE 'UTC'),
-  cooldown_until = CASE WHEN sqlc.arg(cooldown_seconds)::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(cooldown_seconds)::int)
+  consecutive_timeouts = CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool
+       THEN provider_stats.consecutive_timeouts + 1 ELSE 0 END,
+  cooldown_until = CASE WHEN sqlc.arg(rate_limited)::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(rate_limit_seconds)::int)
+       WHEN sqlc.arg(timed_out)::bool AND provider_stats.consecutive_timeouts + 1 >= sqlc.arg(timeout_threshold)::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int)
        ELSE provider_stats.cooldown_until END;
 
 -- name: LockLeaseForReceipt :one

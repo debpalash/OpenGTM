@@ -2321,7 +2321,8 @@ CREATE TABLE public.provider_stats (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     accuracy_score double precision,
     accuracy_samples integer,
-    accuracy_updated_at timestamp without time zone
+    accuracy_updated_at timestamp without time zone,
+    consecutive_timeouts integer DEFAULT 0 NOT NULL
 );
 
 --
