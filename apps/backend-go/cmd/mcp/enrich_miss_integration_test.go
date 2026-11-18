@@ -20,7 +20,6 @@ import (
 // "per field the first valid value wins" over each chain; the answer for a lead nothing could enrich is an empty
 // enriched_fields, as the mocked-port test TestEnrichCompanyResultShape expects for an empty provider answer.
 func TestEnrichCompanyProviderMissIsNotAToolFailureThroughProductionRuntime(t *testing.T) {
-	t.Skip("bug: PyEnrichPort.Py turns a provider miss (rpclocal Status=error, success=false) into a Go error, so one miss aborts the whole enrich_company chain; see report")
 	s := seed(t)
 	ctx := context.Background()
 	browser := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

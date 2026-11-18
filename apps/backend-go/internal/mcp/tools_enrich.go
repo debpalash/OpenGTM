@@ -298,6 +298,10 @@ func enrichCompanyTool(ctx context.Context, d Deps, c Ctx, a Args) (string, erro
 				return f, nil
 			}
 			f, err := pyFields(ctx, d, c, provider, in)
+			if errors.Is(err, ErrProviderMiss) {
+				// A provider that found nothing yields no fields; the chain moves on to the next provider.
+				f, err = rpcFields{}, nil
+			}
 			if err != nil {
 				return rpcFields{}, err
 			}
