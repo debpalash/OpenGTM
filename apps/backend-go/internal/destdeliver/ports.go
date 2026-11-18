@@ -40,7 +40,7 @@ type (
 		LeadID          int64
 		IdempotencyKey  string
 	}
-	// CampaignRequest adds one lead to an Instantly or Smartlead campaign.
+	// CampaignRequest adds one lead to an Instantly, Smartlead, HeyReach or lemlist campaign.
 	// TODO(plan10 T20): finalize with the delivery engine.
 	CampaignRequest struct {
 		WorkspaceID string
@@ -112,6 +112,8 @@ type Ports struct {
 	CRM           CRMPusher
 	Instantly     CampaignAdder
 	Smartlead     CampaignAdder
+	HeyReach      CampaignAdder
+	Lemlist       CampaignAdder
 	Sheets        SheetsUpserter
 	Airtable      AirtableUpserter
 }
@@ -128,6 +130,10 @@ func (p Ports) Supports(destinationType string) bool {
 		return p.Instantly != nil
 	case "smartlead":
 		return p.Smartlead != nil
+	case "heyreach":
+		return p.HeyReach != nil
+	case "lemlist":
+		return p.Lemlist != nil
 	case "google_sheets":
 		return p.Sheets != nil
 	case "airtable":

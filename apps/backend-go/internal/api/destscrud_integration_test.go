@@ -345,6 +345,7 @@ func TestCreateEveryTypeValidation(t *testing.T) {
 		"google_ads":     `{"customer_id":"1","user_list_id":"2","consent_attested":true,"consent_source":"form"}`,
 		"linkedin_ads":   `{"segment_id":"1","consent_attested":true,"consent_source":"form"}`,
 		"instantly":      `{"campaign_id":"c"}`, "smartlead": `{"campaign_id":"c"}`,
+		"heyreach": `{"campaign_id":"1","linkedin_account_id":"2"}`, "lemlist": `{"campaign_id":"cam_c"}`,
 		"google_sheets": `{"spreadsheet_id":"s","columns":["a"]}`, "airtable": `{"base_id":"b","table":"t"}`,
 		"slack": `{"webhook_secret_ref":"SLACK_WEBHOOK"}`,
 	}

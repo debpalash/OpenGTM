@@ -10,6 +10,8 @@ const knownTypes = new Set([
   "linkedin_ads",
   "instantly",
   "smartlead",
+  "heyreach",
+  "lemlist",
   "google_sheets",
   "airtable",
   "slack"

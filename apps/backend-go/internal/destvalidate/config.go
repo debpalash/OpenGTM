@@ -7,9 +7,11 @@ package destvalidate
 import (
 	"errors"
 	"fmt"
+	"math"
 	"net/netip"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
@@ -18,7 +20,7 @@ import (
 // Types are the supported destination types, in Python's declaration order.
 var Types = []string{
 	"webhook", "hubspot", "salesforce", "warehouse_http",
-	"meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead",
+	"meta_ads", "google_ads", "linkedin_ads", "instantly", "smartlead", "heyreach", "lemlist",
 	"google_sheets", "airtable", "slack",
 }
 
@@ -67,6 +69,16 @@ func strOr(v any) string {
 		return ""
 	}
 	return colgraph.PyStr(v)
+}
+
+// positiveInt accepts "235" and the "235.0" a JSON number in a destination config renders as.
+func positiveInt(s string) bool {
+	s = colgraph.PyStrip(s)
+	if n, err := strconv.ParseInt(s, 10, 64); err == nil {
+		return n > 0
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	return err == nil && f > 0 && f == math.Trunc(f) && f <= 1<<53
 }
 
 func present(v any) bool { return colgraph.PyStrip(strOr(v)) != "" }
@@ -204,6 +216,25 @@ func ValidateConfig(destType string, cfg map[string]any) (map[string]any, error)
 		if s, ok := cfg["settings"]; destType == "smartlead" && ok && s != nil {
 			if _, isObj := s.(map[string]any); !isObj {
 				return nil, fail("smartlead settings must be an object")
+			}
+		}
+	case "lemlist":
+		if err := unsupported("lemlist", "campaign_id"); err != nil {
+			return nil, err
+		}
+		if !present(cfg["campaign_id"]) {
+			return nil, fail("lemlist campaign_id is required")
+		}
+	case "heyreach":
+		if err := unsupported("heyreach", "campaign_id", "linkedin_account_id"); err != nil {
+			return nil, err
+		}
+		for _, k := range []string{"campaign_id", "linkedin_account_id"} {
+			if !present(cfg[k]) {
+				return nil, fail("heyreach %s is required", k)
+			}
+			if !positiveInt(strOr(cfg[k])) {
+				return nil, fail("heyreach %s must be a positive integer", k)
 			}
 		}
 	case "google_sheets":

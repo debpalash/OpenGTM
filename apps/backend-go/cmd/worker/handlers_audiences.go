@@ -232,7 +232,7 @@ func destSyncHandler(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, se
 
 // destPorts builds the delivery ports; a port set in o.ports wins. Webhook and Slack deliver through the
 // egress-pinned automation sender with the outbound secret-ref policy (S-M3, R2); the same policy gates the warehouse
-// and Slack references at delivery. HubSpot, Salesforce, Instantly, Smartlead, Google Sheets and Airtable deliver
+// and Slack references at delivery. HubSpot, Salesforce, Instantly, Smartlead, HeyReach, lemlist, Google Sheets and Airtable deliver
 // through destdeliver.NewLivePorts over the egress client with the workspace's own credentials (sec must be the
 // local resolver; any other resolver resolves nothing for them, so they fail "not connected").
 func destPorts(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec destdeliver.SecretResolver, o audienceOpts) destdeliver.Ports {
@@ -261,6 +261,12 @@ func destPorts(cfg config.Config, pool *pgxpool.Pool, log *slog.Logger, sec dest
 	}
 	if ports.Smartlead == nil {
 		ports.Smartlead = lp.Smartlead
+	}
+	if ports.HeyReach == nil {
+		ports.HeyReach = lp.HeyReach
+	}
+	if ports.Lemlist == nil {
+		ports.Lemlist = lp.Lemlist
 	}
 	if ports.Sheets == nil {
 		ports.Sheets = lp.Sheets

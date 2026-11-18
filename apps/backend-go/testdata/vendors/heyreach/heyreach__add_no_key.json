@@ -1,0 +1,22 @@
+{
+ "vendor": "heyreach",
+ "scenario": "add_no_key",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "235",
+   "linkedin_account_id": "123",
+   "lead": {
+    "linkedin_url": "https://www.linkedin.com/in/ada-example",
+    "first_name": "Ada"
+   }
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "HeyReach not connected (set HEYREACH_API_KEY)"
+ }
+}

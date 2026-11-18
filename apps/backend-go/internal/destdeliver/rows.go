@@ -7,14 +7,20 @@ const (
 	summaryAdded     = "Lead added to campaign"
 )
 
-// campaign adds the mapped lead to an Instantly or Smartlead campaign.
+// campaign adds the mapped lead to an Instantly, Smartlead, HeyReach or lemlist campaign.
 func (d *Deliverer) campaign(ctx context.Context, dest Destination, leadID int, mapped map[string]any, sec *secretSet) Result {
 	port := d.ports.Instantly
 	cfg := map[string]any{"campaign_id": strOr(dest.Config["campaign_id"], "")}
-	if dest.Type == "smartlead" {
+	switch dest.Type {
+	case "smartlead":
 		port = d.ports.Smartlead
 		cfg["settings"] = dest.Config["settings"]
-	} else {
+	case "heyreach":
+		port = d.ports.HeyReach
+		cfg["linkedin_account_id"] = strOr(dest.Config["linkedin_account_id"], "")
+	case "lemlist":
+		port = d.ports.Lemlist
+	default:
 		skip := true // bool(cfg.get("skip_if_in_campaign", True)): present null is False
 		if v, ok := dest.Config["skip_if_in_campaign"]; ok {
 			skip = pyTruthy(v)
@@ -37,7 +43,7 @@ func (d *Deliverer) campaign(ctx context.Context, dest Destination, leadID int, 
 	default:
 		out.Summary = ""
 	}
-	if dest.Type == "smartlead" {
+	if dest.Type != "instantly" {
 		out.ExternalID = ""
 	}
 	return out
