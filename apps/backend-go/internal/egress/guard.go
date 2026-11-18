@@ -105,8 +105,9 @@ func IsBlockedIP(ip netip.Addr) bool {
 // here — the operator typed it) nor a cloud-metadata or link-local address.
 // Private and loopback addresses are intentionally allowed: the whole point is
 // a self-hosted model server (vLLM on the LAN, llama.cpp on localhost).
-// Returns the bare hostname to add to the operator allow-list (it matches
-// every port, as in operatorAllowSet).
+// Returns "host:port" (the scheme's default port when none is given) so the
+// allow-list entry admits only the configured port, never other services on
+// the same host.
 func RuntimeProviderHost(raw string) (string, bool) {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil {
@@ -130,7 +131,14 @@ func RuntimeProviderHost(raw string) (string, bool) {
 			return "", false
 		}
 	}
-	return host, true
+	port := u.Port()
+	if port == "" {
+		port = "80"
+		if strings.EqualFold(u.Scheme, "https") {
+			port = "443"
+		}
+	}
+	return net.JoinHostPort(host, port), true
 }
 
 // metadataHostnames are the names that must never be a provider target, even

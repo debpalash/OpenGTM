@@ -17,8 +17,11 @@ const CustomOpenAIBaseURLKey = "CUSTOM_OPENAI_BASE_URL"
 // operator allow-list (EGRESS_ALLOW_HOSTS) plus the host of
 // CUSTOM_OPENAI_BASE_URL, re-read from the settings store on every dial so a
 // Settings-UI change takes effect without a restart or image rebuild. The
-// dynamic entry is vetted by egress.RuntimeProviderHost (no localhost, no
-// metadata or link-local IPs); everything else keeps the full SSRF guard.
+// dynamic entry is vetted by egress.RuntimeProviderHost (localhost and private
+// addresses allowed, cloud-metadata and link-local refused) and admits only the
+// configured host:port; everything else keeps the full SSRF guard. Removing
+// the setting stops new dials; already-open keep-alive connections stay usable
+// until the transport's idle timeout.
 // settings may be nil (static allow-list only).
 func OperatorClient(static []string, settings Settings) *http.Client {
 	return egress.NewOperatorClientFunc(func() []string {

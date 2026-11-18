@@ -53,7 +53,7 @@ func newSettingsEnv(t *testing.T, allowHosts ...string) settingsEnv {
 	r := httpx.NewRouter()
 	RegisterSettings(r, Deps{
 		Pool: pool, Signer: testSigner, Identity: st,
-		Registry: reg, Envelope: envl, Egress: egress.NewClientForEnv("test", allowHosts),
+		Registry: reg, Envelope: envl, Egress: egress.NewClientForEnv("test", allowHosts), EgressAllowHosts: allowHosts,
 		Getenv: func(string) string { return "" },
 	})
 	return settingsEnv{env: env{h: r.Handler(), st: st}, pool: pool}
