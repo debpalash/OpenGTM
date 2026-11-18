@@ -237,15 +237,16 @@ def evaluate(opener: Person, opener_is_bot: bool, actors: list[dict], signed_ids
                 result.unknown.append(actor["unknown"])
             continue
         email = (actor.get("email") or "").strip()
+        # A tool named in a co-author trailer is skipped, even when GitHub links
+        # its address to an account: the person who submits the work signs for
+        # it (CLA section 5.5). An unlinked commit author with a tool address is
+        # not, because anyone can commit under that address.
+        if actor.get("trailer") and TOOL_EMAILS.match(email):
+            continue
         if actor.get("id"):
             # GitHub verified this account; a person cannot hold a [bot] login.
             if not (actor.get("login") or "").lower().endswith("[bot]"):
                 require(Person(actor["login"], int(actor["id"])))
-            continue
-        # A tool named in a co-author trailer is skipped: the person who
-        # submits the work signs for it. An unlinked commit author with a tool
-        # address is not, because anyone can commit under that address.
-        if actor.get("trailer") and TOOL_EMAILS.match(email):
             continue
         # A commit author counts only through the account GitHub linked to it.
         # An unlinked no-reply address may name someone else's account, so it
@@ -400,7 +401,7 @@ query($owner: String!, $name: String!, $number: Int!, $after: String) {
     pullRequest(number: $number) {
       commits(first: 100, after: $after) {
         pageInfo { hasNextPage endCursor }
-        nodes { commit { oid authors(first: MAX_AUTHORS) {
+        nodes { commit { oid message authors(first: MAX_AUTHORS) {
           pageInfo { hasNextPage }
           nodes { name email user { login databaseId } }
         } } }
@@ -425,10 +426,14 @@ def pr_actors(gh: GitHub, number: int) -> tuple[list[dict], int]:
         for node in commits["nodes"]:
             count += 1
             authors = node["commit"]["authors"]
-            for author in authors["nodes"]:
+            # GitHub lists the commit author first, then its co-author trailers.
+            trailers = {(a["email"] or "").strip().lower() for a in co_authors(node["commit"].get("message"))}
+            for index, author in enumerate(authors["nodes"]):
                 user = author.get("user") or {}
+                email = (author.get("email") or "").strip()
                 actors.append({"name": author.get("name"), "email": author.get("email"),
-                               "login": user.get("login"), "id": user.get("databaseId")})
+                               "login": user.get("login"), "id": user.get("databaseId"),
+                               "trailer": index > 0 and email.lower() in trailers})
             if (authors.get("pageInfo") or {}).get("hasNextPage"):
                 # Unread co-authors could include someone who has not signed.
                 actors.append({"unknown": f"commit {(node['commit'].get('oid') or '?')[:7]} has more than "
