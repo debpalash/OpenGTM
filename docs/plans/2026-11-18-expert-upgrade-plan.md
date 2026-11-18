@@ -291,7 +291,7 @@ The repository holds deep internal docs: plans, runbooks and audits. Users, thou
 
 ## 9. Release, governance and community
 
-Outside contributions are arriving faster than review capacity. On 18 November, 6 outside PRs were open, and none had run CI until the maintainer approved them by hand. Owner: maintainer, with co-maintainers from #122.
+Outside contributions are arriving faster than review capacity. On 18 November, 6 outside PRs were open, and none had run CI until the maintainer approved them by hand. Owner: maintainer. The project is not recruiting co-maintainers (decided 18 Nov 2026; #122 closed).
 
 - **Release train.** Monthly minor releases with a changelog, upgrade notes and a security section. Semantic versioning from 1.0.
 - **CLA.** AI tools named in co-author trailers no longer need to sign; the human submitter signs for the work (PR #153, 18 Nov 2026).
@@ -300,7 +300,6 @@ Outside contributions are arriving faster than review capacity. On 18 November, 
   - Review against a checklist: tests, network access, secrets, accessibility, docs.
   - Merge stacked PRs in order.
 - **CI for outside PRs.** Keep the approval step for first-time contributors, but approve within one working day, and say so in `CONTRIBUTING.md`.
-- **Co-maintainers.** Onboard 2 co-maintainers with review rights by area (frontend, providers), per #122.
 - **Public roadmap.** A GitHub project board that mirrors the phases below, with `good first issue` labels for each workstream.
 
 ## Roadmap
@@ -312,7 +311,7 @@ The plan assumes a start on 23 November 2026 and one owner per workstream. Each 
 | 1. Trust foundations | 1–6 | 23 Nov 2026 – 3 Jan 2027 | UI-00 to UI-03; UI-06 grid semantics; axe and lint gates in CI; #114 closure; #120 release gates; supply-chain CI; SHA-pinned actions | Zero serious axe violations on core routes; #120 gates passed; **1.0 release candidate** |
 | 2. Clarity | 7–12 | 4 Jan – 14 Feb 2027 | Navigation regrouping (6 task areas); page header and landmarks (UI-04); records workbench (UI-05); first-run checklist and sample workspace; staged CSV import (UI-08); Prometheus metrics | 4 of 5 testers finish onboarding unaided; import preview, error report and undo shipped |
 | 3. Switching | 13–20 | 15 Feb – 11 Apr 2027 | Clay, Apollo and HubSpot importers; full export and restore; HubSpot two-way sync; MFA; app CSP and headers; provider SDK; user and operator docs | 10,000-row migration under 15 minutes; export round-trip test green; external penetration test passed; **1.0** |
-| 4. Scale | 21–26 | 12 Apr – 23 May 2027 | Salesforce import; tracing and SLOs; performance budgets; secondary screens (UI-09 to UI-11); co-maintainers onboarded | SLOs met for 30 days; performance budgets enforced in CI |
+| 4. Scale | 21–26 | 12 Apr – 23 May 2027 | Salesforce import; tracing and SLOs; performance budgets; secondary screens (UI-09 to UI-11) | SLOs met for 30 days; performance budgets enforced in CI |
 
 **Success metrics**
 
