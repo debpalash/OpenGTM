@@ -27,6 +27,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/enrichcache"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pausectx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
@@ -249,7 +250,7 @@ func (r *Runner) runGo(ctx context.Context, ws string, p providers.Provider, in 
 		client = r.operator
 	}
 
-	cctx, cancel := context.WithTimeout(providers.WithWorkspace(ctx, ws), timeout)
+	cctx, cancel := pausectx.WithTimeout(providers.WithWorkspace(ctx, ws), timeout) // queue waits pause the clock
 	defer cancel()
 	select {
 	case r.sem <- struct{}{}:

@@ -18,6 +18,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pausectx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
@@ -222,6 +223,26 @@ func TestRunTimeoutDoesNotBlockSlot(t *testing.T) {
 	s, ok := h.stat(t, slow, "description")
 	if !ok || s.hits != 0 || s.cooldownSecondsAhead < 150 || s.cooldownSecondsAhead > 181 {
 		t.Fatalf("timeout ledger %+v ok=%v (want 180s cooldown)", s, ok)
+	}
+}
+
+// A provider that queues for a shared resource pauses its timeout clock (pausectx); the queue wait must not be
+// reported as a provider timeout, and no cooldown must be written.
+func TestRunQueueWaitIsNotATimeout(t *testing.T) {
+	name := uniq("t19_queued")
+	providers.Register(&fakeProv{name, func(ctx context.Context, _ *http.Client, _ func() (string, error), _ providers.Input) (providers.Output, error) {
+		resume := pausectx.Pause(ctx)
+		time.Sleep(200 * time.Millisecond) // longer than the whole provider timeout
+		resume()
+		return okOut("description", "d", 0.5), nil
+	}})
+	h := newHarness(t, nil)
+	out, err := h.r.Run(context.Background(), "ws1", name, providers.Input{Field: "description"}, 80*time.Millisecond)
+	if err != nil || out.Error != "" {
+		t.Fatalf("queue wait counted as a timeout: %+v %v", out, err)
+	}
+	if s, ok := h.stat(t, name, "description"); !ok || s.hits != 1 || s.cooldownSecondsAhead > 0 {
+		t.Fatalf("ledger %+v ok=%v", s, ok)
 	}
 }
 
