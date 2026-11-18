@@ -27,7 +27,8 @@ const exact: Record<string, unknown> = {
   "/api/watches": fx.watches,
   "/api/signals": fx.signals,
   "/api/templates/gallery": fx.galleryRecipes,
-  "/api/leads": fx.emailLeads
+  "/api/leads": fx.emailLeads,
+  "/api/onboarding": fx.onboarding
 }
 
 export const fixturePaths = Object.keys(exact)

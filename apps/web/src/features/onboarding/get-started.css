@@ -1,0 +1,134 @@
+/* "Get started" checklist: matches the overview panels (flat surface, 10px radius, tokens only). */
+.getstarted {
+  border: 0;
+  border-radius: 10px;
+  box-shadow: none;
+  background: var(--gtm-surface);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.getstarted-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.getstarted-head h2 {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.getstarted-head p {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+}
+.getstarted-head-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.getstarted-head-side .getstarted-progress {
+  margin: 0;
+  font-weight: 600;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+.getstarted-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--muted);
+  overflow: hidden;
+}
+.getstarted-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--gtm-accent);
+}
+.getstarted-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.getstarted-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  min-height: 44px;
+  border-top: 1px solid var(--border);
+}
+.getstarted-step:first-child {
+  border-top: 0;
+}
+.getstarted-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+.getstarted-step[data-done] .getstarted-mark {
+  background: var(--gtm-success-surface);
+  color: var(--gtm-success);
+}
+.getstarted-mark svg {
+  width: 16px;
+  height: 16px;
+}
+.getstarted-body {
+  flex: 1;
+  min-width: 0;
+}
+.getstarted-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.getstarted-title strong {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.getstarted-body p {
+  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+.getstarted-body .getstarted-error {
+  color: var(--gtm-danger);
+}
+.getstarted-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.getstarted .getstarted-actions > *,
+.getstarted .getstarted-head-side > button {
+  min-height: max(32px, var(--gtm-target-min));
+  min-width: var(--gtm-target-min);
+}
+@media (max-width: 720px) {
+  .getstarted-step {
+    flex-wrap: wrap;
+  }
+  .getstarted-actions {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    padding-left: 40px;
+  }
+}
+.overview-page > .getstarted {
+  margin: 8px var(--gtm-content-inset) 0;
+}

@@ -4,9 +4,10 @@ import {
   Command, CommandEmpty, CommandGroup, CommandInput,
   CommandItem, CommandList, CommandSeparator,
 } from "@/components/ui/command"
-import { Users, Download, Moon, Sun, Plus } from "lucide-react"
+import { Users, Download, Moon, Sun, Plus, ListChecks } from "lucide-react"
 import { useLeads } from "@/lib/hooks"
 import { useTheme } from "@/design-system/theme/use-theme"
+import { writeDismissed } from "@/features/onboarding/onboarding-steps"
 import { ALL_NAVIGATION } from "@/components/app-shell/navigation"
 
 export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
@@ -69,6 +70,10 @@ export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: 
           <CommandItem onSelect={() => { go("/chat"); setOpen(false) }}>
             <Plus className="mr-2 size-4" />
             New collection
+          </CommandItem>
+          <CommandItem onSelect={() => { writeDismissed(false); go("/overview") }}>
+            <ListChecks className="mr-2 size-4" />
+            Show setup guide
           </CommandItem>
           <CommandItem onSelect={() => { window.open("/api/export/csv", "_blank"); setOpen(false) }}>
             <Download className="mr-2 size-4" />
