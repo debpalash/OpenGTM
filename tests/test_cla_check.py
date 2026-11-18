@@ -921,3 +921,35 @@ def test_commit_list_is_read_once_across_a_backfill(monkeypatch):
     for _ in range(2):
         cla.run(gh, "pull_request_target", {"pull_request": {"number": 7}})
     assert len(reads) == 1
+
+
+def test_linked_ai_co_author_trailer_does_not_need_to_sign():
+    # GitHub links noreply@anthropic.com to an account; as a trailer it is still a tool.
+    trailer = {**actor("claude", 5005, email="noreply@anthropic.com"), "trailer": True}
+    assert cla.evaluate(OPENER, False, [trailer], {1001}).passed
+
+
+def test_linked_person_co_author_trailer_still_signs():
+    trailer = {**actor("dave", 3003, email="3003+dave@users.noreply.github.com"), "trailer": True}
+    assert cla.evaluate(OPENER, False, [trailer], {1001}).unsigned == [cla.Person("dave", 3003)]
+
+
+def test_pr_actors_marks_only_co_author_trailers():
+    class FakeGitHub:
+        repo = "o/r"
+
+        def graphql(self, query, variables):
+            assert "message" in query
+            nodes = [
+                {"name": "Pat", "email": "noreply@anthropic.com", "user": {"login": "claude", "databaseId": 5005}},
+                {"name": "Claude", "email": "noreply@anthropic.com", "user": {"login": "claude", "databaseId": 5005}},
+            ]
+            commit = {"oid": "abc1234", "message": "x\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+                      "authors": {"pageInfo": {"hasNextPage": False}, "nodes": nodes}}
+            return {"repository": {"pullRequest": {"commits": {
+                "pageInfo": {"hasNextPage": False, "endCursor": None}, "nodes": [{"commit": commit}]}}}}
+
+    actors, count = cla.pr_actors(FakeGitHub(), 1)
+    assert count == 1 and [a["trailer"] for a in actors] == [False, True]
+    # The commit author under a tool address is linked to an account, so that account signs.
+    assert cla.evaluate(OPENER, False, actors, {1001}).unsigned == [cla.Person("claude", 5005)]
