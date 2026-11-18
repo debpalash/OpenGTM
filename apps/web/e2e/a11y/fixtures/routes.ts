@@ -19,7 +19,15 @@ const exact: Record<string, unknown> = {
   "/api/signals/sources": { sources: [] },
   "/api/workbooks/meta/providers": fx.providers,
   "/api/workbooks/meta/ai-column-presets": { presets: [], categories: [] },
-  "/api/workbooks/meta/lead-fields": { fields: ["company", "website", "email", "title"] }
+  "/api/workbooks/meta/lead-fields": { fields: ["company", "website", "email", "title"] },
+  "/api/jobs": fx.jobs,
+  "/api/research-playbooks": fx.researchPlaybooks,
+  "/api/research-playbooks/pb-1/runs": { runs: [], limit: 20, offset: 0, has_more: false, next_cursor: null },
+  "/api/flags": fx.featureFlags,
+  "/api/watches": fx.watches,
+  "/api/signals": fx.signals,
+  "/api/templates/gallery": fx.galleryRecipes,
+  "/api/leads": fx.emailLeads
 }
 
 export const fixturePaths = Object.keys(exact)

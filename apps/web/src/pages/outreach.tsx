@@ -138,7 +138,7 @@ export default function OutreachPage() {
 
       {/* Member banner — enroll-yes / activate-no asymmetry (spec §6) */}
       {!draftId && !canAdmin && !isOwner && (
-        <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-xs text-sky-300">
+        <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
           <Info className="mt-0.5 size-3.5 shrink-0" />
           <span>You can view and enroll leads; activating/sending requires the admin role.</span>
         </div>

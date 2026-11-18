@@ -29,14 +29,17 @@
   --gtm-space-12: 48px;
   --gtm-toolbar-height: max(36px, 2.25rem);
   --gtm-content-inset: 12px;
-  --gtm-sidebar-row: max(28px, 1.75rem);
+  /* WCAG 2.5.8: 24 CSS px *as rendered*. The workbench shell uses CSS zoom
+     (--gtm-ui-scale), so a 24px target needs 24 / scale layout pixels. */
+  --gtm-target-min: calc(24px / var(--gtm-ui-scale, 1));
+  --gtm-sidebar-row: max(28px, 1.75rem, var(--gtm-target-min));
   --gtm-page-header-height: 44px;
   --gtm-page-title-size: 1.125rem;
   --gtm-sidebar-width: 12rem;
   --gtm-sidebar-width-icon: 3.25rem;
   --gtm-inspector-width: 400px;
-  --gtm-row-height: 28px;
-  --gtm-control-sm: 28px;
+  --gtm-row-height: max(28px, var(--gtm-target-min));
+  --gtm-control-sm: max(28px, var(--gtm-target-min));
   --gtm-control-md: 32px;
   --gtm-control-lg: 36px;
   --t-border-radius-xs: 4px;

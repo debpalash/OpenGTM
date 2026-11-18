@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function WorkspacePanel({ activeId, onSelect }: Props) {
+  const confirm = useConfirm()
   const [workspaces, setWorkspaces] = useState<Workspace[]>([])
   const [creating, setCreating] = useState(false)
   const [newName, setNewName] = useState("")
@@ -34,7 +36,7 @@ export function WorkspacePanel({ activeId, onSelect }: Props) {
   }
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete workspace "${name}" and all its leads?`)) return
+    if (!await confirm({ title: `Delete workspace “${name}”?`, description: "All of its leads are deleted too. This cannot be undone.", confirmLabel: "Delete workspace", destructive: true })) return
     await deleteWorkspace(id)
     if (activeId === id) onSelect("")
     load()

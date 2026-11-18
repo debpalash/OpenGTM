@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { useParams, useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
@@ -219,6 +220,7 @@ function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: strin
 // ═══════════════════════════════════════════════════════════════
 
 export default function LeadDetailPage() {
+  const confirm = useConfirm()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const leadId = Number(id)
@@ -294,7 +296,7 @@ export default function LeadDetailPage() {
               <ArrowLeft className="size-4 mr-1" /> Leads
             </Button>
             <Button variant="ghost" size="icon" className="text-destructive/60 hover:text-destructive"
-              onClick={() => { if (window.confirm(`Delete ${lead.company}?`)) { deleteLead.mutate(leadId, { onSuccess: () => { toast.success("Deleted"); navigate("/leads") } }) } }}>
+              onClick={async () => { if (await confirm({ title: `Delete lead “${lead.company}”?`, description: "This cannot be undone.", confirmLabel: "Delete lead", destructive: true })) { deleteLead.mutate(leadId, { onSuccess: () => { toast.success("Deleted"); navigate("/leads") } }) } }}>
               <Trash2 className="size-4" />
             </Button>
           </div>
