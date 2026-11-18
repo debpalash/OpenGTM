@@ -179,3 +179,37 @@ func geoTestNames(ls []*Lead) []string {
 	}
 	return out
 }
+
+// Market and city detection matches whole words only: substrings of other
+// words or longer TLDs must not trigger the geo gate.
+func TestGeoMatchingRespectsWordBoundaries(t *testing.T) {
+	for _, q := range []string{
+		"developer tools like acme.dev",    // .de inside .dev
+		"meal kits from greens.fresh",      // .fr inside .fresh
+		"hamburger restaurant chains",      // no market keyword
+		"dutchess county accounting firms", // dutch inside dutchess
+		"englandia analytics startups",     // england inside englandia
+	} {
+		if m := geoNamed(q); m != nil {
+			t.Errorf("geoNamed(%q) = %q, want nil", q, m.key)
+		}
+	}
+	for _, q := range []string{"saas vendors on acme.de", "agencies with .nl domains", "companies in germany", "dutch logistics firms"} {
+		if geoNamed(q) == nil {
+			t.Errorf("geoNamed(%q) = nil, want a market", q)
+		}
+	}
+	if got := GeoCity("hamburger restaurant chains"); got != "" {
+		t.Errorf(`GeoCity("hamburger restaurant chains") = %q, want ""`, got)
+	}
+	if got := GeoCity("logistics firms in Hamburg"); got != "Hamburg" {
+		t.Errorf(`GeoCity("logistics firms in Hamburg") = %q, want Hamburg`, got)
+	}
+	nl := geoNamed("netherlands saas")
+	if nl.contradictsCity("Hamburger Hill") {
+		t.Error(`"Hamburger Hill" must not read as a German city`)
+	}
+	if !nl.contradictsCity("Hamburg") {
+		t.Error(`"Hamburg" must contradict a Netherlands market`)
+	}
+}

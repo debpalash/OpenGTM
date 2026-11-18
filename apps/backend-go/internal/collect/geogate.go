@@ -103,7 +103,7 @@ func (j *job) geoStage(ctx context.Context, leads []*Lead) ([]*Lead, error) {
 	}
 	if err := j.completeStage(ctx, id, StageResult{InputCount: len(leads), OutputCount: len(keep),
 		RejectedCount: len(leads) - len(keep),
-		Details:   pyDumps(dict{{"market", m.label}, {"reasons", reasons.dict()}})}); err != nil {
+		Details:       pyDumps(dict{{"market", m.label}, {"reasons", reasons.dict()}})}); err != nil {
 		return nil, err
 	}
 	if dropped := len(leads) - len(keep); dropped > 0 {

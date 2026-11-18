@@ -18,11 +18,11 @@ type geoCity struct{ match, display string }
 
 // marketSpec is one primary-market setting.
 type marketSpec struct {
-	label    string // display name used in site-scoped queries
-	key      string // canonical key matched against DEFAULT_REGION/PRIMARY_MARKET
-	cc       string // ccTLD of the market ("nl"); "" = no ccTLD evidence
-	city     string // default city for query building
-	region   string // DetectRegion's answer when text matches
+	label    string   // display name used in site-scoped queries
+	key      string   // canonical key matched against DEFAULT_REGION/PRIMARY_MARKET
+	cc       string   // ccTLD of the market ("nl"); "" = no ccTLD evidence
+	city     string   // default city for query building
+	region   string   // DetectRegion's answer when text matches
 	aliases  []string // lower tokens matching the key/env value
 	keywords []string // lower tokens in query text that imply the market
 	cities   []geoCity
@@ -65,7 +65,7 @@ var marketSpecs = []marketSpec{
 		label: "France", key: "fr", cc: "fr", city: "Paris", region: "eu",
 		aliases:  []string{"fr", "france", "french", "paris", "lyon"},
 		keywords: []string{"france", "french", ".fr"},
-		cities: []geoCity{{"paris", "Paris"}, {"lyon", "Lyon"}, {"toulouse", "Toulouse"}, {"lille", "Lille"}},
+		cities:   []geoCity{{"paris", "Paris"}, {"lyon", "Lyon"}, {"toulouse", "Toulouse"}, {"lille", "Lille"}},
 	},
 }
 
@@ -120,7 +120,7 @@ func GeoCity(query string) string {
 	low := pyLower(query)
 	for _, m := range marketSpecs {
 		for _, c := range m.cities {
-			if strings.Contains(low, c.match) {
+			if containsWord(low, c.match) {
 				return c.display
 			}
 		}
@@ -135,7 +135,7 @@ func geoNamed(query string) *marketSpec {
 	low := pyLower(query)
 	for i := range marketSpecs {
 		for _, k := range marketSpecs[i].keywords {
-			if strings.Contains(low, k) {
+			if containsWord(low, k) {
 				return &marketSpecs[i]
 			}
 		}
@@ -147,7 +147,7 @@ func geoNamed(query string) *marketSpec {
 func (m *marketSpec) hasCity(city string) bool {
 	low := pyLower(city)
 	for _, c := range m.cities {
-		if low == c.match || low == pyLower(c.display) || strings.Contains(low, c.match) {
+		if low == c.match || low == pyLower(c.display) || containsWord(low, c.match) {
 			return true
 		}
 	}
@@ -208,4 +208,33 @@ func inList(list []string, low string) bool {
 		}
 	}
 	return false
+}
+
+// containsWord reports whether phrase occurs in low as a whole word: the bytes
+// either side must not be word characters. A phrase starting with "." (a ccTLD
+// such as ".de") may follow a domain label, but must still end the token, so
+// "acme.de" matches and "acme.dev" or ".fresh" do not; "hamburg" does not
+// match "hamburger". Non-ASCII bytes count as word characters.
+func containsWord(low, phrase string) bool {
+	if phrase == "" {
+		return false
+	}
+	for from := 0; ; {
+		i := strings.Index(low[from:], phrase)
+		if i < 0 {
+			return false
+		}
+		i += from
+		end := i + len(phrase)
+		startOK := phrase[0] == '.' || i == 0 || !isWordByte(low[i-1])
+		endOK := end == len(low) || !isWordByte(low[end])
+		if startOK && endOK {
+			return true
+		}
+		from = i + 1
+	}
+}
+
+func isWordByte(b byte) bool {
+	return b >= 0x80 || b == '_' || (b >= '0' && b <= '9') || (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z')
 }

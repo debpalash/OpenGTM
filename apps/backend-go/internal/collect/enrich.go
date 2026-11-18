@@ -240,7 +240,7 @@ func personalViaSearch(ctx context.Context, w Web, name, company, domain string)
 }
 
 // FindPersonalEmail is find_personal_email: a search hit naming the person at the domain
-// ("verified"); else, when the domain has MX, the SMTP-confirmed pattern ("smtp_verified" or what
+// ("found": discovered, not verified); else, when the domain has MX, the SMTP-confirmed pattern ("smtp_verified" or what
 // the probe says), nothing when the server rejected every pattern, else the most common pattern
 // ("pattern").
 func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, domain string) (string, string) {
@@ -248,7 +248,7 @@ func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, d
 		return "", ""
 	}
 	if email := personalViaSearch(ctx, w, name, company, domain); email != "" {
-		return email, "verified"
+		return email, "found" // searched, not verified (honesty rule)
 	}
 	if !e.HasMX(ctx, domain) {
 		return "", ""
@@ -269,7 +269,7 @@ func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, d
 }
 
 // EnrichPersonalEmails is enrich_personal_emails: for leads with a contact person and a website
-// whose email is not already personal ("verified" / "pattern"), find the person's address; it
+// whose email is not already personal ("found" / "verified" / "pattern"), find the person's address; it
 // replaces the email (the old one is kept in secondary_emails) and is copied into the matching
 // decision maker.
 func EnrichPersonalEmails(ctx context.Context, w Web, e Enrichers, sleep func(context.Context, time.Duration) error, leads []*Lead, delay time.Duration) {
@@ -281,7 +281,7 @@ func EnrichPersonalEmails(ctx context.Context, w Web, e Enrichers, sleep func(co
 			continue
 		}
 		domain := DomainFromURL(l.Website)
-		if domain == "" || l.EmailConfidence == "verified" || l.EmailConfidence == "pattern" {
+		if domain == "" || l.EmailConfidence == "found" || l.EmailConfidence == "verified" || l.EmailConfidence == "pattern" {
 			continue
 		}
 		email, conf := FindPersonalEmail(ctx, w, e, l.ContactPerson, l.Company, domain)
