@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip"
 import { DialogProvider } from "@/components/dialog-provider"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
-import { getPageTitle } from "@/components/app-shell/navigation"
+import { getBreadcrumbRoot, getPageTitle } from "@/components/app-shell/navigation"
 import { ArrowUpRight, BellRing, Circle, LoaderCircle } from "lucide-react"
 import { useSSE, useLLMUsage } from "@/lib/hooks"
 import { CommandMenu } from "@/components/command-menu"
@@ -95,7 +95,7 @@ function NotificationBell() {
   </Popover>
 }
 
-function PageHeader({ title }: { title: string }) {
+function PageHeader({ title, area }: { title: string; area: string }) {
   const { data: usage } = useLLMUsage()
   const { connected } = useSSE()
   const activeProvider = usage?.providers?.[0]
@@ -103,7 +103,7 @@ function PageHeader({ title }: { title: string }) {
   return (
     <header className="gtm-material-toolbar gtm-topbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
       <SidebarTrigger className="-ml-1 text-muted-foreground" />
-      <nav aria-label="Breadcrumb" className="gtm-breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
+      <nav aria-label="Breadcrumb" className="gtm-breadcrumb"><span>{area}</span><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
 
       <div className="flex-1" />
 
@@ -178,7 +178,7 @@ function AppContent() {
 
   return (
     <SidebarInset id="main-content" tabIndex={-1} className="gtm-launch h-screen overflow-hidden flex flex-col" data-sky={isChatHome || undefined}>
-      <PageHeader title={getPageTitle(location.pathname)} />
+      <PageHeader title={getPageTitle(location.pathname)} area={getBreadcrumbRoot(location.pathname)} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
         {/* Keyed by top-level section: switching sections plays the page
             transition; navigation within a section does not remount. */}

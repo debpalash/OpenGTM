@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuAction,
-  SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
+  SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
@@ -25,7 +25,8 @@ import { useTheme, type ThemePreference } from "@/design-system/theme/use-theme"
 import { useUIScale, type UIScalePreference } from "@/design-system/theme/use-ui-scale"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
-import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
+import { NAVIGATION_AREAS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
+import { NavAreas, useAreaDisclosure } from "./nav-areas"
 import "./shell.css"
 
 const RECENT_LIMIT = 8
@@ -46,7 +47,7 @@ export function AppSidebar() {
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
   const [historyOpen, setHistoryOpen] = useState(true)
-  const [closedGroups, setClosedGroups] = useState(() => new Set<string>())
+  const disclosure = useAreaDisclosure(pathname)
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatDraft, setNewChatDraft] = useState("")
   const newChatInput = useRef<HTMLInputElement>(null)
@@ -54,6 +55,7 @@ export function AppSidebar() {
   const matching = (conversations ?? []).filter(chat => chat.title.toLowerCase().includes(chatSearch.toLowerCase()))
   const recent = chatSearch ? matching : matching.slice(0, RECENT_LIMIT)
   const activeWorkspace = workspaces.find(workspace => workspace.id === activeWorkspaceId)
+  const iconOnly = state === "collapsed" && !isMobile
   const closeMobile = () => { if (isMobile) setOpenMobile(false) }
   const go = (to: string) => { navigate(to); closeMobile() }
 
@@ -136,40 +138,37 @@ export function AppSidebar() {
 
     <SidebarContent>
       <nav aria-label="Primary navigation">
-        {NAVIGATION_GROUPS.map(group => <SidebarGroup key={group.label}>
-          <SidebarGroupLabel render={group.label === "Workspace" ? undefined : <button type="button" aria-expanded={!closedGroups.has(group.label)} onClick={() => setClosedGroups(previous => { const next = new Set(previous); if (next.has(group.label)) next.delete(group.label); else next.add(group.label); return next })} />}>
-            {group.label}{group.label !== "Workspace" && <ChevronRight aria-hidden="true" className={`ml-auto size-3.5 transition-transform ${closedGroups.has(group.label) ? "" : "rotate-90"}`} />}
-          </SidebarGroupLabel>
-          {(!closedGroups.has(group.label) || state === "collapsed") && <SidebarGroupContent><SidebarMenu>
-            {group.items.map(item => <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
-                render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
-                <item.icon aria-hidden="true" /><span>{item.label}</span>
+        <SidebarGroup><SidebarMenu>
+          {NAVIGATION_AREAS.filter(area => area.placement === "top").map(area => area.pages[0]!).map(item => <SidebarMenuItem key={item.to}>
+            <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
+              className={item.to === "/chat" ? "gtm-nav-assistant" : undefined}
+              render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
+              <item.icon aria-hidden="true" /><span>{item.label}</span>
+            </SidebarMenuButton>
+            {item.to === "/chat" && <>
+              <SidebarMenuAction aria-label="New chat" aria-expanded={newChatOpen} aria-controls="sidebar-new-chat"
+                onClick={toggleNewChat} title="New chat">
+                <SquarePen aria-hidden="true" />
+              </SidebarMenuAction>
+              <SidebarMenuButton tooltip="New chat" aria-label="New chat"
+                className="mt-1 hidden group-data-[collapsible=icon]:flex!" onClick={toggleNewChat}>
+                <SquarePen aria-hidden="true" /><span>New chat</span>
               </SidebarMenuButton>
-              {item.to === "/chat" && <>
-                <SidebarMenuAction aria-label="New chat" aria-expanded={newChatOpen} aria-controls="sidebar-new-chat"
-                  onClick={toggleNewChat} title="New chat">
-                  <SquarePen aria-hidden="true" />
-                </SidebarMenuAction>
-                <SidebarMenuButton tooltip="New chat" aria-label="New chat"
-                  className="mt-1 hidden group-data-[collapsible=icon]:flex!" onClick={toggleNewChat}>
-                  <SquarePen aria-hidden="true" /><span>New chat</span>
-                </SidebarMenuButton>
-                {newChatOpen && <form id="sidebar-new-chat" onSubmit={openNewChat}
-                    className="flex items-center gap-1 px-2 pb-2 pt-1 group-data-[collapsible=icon]:hidden">
-                  <SidebarInput ref={newChatInput} aria-label="New chat prompt" placeholder="Ask anything…" required
-                    value={newChatDraft} onChange={event => setNewChatDraft(event.target.value)}
-                    onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); setNewChatOpen(false); setNewChatDraft("") } }} />
-                  <button type="submit" aria-label="Open new chat" title="Open new chat" disabled={!newChatDraft.trim()}
-                    className="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:opacity-40">
-                    <ArrowUp className="size-4" aria-hidden="true" />
-                  </button>
-                </form>}
-              </>}
-              {item.to === "/agents" && activeJobs > 0 && <SidebarMenuBadge aria-label={`${activeJobs} active tasks`}>{activeJobs}</SidebarMenuBadge>}
-            </SidebarMenuItem>)}
-          </SidebarMenu></SidebarGroupContent>}
-        </SidebarGroup>)}
+              {newChatOpen && <form id="sidebar-new-chat" onSubmit={openNewChat}
+                  className="flex items-center gap-1 px-2 pb-2 pt-1 group-data-[collapsible=icon]:hidden">
+                <SidebarInput ref={newChatInput} aria-label="New chat prompt" placeholder="Ask anything…" required
+                  value={newChatDraft} onChange={event => setNewChatDraft(event.target.value)}
+                  onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); setNewChatOpen(false); setNewChatDraft("") } }} />
+                <button type="submit" aria-label="Open new chat" title="Open new chat" disabled={!newChatDraft.trim()}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:opacity-40">
+                  <ArrowUp className="size-4" aria-hidden="true" />
+                </button>
+              </form>}
+            </>}
+          </SidebarMenuItem>)}
+        </SidebarMenu></SidebarGroup>
+        <NavAreas areas={NAVIGATION_AREAS.filter(area => area.placement === "main")} pathname={pathname}
+          iconOnly={iconOnly} disclosure={disclosure} activeTasks={activeJobs} onNavigate={() => { setNewChatOpen(false); closeMobile() }} />
       </nav>
 
       <SidebarGroup role="region" aria-label="Recent chats navigation" className="group-data-[collapsible=icon]:hidden">
@@ -207,6 +206,10 @@ export function AppSidebar() {
 
     {/* Account menu (shadcn "nav user") */}
     <SidebarFooter>
+      <nav aria-label="Admin navigation">
+        <NavAreas areas={NAVIGATION_AREAS.filter(area => area.placement === "footer")} pathname={pathname}
+          iconOnly={iconOnly} disclosure={disclosure} activeTasks={0} onNavigate={closeMobile} />
+      </nav>
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
