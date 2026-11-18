@@ -2,6 +2,8 @@
 
 As of 18 November 2026. Owner: project maintainer.
 
+> **Superseded in part.** Priorities and the roadmap are now in the [19 November plan](2026-11-19-three-levels-plan.md). The workstream detail below still applies.
+
 ## Summary
 
 For the next two quarters, OpenGTM should spend its time on trust, clarity and switching cost rather than new features.
