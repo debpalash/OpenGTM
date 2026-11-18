@@ -59,9 +59,10 @@ No PostgreSQL integration or retained-browser suite result is claimed here.
   credential updates, MCP production wiring and invalid-IPv6 account handling.
 - Record shipping candidate hashes, deployment configuration and boundary-test
   results; include the retained browser service.
-- Decide the actual supported release lines and legacy Python retirement or
-  backport policy. `SECURITY.md` still describes a pre-1.0 project; this matrix
-  does not choose a policy or infer support from merged source.
+- ~~Decide the actual supported release lines and legacy Python retirement or
+  backport policy.~~ Decided 2026-11-19: `SECURITY.md` lists the supported lines.
+  4.x (Go) is supported, and 3.x (Python) gets security-only fixes for 90 days
+  after v4.0.0 is published.
 - Complete the upgrade, backup restore and release gates in
   [issue 120](https://github.com/debpalash/OpenGTM/issues/120), then publish
   affected/fixed-version guidance and any coordinated notices.
