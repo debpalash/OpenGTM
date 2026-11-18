@@ -182,7 +182,11 @@ func DomainFromURL(u string) string {
 	if !strings.HasPrefix(u, "http") {
 		u = "https://" + u
 	}
-	return strings.TrimPrefix(urlparse(u).Netloc, "www.")
+	n := urlparse(u).Netloc
+	if i := strings.LastIndex(n, "@"); i >= 0 {
+		n = n[i+1:] // userinfo is not part of the host
+	}
+	return strings.TrimPrefix(n, "www.")
 }
 
 func splitName(full string) (string, string) {
@@ -236,7 +240,7 @@ func personalViaSearch(ctx context.Context, w Web, name, company, domain string)
 }
 
 // FindPersonalEmail is find_personal_email: a search hit naming the person at the domain
-// ("verified"); else, when the domain has MX, the SMTP-confirmed pattern ("smtp_verified" or what
+// ("found": discovered, not verified); else, when the domain has MX, the SMTP-confirmed pattern ("smtp_verified" or what
 // the probe says), nothing when the server rejected every pattern, else the most common pattern
 // ("pattern").
 func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, domain string) (string, string) {
@@ -244,7 +248,7 @@ func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, d
 		return "", ""
 	}
 	if email := personalViaSearch(ctx, w, name, company, domain); email != "" {
-		return email, "verified"
+		return email, "found" // searched, not verified (honesty rule)
 	}
 	if !e.HasMX(ctx, domain) {
 		return "", ""
@@ -265,7 +269,7 @@ func FindPersonalEmail(ctx context.Context, w Web, e Enrichers, name, company, d
 }
 
 // EnrichPersonalEmails is enrich_personal_emails: for leads with a contact person and a website
-// whose email is not already personal ("verified" / "pattern"), find the person's address; it
+// whose email is not already personal ("found" / "verified" / "pattern"), find the person's address; it
 // replaces the email (the old one is kept in secondary_emails) and is copied into the matching
 // decision maker.
 func EnrichPersonalEmails(ctx context.Context, w Web, e Enrichers, sleep func(context.Context, time.Duration) error, leads []*Lead, delay time.Duration) {
@@ -277,7 +281,7 @@ func EnrichPersonalEmails(ctx context.Context, w Web, e Enrichers, sleep func(co
 			continue
 		}
 		domain := DomainFromURL(l.Website)
-		if domain == "" || l.EmailConfidence == "verified" || l.EmailConfidence == "pattern" {
+		if domain == "" || l.EmailConfidence == "found" || l.EmailConfidence == "verified" || l.EmailConfidence == "pattern" {
 			continue
 		}
 		email, conf := FindPersonalEmail(ctx, w, e, l.ContactPerson, l.Company, domain)
@@ -333,9 +337,11 @@ func FindEmailViaSearch(ctx context.Context, w Web, company, city, domain string
 	return ""
 }
 
-// EnrichEmails is enrich_emails for one lead (bulk "find_emails"): a searched address ("verified",
-// disposable domains skipped), else the SMTP-checked info@<domain> guess ("smtp_verified" when the
-// mailbox answered, "generic" when unknown, nothing when the server rejected it).
+// EnrichEmails is enrich_emails for one lead (bulk "find_emails"): a searched address
+// ("found" — discovered on a public page, NOT verified; honesty rule: a harvested address
+// never carries a verification claim without evidence), else the SMTP-checked info@<domain>
+// guess ("smtp_verified" when the mailbox answered, "generic" when unknown, nothing when the
+// server rejected it).
 func EnrichEmails(ctx context.Context, w Web, e Enrichers, l *Lead) {
 	if l.HasEmail() || l.Company == "" {
 		return
@@ -345,7 +351,7 @@ func EnrichEmails(ctx context.Context, w Web, e Enrichers, l *Lead) {
 		if e.Disposable(email) {
 			return
 		}
-		l.Email, l.EmailConfidence = email, "verified"
+		l.Email, l.EmailConfidence = email, "found"
 		return
 	}
 	if domain == "" {

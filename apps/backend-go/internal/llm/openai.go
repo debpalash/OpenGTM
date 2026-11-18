@@ -59,6 +59,44 @@ type timeoutError struct{ d time.Duration }
 func (e *timeoutError) Error() string { return fmt.Sprintf("request timed out after %s", e.d) }
 
 func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest, temp float64) (string, error) {
+	out, contentEmpty, err := c.callOpenAIOnce(ctx, p, req, temp)
+	// Reasoning-server reliability: a thinking model that spent the whole
+	// token budget on its reasoning block answers with empty content. For
+	// custom_openai, retry once with thinking disabled (vLLM honours
+	// chat_template_kwargs.enable_thinking; other servers ignore the field).
+	// An explicit CUSTOM_OPENAI_DISABLE_THINKING already set skips the retry.
+	if err == nil && contentEmpty && p.ID == CustomOpenAIID && !hasDisableThinking(p.ExtraBody) {
+		c.o.Log.Debug("llm: custom_openai returned empty content; retrying with thinking disabled")
+		p2 := p
+		p2.ExtraBody = withDisableThinking(p.ExtraBody)
+		out2, _, err2 := c.callOpenAIOnce(ctx, p2, req, temp)
+		if err2 != nil {
+			return out, err
+		}
+		return out2, nil
+	}
+	return out, err
+}
+
+func hasDisableThinking(extra map[string]any) bool {
+	tk, ok := extra["chat_template_kwargs"].(map[string]any)
+	if !ok {
+		return false
+	}
+	v, ok := tk["enable_thinking"].(bool)
+	return ok && !v
+}
+
+func withDisableThinking(extra map[string]any) map[string]any {
+	out := map[string]any{}
+	for k, v := range extra {
+		out[k] = v
+	}
+	out["chat_template_kwargs"] = map[string]any{"enable_thinking": false}
+	return out
+}
+
+func (c *Client) callOpenAIOnce(ctx context.Context, p Provider, req CompleteRequest, temp float64) (string, bool, error) {
 	msgs := make([]orderedObject, 0, 2)
 	if req.System != "" {
 		msgs = append(msgs, orderedObject{{"role", "system"}, {"content", req.System}})
@@ -72,7 +110,7 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 	}
 	body, err := json.Marshal(fields)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 
 	timeout := c.o.Config.HTTPTimeout
@@ -83,7 +121,7 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 	defer cancel()
 	hreq, err := http.NewRequestWithContext(cctx, http.MethodPost, p.BaseURL+"/chat/completions", bytes.NewReader(body))
 	if err != nil {
-		return "", stripURL(err)
+		return "", false, stripURL(err)
 	}
 	if p.APIKey != "" {
 		// custom_openai may run against a server without authentication.
@@ -92,12 +130,12 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 	hreq.Header.Set("Content-Type", "application/json")
 	resp, err := c.o.HTTP.Do(hreq)
 	if err != nil {
-		return "", c.wrapTransportErr(ctx, cctx, err)
+		return "", false, c.wrapTransportErr(ctx, cctx, err)
 	}
 	defer resp.Body.Close()
 	raw, err := io.ReadAll(io.LimitReader(resp.Body, maxResponseBytes))
 	if err != nil {
-		return "", c.wrapTransportErr(ctx, cctx, err)
+		return "", false, c.wrapTransportErr(ctx, cctx, err)
 	}
 
 	var data struct {
@@ -135,10 +173,10 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 				msg = string(data.Error)
 			}
 		}
-		return "", &httpStatusError{Status: resp.StatusCode, Msg: truncRunes(msg, 100)}
+		return "", false, &httpStatusError{Status: resp.StatusCode, Msg: truncRunes(msg, 100)}
 	}
 	if jsonErr != nil {
-		return "", fmt.Errorf("invalid JSON in provider response: %w", jsonErr)
+		return "", false, fmt.Errorf("invalid JSON in provider response: %w", jsonErr)
 	}
 
 	prompt, completion := int(data.Usage.PromptTokens), int(data.Usage.CompletionTokens)
@@ -151,16 +189,18 @@ func (c *Client) callOpenAI(ctx context.Context, p Provider, req CompleteRequest
 	})
 
 	if len(data.Choices) == 0 {
-		return "", nil
+		return "", false, nil
 	}
 	m := data.Choices[0].Message
 	if s, ok := m.Content.(string); ok && s != "" {
-		return strings.TrimSpace(s), nil
+		return strings.TrimSpace(s), false, nil
 	}
-	if s, ok := m.Reasoning.(string); ok {
-		return strings.TrimSpace(s), nil
+	if s, ok := m.Reasoning.(string); ok && s != "" {
+		// legacy fallback: some servers answer in `reasoning`; keep returning
+		// it, but the content field was empty (the reliability signal).
+		return strings.TrimSpace(s), true, nil
 	}
-	return "", nil
+	return "", true, nil
 }
 
 // wrapTransportErr maps a failed request to a short error: an exceeded

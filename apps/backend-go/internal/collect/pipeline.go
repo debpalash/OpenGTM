@@ -350,6 +350,11 @@ func (j *job) run(ctx context.Context) error {
 		return j.stopCancelled(err)
 	}
 
+	if unique, err = j.geoStage(ctx, unique); err != nil {
+		return err
+	}
+	tagHarvestedEmails(unique)
+
 	scored, err := j.scoreStage(ctx, unique)
 	if err != nil {
 		return err
@@ -775,9 +780,9 @@ func (j *job) personalEmailsStage(ctx context.Context, scored []*Lead) error {
 		}
 		return n
 	}
-	j.progress("personal_emails", fmt.Sprintf("📧 Found %d personal emails", count("verified", "pattern")))
-	return j.completeStage(ctx, id, StageResult{InputCount: len(scored), OutputCount: count("verified", "pattern", "smtp_verified"),
-		Details: pyDumps(dict{{"verified", count("verified")}, {"pattern", count("pattern")},
+	j.progress("personal_emails", fmt.Sprintf("📧 Found %d personal emails", count("found", "verified", "pattern")))
+	return j.completeStage(ctx, id, StageResult{InputCount: len(scored), OutputCount: count("found", "verified", "pattern", "smtp_verified"),
+		Details: pyDumps(dict{{"found", count("found")}, {"verified", count("verified")}, {"pattern", count("pattern")},
 			{"smtp_verified", count("smtp_verified")}})})
 }
 

@@ -288,6 +288,7 @@
      "output_count": 4,
      "rejected_count": 0,
      "details": {
+      "found": 0,
       "verified": 0,
       "pattern": 3,
       "smtp_verified": 1
@@ -4018,6 +4019,7 @@
      "output_count": 0,
      "rejected_count": 0,
      "details": {
+      "found": 0,
       "verified": 0,
       "pattern": 0,
       "smtp_verified": 0
@@ -5663,6 +5665,7 @@
      "output_count": 0,
      "rejected_count": 0,
      "details": {
+      "found": 0,
       "verified": 0,
       "pattern": 0,
       "smtp_verified": 0
@@ -6764,6 +6767,7 @@
      "output_count": 0,
      "rejected_count": 0,
      "details": {
+      "found": 0,
       "verified": 0,
       "pattern": 0,
       "smtp_verified": 0
@@ -7682,6 +7686,7 @@
      "output_count": 0,
      "rejected_count": 0,
      "details": {
+      "found": 0,
       "verified": 0,
       "pattern": 0,
       "smtp_verified": 0
