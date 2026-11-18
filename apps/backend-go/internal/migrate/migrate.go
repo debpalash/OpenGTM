@@ -4,8 +4,9 @@
 // are SQL files under migrations/.
 //
 // An empty database gets the baseline. A database Alembic left at exactly
-// e7b2c4d6f8a0 is adopted (version 1 recorded, nothing re-run). Anything else
-// is refused. Runs serialize on a session advisory lock, so concurrent
+// e7b2c4d6f8a0 is adopted (version 1 recorded, nothing re-run). One left at
+// 3f4051627384 (the v3.0.0 release) is first bridged to e7b2c4d6f8a0 (bridge.go),
+// then adopted. Anything else is refused. Runs serialize on a session advisory lock, so concurrent
 // `opengtm-migrate` processes are safe.
 //
 // alembic_version stays stamped at e7b2c4d6f8a0 so the Python API (readiness
@@ -70,6 +71,7 @@ type RuntimeLogin struct {
 type Result struct {
 	From, To int64   // goose version before and after (0 = none)
 	Adopted  bool    // an Alembic-managed database was adopted at the baseline
+	Bridged  bool    // a v3.0.0 database (Alembic 3f4051627384) was upgraded to the baseline revision first
 	Applied  []int64 // versions applied (the baseline counts even when adopted)
 }
 
@@ -124,12 +126,18 @@ func Run(ctx context.Context, db *sql.DB, o Options) (Result, error) {
 	if err != nil {
 		return Result{}, err
 	}
-	res := Result{From: max(st.gooseVersion, 0), Adopted: p == planAdopt}
+	res := Result{From: max(st.gooseVersion, 0), Adopted: p == planAdopt || p == planBridge, Bridged: p == planBridge}
 	switch p {
 	case planFresh:
 		log.Info("migrate: empty database, applying baseline", "alembic_revision", BaselineAlembicRevision)
 	case planAdopt:
 		log.Info("migrate: adopting Alembic-managed database", "alembic_revision", BaselineAlembicRevision)
+	case planBridge:
+		log.Info("migrate: v3.0.0 database: applying the bridge", "from", BridgeFromRevision, "to", BaselineAlembicRevision)
+		if err := applyBridge(ctx, db, role); err != nil {
+			return res, err
+		}
+		log.Info("migrate: bridge applied; adopting", "alembic_revision", BaselineAlembicRevision)
 	}
 
 	prov, err := newProvider(db, role)
@@ -254,14 +262,19 @@ func Status(ctx context.Context, db *sql.DB) ([]VersionStatus, error) {
 type plan int
 
 const (
-	planGoose plan = iota + 1 // already Go-managed: apply whatever is pending
-	planFresh                 // empty database: baseline runs
-	planAdopt                 // Alembic at the baseline revision: record version 1 only
+	planGoose  plan = iota + 1 // already Go-managed: apply whatever is pending
+	planFresh                  // empty database: baseline runs
+	planAdopt                  // Alembic at the baseline revision: record version 1 only
+	planBridge                 // Alembic at the v3.0.0 head: bridge to the baseline revision, then adopt
 )
 
 func (p plan) String() string {
-	return [...]string{"?", "goose", "fresh", "adopt"}[p]
+	return [...]string{"?", "goose", "fresh", "adopt", "bridge"}[p]
 }
+
+// supportedStarts names the Alembic revisions the runner accepts, for refusal messages.
+var supportedStarts = fmt.Sprintf("%s (the v3.0.0 release, upgraded by the built-in bridge) and %s (the legacy Python head, adopted as is)",
+	BridgeFromRevision, BaselineAlembicRevision)
 
 type dbState struct {
 	gooseVersion int64 // -1: no goose table
@@ -317,19 +330,21 @@ func decide(st dbState) (plan, error) {
 		switch {
 		case len(st.alembic) == 1 && st.alembic[0] == BaselineAlembicRevision:
 			return planAdopt, nil
+		case len(st.alembic) == 1 && st.alembic[0] == BridgeFromRevision:
+			return planBridge, nil
 		case len(st.alembic) == 0:
 			return 0, errors.New("migrate: refusing: alembic_version is empty, so the schema state is unknown; " +
-				"restore the stamp or upgrade with the legacy tool (legacy/python: alembic upgrade " + BaselineAlembicRevision + ") first")
+				"restore the stamp, or start from one of the two supported revisions: " + supportedStarts)
 		default:
-			return 0, fmt.Errorf("migrate: refusing: database is at Alembic revision %q, but the Go runner can only adopt %q. "+
-				"Upgrade it with the legacy tool first (legacy/python at commit 86f41c6 or later: `alembic upgrade %s`), then run opengtm-migrate again",
-				strings.Join(st.alembic, ","), BaselineAlembicRevision, BaselineAlembicRevision)
+			return 0, fmt.Errorf("migrate: refusing: database is at Alembic revision %q. The Go runner supports exactly two "+
+				"starting points: %s. Upgrade older databases to the v3.0.0 release first",
+				strings.Join(st.alembic, ","), supportedStarts)
 		}
 	}
 	if st.tables > 0 {
 		return 0, fmt.Errorf("migrate: refusing: the public schema has %d tables but is not managed by Alembic or goose "+
-			"(no alembic_version / %s); point DATABASE_URL at an empty database or an Alembic database at %s",
-			st.tables, VersionTable, BaselineAlembicRevision)
+			"(no alembic_version / %s); point DATABASE_URL at an empty database or an Alembic database at %s or %s",
+			st.tables, VersionTable, BridgeFromRevision, BaselineAlembicRevision)
 	}
 	return planFresh, nil
 }

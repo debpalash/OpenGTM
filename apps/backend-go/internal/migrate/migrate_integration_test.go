@@ -214,7 +214,7 @@ func TestRunRefusesOtherAlembicRevision(t *testing.T) {
 	p := openPool(t, dsn)
 	alembicOnly(t, p, "d3f5a7b9c1e2")
 	_, err := migrate.Run(context.Background(), openDB(t, dsn), migrate.Options{AppRole: appRole})
-	if err == nil || !strings.Contains(err.Error(), "d3f5a7b9c1e2") || !strings.Contains(err.Error(), "alembic upgrade") {
+	if err == nil || !strings.Contains(err.Error(), "d3f5a7b9c1e2") || !strings.Contains(err.Error(), migrate.BridgeFromRevision) {
 		t.Fatalf("err = %v", err)
 	}
 	if scalar[bool](t, p, `SELECT to_regclass('goose_db_version') IS NOT NULL`) {
