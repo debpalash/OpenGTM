@@ -1,9 +1,10 @@
 import { type FormEvent, useEffect, useRef, useState } from "react"
+import { roleLabel } from "@/lib/role-label"
 import { useConfirm } from "@/components/dialog-provider"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
-  MoreHorizontal, Search, Settings, SquarePen, Sun, Trash2,
+  MoreHorizontal, Search, SquarePen, Sun, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
@@ -218,15 +219,12 @@ export function AppSidebar() {
             </Avatar>
             <span className="grid min-w-0 flex-1 text-left leading-tight">
               <span className="truncate text-sm font-medium">{user?.username ?? "Signed out"}</span>
-              <span className="truncate text-xs capitalize text-muted-foreground">{user?.role ?? ""}</span>
+              <span className="truncate text-xs text-muted-foreground">{roleLabel(user?.role)}</span>
             </span>
             <ChevronsUpDown className="ml-auto size-4 opacity-50" aria-hidden="true" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={8} className="gtm-account-menu min-w-64">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => go("/leads")}><MoreHorizontal aria-hidden="true" />Legacy data</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => go("/settings")}><Settings aria-hidden="true" />Settings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => go("/agency")}><Building2 aria-hidden="true" />Manage workspaces</DropdownMenuItem>
               <DropdownMenuItem onClick={() => window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT))}>
                 <Keyboard aria-hidden="true" />Keyboard shortcuts<DropdownMenuShortcut>?</DropdownMenuShortcut>
               </DropdownMenuItem>

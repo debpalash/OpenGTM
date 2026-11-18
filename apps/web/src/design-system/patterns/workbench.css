@@ -27,10 +27,12 @@
   outline: none;
   margin: 0;
 }
-.workbench-heading h1:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
-  border-radius: 4px;
+/* Route changes move focus to the page title so screen readers announce it.
+ * A programmatic focus on a non-interactive heading draws no box; real
+ * controls keep their own focus rings. */
+h1[tabindex="-1"]:focus,
+h1[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 .workbench-description {
   margin: 2px 0 0;

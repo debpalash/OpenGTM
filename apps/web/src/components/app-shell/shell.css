@@ -14,7 +14,8 @@
 .gtm-shell-logo img { width: 20px; height: 20px; }
 
 /* Search reads as a field, not a nav row. */
-.gtm-shell-search { background: var(--background); }
+.gtm-shell-search { background: var(--background); white-space: nowrap; }
+.gtm-shell-search kbd { white-space: nowrap; flex: none; }
 .dark .gtm-shell-search { background: rgb(255 255 255 / 0.04); }
 
 /* Collapsed rail: logo and targets centred, groups separated. */

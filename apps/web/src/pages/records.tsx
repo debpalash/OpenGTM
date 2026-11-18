@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/design-system/primitives"
 import { RecordImportDialog } from "@/components/records/import-dialog"
 import {
   Sheet,
@@ -404,18 +405,21 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
             onChange={(event) => updateSearch(event.target.value)}
           />
         </div>
-        <select
-          aria-label={`Filter ${plural.toLowerCase()}`}
-          className="records-filter"
+        <Select
           value={filter}
-          onChange={(event) => setView("filter", event.target.value)}
+          onValueChange={(value) => value && setView("filter", value)}
         >
-          <option value="all">All {plural.toLowerCase()}</option>
-          <option value="qualified">High & potential fit</option>
-          <option value={kind === "person" ? "needs_email" : "needs_domain"}>
-            {kind === "person" ? "Needs work email" : "Needs company domain"}
-          </option>
-        </select>
+          <SelectTrigger aria-label={`Filter ${plural.toLowerCase()}`} className="records-filter">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false} align="start">
+            <SelectItem value="all">All {plural.toLowerCase()}</SelectItem>
+            <SelectItem value="qualified">High & potential fit</SelectItem>
+            <SelectItem value={kind === "person" ? "needs_email" : "needs_domain"}>
+              {kind === "person" ? "Needs work email" : "Needs company domain"}
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <span className="workbench-toolbar-meta" role="status">
           {query.data
             ? `${query.data.total.toLocaleString()} ${query.data.total === 1 ? "record" : "records"}`
@@ -424,18 +428,19 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
         <div className="workbench-toolbar-spacer" />
         <div className="records-view-options">
           <ColumnConfiguration kind={kind} layout={columns.layout} temporary={columns.temporary} onApply={columns.apply} />
-          <label className="sr-only" htmlFor="records-sort">
-            Sort records
-          </label>
-          <select
-            id="records-sort"
+          <Select
             value={sort}
-            onChange={(event) => setView("sort", event.target.value)}
+            onValueChange={(value) => value && setView("sort", value)}
           >
-            <option value="name">Name A–Z</option>
-            <option value="updated">Recently updated</option>
-            <option value="score">Highest score</option>
-          </select>
+            <SelectTrigger aria-label="Sort records" className="records-sort">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false} align="end">
+              <SelectItem value="name">Name A–Z</SelectItem>
+              <SelectItem value="updated">Recently updated</SelectItem>
+              <SelectItem value="score">Highest score</SelectItem>
+            </SelectContent>
+          </Select>
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -623,9 +628,6 @@ export default function RecordsPage({ kind }: { kind: RecordKind }) {
           {query.data?.total
             ? `${offset + 1}–${Math.min(offset + 100, query.data.total)} of ${query.data.total.toLocaleString()}`
             : "0 records"}
-        </span>
-        <span className="records-shared-note">
-          Shared facts. One source of truth.
         </span>
         <div>
           <Button

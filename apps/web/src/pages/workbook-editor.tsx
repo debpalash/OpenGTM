@@ -1609,7 +1609,6 @@ export default function WorkbookEditorPage() {
           />
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => fileInputRef.current?.click()}
             title="Import a CSV or Clay table export"
           >
@@ -1619,7 +1618,6 @@ export default function WorkbookEditorPage() {
 
           <Button
             variant="ghost"
-            size="sm"
             onClick={handleExport}
             disabled={exportingCsv}
             title="Export every row matching the current search and saved view"
@@ -1634,7 +1632,6 @@ export default function WorkbookEditorPage() {
 
           <Button
             variant="outline"
-            size="sm"
             onClick={openSourcePanel}
             disabled={sourcePanelLoading}
             aria-busy={sourcePanelLoading}
