@@ -20,7 +20,9 @@ import (
 const leadLimit = 10000
 
 // rowFields are the lead fields snapshotted into a workbook row (source_engine._ROW_FIELDS).
-var rowFields = []string{"company", "website", "email", "phone", "city", "state", "address",
+// email_confidence is included so the honest harvest class (role/free/found) reaches the
+// sheet — without it a workbook shows info@… and a personal address identically.
+var rowFields = []string{"company", "website", "email", "email_confidence", "phone", "city", "state", "address",
 	"contact_person", "contact_title", "specialization", "company_size", "description", "linkedin_url",
 	"twitter_url", "facebook_url", "score", "score_tier", "source", "source_url", "industry_tags",
 	"technologies", "technographics", "hiring_signals", "field_provenance", "collection_job_id",
