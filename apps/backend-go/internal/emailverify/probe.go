@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
+	"strconv"
 	"strings"
 	"time"
 
@@ -64,6 +66,10 @@ type DomainProbe struct {
 	Reachable bool
 	CatchAll  bool
 	Results   map[string]*bool
+	// Why says where the conversation ended when a candidate stayed inconclusive: no_mx, connect_failed,
+	// connect_timeout, greeting_refused, helo_failed, mail_from_refused:<code>, catch_all_check_failed,
+	// rcpt_soft:<code>, rcpt_disconnected, rcpt_error. Empty when every candidate got a verdict.
+	Why string
 
 	blocked error // egress refused the dial; ProbeSMTP reports it, the rest treat it as unknown
 }
@@ -91,6 +97,7 @@ func ProbeDomain(ctx context.Context, d Deps, domain string, candidates []string
 		return p, err
 	}
 	if p.MXHost == "" {
+		p.Why = "no_mx"
 		return p, nil
 	}
 	p = probeHost(ctx, d, p, candidates)
@@ -134,19 +141,36 @@ func probeHost(ctx context.Context, d Deps, p DomainProbe, candidates []string) 
 		}
 	}()
 	if err := sess.Connect(ctx, p.MXHost, d.port()); err != nil {
-		if errors.Is(err, egress.ErrBlocked) {
+		if errors.Is(err, ErrSMTP) {
+			d.memo().conn.note(strings.ToLower(p.MXHost), true, d.now()) // it answered, with a refusal
+		} else if !errors.Is(err, egress.ErrBlocked) {
+			d.memo().conn.note(strings.ToLower(p.MXHost), false, d.now())
+		}
+		switch {
+		case errors.Is(err, egress.ErrBlocked):
 			p.blocked = fmt.Errorf("smtp probe of %q refused: %w", p.MXHost, err)
+			p.Why = "egress_blocked"
+		case errors.Is(err, ErrSMTP):
+			p.Why = "greeting_refused"
+		case isTimeout(err):
+			p.Why = "connect_timeout"
+		default:
+			p.Why = "connect_failed"
 		}
 		return p
 	}
+	d.memo().conn.note(strings.ToLower(p.MXHost), true, d.now()) // a server answered: port 25 is reachable
 	if err := sess.EhloOrHelo(d.helo()); err != nil {
+		p.Why = "helo_failed"
 		return p
 	}
 	if err := sess.Helo(d.helo()); err != nil {
+		p.Why = "helo_failed"
 		return p
 	}
 	code, err := sess.Mail(d.mailFrom())
 	if err != nil || code >= 400 {
+		p.Why = "mail_from_refused:" + strconv.Itoa(code)
 		return p // MAIL FROM refused: cannot probe, leave unknown
 	}
 	p.Reachable = true
@@ -160,6 +184,7 @@ func probeHost(ctx context.Context, d Deps, p DomainProbe, candidates []string) 
 	} else {
 		rcode, err := sess.Rcpt(d.randLocal() + "@" + p.Domain)
 		if err != nil {
+			p.Why = "catch_all_check_failed"
 			return p
 		}
 		p.CatchAll = rcode < 400 // accepted an address that cannot exist
@@ -174,11 +199,14 @@ func probeHost(ctx context.Context, d Deps, p DomainProbe, candidates []string) 
 		rcode, err := sess.Rcpt(email)
 		switch {
 		case errors.Is(err, ErrDisconnected):
+			p.Why = "rcpt_disconnected"
 			return p
 		case errors.Is(err, ErrSMTP):
 			p.Results[email] = nil
+			p.Why = "rcpt_error"
 			continue
 		case err != nil:
+			p.Why = "rcpt_error"
 			return p // transport failure: abort, keep what we have
 		}
 		switch {
@@ -188,6 +216,7 @@ func probeHost(ctx context.Context, d Deps, p DomainProbe, candidates []string) 
 			p.Results[email] = boolPtr(false)
 		default:
 			p.Results[email] = nil // soft/greylist/other 5xx: unknown
+			p.Why = "rcpt_soft:" + strconv.Itoa(rcode)
 		}
 	}
 	return p
@@ -270,4 +299,9 @@ func PickBestEmail(ctx context.Context, d Deps, candidates []string) (EmailCheck
 		return EmailCheck{CatchAll: p.CatchAll, Reachable: p.Reachable}, nil
 	}
 	return EmailCheck{Deliverable: boolPtr(false), Reachable: p.Reachable}, nil
+}
+
+func isTimeout(err error) bool {
+	var ne net.Error
+	return errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &ne) && ne.Timeout())
 }

@@ -6,9 +6,9 @@ export interface RunCounts { completed?: number; no_data?: number; needs_setup?:
 
 const needsSetupMarkers = [
   "no llm provider is configured", "browser_service_unavailable", "no_providers_selected", "no_default_providers",
-  "smtp_port_blocked", "provider_key_missing",
+  "smtp_port_blocked", "provider_key_missing", "no_verifier",
 ]
-const noDataTexts = ["no_data", "no_answer", "no_email_to_verify", "upstream_dependency_failed", "upstream_dependency_unavailable"]
+const noDataTexts = ["no_data", "no_answer", "no_email_to_verify", "upstream_dependency_failed", "upstream_dependency_unavailable", "email_inconclusive"]
 
 export function cellOutcome(status: string | undefined, error?: string | null): CellOutcome {
   if (status === "complete") return "filled"

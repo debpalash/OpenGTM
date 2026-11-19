@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/emailverify"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 )
 
@@ -23,7 +24,29 @@ const (
 	// ReasonNoEmailToVerify is the cell error when the row has no email to check.
 	reasonNoEmailToVerify = "no_email_to_verify: the Email column has no value in this row"
 	reasonVerifierFailed  = "email_verifier_failed: the verification service could not be reached"
+	// reasonPort25Blocked is the cell error when this machine cannot reach any mail server on port 25.
+	reasonPort25Blocked = "smtp_port_blocked: SMTP port 25 is blocked on this server, so addresses cannot be verified; use a verification provider key"
+	reasonNoVerifier    = "no_verifier: no verification is available (SMTP checks are off and no verification provider is configured); use a verification provider key"
 )
+
+// unknownVerdictReason says why an "unknown" verdict has no value. A blocked port 25 or an empty verifier chain needs
+// the user to set something up; a timeout or open breaker is an infrastructure error worth a retry; anything else is
+// a mail server that gave no clear answer (greylisting, a rate limit, a policy that hides mailboxes): no data.
+func unknownVerdictReason(vr emailverify.Result) string {
+	switch {
+	case vr.Detail == emailverify.DetailPort25Blocked:
+		return reasonPort25Blocked
+	case vr.Detail == emailverify.DetailNoVerifier:
+		return reasonNoVerifier
+	case vr.Transient():
+		return reasonVerifierFailed
+	}
+	where := vr.Why
+	if where == "" {
+		where = vr.Detail
+	}
+	return "email_inconclusive: the mail server gave no clear answer (" + where + "); it may be greylisting or hiding mailboxes"
+}
 
 func (c column) isVerifyColumn() bool {
 	return (c.Type == "waterfall" || c.Type == "enrichment") && c.target() == verifyTarget
@@ -87,6 +110,12 @@ func (rs *runState) verifyColumn(ctx context.Context, lead map[string]any, col c
 	provider := vr.Source
 	if provider == "" {
 		provider = "email_verify"
+	}
+	// "unknown" is not information about the address: the cell holds no value, says why, and is not a fill.
+	if vr.Status == emailverify.StatusUnknown {
+		return rs.commitCell(ctx, col, rowID, leadID, cellResult{Provider: provider, Err: unknownVerdictReason(vr),
+			Meta: map[string]any{"verify": map[string]any{"status": vr.Status, "detail": vr.Detail, "why": vr.Why,
+				"source": vr.Source, "email": email}}})
 	}
 	r := cellResult{Has: true, Value: vr.Status, Provider: provider,
 		Meta: map[string]any{"verify": map[string]any{"status": vr.Status, "confidence": vr.Confidence, "source": vr.Source, "email": email}}}

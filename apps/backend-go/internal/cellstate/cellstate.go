@@ -32,11 +32,11 @@ const (
 	StatusPaused             = "paused"
 )
 
-var noDataTexts = []string{"no_data", "no_answer", "no_email_to_verify", "upstream_dependency_failed", "upstream_dependency_unavailable"}
+var noDataTexts = []string{"no_data", "no_answer", "no_email_to_verify", "upstream_dependency_failed", "upstream_dependency_unavailable", "email_inconclusive"}
 
 var needsSetupMarkers = []string{
 	"no llm provider is configured", "browser_service_unavailable", "no_providers_selected", "no_default_providers",
-	"smtp_port_blocked", "provider_key_missing",
+	"smtp_port_blocked", "provider_key_missing", "no_verifier",
 }
 
 // OfCell classifies a stored cell by its status and error text.
