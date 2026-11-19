@@ -27,31 +27,35 @@
   --gtm-space-8: 32px;
   --gtm-space-10: 40px;
   --gtm-space-12: 48px;
-  --gtm-toolbar-height: max(36px, 2.25rem);
-  --gtm-content-inset: 12px;
-  /* WCAG 2.5.8: 24 CSS px *as rendered*. The workbench shell uses CSS zoom
-     (--gtm-ui-scale), so a 24px target needs 24 / scale layout pixels. */
-  --gtm-target-min: calc(24px / var(--gtm-ui-scale, 1));
-  --gtm-sidebar-row: max(28px, 1.75rem, var(--gtm-target-min));
-  --gtm-page-header-height: 44px;
-  --gtm-page-title-size: 1.125rem;
-  --gtm-sidebar-width: 13.5rem;
-  --gtm-sidebar-width-icon: 3.25rem;
+  /* Scale: body 14px, secondary 13px, nothing under 12px. Controls 32px
+     (28px small), table rows 36px, targets never under 24px. */
+  --gtm-toolbar-height: 44px;
+  --gtm-content-inset: 16px;
+  --gtm-target-min: 24px;
+  --gtm-sidebar-row: 32px;
+  --gtm-page-header-height: 52px;
+  --gtm-page-title-size: 1.25rem;
+  --gtm-sidebar-width: 15rem;
+  --gtm-sidebar-width-icon: 3.5rem;
   --gtm-inspector-width: 400px;
-  --gtm-row-height: max(28px, var(--gtm-target-min));
-  --gtm-control-sm: max(28px, var(--gtm-target-min));
+  --gtm-row-height: 36px;
+  --gtm-control-sm: 28px;
   --gtm-control-md: 32px;
   --gtm-control-lg: 36px;
-  --gtm-radius-control: 8px;
+  --gtm-icon-button: 32px;
   --t-border-radius-xs: 4px;
   --t-border-radius-sm: 6px;
   --t-border-radius-md: 8px;
   --t-border-radius-lg: 12px;
   --t-border-radius-xl: 16px;
+  /* Radius scale: tag 6, control 8, card 12, pill. */
+  --gtm-radius-tag: 6px;
+  --gtm-radius-control: 8px;
+  --gtm-radius-card: 12px;
+  --gtm-radius-pill: 999px;
   --gtm-radius-window: 12px;
   --gtm-radius-tile: 12px;
-  --gtm-radius-card: 16px;
-  --gtm-radius-frame: 20px;
+  --gtm-radius-frame: 16px;
   --gtm-icon-stroke: 1.75;
   --gtm-duration-fast: 120ms;
   --gtm-duration: 180ms;
@@ -207,7 +211,7 @@
   --chart-3: var(--t-color-orange9);
   --chart-4: var(--t-color-purple9);
   --chart-5: var(--t-color-red9);
-  --radius: var(--t-border-radius-md);
+  --radius: 10px;
   --sidebar: var(--gtm-material-sidebar);
   --sidebar-foreground: var(--t-font-color-primary);
   --sidebar-primary: var(--gtm-accent);

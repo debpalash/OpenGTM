@@ -1,3 +1,4 @@
+import { PageHeader } from "@/design-system/patterns/workbench"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 import {
@@ -8,7 +9,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -143,31 +143,23 @@ export default function SignalsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 tabIndex={-1} data-page-title className="text-base font-semibold flex items-center gap-2">
-            <Activity className="size-4" />
-            Signal Monitor
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Buying signals detected from your leads — hiring, funding, growth, and more.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={markAllRead} className="h-7 text-xs gap-1">
-            <Check className="size-3" /> Mark all read
-          </Button>
-          <Button size="sm" onClick={runScan} disabled={scanning} className="h-7 text-xs gap-1">
-            {scanning ? <Loader2 className="size-3 animate-spin" /> : <RefreshCw className="size-3" />}
-            Scan Now
-          </Button>
-        </div>
-      </div>
-
-      <Separator />
-
+    <div className="flex flex-col">
+      <PageHeader
+        title="Signal Monitor"
+        description="Buying signals detected from your leads: hiring, funding, growth, and more."
+        actions={
+          <>
+            <Button variant="outline" onClick={markAllRead}>
+              <Check /> Mark all read
+            </Button>
+            <Button onClick={runScan} disabled={scanning}>
+              {scanning ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+              Scan Now
+            </Button>
+          </>
+        }
+      />
+      <div className="flex flex-col gap-3 p-4">
       {!!sources.length && <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium text-muted-foreground">Sources</span>{sources.map(source => <Badge key={source.id} variant={source.maturity === "supported" ? "default" : "secondary"} title={source.signal_types.join(", ")}>{source.id.replaceAll("_", " ")} · {source.maturity}</Badge>)}</div>}
 
       {analytics && <div className="space-y-3">
@@ -296,6 +288,7 @@ export default function SignalsPage() {
           )}
         </div>
       )}
+      </div>
     </div>
   )
 }

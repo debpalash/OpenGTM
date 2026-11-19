@@ -40,7 +40,7 @@ export function CommandMenu() {
   // the open animation and flashed a placeholder window).
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="top-1/3 translate-y-0 overflow-hidden rounded-xl! p-0" showCloseButton={false}>
+      <DialogContent className="top-1/4 translate-y-0 overflow-hidden rounded-xl! p-0 sm:max-w-xl" showCloseButton={false}>
         {Content ? (
           <>
             <DialogHeader className="sr-only">

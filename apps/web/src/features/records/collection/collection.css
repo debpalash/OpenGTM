@@ -71,7 +71,7 @@
   display: inline-flex;
   gap: 8px;
   align-items: center;
-  min-height: max(24px, var(--gtm-target-min));
+  min-height: var(--gtm-target-min);
   padding-inline: 2px;
   border-radius: 4px;
   color: var(--muted-foreground);

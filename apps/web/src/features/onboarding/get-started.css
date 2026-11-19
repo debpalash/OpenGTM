@@ -116,7 +116,7 @@
 }
 .getstarted .getstarted-actions > *,
 .getstarted .getstarted-head-side > button {
-  min-height: max(32px, var(--gtm-target-min));
+  min-height: 32px;
   min-width: var(--gtm-target-min);
 }
 @media (max-width: 720px) {
