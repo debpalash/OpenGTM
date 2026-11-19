@@ -1647,7 +1647,8 @@ export default function WorkbookEditorPage() {
           <WorkbookRunReview key={id} workbookId={id!} initiallyOpen={searchParams.get("review")==="1"} viewId={activeViewId}
             viewName={activeView?.name || "All rows"} search={deferredGlobalFilter}
             running={isRunning} busy={isFetching || runMut.isPending || globalFilter !== deferredGlobalFilter}
-            outputColumns={columns.filter(column => column.type === "output").map(column => column.name)} />
+            outputColumns={columns.filter(column => column.type === "output").map(column => column.name)}
+            columnNames={Object.fromEntries(columns.map(column => [column.id, column.name]))} />
           <WorkbookRunHistory key={`history-${id}`} workbookId={id!} />
         </div>
       </div>

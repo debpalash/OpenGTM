@@ -61,7 +61,7 @@ export const workbookCost = {
   remaining_usd: null, accounting_basis: "catalog_estimates_and_recorded_charges"
 }
 
-export const runEstimate = { unknown_providers: [], catalog_complete: true, rows: 3, worst_usd: 0, best_usd: 0, breakdown: [] }
+export const runEstimate = { unknown_providers: [], catalog_complete: true, rows: 3, worst_usd: 0, best_usd: 0, breakdown: [], note: "Catalog estimate only." }
 
 export const providers = {
   providers: [
