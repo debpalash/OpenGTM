@@ -14,7 +14,26 @@ const json = (route: Route, body: unknown, status = 200) =>
  * Mock every /api/** and /auth/** request and block everything that is not
  * localhost. No backend is needed.
  */
+const external = new WeakMap<Page, string[]>()
+
+/**
+ * Requests the page made to an origin other than its own (the origin of its first request). A self-hosted
+ * app must not contact third parties on page view: favicon services, GitHub, map tiles and so on.
+ */
+export function externalRequests(page: Page): string[] {
+  return external.get(page) ?? []
+}
+
 export async function installMocks(page: Page, theme: "light" | "dark") {
+  const seen: string[] = []
+  external.set(page, seen)
+  let appOrigin = ""
+  page.on("request", (req) => {
+    const url = new URL(req.url())
+    if (!url.protocol.startsWith("http")) return // data:, blob:
+    appOrigin ||= url.origin
+    if (url.origin !== appOrigin) seen.push(url.origin + url.pathname)
+  })
   await page.addInitScript((t) => {
     localStorage.setItem("theme", t)
     localStorage.setItem("yupcha_token", "a11y-fixture-token")

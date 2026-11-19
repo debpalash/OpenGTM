@@ -162,11 +162,7 @@ export default function LeadsPage() {
         return (
           <div className="max-w-[200px] flex items-center gap-1.5 truncate">
             {domain && (
-              <img
-                src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
-                alt="" className="size-4 rounded shrink-0" loading="lazy"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
+              <Globe aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
             )}
             <div className="min-w-0 truncate">
               <EditableCell
