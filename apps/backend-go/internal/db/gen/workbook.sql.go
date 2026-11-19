@@ -463,6 +463,67 @@ func (q *Queries) MergeRowOverlay(ctx context.Context, arg MergeRowOverlayParams
 	return result.RowsAffected(), nil
 }
 
+const noteFailedAttempt = `-- name: NoteFailedAttempt :execrows
+UPDATE workbook_enrichments
+SET cell_metadata = jsonb_set(COALESCE(cell_metadata::jsonb, '{}'::jsonb), '{last_failed_attempt}', $1::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workbook_id = $2::text AND workspace_id = $3::text
+  AND lead_id = $4::int AND column_id = $5::text
+  AND status = 'complete' AND COALESCE(value, '') <> ''
+`
+
+type NoteFailedAttemptParams struct {
+	Attempt     []byte
+	WorkbookID  string
+	WorkspaceID string
+	LeadID      int32
+	ColumnID    string
+}
+
+// A re-run that ended in an error or a miss keeps the cell's complete value; the failed attempt is recorded in
+// cell_metadata.last_failed_attempt instead. Zero rows: the cell has no complete value to protect.
+func (q *Queries) NoteFailedAttempt(ctx context.Context, arg NoteFailedAttemptParams) (int64, error) {
+	result, err := q.db.Exec(ctx, noteFailedAttempt,
+		arg.Attempt,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+		arg.LeadID,
+		arg.ColumnID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const noteFailedAttemptOverlay = `-- name: NoteFailedAttemptOverlay :exec
+UPDATE workbook_rows
+SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[$1::text, 'last_failed_attempt'], $2::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE id = $3::int AND workbook_id = $4::text AND workspace_id = $5::text
+  AND jsonb_typeof(enrichments::jsonb -> $1::text) = 'object'
+`
+
+type NoteFailedAttemptOverlayParams struct {
+	ColumnID    string
+	Attempt     []byte
+	RowID       int32
+	WorkbookID  string
+	WorkspaceID string
+}
+
+// The same note on the row overlay cell (workbook_rows.enrichments[column_id]) the grid reads.
+func (q *Queries) NoteFailedAttemptOverlay(ctx context.Context, arg NoteFailedAttemptOverlayParams) error {
+	_, err := q.db.Exec(ctx, noteFailedAttemptOverlay,
+		arg.ColumnID,
+		arg.Attempt,
+		arg.RowID,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+	)
+	return err
+}
+
 const recordProviderAttempt = `-- name: RecordProviderAttempt :exec
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,

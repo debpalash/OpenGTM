@@ -851,15 +851,20 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 		}
 	}
 	var change *rowChange
+	var kept bool
 	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) (err error) {
 		if err := fence(ctx, tx, rs.claim, wb); err != nil {
 			return err
 		}
-		change, err = setEnrichmentChange(ctx, tx, w)
+		change, kept, err = setEnrichmentChange(ctx, tx, w)
 		return err
 	})
 	if err != nil {
 		return cellOutcome{}, err
+	}
+	if kept {
+		// The cell keeps the value of an earlier run: report the failed attempt, publish no error over it.
+		return cellOutcome{Err: r.Err}, nil
 	}
 	rs.queueChange(change)
 

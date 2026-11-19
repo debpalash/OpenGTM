@@ -62,6 +62,24 @@ ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
   value = EXCLUDED.value, status = EXCLUDED.status, provider = EXCLUDED.provider,
   error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = (now() AT TIME ZONE 'UTC');
 
+-- name: NoteFailedAttempt :execrows
+-- A re-run that ended in an error or a miss keeps the cell's complete value; the failed attempt is recorded in
+-- cell_metadata.last_failed_attempt instead. Zero rows: the cell has no complete value to protect.
+UPDATE workbook_enrichments
+SET cell_metadata = jsonb_set(COALESCE(cell_metadata::jsonb, '{}'::jsonb), '{last_failed_attempt}', sqlc.arg(attempt)::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+  AND lead_id = sqlc.arg(lead_id)::int AND column_id = sqlc.arg(column_id)::text
+  AND status = 'complete' AND COALESCE(value, '') <> '';
+
+-- name: NoteFailedAttemptOverlay :exec
+-- The same note on the row overlay cell (workbook_rows.enrichments[column_id]) the grid reads.
+UPDATE workbook_rows
+SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[sqlc.arg(column_id)::text, 'last_failed_attempt'], sqlc.arg(attempt)::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+  AND jsonb_typeof(enrichments::jsonb -> sqlc.arg(column_id)::text) = 'object';
+
 -- name: GetRowOverlayCell :one
 -- Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
 -- an on_row_changed delta, read in the same transaction before MergeRowOverlay.
