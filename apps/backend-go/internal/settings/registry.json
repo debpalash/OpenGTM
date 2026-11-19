@@ -263,20 +263,6 @@
       ]
     },
     {
-      "id": "attio",
-      "name": "Attio",
-      "icon": "attio",
-      "description": "Upsert leads as Attio people, linked to their company (audience destination).",
-      "fields": [
-        {
-          "key": "ATTIO_ACCESS_TOKEN",
-          "label": "Access Token",
-          "secret": true,
-          "placeholder": "Attio access token"
-        }
-      ]
-    },
-    {
       "id": "airtable",
       "name": "Airtable",
       "icon": "airtable",
@@ -377,6 +363,20 @@
           "label": "API Key",
           "secret": true,
           "placeholder": "lemlist API key"
+        }
+      ]
+    },
+    {
+      "id": "attio",
+      "name": "Attio",
+      "icon": "attio",
+      "description": "Upsert leads as Attio people, linked to their company (audience destination).",
+      "fields": [
+        {
+          "key": "ATTIO_ACCESS_TOKEN",
+          "label": "Access Token",
+          "secret": true,
+          "placeholder": "Attio access token"
         }
       ]
     }
