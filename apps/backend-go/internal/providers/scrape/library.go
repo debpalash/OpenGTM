@@ -40,7 +40,10 @@ func seniorityRank(title string) int {
 	return rank
 }
 
-type staffSpy struct{ gated }
+type staffSpy struct {
+	gated
+	providers.Upstream
+}
 
 func (staffSpy) Name() string { return "staffspy" }
 
@@ -353,7 +356,10 @@ func inferCompanySize(lead map[string]any) (band string, conf float64, basis str
 	return sizeBands[idx], pyRound3(math.Min(0.6, 0.3+0.1*float64(len(labels)))), "estimated:" + strings.Join(labels, "+")
 }
 
-type companySizeHeuristic struct{ gated }
+type companySizeHeuristic struct {
+	gated
+	providers.Local
+}
 
 func (companySizeHeuristic) Name() string { return "company_size_heuristic" }
 
@@ -367,7 +373,10 @@ func (companySizeHeuristic) Enrich(_ context.Context, _ *http.Client, _ func() (
 
 // ── lead_scorer_provider.py ────────────────────────────────────────────────
 
-type leadScorer struct{ gated }
+type leadScorer struct {
+	gated
+	providers.Local
+}
 
 func (leadScorer) Name() string { return "lead_scorer" }
 

@@ -25,7 +25,10 @@ func webSearch(ctx context.Context, s Search, q string, n int) []Hit {
 
 // ── social_finder_provider.py ──────────────────────────────────────────────
 
-type socialFinder struct{ gated }
+type socialFinder struct {
+	gated
+	providers.Upstream
+}
 
 func (socialFinder) Name() string { return "social_finder" }
 
@@ -66,7 +69,10 @@ func (socialFinder) Enrich(ctx context.Context, _ *http.Client, _ func() (string
 
 // ── ddg_company_provider.py ────────────────────────────────────────────────
 
-type ddgCompany struct{ gated }
+type ddgCompany struct {
+	gated
+	providers.Upstream
+}
 
 func (ddgCompany) Name() string { return "ddg_company" }
 
@@ -148,7 +154,10 @@ func containsAny(s string, subs []string) bool {
 
 // ── facebook_pages.py ──────────────────────────────────────────────────────
 
-type facebookPages struct{ gated }
+type facebookPages struct {
+	gated
+	providers.Upstream
+}
 
 func (facebookPages) Name() string { return "facebook_pages" }
 
@@ -219,7 +228,10 @@ func (facebookPages) Enrich(ctx context.Context, _ *http.Client, _ func() (strin
 
 // ── local_business.py ──────────────────────────────────────────────────────
 
-type localBusiness struct{ gated }
+type localBusiness struct {
+	gated
+	providers.Upstream
+}
 
 func (localBusiness) Name() string { return "local_business" }
 
@@ -319,7 +331,10 @@ func (localBusiness) Enrich(ctx context.Context, _ *http.Client, _ func() (strin
 
 // ── company_intel.py ───────────────────────────────────────────────────────
 
-type companyIntel struct{ gated }
+type companyIntel struct {
+	gated
+	providers.Upstream
+}
 
 func (companyIntel) Name() string { return "company_intel" }
 
@@ -466,7 +481,10 @@ func contains(xs []string, s string) bool {
 
 // ── email_harvester.py ─────────────────────────────────────────────────────
 
-type emailHarvester struct{ gated }
+type emailHarvester struct {
+	gated
+	providers.Upstream
+}
 
 func (emailHarvester) Name() string { return "email_harvester" }
 

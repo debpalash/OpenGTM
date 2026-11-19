@@ -426,7 +426,7 @@ func (rs *runState) writeBatchResults(ctx context.Context, results map[string]st
 			if err := fence(ctx, tx, rs.claim, rs.p.WorkbookID); err != nil {
 				return err
 			}
-			change, err = setEnrichmentChange(ctx, tx, w)
+			change, _, err = setEnrichmentChange(ctx, tx, w)
 			return err
 		})
 		if err == nil {

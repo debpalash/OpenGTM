@@ -463,18 +463,83 @@ func (q *Queries) MergeRowOverlay(ctx context.Context, arg MergeRowOverlayParams
 	return result.RowsAffected(), nil
 }
 
+const noteFailedAttempt = `-- name: NoteFailedAttempt :execrows
+UPDATE workbook_enrichments
+SET cell_metadata = jsonb_set(COALESCE(cell_metadata::jsonb, '{}'::jsonb), '{last_failed_attempt}', $1::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workbook_id = $2::text AND workspace_id = $3::text
+  AND lead_id = $4::int AND column_id = $5::text
+  AND status = 'complete' AND COALESCE(value, '') <> ''
+`
+
+type NoteFailedAttemptParams struct {
+	Attempt     []byte
+	WorkbookID  string
+	WorkspaceID string
+	LeadID      int32
+	ColumnID    string
+}
+
+// A re-run that ended in an error or a miss keeps the cell's complete value; the failed attempt is recorded in
+// cell_metadata.last_failed_attempt instead. Zero rows: the cell has no complete value to protect.
+func (q *Queries) NoteFailedAttempt(ctx context.Context, arg NoteFailedAttemptParams) (int64, error) {
+	result, err := q.db.Exec(ctx, noteFailedAttempt,
+		arg.Attempt,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+		arg.LeadID,
+		arg.ColumnID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const noteFailedAttemptOverlay = `-- name: NoteFailedAttemptOverlay :exec
+UPDATE workbook_rows
+SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[$1::text, 'last_failed_attempt'], $2::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE id = $3::int AND workbook_id = $4::text AND workspace_id = $5::text
+  AND jsonb_typeof(enrichments::jsonb -> $1::text) = 'object'
+`
+
+type NoteFailedAttemptOverlayParams struct {
+	ColumnID    string
+	Attempt     []byte
+	RowID       int32
+	WorkbookID  string
+	WorkspaceID string
+}
+
+// The same note on the row overlay cell (workbook_rows.enrichments[column_id]) the grid reads.
+func (q *Queries) NoteFailedAttemptOverlay(ctx context.Context, arg NoteFailedAttemptOverlayParams) error {
+	_, err := q.db.Exec(ctx, noteFailedAttemptOverlay,
+		arg.ColumnID,
+		arg.Attempt,
+		arg.RowID,
+		arg.WorkbookID,
+		arg.WorkspaceID,
+	)
+	return err
+}
+
 const recordProviderAttempt = `-- name: RecordProviderAttempt :exec
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,
-   cooldown_until, updated_at, accuracy_samples)
+   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts, last_timeout_at)
 VALUES ($1::text, $2::text, 1,
   CASE WHEN $3::bool THEN 1 ELSE 0 END,
   CASE WHEN $3::bool THEN $4::float8 ELSE 0.0 END,
   $5::float8,
   CASE WHEN $3::bool THEN $6::float8 ELSE 0.0 END,
-  CASE WHEN $7::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $7::int) END,
-  (now() AT TIME ZONE 'UTC'), 0)
+  CASE WHEN $7::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $8::int)
+       WHEN $9::bool AND 1 >= $10::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $11::int) END,
+  (now() AT TIME ZONE 'UTC'), 0,
+  CASE WHEN $9::bool AND NOT $7::bool THEN 1 ELSE 0 END,
+  CASE WHEN $9::bool AND NOT $7::bool THEN $12::timestamp END)
 ON CONFLICT (provider, field) DO UPDATE SET
   attempts = COALESCE(provider_stats.attempts, 0) + 1,
   hits = COALESCE(provider_stats.hits, 0) + CASE WHEN $3::bool THEN 1 ELSE 0 END,
@@ -482,22 +547,46 @@ ON CONFLICT (provider, field) DO UPDATE SET
   total_latency_ms = COALESCE(provider_stats.total_latency_ms, 0.0) + $5::float8,
   total_cost_usd = COALESCE(provider_stats.total_cost_usd, 0.0) + CASE WHEN $3::bool THEN $6::float8 ELSE 0.0 END,
   updated_at = (now() AT TIME ZONE 'UTC'),
-  cooldown_until = CASE WHEN $7::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $7::int)
+  consecutive_timeouts = CASE
+       WHEN NOT $9::bool OR $7::bool THEN 0
+       WHEN provider_stats.last_timeout_at IS NULL OR $13::timestamp >= provider_stats.last_timeout_at
+       THEN provider_stats.consecutive_timeouts + 1
+       ELSE provider_stats.consecutive_timeouts END,
+  last_timeout_at = CASE
+       WHEN NOT $9::bool OR $7::bool THEN NULL
+       WHEN provider_stats.last_timeout_at IS NULL OR $13::timestamp >= provider_stats.last_timeout_at
+       THEN $12::timestamp
+       ELSE provider_stats.last_timeout_at END,
+  cooldown_until = CASE WHEN $7::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $8::int)
+       WHEN $9::bool
+            AND (provider_stats.last_timeout_at IS NULL OR $13::timestamp >= provider_stats.last_timeout_at)
+            AND provider_stats.consecutive_timeouts + 1 >= $10::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => $11::int)
        ELSE provider_stats.cooldown_until END
 `
 
 type RecordProviderAttemptParams struct {
-	Provider        string
-	Field           string
-	Success         bool
-	Confidence      float64
-	LatencyMs       float64
-	CostUsd         float64
-	CooldownSeconds int32
+	Provider         string
+	Field            string
+	Success          bool
+	Confidence       float64
+	LatencyMs        float64
+	CostUsd          float64
+	RateLimited      bool
+	RateLimitSeconds int32
+	TimedOut         bool
+	TimeoutThreshold int32
+	TimeoutSeconds   int32
+	FinishedAt       pgtype.Timestamp
+	StartedAt        pgtype.Timestamp
 }
 
-// Port of planner.record_attempt: one atomic additive upsert.
+// Port of planner.record_attempt: one atomic additive upsert. The cooldown policy lives in internal/cooldown:
+// a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts. The run
+// (consecutive_timeouts) is reset by any attempt that did not time out, and a timeout only extends it when the call
+// started at or after the finish of the previously counted timeout (last_timeout_at): calls launched together that
+// all time out are one event.
 func (q *Queries) RecordProviderAttempt(ctx context.Context, arg RecordProviderAttemptParams) error {
 	_, err := q.db.Exec(ctx, recordProviderAttempt,
 		arg.Provider,
@@ -506,7 +595,13 @@ func (q *Queries) RecordProviderAttempt(ctx context.Context, arg RecordProviderA
 		arg.Confidence,
 		arg.LatencyMs,
 		arg.CostUsd,
-		arg.CooldownSeconds,
+		arg.RateLimited,
+		arg.RateLimitSeconds,
+		arg.TimedOut,
+		arg.TimeoutThreshold,
+		arg.TimeoutSeconds,
+		arg.FinishedAt,
+		arg.StartedAt,
 	)
 	return err
 }

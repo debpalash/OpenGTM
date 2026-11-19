@@ -21,7 +21,7 @@ import (
 // that produced it (processing or cancelled, same worker/token/locked_at). It
 // returns false when the lease no longer matches; that is not an error.
 func PersistReceipt(ctx context.Context, deps Deps, c *queue.Claim, res Result) (bool, error) {
-	if res.skipReceipt || res.Completed < 0 || res.Errors < 0 || res.Total < 0 || res.Rows < 0 {
+	if res.skipReceipt || res.Completed < 0 || res.NoData < 0 || res.NeedsSetup < 0 || res.Errors < 0 || res.Total < 0 || res.Rows < 0 {
 		return false, nil
 	}
 	var p struct {
@@ -74,7 +74,8 @@ func mergeReceipt(payload []byte, workbookID string, res Result, retryCount int,
 		return nil, false, nil
 	}
 	doc["execution_result"] = map[string]any{
-		"completed": res.Completed, "errors": res.Errors, "total": res.Total, "rows": res.Rows,
+		"completed": res.Completed, "no_data": res.NoData, "needs_setup": res.NeedsSetup,
+		"errors": res.Errors, "total": res.Total, "rows": res.Rows,
 		"stopped": res.Stopped, "retry_count": retryCount,
 		// datetime.now(timezone.utc).isoformat()
 		"recorded_at": now.Format("2006-01-02T15:04:05.000000-07:00"),

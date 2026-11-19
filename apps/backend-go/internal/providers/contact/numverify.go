@@ -11,7 +11,7 @@ import (
 // numverify ports providers/numverify.py (NumVerifyProvider). The vendor
 // endpoint is plain http://apilayer.net (as in Python); the egress client still
 // vets the resolved address at dial time.
-type numverify struct{}
+type numverify struct{ providers.Upstream }
 
 func (numverify) Name() string     { return "numverify" }
 func (numverify) KeyEnv() []string { return []string{"NUMVERIFY_API_KEY"} }

@@ -32,7 +32,7 @@ var (
 // mcaRegistry ports providers/mca_registry.py. The opt-in CIN-via-web-search
 // path (MCA_CIN_SEARCH) needs the Python DDGS shim and stays on the Python
 // worker; the Go provider always uses the exact-name variants.
-type mcaRegistry struct{}
+type mcaRegistry struct{ providers.Upstream }
 
 func (mcaRegistry) Name() string     { return "mca_registry" }
 func (mcaRegistry) KeyEnv() []string { return []string{"DATA_GOV_IN_KEY"} }

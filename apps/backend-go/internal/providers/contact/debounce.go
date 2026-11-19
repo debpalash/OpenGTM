@@ -9,7 +9,7 @@ import (
 )
 
 // debounce ports providers/debounce.py (DebounceProvider).
-type debounce struct{}
+type debounce struct{ providers.Upstream }
 
 func (debounce) Name() string     { return "debounce" }
 func (debounce) KeyEnv() []string { return []string{"DEBOUNCE_API_KEY"} }

@@ -490,6 +490,9 @@ func (rs *runState) persistCellFailure(ctx context.Context, col column, rowID, l
 func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (cellOutcome, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	target := col.target()
+	if col.isVerifyColumn() && rs.deps.Verify != nil {
+		return rs.verifyColumn(ctx, lead, col, rowID, leadID)
+	}
 	configured, explicit := col.explicitChain()
 	chain := configured
 	if !explicit {
@@ -562,7 +565,9 @@ func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col colu
 		chain = chain[:mp]
 	}
 
-	attempted := 0 // provider_attempts entries of the Python cell
+	attempted := 0                  // provider_attempts entries of the Python cell
+	var notes []attemptNote         // what each provider that produced nothing did (cell_metadata.attempts)
+	causes := map[string][]string{} // classified causes of those failures -> providers
 loop:
 	for _, name := range chain {
 		if err := rs.clientErr(); err != nil {
@@ -646,9 +651,14 @@ loop:
 			skipped = append(skipped, skippedProvider{name, "unknown_provider"})
 		case callTimeout:
 			rs.log.Warn("provider timed out", "provider", name, "row", rowID)
+			notes = append(notes, attemptNote{Provider: name, Outcome: "timeout"})
 			failed("timeout")
 		case callException:
 			rs.log.Error("provider failed", "provider", name, "row", rowID, "err", call.text)
+			notes = append(notes, attemptNote{Provider: name, Outcome: "error", Error: truncRunes(call.text, 120)})
+			if c := classifyProviderError(call.text); c != "" {
+				causes[c] = append(causes[c], name)
+			}
 			failed(call.text)
 		case callOK:
 			attempted++
@@ -671,6 +681,14 @@ loop:
 			if resultValue != "" {
 				break loop // waterfall: stop at first success
 			}
+			if perr, _ := call.resp["error"].(string); perr != "" && perr != "no_data" {
+				notes = append(notes, attemptNote{Provider: name, Outcome: "error", Error: truncRunes(perr, 120)})
+				if c := classifyProviderError(perr); c != "" {
+					causes[c] = append(causes[c], name)
+				}
+			} else if resultError == "" {
+				notes = append(notes, attemptNote{Provider: name, Outcome: "miss"})
+			}
 		}
 		if stop {
 			break
@@ -688,7 +706,20 @@ loop:
 			for _, s := range skipped {
 				parts = append(parts, fmt.Sprintf("%s (%s)", s.Provider, s.Reason))
 			}
-			resultError = truncRunes("providers_unavailable: "+strings.Join(parts, ", "), maxErrorRunes)
+			allCooldown := true
+			for _, s := range skipped {
+				allCooldown = allCooldown && s.Reason == "cooldown"
+			}
+			resultError = truncRunes(coolingDownReason(parts, allCooldown), maxErrorRunes)
+		}
+	}
+	if resultValue == "" && (resultError == "" || resultError == "no_data") {
+		// Nothing produced a value: say why when the cause is known (a rate limit, no browser service).
+		for _, cause := range []string{"rate_limited", "browser_unavailable"} {
+			if ps := causes[cause]; len(ps) > 0 {
+				resultError = truncRunes(failureReason(cause, ps), maxErrorRunes)
+				break
+			}
 		}
 	}
 	if rs.claim == nil && rs.cell != nil && rs.cell.live && resultValue == "" && resultError == "attempt_not_dispatchable" {
@@ -706,6 +737,11 @@ loop:
 			return cellOutcome{Success: true, Value: v}, nil
 		}
 	}
+	if resultValue == "" && (resultError == "" || resultError == "no_data") {
+		if reason := emptyCellReason(notes); reason != "" {
+			resultError = truncRunes(reason, maxErrorRunes)
+		}
+	}
 	r := cellResult{Has: resultValue != "", Value: resultValue,
 		Provider: resultProvider, Err: resultError, Skipped: skipped}
 	if resultConfidence != 0 {
@@ -713,6 +749,14 @@ loop:
 	}
 	if v := rs.verifyEmailCell(ctx, col, resultValue); v != nil {
 		r.Meta = map[string]any{"verify": v}
+	}
+	if resultValue == "" && hasNonMiss(notes) {
+		// Only when something other than a plain miss happened: a cell where every provider simply found nothing
+		// keeps the Python-parity shape (wbexec vectors).
+		if r.Meta == nil {
+			r.Meta = map[string]any{}
+		}
+		r.Meta["attempts"] = notes
 	}
 	return rs.commitCell(ctx, col, rowID, leadID, r)
 }
@@ -851,15 +895,20 @@ func (rs *runState) commitCell(ctx context.Context, col column, rowID, leadID in
 		}
 	}
 	var change *rowChange
+	var kept bool
 	err := tenancy.InWorkspace(ctx, rs.deps.Pool, ws, func(tx pgx.Tx) (err error) {
 		if err := fence(ctx, tx, rs.claim, wb); err != nil {
 			return err
 		}
-		change, err = setEnrichmentChange(ctx, tx, w)
+		change, kept, err = setEnrichmentChange(ctx, tx, w)
 		return err
 	})
 	if err != nil {
 		return cellOutcome{}, err
+	}
+	if kept {
+		// The cell keeps the value of an earlier run: report the failed attempt, publish no error over it.
+		return cellOutcome{Err: r.Err}, nil
 	}
 	rs.queueChange(change)
 

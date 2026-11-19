@@ -123,8 +123,11 @@ type BatchConfig struct {
 
 // Result is the run summary persisted as the job's execution_result receipt.
 type Result struct {
-	Completed, Errors, Total, Rows int
-	Stopped                        bool
+	// Completed is the cells with a value. NoData is cells whose providers ran and found nothing, NeedsSetup cells
+	// that cannot run until the user configures something, Errors cells that ended in a provider or infrastructure
+	// failure (internal/cellstate). Only Errors makes a run fail.
+	Completed, NoData, NeedsSetup, Errors, Total, Rows int
+	Stopped                                            bool
 
 	// skipReceipt mirrors Python returning {"error": "workbook_not_found"},
 	// which persist_run_result ignores.

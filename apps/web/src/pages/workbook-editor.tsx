@@ -39,6 +39,7 @@ import {
   DollarSign, RefreshCw, Mail, MailCheck, MailX, Smartphone, Building2, Users,
   ChartColumn, Target, PenLine, Lightbulb, TriangleAlert,
 } from "lucide-react"
+import { cellOutcome, runNeedsAttention } from "@/lib/workbook-outcomes"
 import { LinkedInIcon } from "@/components/semantic-icons"
 import { Button } from "@/components/ui/button"
 import { NativeSelect } from "@/components/ui/native-select"
@@ -100,10 +101,16 @@ const TYPED_FIELDS = new Set(["website", "linkedin_url", "twitter_url", "faceboo
 
 // ── Cell Status Indicator ────────────────────────────────────────────────
 
-function CellStatus({ status }: { status?: string }) {
+function CellStatus({ status, error }: { status?: string; error?: string | null }) {
   if (!status || status === "complete") return null
   if (status === "running") return <Loader2 className="size-3 animate-spin text-[var(--gtm-link)] shrink-0" />
-  if (status === "error") return <AlertCircle className="size-3 text-destructive shrink-0" />
+  if (status === "error") {
+    // Only a real failure is red: no data is a normal result, and a missing setup is something the user can fix.
+    const outcome = cellOutcome(status, error)
+    if (outcome === "no_data") return <span role="img" aria-label="No data found" title="No data found" className="size-3 text-muted-foreground/50 shrink-0 text-xs leading-3">∅</span>
+    if (outcome === "needs_setup") return <a href="/settings" aria-label="Needs setup: open Settings" title="Needs setup: open Settings" className="size-3 text-[var(--gtm-warning)] shrink-0 text-xs leading-3 font-medium" onClick={e => e.stopPropagation()}>!</a>
+    return <AlertCircle aria-label="Error" className="size-3 text-destructive shrink-0" />
+  }
   if (status === "pending") return <Clock className="size-3 text-muted-foreground/40 shrink-0" />
   if (status === "skipped") return <span className="size-3 text-muted-foreground/40 shrink-0 text-xs leading-3">—</span>
   return null
@@ -312,7 +319,7 @@ function EditableCell({
       ].filter(Boolean).join("\n") || undefined}
     >
       {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
-      <CellStatus status={status} />
+      <CellStatus status={status} error={error} />
       <span className="truncate text-sm flex-1 min-w-0">
         {displayOverride ?? displayValue}
       </span>
@@ -1475,10 +1482,10 @@ export default function WorkbookEditorPage() {
 
   return (
     <div className="workbook-editor flex flex-col h-full overflow-hidden">
-      {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
+      {runNeedsAttention(workbook.status) && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
         <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
         <div><p className="font-medium">Run needs attention</p>
-          <p className="text-muted-foreground">Some work failed. Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
+          <p className="text-muted-foreground">{workbook.status === "failed" ? "The run failed." : "Some cells ended in errors."} Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
         </div>
       </div>}
       {/* ── Selection Toolbar ─────────────────────────────────────────── */}

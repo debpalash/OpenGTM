@@ -31,6 +31,8 @@ type Result struct {
 	Confidence float64   `json:"confidence"`
 	Detail     string    `json:"detail"`
 	Attempts   []Attempt `json:"attempts"`
+	// Why is where an inconclusive SMTP probe stopped (Probe.Why). Not part of the API shape.
+	Why string `json:"-"`
 }
 
 // IsDefinitive is valid, invalid or catch_all: the cascade stops there.
@@ -139,7 +141,12 @@ func (s *smtpVerifier) Verify(ctx context.Context, email string) (Result, error)
 	}
 	switch res := p.Results[email]; {
 	case !p.Reachable:
-		return mk(StatusUnknown, "unreachable"), nil
+		r := mk(StatusUnknown, "unreachable")
+		r.Why = p.Why
+		if (p.Why == "connect_failed" || p.Why == "connect_timeout") && s.d.Port25Blocked() {
+			r.Detail = DetailPort25Blocked
+		}
+		return r, nil
 	case p.CatchAll:
 		return mk(StatusCatchAll, "catch_all"), nil
 	case res != nil && *res:
@@ -147,7 +154,9 @@ func (s *smtpVerifier) Verify(ctx context.Context, email string) (Result, error)
 	case res != nil:
 		return mk(StatusInvalid, "rcpt_rejected"), nil
 	}
-	return mk(StatusUnknown, "soft"), nil
+	r := mk(StatusUnknown, "soft")
+	r.Why = p.Why
+	return r, nil
 }
 
 // ---- cache ------------------------------------------------------------------
@@ -169,7 +178,17 @@ type VerifyCache interface {
 	Put(ctx context.Context, workspaceID, email, verifier string, e CacheEntry) error
 }
 
-var errorDetails = map[string]bool{"error": true, "timeout": true, "breaker_open": true, "http_error": true, "unconfigured": true}
+// DetailPort25Blocked is the Result.Detail of an unknown verdict whose cause is that this machine cannot reach port 25
+// (several different mail servers failed to answer, none did).
+const DetailPort25Blocked = "smtp_port_blocked"
+
+// DetailNoVerifier is the Result.Detail when the cascade had nothing to ask (SMTP off, no verification provider).
+const DetailNoVerifier = "no_verifier"
+
+// Transient reports an unknown that is an infrastructure failure (a timeout, an open breaker) rather than a verdict.
+func (r Result) Transient() bool { return isTransient(r) }
+
+var errorDetails = map[string]bool{"error": true, "timeout": true, "breaker_open": true, "http_error": true, "unconfigured": true, DetailPort25Blocked: true}
 
 // isTransient is _is_transient: an UNKNOWN that is an infrastructure failure.
 func isTransient(r Result) bool { return r.Status == StatusUnknown && errorDetails[r.Detail] }
@@ -221,11 +240,14 @@ func bootstrap(ctx context.Context, d Deps, workspaceID string) []Verifier {
 		}
 	}
 	if d.Registry != nil {
-		for _, v := range d.Registry.Available(ctx) {
+		for _, v := range d.Registry.All() {
+			// Bind first: availability (SMTPDisabled) is a property of the Deps this cascade runs with.
 			if b, ok := v.(binder); ok {
 				v = b.bind(d)
 			}
-			chain = append(chain, v)
+			if ok, err := v.Available(ctx); err == nil && ok {
+				chain = append(chain, v)
+			}
 		}
 	}
 	return chain

@@ -35,6 +35,11 @@ x-go-env: &go-env
   # Internal browser service, reached over browser_net only.
   BROWSER_SERVICE_URL: ${BROWSER_SERVICE_URL:-http://browser:8090}
   BROWSER_SERVICE_TOKEN: ${BROWSER_SERVICE_TOKEN:?BROWSER_SERVICE_TOKEN is required - run scripts/install.sh or set it in .env (see .env.example)}
+  # Client-side cap on concurrent browser-service calls per process. Same variable and default as the browser
+  # service below: a call waits for a slot in the caller instead of queueing inside the service with its
+  # provider timeout running. Per process: size the service for (api + worker replicas) x this value.
+  BROWSER_MAX_CONCURRENCY: ${BROWSER_MAX_CONCURRENCY:-4}
+  ENRICH_TARGET_SITE_TIMEOUT: ${ENRICH_TARGET_SITE_TIMEOUT:-30}
 
 services:
   # ── Postgres (primary store) ───

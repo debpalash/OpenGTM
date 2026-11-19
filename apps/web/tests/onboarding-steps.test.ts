@@ -6,6 +6,7 @@ import {
   describeChange,
   progressLabel,
   readDismissed,
+  sampleLoadedMessage,
   showChecklist,
   writeDismissed
 } from "../src/features/onboarding/onboarding-steps"
@@ -117,4 +118,12 @@ test("a storage that throws never breaks the page and the dismissal still holds 
   expect(readDismissed(broken)).toBe(true)
   expect(() => writeDismissed(false, broken)).not.toThrow()
   expect(readDismissed(broken)).toBe(false)
+})
+
+test("the sample-loaded announcement names step 4, the only step that links to the workbook after loading", () => {
+  const after = make(["data"], "sample-1")
+  const stepNumber = buildSteps(after).findIndex((s) => s.actions.some((a) => a.kind === "link" && a.to === "/workbooks/sample-1")) + 1
+  expect(stepNumber).toBe(4)
+  expect(sampleLoadedMessage(true)).toBe("Sample workbook loaded. Run it from step 4.")
+  expect(sampleLoadedMessage(false)).toBe("Sample workbook already loaded. Run it from step 4.")
 })

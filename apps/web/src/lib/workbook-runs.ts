@@ -1,3 +1,5 @@
+import { runCountsLabel } from "./workbook-outcomes"
+
 export interface WorkbookRun {
   job_id: number; run_id: string | null; status: string
   row_count: number | null; column_count: number | null
@@ -6,7 +8,7 @@ export interface WorkbookRun {
   fill_missing: boolean; force: boolean; retry_count: number; error: string | null
   created_at: string | null; started_at: string | null; completed_at: string | null
   last_heartbeat: string | null; next_run_at: string | null
-  result: { completed: number; errors: number; total: number; rows: number; stopped: boolean; recorded_at: string } | null
+  result: { completed: number; no_data?: number; needs_setup?: number; errors: number; total: number; rows: number; stopped: boolean; recorded_at: string } | null
 }
 export interface WorkbookRunsPage { runs: WorkbookRun[]; has_more: boolean; next_before_id: number | null }
 
@@ -22,6 +24,7 @@ function validRun(run: WorkbookRun): boolean {
     (run.selected_cell_count == null || count(run.selected_cell_count)) &&
     count(run.retry_count) && typeof run.fill_missing === "boolean" && typeof run.force === "boolean" &&
     (run.result === null || (!!run.result && count(run.result.completed) && count(run.result.errors) &&
+      (run.result.no_data == null || count(run.result.no_data)) && (run.result.needs_setup == null || count(run.result.needs_setup)) &&
       count(run.result.total) && count(run.result.rows) && typeof run.result.stopped === "boolean" && typeof run.result.recorded_at === "string"))
 }
 
@@ -47,7 +50,8 @@ export function workbookRunLabel(run: WorkbookRun): string {
   if (run.status === "completed") {
     if (run.result?.stopped) return "Stopped"
     if (run.result && run.result.errors > 0) return "Finished with cell errors"
-    return "Worker finished"
+    const summary = run.result ? runCountsLabel(run.result) : ""
+    return summary ? `Finished: ${summary}` : "Worker finished"
   }
   return run.status
 }

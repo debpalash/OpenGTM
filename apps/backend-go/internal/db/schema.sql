@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 18.6 (Homebrew)
--- Dumped by pg_dump version 18.6 (Homebrew)
+-- Dumped from database version 18.6 (Debian 18.6-1.pgdg13+2)
+-- Dumped by pg_dump version 18.6 (Debian 18.6-1.pgdg13+2)
 
 --
 -- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
@@ -2321,7 +2321,9 @@ CREATE TABLE public.provider_stats (
     updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
     accuracy_score double precision,
     accuracy_samples integer,
-    accuracy_updated_at timestamp without time zone
+    accuracy_updated_at timestamp without time zone,
+    consecutive_timeouts integer DEFAULT 0 NOT NULL,
+    last_timeout_at timestamp without time zone
 );
 
 --

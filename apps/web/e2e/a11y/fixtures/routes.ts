@@ -1,4 +1,5 @@
 import * as fx from "./data"
+import * as real from "./real-shapes"
 
 /** Exact-path GET fixtures (trailing slashes are normalised away). */
 const exact: Record<string, unknown> = {
@@ -28,7 +29,28 @@ const exact: Record<string, unknown> = {
   "/api/signals": fx.signals,
   "/api/templates/gallery": fx.galleryRecipes,
   "/api/leads": fx.emailLeads,
-  "/api/onboarding": fx.onboarding
+  "/api/onboarding": fx.onboarding,
+  // Shapes captured from the real API (fixtures/real-shapes.ts).
+  "/api/records/summary": real.recordSummary,
+  "/api/records/company/workflow": real.recordWorkflow,
+  "/api/records/person/workflow": real.recordWorkflow,
+  "/api/analytics/overview": real.analyticsOverview,
+  "/api/analytics/collection": real.analyticsCollection,
+  "/api/analytics/enrichment": real.analyticsEnrichment,
+  "/api/analytics/llm": real.analyticsLlm,
+  "/api/analytics/pipeline": real.analyticsPipeline,
+  "/api/stats": real.leadStats,
+  "/api/filters": real.leadFilters,
+  "/api/settings/providers": real.llmProviders,
+  "/api/settings/llm-usage": real.llmUsage,
+  "/api/audience-destinations/types": real.destinationTypes,
+  "/api/audience-destinations/access": real.destinationAccess,
+  "/api/outreach/sequences": real.outreachSequences,
+  "/api/outreach/drafts": real.outreachDrafts,
+  "/api/outreach/smtp/status": real.smtpStatus,
+  "/api/me/context": real.meContext,
+  "/api/workspaces/dashboard": real.workspaceDashboard,
+  "/api/copilotkit/conversations": real.conversations
 }
 
 export const fixturePaths = Object.keys(exact)

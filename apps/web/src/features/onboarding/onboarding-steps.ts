@@ -86,7 +86,15 @@ export function showChecklist(state: OnboardingState | undefined, dismissed: boo
 
 // Dismissal lives in localStorage (per browser). Every access is guarded: storage can throw or be absent
 // (private windows, blocked site data), and the checklist must then simply stay visible.
-export const DISMISS_KEY = "opengtm.onboarding.dismissed"
+/**
+ * Announcement after "Load sample workbook". Loading the sample completes step 3, and a done step carries no
+ * actions, so the way into the workbook is step 4's "Run the sample workbook" link.
+ */
+export function sampleLoadedMessage(created: boolean): string {
+  return `Sample workbook ${created ? "loaded" : "already loaded"}. Run it from step 4.`
+}
+
+export const DISMISS_KEY ="opengtm.onboarding.dismissed"
 export const DISMISS_EVENT = "opengtm:onboarding-dismissal"
 
 // In-memory copy so a dismissal still holds for this page session when storage is unavailable.

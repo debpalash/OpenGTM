@@ -32,7 +32,7 @@ import "./overview.css"
 
 const number = new Intl.NumberFormat()
 function executionTone(status: string) {
-  return status === "failed"
+  return status === "failed" || status === "completed_with_errors"
     ? ("danger" as const)
     : status === "running"
       ? ("accent" as const)
@@ -201,6 +201,8 @@ export default function OverviewPage() {
                         <StatusBadge tone={executionTone(workbook.status)} dot>
                           {workbook.status === "complete"
                             ? "Complete"
+                            : workbook.status === "completed_with_errors"
+                            ? "Complete with errors"
                             : workbook.status.charAt(0).toUpperCase() +
                               workbook.status.slice(1)}
                         </StatusBadge>

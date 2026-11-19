@@ -161,6 +161,7 @@ func clRank(p Person) int {
 // leadpeople.CrossLinked (FindPeopleByTitles), which people research reaches
 // through providers.Get("crosslinked").
 type CrossLinked struct {
+	providers.Upstream
 	gated
 	MaxPeople int           // 0 = 5
 	Delay     time.Duration // 0 = 1 s

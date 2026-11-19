@@ -10,7 +10,7 @@ import (
 const prospeoBase = "https://api.prospeo.io"
 
 // prospeo ports providers/prospeo.py (ProspeoProvider).
-type prospeo struct{}
+type prospeo struct{ providers.Upstream }
 
 func (prospeo) Name() string     { return "prospeo" }
 func (prospeo) KeyEnv() []string { return []string{"PROSPEO_API_KEY"} }

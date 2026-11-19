@@ -47,9 +47,13 @@ for (const c of cases) {
     await page.waitForLoadState("networkidle")
     await expect(page.getByText("Unexpected Application Error")).toHaveCount(0)
     await expect(page.locator("html")).toHaveClass(c.theme === "dark" ? /dark/ : /^(?!.*dark).*$/)
-    // Let charts / transitions that ignore prefers-reduced-motion finish.
+    // Let charts / transitions that ignore prefers-reduced-motion finish, and let a failed query use its one
+    // retry (query-client.ts: retry 1, 1s delay) so an error state has appeared before it is audited.
     await page.evaluate(() => document.fonts.ready)
-    await page.waitForTimeout(800)
+    await page.waitForTimeout(1600)
+    // A page in its error state is not what real users see: a fixture is missing or has a stale shape
+    // (unmatched endpoints answer `[]`). Capture the real shape with e2e/real and add it to fixtures/real-shapes.ts.
+    await expect(page.getByText(/temporarily unavailable|returned an invalid response|could not be verified/i)).toHaveCount(0)
 
     const violations = await runAxe(page)
     const gated: Counts = {}

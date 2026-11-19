@@ -106,6 +106,9 @@ func AIFormula(ctx context.Context, d Deps, tmpl string, row map[string]any, col
 	if isSpendStop(err) {
 		return Result{Error: spendText(err)}, nil
 	}
+	if reason := LLMFailureReason(err); reason != "" {
+		return Result{Error: reason}, nil
+	}
 	if err != nil || text == "" {
 		return Result{Error: "llm_returned_empty"}, nil
 	}

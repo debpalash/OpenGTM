@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cellstate"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/colgraph"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/queue"
@@ -149,7 +150,7 @@ func (rs *runState) runBody(ctx context.Context, started *bool) (Result, error) 
 			if err := rs.checkPyColumn(col); err != nil {
 				return Result{}, err
 			}
-			if rs.legacy && (col.Type == "enrichment" || col.Type == "waterfall") {
+			if rs.legacy && (col.Type == "enrichment" || col.Type == "waterfall") && !(col.isVerifyColumn() && rs.deps.Verify != nil) {
 				if err := checkProviders(col, p); err != nil {
 					return Result{}, err
 				}
@@ -262,8 +263,8 @@ func (rs *runState) pausedOrCancelled(ctx context.Context) bool {
 }
 
 type rowResult struct {
-	completed, errors int
-	err               error
+	completed, noData, needsSetup, errors int
+	err                                   error
 }
 
 // runOneRow ports _run_one_row: columns run sequentially, each produced value
@@ -324,7 +325,14 @@ func (rs *runState) runOneRow(ctx context.Context, w workItem) rowResult {
 				row[k] = v
 			}
 		} else {
-			r.errors++
+			switch cellstate.OfError(out.Err) {
+			case cellstate.NoData:
+				r.noData++
+			case cellstate.NeedsSetup:
+				r.needsSetup++
+			default:
+				r.errors++
+			}
 			failed = append(failed, col)
 			for _, key := range []string{col.ID, col.Name} {
 				if _, isIdentity := identities[key]; !isIdentity {
@@ -373,7 +381,7 @@ func (rs *runState) runBatch(ctx context.Context, batch []workItem) ([]rowResult
 
 // storedCells ports _stored_cells for v2 rows: {(rowID, columnID)} whose
 // overlay status matches (complete additionally requires a non-null value).
-func (rs *runState) storedCells(ctx context.Context, leads []map[string]any, status string) (map[cellKey]bool, error) {
+func (rs *runState) storedCells(ctx context.Context, leads []map[string]any, status string, keep func(cell map[string]any) bool) (map[cellKey]bool, error) {
 	ids := make([]int32, 0, len(leads))
 	for _, l := range leads {
 		ids = append(ids, int32(intOf(l["__row_id"])))
@@ -392,7 +400,7 @@ func (rs *runState) storedCells(ctx context.Context, leads []map[string]any, sta
 			}
 			for cid, v := range enr {
 				cell, ok := v.(map[string]any)
-				if ok && cell["status"] == status && (status != "complete" || cell["value"] != nil) {
+				if ok && cell["status"] == status && (status != "complete" || cell["value"] != nil) && (keep == nil || keep(cell)) {
 					found[cellKey{int64(r.ID), cid}] = true
 				}
 			}
@@ -446,7 +454,7 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 	ordered = orderColumns(ordered) // topo_sort_columns
 	items := make([]workItem, 0, len(leads))
 	if p.FillMissing {
-		done, err := rs.storedCells(ctx, leads, "complete")
+		done, err := rs.storedCells(ctx, leads, "complete", nil)
 		if err != nil {
 			return res, err
 		}
@@ -504,6 +512,8 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 		}
 		for _, r := range results {
 			res.Completed += r.completed
+			res.NoData += r.noData
+			res.NeedsSetup += r.needsSetup
 			res.Errors += r.errors
 		}
 		// Progress: completed_rows = rows fully processed so far.
@@ -528,7 +538,11 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 		if res.Stopped || rs.stop.shouldStop() {
 			break
 		}
-		errCells, err := rs.storedCells(ctx, leads, "error")
+		errCells, err := rs.storedCells(ctx, leads, "error", func(cell map[string]any) bool {
+			// Only cells that failed are worth another try; one that found no data or needs setup would give the same answer.
+			msg, _ := cell["error"].(string)
+			return cellstate.OfError(msg) == cellstate.Error
+		})
 		if err != nil {
 			return finish(err)
 		}
@@ -569,13 +583,18 @@ func (rs *runState) execute(ctx context.Context, ordered []column, leads []map[s
 				res.Stopped = true
 				break
 			}
-			results, err := rs.runBatch(ctx, targets[i:min(i+p.Concurrency, len(targets))])
+			batch := targets[i:min(i+p.Concurrency, len(targets))]
+			results, err := rs.runBatch(ctx, batch)
 			if err != nil {
 				return finish(err)
 			}
+			// Every cell of the batch was counted as an error in the first pass; each one now counts as what it ended as.
+			res.Errors -= countCells(batch)
 			for _, r := range results {
 				res.Completed += r.completed
-				res.Errors -= r.completed // moved error -> complete
+				res.NoData += r.noData
+				res.NeedsSetup += r.needsSetup
+				res.Errors += r.errors
 			}
 		}
 	}
@@ -594,15 +613,7 @@ func (rs *runState) finalize(ctx context.Context, res *Result, runErr error, nLe
 		return
 	}
 	failed := runErr != nil
-	status := "complete"
-	switch {
-	case failed:
-		status = "failed"
-	case res.Stopped:
-		status = "paused"
-	case res.Errors > 0:
-		status = "failed"
-	}
+	status := cellstate.RunStatus(cellstate.Counts{Filled: res.Completed, NoData: res.NoData, NeedsSetup: res.NeedsSetup, Errors: res.Errors}, failed, res.Stopped)
 	completedRows := nLeads
 	if res.Stopped || failed {
 		completedRows = min(nLeads, rs.rowsDone)
@@ -630,7 +641,7 @@ func (rs *runState) finalize(ctx context.Context, res *Result, runErr error, nLe
 	if owns {
 		rs.flushChanges(fctx)
 		rs.publish(fctx, map[string]any{"type": "workbook_status", "status": status,
-			"completed": res.Completed, "errors": res.Errors, "total": res.Total})
+			"completed": res.Completed, "no_data": res.NoData, "needs_setup": res.NeedsSetup, "errors": res.Errors, "total": res.Total})
 	}
 }
 

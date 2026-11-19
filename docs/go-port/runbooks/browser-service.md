@@ -45,7 +45,7 @@ and library exception text never reach the caller. The codes are: `unauthorized`
 | Variable | Default | Meaning |
 |---|---|---|
 | `BROWSER_SERVICE_TOKEN` | (required, >= 32 chars) | Shared bearer token, compared in constant time. The service exits with status 2 if it is missing. |
-| `BROWSER_MAX_CONCURRENCY` | 4 | Concurrent browser/search requests. A request beyond this waits up to `BROWSER_QUEUE_WAIT_S` (default 5), then gets 429 `busy`. |
+| `BROWSER_MAX_CONCURRENCY` | 4 | Concurrent browser/search requests. A request beyond this waits up to `BROWSER_QUEUE_WAIT_S` (default 5), then gets 429 `busy`. The Go api and worker read the same variable (default 4, 1 to 64) for a process-wide client limiter: a call waits for a slot in the caller, and that wait is not counted against the provider timeout (10 s by default). The limiter is per process, so with an api and R worker replicas the service can see (1 + R) x this value callers: raise it on the service to that sum (compose passes the same value to all of them), or lower it on the callers, otherwise calls queue in the service again and can hit the 5 s `busy` answer. |
 | `BROWSER_MAX_TIMEOUT_S` | 180 | Upper bound for a request's `timeout_s`. The deadline covers queueing; there is a 2 s grace for partial results, then 504. |
 | `BROWSER_MAX_RESPONSE_BYTES` | 5 MiB | Response cap. html and text are each capped at half of it, and a screenshot over the cap returns 413. |
 | `BROWSER_MAX_DOWNLOAD_BYTES` | 64 MiB | Bytes one request may pull through the egress proxy. |

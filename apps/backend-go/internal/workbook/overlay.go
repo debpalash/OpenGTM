@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -79,6 +80,9 @@ func (w cellWrite) overlayCell() map[string]any {
 	if len(w.Skipped) > 0 {
 		cell["skipped_providers"] = w.skippedJSON()
 	}
+	if a, ok := w.Meta["attempts"]; ok {
+		cell["attempts"] = a
+	}
 	return cell
 }
 
@@ -86,8 +90,33 @@ func (w cellWrite) overlayCell() map[string]any {
 // overlay row and mirror the cell into the workbook row's enrichments JSON.
 // The caller owns the transaction (and the lease re-check that precedes it).
 func setEnrichment(ctx context.Context, tx pgx.Tx, w cellWrite) error {
-	_, err := setEnrichmentChange(ctx, tx, w)
+	_, _, err := setEnrichmentChange(ctx, tx, w)
 	return err
+}
+
+// keepValueOnFailure is the re-run guard: an error or miss result for a cell that already has a complete value
+// does not replace it. The old value, status and provider stay; the failed attempt is recorded in the cell's
+// metadata (cell_metadata.last_failed_attempt, mirrored on the overlay cell). kept is false when the cell had no
+// complete value, and the caller writes the error as usual.
+func keepValueOnFailure(ctx context.Context, q *gen.Queries, w cellWrite) (kept bool, err error) {
+	if w.Status != "error" {
+		return false, nil
+	}
+	at := map[string]any{"status": "error", "error": anyOf(w.Error), "at": time.Now().UTC().Format(time.RFC3339)}
+	if len(w.Skipped) > 0 {
+		at["skipped_providers"] = w.skippedJSON()
+	}
+	raw, err := json.Marshal(at)
+	if err != nil {
+		return false, err
+	}
+	n, err := q.NoteFailedAttempt(ctx, gen.NoteFailedAttemptParams{Attempt: raw, WorkbookID: w.WorkbookID,
+		WorkspaceID: w.WorkspaceID, LeadID: w.LeadID, ColumnID: w.ColumnID})
+	if err != nil || n == 0 {
+		return false, err
+	}
+	return true, q.NoteFailedAttemptOverlay(ctx, gen.NoteFailedAttemptOverlayParams{Attempt: raw, ColumnID: w.ColumnID,
+		RowID: w.RowID, WorkbookID: w.WorkbookID, WorkspaceID: w.WorkspaceID})
 }
 
 // rowChange is one on_row_changed delta: a complete cell whose prior overlay value differs.
@@ -131,8 +160,16 @@ func priorCellValue(ctx context.Context, q *gen.Queries, w cellWrite) (any, erro
 
 // setEnrichmentChange is setEnrichment that also reports the on_row_changed delta (status
 // complete and str(old) != str(new)); nil when there is none or the row no longer exists.
-func setEnrichmentChange(ctx context.Context, tx pgx.Tx, w cellWrite) (*rowChange, error) {
+func setEnrichmentChange(ctx context.Context, tx pgx.Tx, w cellWrite) (change *rowChange, kept bool, err error) {
 	q := gen.New(tx)
+	if kept, err = keepValueOnFailure(ctx, q, w); err != nil || kept {
+		return nil, kept, err
+	}
+	change, err = writeEnrichment(ctx, q, w)
+	return change, false, err
+}
+
+func writeEnrichment(ctx context.Context, q *gen.Queries, w cellWrite) (*rowChange, error) {
 	var old any
 	if w.Status == "complete" {
 		var err error

@@ -64,7 +64,9 @@ type Deps struct {
 // the egress-guarded dialer (see NewLive); until then every probe is "unreachable".
 func NewDeps() Deps {
 	d := Deps{Resolver: net.DefaultResolver, st: newMemo(), Registry: NewRegistry()}
-	d.Registry.Register(SMTPVerifier(d), false)
+	// Unbound: the cascade binds it to the Deps it is run with, so NewSession, SMTPDisabled and the HELO identity
+	// set after NewDeps (NewLive) are the ones it uses. Binding here would freeze the empty Deps of this moment.
+	d.Registry.Register(&smtpVerifier{d: d}, false)
 	return d
 }
 
@@ -131,6 +133,7 @@ type memo struct {
 	mx       map[string]memoEntry[string]
 	catchAll map[string]memoEntry[bool]
 	sems     map[string]chan struct{}
+	conn     connTrack
 }
 
 type memoEntry[T any] struct {

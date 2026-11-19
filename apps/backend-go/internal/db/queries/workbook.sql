@@ -62,6 +62,24 @@ ON CONFLICT (workbook_id, lead_id, column_id) DO UPDATE SET
   value = EXCLUDED.value, status = EXCLUDED.status, provider = EXCLUDED.provider,
   error = EXCLUDED.error, cell_metadata = EXCLUDED.cell_metadata, updated_at = (now() AT TIME ZONE 'UTC');
 
+-- name: NoteFailedAttempt :execrows
+-- A re-run that ended in an error or a miss keeps the cell's complete value; the failed attempt is recorded in
+-- cell_metadata.last_failed_attempt instead. Zero rows: the cell has no complete value to protect.
+UPDATE workbook_enrichments
+SET cell_metadata = jsonb_set(COALESCE(cell_metadata::jsonb, '{}'::jsonb), '{last_failed_attempt}', sqlc.arg(attempt)::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+  AND lead_id = sqlc.arg(lead_id)::int AND column_id = sqlc.arg(column_id)::text
+  AND status = 'complete' AND COALESCE(value, '') <> '';
+
+-- name: NoteFailedAttemptOverlay :exec
+-- The same note on the row overlay cell (workbook_rows.enrichments[column_id]) the grid reads.
+UPDATE workbook_rows
+SET enrichments = jsonb_set(COALESCE(enrichments::jsonb, '{}'::jsonb), ARRAY[sqlc.arg(column_id)::text, 'last_failed_attempt'], sqlc.arg(attempt)::jsonb, true)::json,
+    updated_at = (now() AT TIME ZONE 'UTC')
+WHERE id = sqlc.arg(row_id)::int AND workbook_id = sqlc.arg(workbook_id)::text AND workspace_id = sqlc.arg(workspace_id)::text
+  AND jsonb_typeof(enrichments::jsonb -> sqlc.arg(column_id)::text) = 'object';
+
 -- name: GetRowOverlayCell :one
 -- Prior overlay cell (enrichments[column_id]) as JSON text, 'null' when absent: the old value of
 -- an on_row_changed delta, read in the same transaction before MergeRowOverlay.
@@ -95,18 +113,26 @@ WHERE provider = sqlc.arg(provider)::text AND accuracy_score IS NOT NULL
 LIMIT 1;
 
 -- name: RecordProviderAttempt :exec
--- Port of planner.record_attempt: one atomic additive upsert.
+-- Port of planner.record_attempt: one atomic additive upsert. The cooldown policy lives in internal/cooldown:
+-- a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts. The run
+-- (consecutive_timeouts) is reset by any attempt that did not time out, and a timeout only extends it when the call
+-- started at or after the finish of the previously counted timeout (last_timeout_at): calls launched together that
+-- all time out are one event.
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,
-   cooldown_until, updated_at, accuracy_samples)
+   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts, last_timeout_at)
 VALUES (sqlc.arg(provider)::text, sqlc.arg(field)::text, 1,
   CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
   CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(confidence)::float8 ELSE 0.0 END,
   sqlc.arg(latency_ms)::float8,
   CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(cost_usd)::float8 ELSE 0.0 END,
-  CASE WHEN sqlc.arg(cooldown_seconds)::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(cooldown_seconds)::int) END,
-  (now() AT TIME ZONE 'UTC'), 0)
+  CASE WHEN sqlc.arg(rate_limited)::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(rate_limit_seconds)::int)
+       WHEN sqlc.arg(timed_out)::bool AND 1 >= sqlc.arg(timeout_threshold)::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int) END,
+  (now() AT TIME ZONE 'UTC'), 0,
+  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN 1 ELSE 0 END,
+  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN sqlc.arg(finished_at)::timestamp END)
 ON CONFLICT (provider, field) DO UPDATE SET
   attempts = COALESCE(provider_stats.attempts, 0) + 1,
   hits = COALESCE(provider_stats.hits, 0) + CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
@@ -114,8 +140,22 @@ ON CONFLICT (provider, field) DO UPDATE SET
   total_latency_ms = COALESCE(provider_stats.total_latency_ms, 0.0) + sqlc.arg(latency_ms)::float8,
   total_cost_usd = COALESCE(provider_stats.total_cost_usd, 0.0) + CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(cost_usd)::float8 ELSE 0.0 END,
   updated_at = (now() AT TIME ZONE 'UTC'),
-  cooldown_until = CASE WHEN sqlc.arg(cooldown_seconds)::int > 0
-       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(cooldown_seconds)::int)
+  consecutive_timeouts = CASE
+       WHEN NOT sqlc.arg(timed_out)::bool OR sqlc.arg(rate_limited)::bool THEN 0
+       WHEN provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at
+       THEN provider_stats.consecutive_timeouts + 1
+       ELSE provider_stats.consecutive_timeouts END,
+  last_timeout_at = CASE
+       WHEN NOT sqlc.arg(timed_out)::bool OR sqlc.arg(rate_limited)::bool THEN NULL
+       WHEN provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at
+       THEN sqlc.arg(finished_at)::timestamp
+       ELSE provider_stats.last_timeout_at END,
+  cooldown_until = CASE WHEN sqlc.arg(rate_limited)::bool
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(rate_limit_seconds)::int)
+       WHEN sqlc.arg(timed_out)::bool
+            AND (provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at)
+            AND provider_stats.consecutive_timeouts + 1 >= sqlc.arg(timeout_threshold)::int
+       THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int)
        ELSE provider_stats.cooldown_until END;
 
 -- name: LockLeaseForReceipt :one

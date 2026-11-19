@@ -5,21 +5,21 @@ import (
 	"errors"
 	"log/slog"
 	"sort"
-	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
 
 // Planner constants from planner.py.
 const (
-	cooldownSeconds        = 300
-	timeoutCooldownSeconds = 180
-	correctnessWeight      = 0.6
+	correctnessWeight = 0.6
 )
 
 // skippedProvider is a selected provider that never ran, with the reason.
@@ -162,17 +162,7 @@ type attemptRecord struct {
 	latencyMS       float64
 	rateLimited     bool
 	timedOut        bool
-}
-
-// looksRateLimited ports planner.looks_rate_limited.
-func looksRateLimited(err string) bool {
-	e := strings.ToLower(err)
-	for _, s := range []string{"429", "rate limit", "too many requests", "quota", "throttle"} {
-		if strings.Contains(e, s) {
-			return true
-		}
-	}
-	return false
+	started         time.Time
 }
 
 // recordAttempts ports the telemetry flush in enrich_cell: one short
@@ -185,15 +175,10 @@ func (p planner) recordAttempts(ctx context.Context, pool *pgxpool.Pool, workspa
 	err := tenancy.InWorkspace(ctx, pool, workspaceID, func(tx pgx.Tx) error {
 		q := gen.New(tx)
 		for _, a := range attempts {
-			cd := int32(0)
-			if a.rateLimited {
-				cd = cooldownSeconds
-			} else if a.timedOut {
-				cd = timeoutCooldownSeconds
-			}
-			if err := q.RecordProviderAttempt(ctx, gen.RecordProviderAttemptParams{
+			if err := cooldown.Record(ctx, q, cooldown.Attempt{
 				Provider: a.provider, Field: a.field, Success: a.success, Confidence: a.confidence,
-				LatencyMs: a.latencyMS, CostUsd: p.cost(a.provider), CooldownSeconds: cd,
+				LatencyMS: a.latencyMS, CostUSD: p.cost(a.provider), RateLimited: a.rateLimited, TimedOut: a.timedOut,
+				TargetSite: providers.ClassOfName(a.provider) == providers.ClassTargetSite, StartedAt: a.started, FinishedAt: time.Now(),
 			}); err != nil {
 				return err
 			}

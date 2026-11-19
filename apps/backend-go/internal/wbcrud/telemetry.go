@@ -391,8 +391,11 @@ func BuildRunItem(j RunJob) *Obj {
 	if res, ok := get("execution_result").(*Obj); ok {
 		if rc, _ := res.Get("retry_count"); pyEqInt(rc, retry) {
 			r := NewObj()
-			for _, k := range []string{"completed", "errors", "total", "rows", "stopped", "recorded_at"} {
-				v, _ := res.Get(k)
+			for _, k := range []string{"completed", "no_data", "needs_setup", "errors", "total", "rows", "stopped", "recorded_at"} {
+				v, ok := res.Get(k)
+				if !ok && (k == "no_data" || k == "needs_setup") {
+					continue // receipts written before the outcome counts existed keep their old shape
+				}
 				r.Set(k, v)
 			}
 			result = r
