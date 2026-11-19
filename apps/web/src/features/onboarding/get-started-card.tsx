@@ -12,6 +12,7 @@ import {
   describeChange,
   progressLabel,
   readDismissed,
+  sampleLoadedMessage,
   showChecklist,
   writeDismissed
 } from "./onboarding-steps"
@@ -63,7 +64,7 @@ export function GetStartedCard() {
       setAnnouncement("Loading the sample workbook.")
     },
     onSuccess: (result) => {
-      setAnnouncement(`Sample workbook ${result.created ? "loaded" : "already loaded"}. Open it from step 3.`)
+      setAnnouncement(sampleLoadedMessage(result.created))
       void queryClient.invalidateQueries({ queryKey })
       void queryClient.invalidateQueries({ queryKey: ["record-overview"] })
     },

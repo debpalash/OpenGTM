@@ -10,6 +10,7 @@
     "build:ui-preview": "tsc -b && vite build --config vite.ui-preview.config.ts",
     "lint": "eslint .",
     "test:a11y": "playwright test",
+    "test:e2e-real": "playwright test -c e2e/real/playwright.config.ts",
     "preview": "vite preview",
     "portless:domain": "portless proxy start --tld sh",
     "portless:local": "portless proxy start --no-tls --port 1355 --tld sh",

@@ -440,7 +440,9 @@ func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options List
 		return out, errors.New("invalid sort direction")
 	}
 	err := tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
-		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR accepted_fields::text ILIKE '%'||$2||'%')` + filter
+		// Search the field VALUES. Casting the whole object to text also matched its keys ("domain", "name",
+		// "source", ...), so a short or common term matched every record.
+		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR EXISTS (SELECT 1 FROM jsonb_each_text(CASE WHEN jsonb_typeof(accepted_fields)='object' THEN accepted_fields ELSE '{}'::jsonb END) AS kv WHERE kv.value ILIKE '%'||$2||'%'))` + filter
 		args := []any{ws, search}
 		if options.CompanyID != "" {
 			args = append(args, options.CompanyID)
