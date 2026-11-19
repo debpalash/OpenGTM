@@ -41,6 +41,8 @@
   background: var(--gtm-surface);
   max-width: 260px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .records-table tr:hover td {
   background: var(--gtm-canvas);
@@ -177,15 +179,11 @@
   align-items: center;
   gap: 8px;
 }
-.records-toolbar select {
-  box-shadow: none;
-  border: 1px solid var(--border);
-  font-size: 0.8125rem;
-  padding: 0 28px 0 12px;
-  height: 32px;
+.records-filter {
+  min-width: 11rem;
 }
-.records-toolbar select:focus-visible {
-  outline: 2px solid var(--ring);
+.records-sort {
+  min-width: 9.5rem;
 }
 .records-footer {
   flex-shrink: 0;
@@ -204,9 +202,6 @@
   display: flex;
   gap: 8px;
 }
-.records-shared-note {
-  color: var(--muted-foreground);
-}
 .records-selection {
   display: flex;
   align-items: center;
@@ -224,9 +219,6 @@
   gap: 8px;
 }
 @media (max-width: 1000px) {
-  .records-shared-note {
-    display: none;
-  }
   .records-toolbar-spacer {
     display: none;
   }
@@ -255,18 +247,14 @@
   .records-toolbar .records-filter {
     width: 128px;
     flex: 1;
-    min-width: 110px;
+    min-width: 9.5rem;
   }
   .records-view-options {
     width: 100%;
     justify-content: space-between;
   }
-  .records-view-options select {
-    border: 0;
-    padding-left: 0;
-    height: 28px;
-    box-shadow: none;
-    background: transparent;
+  .records-sort {
+    min-width: 0;
   }
   .records-footer {
     padding: 10px 16px;
@@ -356,9 +344,6 @@
 .records-table[data-density="compact"] .records-two-line {
   line-height: 14px;
   gap: 0;
-}
-.records-toolbar select {
-  height: 32px;
 }
 @media (pointer: coarse) {
   .records-table[data-density="compact"] .gtm-checkbox-target {

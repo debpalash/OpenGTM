@@ -36,7 +36,6 @@ export function ColumnConfiguration({
       <Button
         ref={trigger}
         variant="outline"
-        size="sm"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
