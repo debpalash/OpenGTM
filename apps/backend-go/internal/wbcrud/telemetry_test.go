@@ -328,6 +328,16 @@ func TestCostExposureMath(t *testing.T) {
 	}
 }
 
+// A receipt written by the Go worker carries the per-outcome counts; they are returned when present and never
+// invented for a receipt written before they existed (those keep the exact old shape, see the test below).
+func TestRunItemReturnsOutcomeCountsWhenRecorded(t *testing.T) {
+	payload := `{"execution_result":{"retry_count":0,"completed":86,"no_data":89,"needs_setup":25,"errors":0,"total":200,"rows":50,"stopped":false,"recorded_at":"t"}}`
+	b, _ := json.Marshal(BuildRunItem(RunJob{ID: 1, Payload: []byte(payload), Status: telStr("completed"), RetryCount: telInt(0)}))
+	if !strings.Contains(string(b), `"result":{"completed":86,"no_data":89,"needs_setup":25,"errors":0,"total":200,"rows":50,"stopped":false,"recorded_at":"t"}`) {
+		t.Fatalf("outcome counts missing: %s", b)
+	}
+}
+
 func TestRunItemMaskingAndShape(t *testing.T) {
 	payload := `{"workbook_id":"w","run_id":"r1","row_ids":[1,2,3],"column_ids":["a","b"],"fill_missing":1,"force":[],
 	 "output_attempts":{"x":{"state":"dispatch_claimed"}},

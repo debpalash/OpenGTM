@@ -10,7 +10,7 @@ import (
 const pdlBase = "https://api.peopledatalabs.com/v5"
 
 // pdl ports providers/people_data_labs.py (PeopleDataLabsProvider).
-type pdl struct{}
+type pdl struct{ providers.Upstream }
 
 func (pdl) Name() string     { return "people_data_labs" }
 func (pdl) KeyEnv() []string { return []string{"PDL_API_KEY"} }

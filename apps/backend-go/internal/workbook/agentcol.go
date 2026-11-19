@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/aicol"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
@@ -284,7 +285,7 @@ loop:
 			reason := "timeout"
 			if call.kind == callException {
 				reason = "error: " + truncRunes(call.text, 160)
-				if looksRateLimited(call.text) {
+				if cooldown.LooksRateLimited(call.text) {
 					reason = "rate_limited→reroute"
 				}
 			}

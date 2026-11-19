@@ -101,7 +101,7 @@ export interface Workbook {
   id: string
   name: string
   description: string
-  status: "draft" | "running" | "paused" | "failed" | "complete"
+  status: "draft" | "running" | "paused" | "failed" | "complete" | "completed_with_errors"
   source_type?: "empty" | "csv" | "leads_filter" | "job_results" | "ambitionbox"
   source_config?: Record<string, any> | null
   filter_criteria: FilterCriteria | null

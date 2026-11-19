@@ -42,12 +42,22 @@ next run, not one already queued.
 | `row_concurrency` | `12` | 1-64 | Rows enriched concurrently inside one job. Rows run in batches of this size and each batch waits for its slowest row before the next starts. Each in-flight cell holds one database session. |
 | `provider_workers` | `8` | 1-64 | Size of the pebble process pool for provider calls inside one job child. Caps concurrent provider calls per job; a hung call costs one killed process, not the run. |
 | `provider_timeout` | `10` s | 3-120 | Per provider call; the provider process is killed when it expires. |
+| `ENRICH_TARGET_SITE_TIMEOUT` (environment of the worker and api, not a stored setting) | `30` s | 3-120 | Timeout floor for providers that fetch the lead's own website (`website_scraper`, `deep_scraper`, `jsonld_firmographics`, `tech_stack`, `mailscout`): they run with the larger of `provider_timeout` and this value. They load several pages one after another (the first-run benchmark measured 5 to 35 s per call), which a single vendor API call, the case the 10 s default is sized for, does not. A timeout of one of these providers never starts a provider-wide cooldown. |
 | `max_providers` | `8` | 0-20 (0 = full chain) | Waterfall depth per cell. |
 | `retry_passes` | `1` | 0-5 | Extra passes over cells still in `error` after the main pass. |
 
 Environment fallbacks used when a payload or the settings database lacks a
 value: `WORKBOOK_RUN_CONCURRENCY` (12), `WORKBOOK_PROVIDER_WORKERS` (8),
 `WORKBOOK_PROVIDER_TIMEOUT` (10), `WORKBOOK_MAX_PROVIDERS_PER_CELL` (0).
+
+## Provider cooldown
+
+A provider that is failing is skipped for a while so the rest of the workbook is not held up by it (`provider_stats.cooldown_until`, one row per provider and field, shared by the workspace).
+
+- A rate limit (HTTP 429, quota, throttle) pauses the provider for 300 s at once.
+- A timeout pauses it for 180 s only after three timeouts in a row with no success or miss between, and calls that were started together count as one event (twelve rows that all time out together are one timeout, three successive rounds are three).
+- A provider that fetches the lead's own website or mail server never starts a timeout cooldown: its timeout belongs to that one lead. Each provider declares which kind it is (`providers.Upstream`, `providers.TargetSite`, `providers.Local`) and a test fails for a provider that declares none.
+- The pages of one website are fetched once per run for all columns: `deep_scraper` and `website_scraper` keep their answer for two minutes.
 
 ## Database connection pools (per process)
 

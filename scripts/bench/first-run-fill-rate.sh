@@ -4,8 +4,8 @@
 #
 # End to end: generate an env file and a compose override OUTSIDE the repo, build and start the stack under its
 # own compose project, complete first-run setup through the API, seed and run the demo (compose "demo" profile),
-# wait for the run to settle, read workbook_enrichments, print the per-column table and the overall rate as text
-# and JSON, then tear the project down (containers, volumes, network, built images) in a trap.
+# wait for the run to settle, read workbook_enrichments, print the per-column table and three separate fill rates
+# (all filled; excluding guessed emails; excluding columns that need a key by design) as text and JSON, then tear the project down (containers, volumes, network, built images) in a trap.
 #
 # Requires: docker compose v2.24+ (for !reset), curl, python3, openssl. Makes real outbound requests to free
 # public sources (that is the point). Run from anywhere; it works on the checkout it lives in.
@@ -168,7 +168,7 @@ wait_run() { # $1 = number of run_workbook jobs expected so far
 STATUS1="$(wait_run 1)" || true
 T_RUN_DONE="$(now)"
 log "run 1 status: $STATUS1 in $((T_RUN_DONE - T_RUN_START)) s"
-pg -c "select column_id,lead_id,coalesce(value,''),coalesce(provider,''),coalesce(status,''),coalesce(error,''),coalesce(cell_metadata::text,'') from workbook_enrichments order by 1,2" >"$OUT/run1_cells.psv"
+pg -c "select column_id,lead_id,regexp_replace(replace(coalesce(value,''),'|','/'),'[\r\n]+',' ','g'),coalesce(provider,''),coalesce(status,''),regexp_replace(replace(coalesce(error,''),'|','/'),'[\r\n]+',' ','g'),regexp_replace(replace(coalesce(cell_metadata::text,''),'|','/'),'[\r\n]+',' ','g') from workbook_enrichments order by 1,2" >"$OUT/run1_cells.psv"
 dc logs worker-go >"$OUT/worker.log" 2>&1 || true
 dc logs browser >"$OUT/browser.log" 2>&1 || true
 
@@ -180,7 +180,7 @@ for i in $(seq 1 "$RERUNS"); do
   t0="$(now)"
   SEED_FORCE_RUN=1 dc run --rm seed-go >>"$OUT/seed-rerun.log" 2>&1 || true
   st="$(wait_run $((i + 1)))" || true
-  pg -c "select column_id,lead_id,coalesce(value,''),coalesce(provider,''),coalesce(status,''),coalesce(error,''),coalesce(cell_metadata::text,'') from workbook_enrichments order by 1,2" >"$OUT/run$((i + 1))_cells.psv"
+  pg -c "select column_id,lead_id,regexp_replace(replace(coalesce(value,''),'|','/'),'[\r\n]+',' ','g'),coalesce(provider,''),coalesce(status,''),regexp_replace(replace(coalesce(error,''),'|','/'),'[\r\n]+',' ','g'),regexp_replace(replace(coalesce(cell_metadata::text,''),'|','/'),'[\r\n]+',' ','g') from workbook_enrichments order by 1,2" >"$OUT/run$((i + 1))_cells.psv"
   RERUN_JSON="$(python3 -I - "$OUT" "$i" "$st" "$(($(now) - t0))" "$RERUN_JSON" <<'PY'
 import json, sys
 out, i, st, secs, prev = sys.argv[1], int(sys.argv[2]), sys.argv[3], int(sys.argv[4]), json.loads(sys.argv[5])
@@ -205,78 +205,7 @@ ROWS="$(pg -c "select count(*) from workbook_rows")"
 LEADFIELD_FILLED="$(pg -c "select count(*) filter (where coalesce(data->>'company','')<>'')+count(*) filter (where coalesce(data->>'website','')<>'') from workbook_rows")"
 pg -c "select provider,field,attempts,hits,coalesce(cooldown_until::text,'') from provider_stats order by 1,2" >"$OUT/provider_stats.psv" || true
 
-python3 -I - "$OUT" "$COMMIT" "$ROWS" "$LEADFIELD_FILLED" "$STATUS1" "$((T_UP_DONE - T_UP))" "$((T_RUN_DONE - T_UP))" \
-  "$((T_RUN_DONE - T_RUN_START))" "$((T_BUILT - T_START))" "$RERUN_JSON" <<'PY' | tee "$OUT/report.txt"
-import collections, json, re, sys
-out, commit, rows, lf_filled, status, up_s, up_to_done_s, run_s, build_s, reruns = sys.argv[1:11]
-rows, lf_filled = int(rows), int(lf_filled)
-cells = []
-for l in open(f"{out}/run1_cells.psv"):
-    f = l.rstrip("\n").split("|", 6)
-    if len(f) == 7: cells.append(f)
-cols = collections.OrderedDict()
-for col, lead, val, prov, st, err, meta in cells:
-    c = cols.setdefault(col, {"total": 0, "filled": 0, "providers": collections.Counter(), "empty_reasons": collections.Counter()})
-    c["total"] += 1
-    if val:
-        c["filled"] += 1; c["providers"][prov or "?"] += 1
-    else:
-        reason = err or st or "unknown"
-        if "cooldown" in meta: reason += " (provider cooldown skip)"
-        c["empty_reasons"][reason] += 1
-tot = sum(c["total"] for c in cols.values()); fil = sum(c["filled"] for c in cols.values())
-
-def mib(s):
-    n, u = re.match(r"([\d.]+)(\w+)", s).groups()
-    return float(n) * {"KiB": 1/1024, "MiB": 1, "GiB": 1024, "B": 1/1048576}[u]
-peak, per, cur = 0.0, collections.defaultdict(float), 0.0
-try:
-    for l in open(f"{out}/stats.log"):
-        if l.startswith("---"): peak = max(peak, cur); cur = 0; continue
-        p = l.split()
-        if len(p) >= 2:
-            m = mib(p[1]); per[p[0]] = max(per[p[0]], m); cur += m
-except FileNotFoundError:
-    pass
-pstats = []
-try:
-    for l in open(f"{out}/provider_stats.psv"):
-        f = l.rstrip("\n").split("|")
-        if len(f) >= 4: pstats.append({"provider": f[0], "field": f[1], "attempts": int(f[2]), "hits": int(f[3])})
-except FileNotFoundError:
-    pass
-rep = {
-    "commit": commit, "rows": rows, "run_status": status,
-    "enrichment_cells": {"filled": fil, "total": tot, "rate": round(fil / tot, 4) if tot else None},
-    "all_cells_including_lead_fields": {"filled": fil + lf_filled, "total": tot + 2 * rows,
-                                         "rate": round((fil + lf_filled) / (tot + 2 * rows), 4) if tot else None},
-    "per_column": {k: {"filled": v["filled"], "total": v["total"],
-                       "rate": round(v["filled"] / v["total"], 4),
-                       "filled_by_provider": dict(v["providers"]),
-                       "empty_reasons": dict(v["empty_reasons"])} for k, v in cols.items()},
-    "seconds": {"build": int(build_s), "compose_up": int(up_s), "up_to_run_complete": int(up_to_done_s), "run_1": int(run_s)},
-    "memory_mib": {"peak_sum_sampled": round(peak), "peak_per_container": {k: round(v) for k, v in per.items()},
-                   "samples": "docker stats --no-stream every 10 s"},
-    "provider_stats_cumulative": pstats,
-    "reruns": json.loads(reruns),
-}
-print(f"First-run fill rate, commit {commit[:8]}, {rows} rows, no paid keys, no LLM key, run status {status}")
-print(f"{'column':<14}{'filled':>8}{'total':>7}{'rate':>7}  filled by / empty because")
-for k, v in rep["per_column"].items():
-    fb = ", ".join(f"{p} {n}" for p, n in sorted(v["filled_by_provider"].items(), key=lambda x: -x[1]))
-    eb = ", ".join(f"{r} x{n}" for r, n in sorted(v["empty_reasons"].items(), key=lambda x: -x[1]))
-    print(f"{k:<14}{v['filled']:>8}{v['total']:>7}{v['rate']*100:>6.0f}%  {fb}{' | EMPTY: ' + eb if eb else ''}")
-e = rep["enrichment_cells"]
-print(f"OVERALL (enrichment columns): {e['filled']}/{e['total']} = {e['rate']*100:.1f}%")
-a = rep["all_cells_including_lead_fields"]
-print(f"OVERALL (incl. the 2 lead-field columns): {a['filled']}/{a['total']} = {a['rate']*100:.1f}%")
-s = rep["seconds"]
-print(f"time: compose up {s['compose_up']} s, up to run complete {s['up_to_run_complete']} s, run 1 {s['run_1']} s (image build {s['build']} s, separate)")
-print(f"memory: peak sum of sampled containers {rep['memory_mib']['peak_sum_sampled']} MiB; per container {rep['memory_mib']['peak_per_container']}")
-for r in rep["reruns"]:
-    print(f"re-run {r['run']}: {r['filled']}/{r['total']} filled, lost {r['lost_vs_previous']}, gained {r['gained_vs_previous']} vs previous run, {r['seconds']} s")
-print("JSON:")
-print(json.dumps(rep, indent=2))
-json.dump(rep, open(f"{out}/report.json", "w"), indent=2)
-PY
+pg -c "select columns_config::text from workbooks limit 1" >"$OUT/columns.json" || true
+python3 -I "$ROOT/scripts/bench/fill_rate_report.py" "$OUT" "$COMMIT" "$ROWS" "$LEADFIELD_FILLED" "$STATUS1" "$((T_UP_DONE - T_UP))" "$((T_RUN_DONE - T_UP))" \
+  "$((T_RUN_DONE - T_RUN_START))" "$((T_BUILT - T_START))" "$RERUN_JSON" | tee "$OUT/report.txt"
 log "report: $OUT/report.txt and $OUT/report.json (kept after teardown)"

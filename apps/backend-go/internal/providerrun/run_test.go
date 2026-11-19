@@ -18,6 +18,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pausectx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providerrun"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
@@ -219,9 +220,55 @@ func TestRunTimeoutDoesNotBlockSlot(t *testing.T) {
 	if out, err := h.r.Run(context.Background(), "ws1", fast, providers.Input{Field: "description"}, time.Second); err != nil || out.Error != "" {
 		t.Fatalf("slot not released after a ctx-honouring timeout: %+v %v", out, err)
 	}
+	// One timeout is not evidence that the provider is down: no cooldown yet.
 	s, ok := h.stat(t, slow, "description")
-	if !ok || s.hits != 0 || s.cooldownSecondsAhead < 150 || s.cooldownSecondsAhead > 181 {
-		t.Fatalf("timeout ledger %+v ok=%v (want 180s cooldown)", s, ok)
+	if !ok || s.hits != 0 || s.attempts != 1 || s.cooldownSecondsAhead != -1 {
+		t.Fatalf("timeout ledger after one timeout %+v ok=%v (want attempts 1, no cooldown)", s, ok)
+	}
+	// The third consecutive timeout benches it for 180 s.
+	for i := 0; i < 2; i++ {
+		if out, err := h.r.Run(context.Background(), "ws1", slow, providers.Input{Field: "description"}, 30*time.Millisecond); err != nil || out.Error != "timeout" {
+			t.Fatalf("run %d: %+v %v", i, out, err)
+		}
+	}
+	s, _ = h.stat(t, slow, "description")
+	if s.cooldownSecondsAhead < 150 || s.cooldownSecondsAhead > 181 {
+		t.Fatalf("after three consecutive timeouts %+v (want a 180s cooldown)", s)
+	}
+}
+
+// A provider answering with a rate limit error is benched for 300 s at once (the Go path used to never do this).
+func TestRunRateLimitCoolsDownAtOnce(t *testing.T) {
+	name := uniq("t18_rl")
+	providers.Register(&fakeProv{name, func(context.Context, *http.Client, func() (string, error), providers.Input) (providers.Output, error) {
+		return providers.Output{Error: "HTTP 429 too many requests"}, nil
+	}})
+	h := newHarness(t, nil)
+	if _, err := h.r.Run(context.Background(), "ws1", name, providers.Input{Field: "description"}, time.Second); err != nil {
+		t.Fatal(err)
+	}
+	if s, ok := h.stat(t, name, "description"); !ok || s.cooldownSecondsAhead < 270 || s.cooldownSecondsAhead > 301 {
+		t.Fatalf("rate limit ledger %+v ok=%v (want a 300s cooldown)", s, ok)
+	}
+}
+
+// A provider that queues for a shared resource pauses its timeout clock (pausectx); the queue wait must not be
+// reported as a provider timeout, and no cooldown must be written.
+func TestRunQueueWaitIsNotATimeout(t *testing.T) {
+	name := uniq("t19_queued")
+	providers.Register(&fakeProv{name, func(ctx context.Context, _ *http.Client, _ func() (string, error), _ providers.Input) (providers.Output, error) {
+		resume := pausectx.Pause(ctx)
+		time.Sleep(200 * time.Millisecond) // longer than the whole provider timeout
+		resume()
+		return okOut("description", "d", 0.5), nil
+	}})
+	h := newHarness(t, nil)
+	out, err := h.r.Run(context.Background(), "ws1", name, providers.Input{Field: "description"}, 80*time.Millisecond)
+	if err != nil || out.Error != "" {
+		t.Fatalf("queue wait counted as a timeout: %+v %v", out, err)
+	}
+	if s, ok := h.stat(t, name, "description"); !ok || s.hits != 1 || s.cooldownSecondsAhead > 0 {
+		t.Fatalf("ledger %+v ok=%v", s, ok)
 	}
 }
 

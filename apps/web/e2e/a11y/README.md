@@ -51,3 +51,9 @@ once fixtures for them are added.
 Add the route to `a11y.spec.ts`. If the page needs data, add a fixture in
 `fixtures/data.ts` and map it in `fixtures/routes.ts`; unmatched endpoints return `200 []`.
 Set `A11Y_LOG_UNMATCHED=1` to print which endpoints fell through to the default.
+
+## No third-party requests
+
+Every covered route (and `/login`) must request only its own origin. The mock blocks other origins, and the test
+also fails if the page tried one. Anything fetched from another host on page view (favicon services, GitHub, map
+tiles) leaks what the user is looking at; load it only after an explicit click.

@@ -33,6 +33,7 @@ from ..models import (
     SearchRun,
     WebDirectoriesRequest,
 )
+from . import backend_health
 
 logger = logging.getLogger("browser_service.scrapers.search")
 
@@ -194,6 +195,10 @@ def classify_search_error(exc: BaseException) -> str:
     return "failed"
 
 
+class SearchRatelimitError(Exception):
+    """Every configured keyless backend is cooling down: reported as rate_limited so the Go side backs off too."""
+
+
 # ddgs threads cannot be cancelled: after a timeout the worker keeps running until
 # ddgs' own socket timeout. A dedicated pool plus a slot counter released only when
 # the thread really finishes bounds the total, however many requests time out.
@@ -217,6 +222,15 @@ async def ddgs_search(
 ) -> list[dict]:
     """One ddgs query over the egress proxy (chained to ``upstream`` when the
     caller picked one). Raises on failure (see _classify)."""
+    backends = deps.settings.search_backends.strip() if backend is _UNSET else backend
+    if backends and backends != "auto":
+        wanted = [b.strip() for b in str(backends).split(",") if b.strip()]
+        # A backend that just answered 429/403/202 (or timed out) is left alone while it cools down.
+        usable = backend_health.health.allowed(wanted)
+        if wanted and not usable:
+            raise SearchRatelimitError("every configured search backend is cooling down after answering with a block")
+        backends = ", ".join(usable)
+    backend_health.install()
     if not _ddgs_slots.acquire(blocking=False):
         raise ServiceError("busy")
     try:
@@ -226,7 +240,6 @@ async def ddgs_search(
         raise
     proxy_url = deps.proxy.proxy_url(session)
     timeout = max(1, min(deps.settings.search_timeout_s, int(deadline.left())))
-    backends = deps.settings.search_backends.strip() if backend is _UNSET else backend
 
     def run() -> list[dict]:
         try:

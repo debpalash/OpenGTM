@@ -4,6 +4,8 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 )
 
 const manifestJSON = `{"name":"hunter","capability":"email","auth":{"type":"none"},"request":{"url":"http://x/y"},"response":{"mappings":{"email":"$.email"}}}`
@@ -111,7 +113,7 @@ func TestColumnChainSelection(t *testing.T) {
 
 func TestLooksRateLimited(t *testing.T) {
 	for s, want := range map[string]bool{"HTTP 429": true, "Rate Limit hit": true, "quota exceeded": true, "boom": false, "": false} {
-		if looksRateLimited(s) != want {
+		if cooldown.LooksRateLimited(s) != want {
 			t.Fatalf("%q", s)
 		}
 	}

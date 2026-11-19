@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/insecure-context"
 import { useLayoutEffect, useRef, useState } from "react"
 import { useInfiniteQuery } from "@tanstack/react-query"
 import { Activity, Copy, KeyRound, RefreshCw } from "lucide-react"
@@ -105,7 +106,7 @@ export function InboundSetup({
     if (!token) return
     setCopyError("")
     try {
-      await navigator.clipboard.writeText(token)
+      await copyText(token)
       setCopied(true)
     } catch {
       setCopied(false)

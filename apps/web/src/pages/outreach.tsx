@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/insecure-context"
 // Sequences (Outreach) — rewired onto the scaffold React Query hooks (spec §1.1).
 //
 // Replaces the old raw-fetch page. Key fixes vs the prior code:
@@ -259,7 +260,7 @@ function GroundedDraftDetail({ id, onBack }: { id: string; onBack: () => void })
 
   const copyDraft = async () => {
     try {
-      await navigator.clipboard.writeText(`Subject: ${row.subject}\n\n${row.body_text}`)
+      await copyText(`Subject: ${row.subject}\n\n${row.body_text}`)
       setCopied(true)
       toast.success("Draft copied")
       window.setTimeout(() => setCopied(false), 2000)

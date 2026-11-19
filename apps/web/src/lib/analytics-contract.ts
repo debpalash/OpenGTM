@@ -16,6 +16,47 @@ const fields = (
 const rows = (value: unknown, valid: (row: Data) => boolean) =>
   Array.isArray(value) && value.every((row) => object(row) && valid(row))
 const day = (row: Data) => typeof row.day === "string"
+// The shared-records fields were added after the legacy ones. An older server omits them, so they are checked only
+// when present; a present but malformed block is still rejected.
+const absent = (value: unknown) => value === undefined
+const currentModel = (value: Data) =>
+  (absent(value.records) ||
+    (fields(
+      value.records,
+      ["companies", "people", "people_with_email", "verified_emails", "companies_needing_domain"],
+      count
+    ) &&
+      fields(value.records, ["email_pct", "verified_pct"], number))) &&
+  (absent(value.activity) ||
+    (fields(
+      value.activity,
+      ["window_days", "workbooks", "workbooks_run", "running_workbooks", "failed_workbooks", "cells_filled", "cells_no_data"],
+      count
+    ) &&
+      fields(value.activity, ["fill_rate_pct"], number) &&
+      rows(
+        (value.activity as Data).by_day,
+        (row) => typeof row.date === "string" && fields(row, ["filled", "no_data"], count)
+      ))) &&
+  (absent(value.providers) ||
+    rows(
+      value.providers,
+      (row) =>
+        typeof row.provider === "string" &&
+        fields(row, ["cells_filled", "paid_attempts"], count) &&
+        fields(row, ["share_pct", "spend_usd"], number)
+    )) &&
+  (absent(value.spend) ||
+    (fields(value.spend, ["window_days"], count) &&
+      fields(value.spend, ["window_usd", "total_usd"], number) &&
+      rows(
+        (value.spend as Data).by_day,
+        (row) => typeof row.date === "string" && number(row.usd)
+      ))) &&
+  (absent(value.legacy) ||
+    (object(value.legacy) &&
+      typeof value.legacy.present === "boolean" &&
+      count(value.legacy.leads)))
 const contracts = {
   overview: (value: Data) =>
     fields(
@@ -44,7 +85,8 @@ const contracts = {
       number
     ) &&
     fields(value.jobs, ["total", "completed", "failed"], count) &&
-    fields(value.jobs, ["success_rate"], number),
+    fields(value.jobs, ["success_rate"], number) &&
+    currentModel(value),
   pipeline: (value: Data) =>
     counts(value.statuses) && object(value.status_tiers),
   collection: (value: Data) =>

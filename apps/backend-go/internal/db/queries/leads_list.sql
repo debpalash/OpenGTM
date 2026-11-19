@@ -24,11 +24,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('company_size')::text IS NULL OR company_size = sqlc.narg('company_size')::text)
   AND (sqlc.narg('search')::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', sqlc.narg('search')::text)
-       OR company ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR city ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR specialization ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR notes ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR description ILIKE '%' || sqlc.narg('search')::text || '%')
+       OR company ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
 ORDER BY
          CASE WHEN sqlc.arg('order_by')::text = 'score DESC' THEN score END DESC,
          CASE WHEN sqlc.arg('order_by')::text = 'score ASC' THEN score END ASC,

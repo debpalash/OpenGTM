@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/insecure-context"
 /**
  * Workbook Editor — Hybrid model.
  *
@@ -39,6 +40,7 @@ import {
   DollarSign, RefreshCw, Mail, MailCheck, MailX, Smartphone, Building2, Users,
   ChartColumn, Target, PenLine, Lightbulb, TriangleAlert,
 } from "lucide-react"
+import { cellOutcome, runNeedsAttention } from "@/lib/workbook-outcomes"
 import { LinkedInIcon } from "@/components/semantic-icons"
 import { Button } from "@/components/ui/button"
 import { NativeSelect } from "@/components/ui/native-select"
@@ -100,27 +102,27 @@ const TYPED_FIELDS = new Set(["website", "linkedin_url", "twitter_url", "faceboo
 
 // ── Cell Status Indicator ────────────────────────────────────────────────
 
-function CellStatus({ status }: { status?: string }) {
+function CellStatus({ status, error }: { status?: string; error?: string | null }) {
   if (!status || status === "complete") return null
   if (status === "running") return <Loader2 className="size-3 animate-spin text-[var(--gtm-link)] shrink-0" />
-  if (status === "error") return <AlertCircle className="size-3 text-destructive shrink-0" />
+  if (status === "error") {
+    // Only a real failure is red: no data is a normal result, and a missing setup is something the user can fix.
+    const outcome = cellOutcome(status, error)
+    if (outcome === "no_data") return <span role="img" aria-label="No data found" title="No data found" className="size-3 text-muted-foreground/50 shrink-0 text-xs leading-3">∅</span>
+    if (outcome === "needs_setup") return <a href="/settings" aria-label="Needs setup: open Settings" title="Needs setup: open Settings" className="size-3 text-[var(--gtm-warning)] shrink-0 text-xs leading-3 font-medium" onClick={e => e.stopPropagation()}>!</a>
+    return <AlertCircle aria-label="Error" className="size-3 text-destructive shrink-0" />
+  }
   if (status === "pending") return <Clock className="size-3 text-muted-foreground/40 shrink-0" />
   if (status === "skipped") return <span className="size-3 text-muted-foreground/40 shrink-0 text-xs leading-3">—</span>
   return null
 }
 
-// ── Favicon helper ─────────────────────────────────────────────────────
+// ── Domain mark ────────────────────────────────────────────────────────
+// A local icon, not a favicon fetched from a third-party service: that would send every domain in the
+// workbook to that service on page view.
 function Favicon({ domain }: { domain?: string }) {
   if (!domain) return null
-  return (
-    <img
-      src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
-      alt=""
-      className="size-4 rounded shrink-0"
-      loading="lazy"
-      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-    />
-  )
+  return <Globe aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
 }
 
 // ── Column Progress Bar ────────────────────────────────────────────────
@@ -312,7 +314,7 @@ function EditableCell({
       ].filter(Boolean).join("\n") || undefined}
     >
       {showProvenance && <ProvenanceCard prov={provenance!} ttlDays={staleTtlDays} />}
-      <CellStatus status={status} />
+      <CellStatus status={status} error={error} />
       <span className="truncate text-sm flex-1 min-w-0">
         {displayOverride ?? displayValue}
       </span>
@@ -331,7 +333,7 @@ function EditableCell({
         <button
           onClick={(e) => {
             e.stopPropagation()
-            navigator.clipboard.writeText(displayValue)
+            copyText(displayValue)
             toast.success("Copied", { duration: 1200 })
           }}
           className="hidden group-hover/cell:inline-flex p-0.5 rounded hover:bg-muted shrink-0"
@@ -1251,7 +1253,7 @@ export default function WorkbookEditorPage() {
           String(gridCellValue(range.top + rowOffset, range.left + columnOffset))
         )
       ))
-      navigator.clipboard.writeText(text)
+      copyText(text)
         .then(() => toast.success("Copied selection", { duration: 1200 }))
         .catch(() => toast.error("Clipboard access was denied"))
       return
@@ -1475,10 +1477,10 @@ export default function WorkbookEditorPage() {
 
   return (
     <div className="workbook-editor flex flex-col h-full overflow-hidden">
-      {workbook.status === "failed" && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
+      {runNeedsAttention(workbook.status) && <div role="alert" className="flex items-start gap-2 border-b border-destructive/30 bg-background px-3 py-3 text-sm shrink-0">
         <AlertCircle aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-destructive" />
         <div><p className="font-medium">Run needs attention</p>
-          <p className="text-muted-foreground">Some work failed. Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
+          <p className="text-muted-foreground">{workbook.status === "failed" ? "The run failed." : "Some cells ended in errors."} Open Run history and inspect cell errors before retrying. Successful cells may remain; avoid re-sending completed outputs.</p>
         </div>
       </div>}
       {/* ── Selection Toolbar ─────────────────────────────────────────── */}

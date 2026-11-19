@@ -818,6 +818,28 @@ func TestWebSearchRaiseErrors(t *testing.T) {
 	}
 }
 
+// WebSearch used to ask ddgs on every call, whatever the keyless search had just answered: a block (429, 403, 202)
+// grew no backoff there, so every provider call hit the blocked backends again. It now shares the keyless backoff
+// with Text/News: a blocked answer grows it, a cooling backoff skips the call, an answer clears it.
+func TestWebSearchHonoursKeylessBackoff(t *testing.T) {
+	cfg, _ := config.LeadwebFrom(func(string) string { return "" })
+	cfg.SearxDisabled = true
+	fb := &fakeBrowser{script: []browserclient.SearchOut{step("rate_limited"), step("hit")}}
+	s := &Searcher{cfg: cfg, browser: fb, searx: NewSearx(cfg, nil), backoff: NewBackoff(true, time.Minute, time.Hour)}
+	if _, err := s.WebSearch(context.Background(), "q", 3, true); err != ErrSearchFailed {
+		t.Fatalf("first call: %v", err)
+	}
+	if !s.backoff.Blocked(ddgsHost) {
+		t.Fatal("a rate_limited answer did not grow the keyless backoff")
+	}
+	if _, err := s.WebSearch(context.Background(), "q", 3, true); err != ErrSearchFailed {
+		t.Fatalf("second call while blocked: %v", err)
+	}
+	if len(fb.searches) != 1 {
+		t.Fatalf("ddgs was asked %d times; a call during the backoff must not reach the backends", len(fb.searches))
+	}
+}
+
 func TestGMapsMatchesPython(t *testing.T) {
 	v := loadSearch(t).Gosom
 	csvBody := "title,phone,website,emails\r\n\"Acme, Inc\",+91 98765 43210,https://acme.in,\"a@acme.in, b@acme.in\"\r\nBeta,,,\r\n"

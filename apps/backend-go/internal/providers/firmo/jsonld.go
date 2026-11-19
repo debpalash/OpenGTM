@@ -38,7 +38,7 @@ var (
 )
 
 // jsonldFirmo ports providers/jsonld_firmographics.py.
-type jsonldFirmo struct{}
+type jsonldFirmo struct{ providers.TargetSite }
 
 func (jsonldFirmo) Name() string { return "jsonld_firmographics" }
 

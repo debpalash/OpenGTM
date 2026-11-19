@@ -17,7 +17,11 @@ const companyEnrichBase = "https://api.companyenrich.com"
 
 // Separate provider names make every paid action an explicit workbook choice.
 // A company lookup never implicitly searches people or expands workforce data.
-type companyEnrich struct{ action string }
+type companyEnrich struct {
+	action string
+}
+
+func (companyEnrich) CooldownClass() providers.Class { return providers.ClassUpstream }
 
 func (p companyEnrich) Name() string   { return "companyenrich_" + p.action }
 func (companyEnrich) KeyEnv() []string { return []string{"COMPANYENRICH_API_KEY"} }

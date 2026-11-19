@@ -26,7 +26,10 @@ import (
 // Settings: REACHER_URL (global, never per-workspace), REACHER_ENABLED,
 // REACHER_TIMEOUT. The optional REACHER_API_KEY comes through the key callback
 // and is only fetched once the URL is valid and the breaker is closed.
-type reacher struct{ br *breaker }
+type reacher struct {
+	br *breaker
+	providers.Upstream
+}
 
 func newReacher() *reacher {
 	return &reacher{br: &breaker{threshold: 3, cooldown: 60 * time.Second, now: time.Now}}

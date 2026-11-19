@@ -477,8 +477,10 @@ func runWbScenario(t *testing.T, ws string, now time.Time, sc wbScenario) {
 			skipped++
 		}
 	}
-	if res.Completed != x.RowResult.Completed || res.Errors != x.RowResult.Errors-skipped {
-		t.Errorf("result: completed %d errors %d, python %+v (skipped %d)", res.Completed, res.Errors, x.RowResult, skipped)
+	// Deviation: Python counted every cell without a value as an error. Go tells no_data, needs_setup and error
+	// apart (internal/cellstate), so the Python count is their sum.
+	if res.Completed != x.RowResult.Completed || res.Errors+res.NoData+res.NeedsSetup != x.RowResult.Errors-skipped {
+		t.Errorf("result: completed %d errors %d no_data %d needs_setup %d, python %+v (skipped %d)", res.Completed, res.Errors, res.NoData, res.NeedsSetup, x.RowResult, skipped)
 	}
 
 	var overlay map[string]any

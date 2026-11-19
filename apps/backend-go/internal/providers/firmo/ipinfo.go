@@ -29,7 +29,7 @@ var lookupIPv4 = func(ctx context.Context, host string) (string, error) {
 }
 
 // ipinfo ports providers/ipinfo.py (IPInfoProvider).
-type ipinfo struct{}
+type ipinfo struct{ providers.Upstream }
 
 func (ipinfo) Name() string     { return "ipinfo" }
 func (ipinfo) KeyEnv() []string { return []string{"IPINFO_TOKEN"} }

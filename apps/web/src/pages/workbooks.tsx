@@ -90,7 +90,7 @@ export default function WorkbooksPage() {
         setFilter("q", value)
       }} placeholder="Search workbooks" /></label>
       <label>Status<NativeSelect aria-label="Status" value={status} onChange={event => setFilter("status", event.target.value)}>
-        <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
+        <option value="all">All statuses</option>{["draft", "running", "paused", "failed", "completed_with_errors", "complete"].map(value => <option key={value} value={value}>{value}</option>)}
       </NativeSelect></label>
       <label>Sort<NativeSelect aria-label="Sort" value={sort} onChange={event => setFilter("sort", event.target.value)}><option value="updated">Recently updated</option><option value="name">Name</option></NativeSelect></label>
       <Button aria-expanded={showTemplates} aria-controls="workbook-templates" onClick={() => setShowTemplates(!showTemplates)}>{showTemplates ? "Hide templates" : "Browse templates"}</Button>
@@ -119,7 +119,7 @@ export default function WorkbooksPage() {
             actions: [{ label: "Open workbook", href: `/workbooks/${encodeURIComponent(workbook.id)}` }],
           })}>
             <td><Link to={`/workbooks/${encodeURIComponent(workbook.id)}`} className="gtm-workbook-link"><Table2 aria-hidden="true" className="size-4 shrink-0" /><span>{workbook.name}</span></Link></td>
-            <td><span className="gtm-workbook-status" data-status={workbook.status}>{workbook.status}</span></td>
+            <td><span className="gtm-workbook-status" data-status={workbook.status}>{workbook.status === "completed_with_errors" ? "complete with errors" : workbook.status}</span></td>
             <td>{workbook.total_rows.toLocaleString()}</td><td>{workbook.columns_config.length}</td>
             <td>{workbook.completed_rows.toLocaleString()} / {workbook.total_rows.toLocaleString()}</td>
             <td>{Number.isFinite(Date.parse(workbook.updated_at)) ? <time dateTime={workbook.updated_at} title={new Date(workbook.updated_at).toLocaleString()}>{new Date(workbook.updated_at).toLocaleDateString()}</time> : "—"}</td>

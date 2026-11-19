@@ -14,14 +14,17 @@ import (
 
 var dmTargetTitles = []string{"Founder", "CEO", "Managing Director", "CHRO", "HR Director", "CTO", "COO", "VP HR"}
 
-type decisionMaker struct{ gated }
+type decisionMaker struct {
+	gated
+	providers.Upstream
+}
 
 func (decisionMaker) Name() string { return "decision_maker" }
 
 type dmPerson struct{ name, title, linkedin string }
 
 func dmSearch(ctx context.Context, s Search, company, title string) (dmPerson, bool) {
-	for _, r := range s.Text(ctx, `site:linkedin.com/in "`+company+`" "`+title+`" India`, 2) {
+	for _, r := range s.Text(ctx, `site:linkedin.com/in `+phrase(company)+` `+phrase(title)+` India`, 2) {
 		if !strings.Contains(r.Href, "/in/") {
 			continue
 		}

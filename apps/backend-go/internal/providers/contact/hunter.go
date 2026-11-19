@@ -8,7 +8,10 @@ import (
 )
 
 // hunter ports providers/hunter_io.py (HunterProvider).
-type hunter struct{ base string }
+type hunter struct {
+	base string
+	providers.Upstream
+}
 
 func (*hunter) Name() string     { return "hunter_io" }
 func (*hunter) KeyEnv() []string { return []string{"HUNTER_API_KEY"} }

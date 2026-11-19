@@ -358,6 +358,10 @@ loop:
 		if isSpendStop(err) {
 			break loop
 		}
+		if reason := LLMFailureReason(err); reason != "" {
+			// No key, or every provider failed: more steps would only repeat the failure.
+			return Result{Error: reason}, nil
+		}
 		if err != nil {
 			decision = map[string]any{}
 		}
@@ -443,6 +447,9 @@ loop:
 	}
 	if errors.Is(err, ErrSpend) {
 		return Result{}, err
+	}
+	if reason := LLMFailureReason(err); reason != "" {
+		return Result{Error: reason}, nil
 	}
 	if err != nil {
 		text = ""

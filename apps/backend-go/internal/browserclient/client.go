@@ -315,6 +315,14 @@ func (c *Client) post(ctx context.Context, path string, body any, timeout time.D
 	if err != nil {
 		return &Error{Code: "bad_request"}
 	}
+	if !c.Configured() {
+		return ErrUnavailable
+	}
+	release, err := acquire(ctx)
+	if err != nil {
+		return err
+	}
+	defer release()
 	return c.do(ctx, http.MethodPost, path, data, timeout, out)
 }
 

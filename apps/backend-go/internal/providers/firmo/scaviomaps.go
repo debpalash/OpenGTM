@@ -20,7 +20,7 @@ const scavioMapsURL = "https://api.scavio.dev/api/v2/google/maps/search"
 // either can fill the same waterfall slot. Maps answers an unknown name with
 // whatever is nearby, so of the first three places the first whose title
 // contains every significant company name word wins; none is a miss.
-type scavioMaps struct{}
+type scavioMaps struct{ providers.Upstream }
 
 func (scavioMaps) Name() string     { return "scavio_maps" }
 func (scavioMaps) KeyEnv() []string { return []string{"SCAVIO_API_KEY"} }

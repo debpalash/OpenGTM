@@ -87,7 +87,7 @@ func TestRunHappyPath(t *testing.T) {
 			}
 		case "workbook_status":
 			status++
-			if keys(m) != "completed,errors,status,total,type" || m["status"] != "complete" || m["completed"] != 3.0 || m["errors"] != 0.0 || m["total"] != 3.0 {
+			if keys(m) != "completed,errors,needs_setup,no_data,status,total,type" || m["status"] != "complete" || m["completed"] != 3.0 || m["errors"] != 0.0 || m["total"] != 3.0 {
 				t.Fatalf("status msg %v", m)
 			}
 		}
@@ -137,7 +137,8 @@ func TestNoMatchIsError_no_data(t *testing.T) {
 	s := newSim(t, func(_ string, _ int, w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, `{"v":""}`) })
 	c := e.claim(wsA, payloadFor(wsA, "wb-nd", map[string]float64{"free1": 0}, nil))
 	res, err := workbook.Run(e.ctx, e.deps(s, nil), c)
-	if err != nil || res.Completed != 0 || res.Errors != 2 {
+	// Providers that ran and found nothing are no_data, not errors: the run is complete.
+	if err != nil || res.Completed != 0 || res.NoData != 2 || res.Errors != 0 {
 		t.Fatalf("%+v %v", res, err)
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_enrichments WHERE status='error' AND error='no_data' AND value IS NULL`); n != 2 {
@@ -146,7 +147,7 @@ func TestNoMatchIsError_no_data(t *testing.T) {
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE enrichments::jsonb->'c1'->>'error'='no_data' AND enrichments::jsonb->'c1'->>'status'='error'`); n != 2 {
 		t.Fatalf("overlay errors %d", n)
 	}
-	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-nd'`); st != "failed" {
+	if st := e.str(wsA, `SELECT status FROM workbooks WHERE id='wb-nd'`); st != "complete" {
 		t.Fatalf("workbook status %s", st)
 	}
 }
@@ -538,7 +539,8 @@ func TestCyclicColumnBlockedMessage(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Errors != 2 || res.Completed != 0 || s.total() != 0 {
+	// a is a real error (a dependency cycle); b only never ran because its upstream did not produce a value.
+	if res.Errors != 1 || res.NoData != 1 || res.Completed != 0 || s.total() != 0 {
 		t.Fatalf("result %+v calls %d", res, s.total())
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-cyc' AND enrichments::jsonb->'a'->>'error'='dependency_cycle' AND enrichments::jsonb->'b'->>'error'='upstream_dependency_failed'`); n != 1 {
@@ -561,7 +563,7 @@ func TestUpstreamFailureSkipsDependent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Errors != 2 || res.Completed != 0 || s.count("pa") != 0 {
+	if res.NoData != 2 || res.Errors != 0 || res.Completed != 0 || s.count("pa") != 0 {
 		t.Fatalf("result %+v pa calls %d", res, s.count("pa"))
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-up' AND enrichments::jsonb->'b'->>'error'='no_data' AND enrichments::jsonb->'a'->>'error'='upstream_dependency_failed' AND enrichments::jsonb->'a'->>'status'='error'`); n != 1 {
@@ -580,7 +582,7 @@ func TestUpstreamUnavailableBlocksDependent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Errors != 1 || s.total() != 0 {
+	if res.NoData != 1 || res.Errors != 0 || s.total() != 0 {
 		t.Fatalf("result %+v calls %d", res, s.total())
 	}
 	if n := e.one(wsA, `SELECT count(*) FROM workbook_rows WHERE workbook_id='wb-unav' AND enrichments::jsonb->'a'->>'error'='upstream_dependency_unavailable'`); n != 1 {
@@ -645,7 +647,7 @@ func TestUpstreamFailureIsolatedPerRow(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if res.Completed != 2 || res.Errors != 2 {
+	if res.Completed != 2 || res.NoData != 2 || res.Errors != 0 {
 		t.Fatalf("result %+v", res)
 	}
 	q := func(id int32) string {

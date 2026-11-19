@@ -16,6 +16,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/automationhook"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/entities"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sqllike"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -440,8 +441,11 @@ func (s Store) ListFiltered(ctx context.Context, ws string, k Kind, options List
 		return out, errors.New("invalid sort direction")
 	}
 	err := tenancy.InWorkspace(ctx, s.Pool, ws, func(tx pgx.Tx) error {
-		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE '%'||$2||'%' OR accepted_fields::text ILIKE '%'||$2||'%')` + filter
-		args := []any{ws, search}
+		// Search the field VALUES. Casting the whole object to text also matched its keys ("domain", "name",
+		// "source", ...), so a short or common term matched every record.
+		where := `workspace_id=$1 AND ($2='' OR ` + name + ` ILIKE $3 ESCAPE '\' OR EXISTS (SELECT 1 FROM jsonb_each_text(CASE WHEN jsonb_typeof(accepted_fields)='object' THEN accepted_fields ELSE '{}'::jsonb END) AS kv WHERE kv.value ILIKE $3 ESCAPE '\'))` + filter
+		// $3 is the search as a literal-substring pattern: % and _ typed by the user must not act as wildcards.
+		args := []any{ws, search, sqllike.Contains(search)}
 		if options.CompanyID != "" {
 			args = append(args, options.CompanyID)
 			where += fmt.Sprintf(" AND company_entity_id=$%d", len(args))

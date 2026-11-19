@@ -16,6 +16,8 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"strconv"
 	"strings"
 	"sync/atomic"
 	"time"
@@ -23,10 +25,12 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/egress"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/enrichcache"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/pausectx"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/provcall"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers/contact"
@@ -53,9 +57,11 @@ const (
 	defaultTimeout = 10 * time.Second
 	defaultWorkers = 16
 
-	// Python planner.COOLDOWN_SECONDS / TIMEOUT_COOLDOWN_SECONDS.
-	cooldownSeconds        = 300
-	timeoutCooldownSeconds = 180
+	// defaultTargetSiteTimeout is the budget of a provider that fetches the lead's own site (providers.ClassTargetSite).
+	// Such a provider walks several pages one after another (deep_scraper: up to 14 paths with redirect hops;
+	// website_scraper: 4 browser renders), which took 5 to 35 s in the first-run benchmark against the 10 s default
+	// that suits a single vendor API call. ENRICH_TARGET_SITE_TIMEOUT overrides it (seconds, 3 to 120).
+	defaultTargetSiteTimeout = 30 * time.Second
 
 	ledgerTimeout = 5 * time.Second
 )
@@ -75,9 +81,12 @@ type Deps struct {
 	// Reacher client may reach even when private.
 	OperatorAllow []string
 	Workers       int // provider_workers: goroutines running Go providers at once
-	Log           *slog.Logger
-	Cost          func(provider string) float64 // default vendorcatalog.BaseCost
-	Now           func() time.Time
+	// TargetSiteTimeout is the timeout floor of target-site providers: they run with the larger of the caller's
+	// timeout and this budget. 0 reads ENRICH_TARGET_SITE_TIMEOUT, default 30 s.
+	TargetSiteTimeout time.Duration
+	Log               *slog.Logger
+	Cost              func(provider string) float64 // default vendorcatalog.BaseCost
+	Now               func() time.Time
 	// Manifests is the signature-verified connector index (credentials.ConnectorIndex): a provider
 	// with no Go implementation runs from its declarative manifest. nil uses this process's index
 	// over the connector settings (built-ins unless overridden).
@@ -112,6 +121,9 @@ func New(d Deps) *Runner {
 	}
 	if d.Now == nil {
 		d.Now = time.Now
+	}
+	if d.TargetSiteTimeout <= 0 {
+		d.TargetSiteTimeout = targetSiteTimeoutFromEnv()
 	}
 	if d.Manifests == nil {
 		d.Manifests = processConnectorIndex
@@ -171,6 +183,9 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 	}
 	// A gated provider (providers/scrape) runs in Go only when GO_LOCAL_PROVIDERS lists it.
 	p, native := nativeFor(provider, local)
+	if native && providers.ClassOf(p) == providers.ClassTargetSite && timeout < r.d.TargetSiteTimeout {
+		timeout = min(r.d.TargetSiteTimeout, maxTimeout)
+	}
 	var m manifest.Manifest
 	if !native {
 		_, registered := providers.Get(provider)
@@ -207,8 +222,9 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 		return providers.Output{}, err
 	}
 	success := out.Error == "" && out.Extra != nil && out.Extra.Len() > 0
+	rateLimited = !timedOut && cooldown.LooksRateLimited(out.Error)
 	r.record(ctx, workspaceID, provider, in.Field, success, out.Confidence,
-		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut)
+		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut, start)
 	if out.Error == "" {
 		r.cachePut(ctx, workspaceID, provider, in, out)
 	}
@@ -249,7 +265,7 @@ func (r *Runner) runGo(ctx context.Context, ws string, p providers.Provider, in 
 		client = r.operator
 	}
 
-	cctx, cancel := context.WithTimeout(providers.WithWorkspace(ctx, ws), timeout)
+	cctx, cancel := pausectx.WithTimeout(providers.WithWorkspace(ctx, ws), timeout) // queue waits pause the clock
 	defer cancel()
 	select {
 	case r.sem <- struct{}{}:
@@ -385,38 +401,22 @@ func firstNonEmpty(ss ...string) string {
 	return ""
 }
 
-// looksRateLimited ports planner.looks_rate_limited.
-func looksRateLimited(err string) bool {
-	e := strings.ToLower(err)
-	for _, s := range []string{"429", "rate limit", "too many requests", "quota", "throttle"} {
-		if strings.Contains(e, s) {
-			return true
-		}
-	}
-	return false
-}
-
 // ---- ledger -----------------------------------------------------------------
 
 // record is the planner.record_attempt upsert in its own short transaction. It
 // must outlive a cancelled call context, and a failure is logged and swallowed
 // so telemetry can never fail a call.
-func (r *Runner) record(ctx context.Context, ws, provider, field string, success bool, conf, latencyMS float64, rateLimited, timedOut bool) {
+func (r *Runner) record(ctx context.Context, ws, provider, field string, success bool, conf, latencyMS float64, rateLimited, timedOut bool, started time.Time) {
 	if r.d.Pool == nil {
 		return
-	}
-	cd := int32(0)
-	if rateLimited {
-		cd = cooldownSeconds
-	} else if timedOut {
-		cd = timeoutCooldownSeconds
 	}
 	lctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), ledgerTimeout)
 	defer cancel()
 	err := tenancy.InWorkspace(lctx, r.d.Pool, ws, func(tx pgx.Tx) error {
-		return gen.New(tx).RecordProviderAttempt(lctx, gen.RecordProviderAttemptParams{
+		return cooldown.Record(lctx, gen.New(tx), cooldown.Attempt{
 			Provider: provider, Field: field, Success: success, Confidence: conf,
-			LatencyMs: latencyMS, CostUsd: r.d.Cost(provider), CooldownSeconds: cd,
+			LatencyMS: latencyMS, CostUSD: r.d.Cost(provider), RateLimited: rateLimited, TimedOut: timedOut,
+			TargetSite: providers.ClassOfName(provider) == providers.ClassTargetSite, StartedAt: started, FinishedAt: time.Now(),
 		})
 	})
 	if err != nil {
@@ -619,4 +619,13 @@ func (r *Runner) Configured(ctx context.Context, workspaceID, provider string) (
 		}
 	}
 	return true, nil
+}
+
+// targetSiteTimeoutFromEnv reads ENRICH_TARGET_SITE_TIMEOUT (whole seconds, 3 to 120); anything else is the default.
+func targetSiteTimeoutFromEnv() time.Duration {
+	n, err := strconv.Atoi(strings.TrimSpace(os.Getenv("ENRICH_TARGET_SITE_TIMEOUT")))
+	if err != nil || n < 3 || n > int(maxTimeout/time.Second) {
+		return defaultTargetSiteTimeout
+	}
+	return time.Duration(n) * time.Second
 }

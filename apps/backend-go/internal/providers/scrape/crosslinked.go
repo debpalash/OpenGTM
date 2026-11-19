@@ -161,6 +161,7 @@ func clRank(p Person) int {
 // leadpeople.CrossLinked (FindPeopleByTitles), which people research reaches
 // through providers.Get("crosslinked").
 type CrossLinked struct {
+	providers.Upstream
 	gated
 	MaxPeople int           // 0 = 5
 	Delay     time.Duration // 0 = 1 s
@@ -220,9 +221,9 @@ func (c CrossLinked) findPeople(ctx context.Context, s Search, company, city str
 			}
 		}
 	}
-	q := `site:linkedin.com/in "` + company + `"`
+	q := `site:linkedin.com/in ` + phrase(company)
 	if city != "" {
-		q += ` "` + city + `"`
+		q += ` ` + phrase(city)
 	}
 	hits, _, err := clSearch(ctx, s, q, 15)
 	if err != nil {
@@ -234,7 +235,7 @@ func (c CrossLinked) findPeople(ctx context.Context, s Search, company, city str
 			return nil, err
 		}
 		for _, titles := range []string{"CEO OR CTO OR Founder", "Director OR VP OR Head"} {
-			hits, _, err := clSearch(ctx, s, `site:linkedin.com/in "`+company+`" `+titles, 8)
+			hits, _, err := clSearch(ctx, s, `site:linkedin.com/in `+phrase(company)+` `+titles, 8)
 			if err != nil {
 				return nil, err
 			}
@@ -291,7 +292,7 @@ func (c CrossLinked) FindPeopleByTitles(ctx context.Context, pq leadpeople.Peopl
 		q := `site:linkedin.com/in "` + pq.Company + `"`
 		for _, t := range []string{title, pq.Geo} {
 			if t != "" {
-				q += ` "` + t + `"`
+				q += ` ` + phrase(t)
 			}
 		}
 		if i > 0 {

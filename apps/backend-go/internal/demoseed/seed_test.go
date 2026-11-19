@@ -9,8 +9,10 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/demoseed"
 )
 
-// seed_demo_vectors.json is recorded from legacy seed_demo.py (testdata/gen_vectors.py.txt): the demo
-// workbook, its 25 rows and the column ids of the first-run job.
+// seed_demo_vectors.json was recorded from legacy seed_demo.py (testdata/gen_vectors.py.txt) and then edited on purpose:
+// the description no longer claims every column is zero-key, the research column is named as needing an LLM key, and
+// Email Verify takes the Email column as its input (input_columns). It holds the demo workbook, its 25 rows and the
+// column ids of the first-run job.
 type vectors struct {
 	CreatedFirst  bool `json:"created_first"`
 	CreatedSecond bool `json:"created_second"`

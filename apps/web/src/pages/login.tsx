@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useState, type ReactNode } from "react"
+import { useLayoutEffect, useState, type ReactNode } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { ArrowLeft, Building2, Eye, EyeOff, KeyRound, LockKeyhole, LogIn, ShieldCheck, User } from "lucide-react"
 
@@ -49,7 +49,6 @@ function Field({ id, label, icon, children, trailing }: {
 const GITHUB_REPO = "debpalash/OpenGTM"
 /** OpenGTM on X; the button is hidden until VITE_OPENGTM_X_URL is set. */
 const X_URL = (import.meta.env.VITE_OPENGTM_X_URL as string | undefined) || ""
-const STARS_CACHE = "gtm-github-stars"
 
 function GitHubMark({ className }: { className?: string }) {
   return (
@@ -65,34 +64,6 @@ function XMark({ className }: { className?: string }) {
       <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
     </svg>
   )
-}
-
-function formatStars(count: number) {
-  return count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : String(count)
-}
-
-/** Public star count, cached for an hour; the pill works without it. */
-function useGitHubStars(repo: string) {
-  const [stars, setStars] = useState<number | null>(() => {
-    try {
-      const cached = JSON.parse(localStorage.getItem(STARS_CACHE) || "null") as { count: number; at: number } | null
-      return cached && Date.now() - cached.at < 3_600_000 ? cached.count : null
-    } catch { return null }
-  })
-  useEffect(() => {
-    if (stars !== null) return
-    const controller = new AbortController()
-    fetch(`https://api.github.com/repos/${repo}`, { signal: controller.signal, headers: { Accept: "application/vnd.github+json" } })
-      .then(response => (response.ok ? response.json() : null))
-      .then((data: { stargazers_count?: number } | null) => {
-        if (typeof data?.stargazers_count !== "number") return
-        setStars(data.stargazers_count)
-        try { localStorage.setItem(STARS_CACHE, JSON.stringify({ count: data.stargazers_count, at: Date.now() })) } catch { /* private mode */ }
-      })
-      .catch(() => { /* offline or rate-limited: show the pill without a count */ })
-    return () => controller.abort()
-  }, [repo, stars])
-  return stars
 }
 
 /** The sign-in page is designed for light only; restore the user's theme on leave. */
@@ -125,7 +96,6 @@ const fieldClass =
 /** `setup` renders the first-run admin form (the /setup route); otherwise the sign-in page. */
 export default function LoginPage({ setup = false }: { setup?: boolean }) {
   useForceLightTheme()
-  const stars = useGitHubStars(GITHUB_REPO)
   const { login, completeSetup, setupRequired, setupTokenRequired } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -225,7 +195,7 @@ export default function LoginPage({ setup = false }: { setup?: boolean }) {
               className="flex h-9 items-center gap-2 rounded-full bg-white/80 pr-1 pl-3 text-[13px] font-medium text-[#1d1d1f] shadow-[var(--gtm-control-shadow)] backdrop-blur-md transition-colors outline-none [corner-shape:round] hover:bg-white focus-visible:shadow-[0_0_0_3px_var(--gtm-focus-ring)]">
               <GitHubMark className="size-4" />
               <span>Star</span>
-              <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] tabular-nums [corner-shape:round]">{stars === null ? "GitHub" : formatStars(stars)}</span>
+              <span className="rounded-full bg-[#1d1d1f]/[0.06] px-2 py-0.5 text-[12px] [corner-shape:round]">GitHub</span>
               <span className="sr-only">OpenGTM on GitHub (opens in a new tab)</span>
             </a>
             {X_URL && (

@@ -87,7 +87,10 @@ var cur atomic.Pointer[Deps]
 
 // Configure installs the process-wide seams (call once at start-up; tests may
 // call it again).
-func Configure(d Deps) { cur.Store(&d) }
+func Configure(d Deps) {
+	cur.Store(&d)
+	resetSiteMemory()
+}
 
 func current() *Deps {
 	if d := cur.Load(); d != nil {

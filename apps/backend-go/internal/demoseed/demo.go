@@ -12,7 +12,7 @@ import "encoding/json"
 const (
 	WorkbookID          = "demo-zero-key-firstrun"
 	WorkbookName        = "Demo — Zero-Key Enrichment"
-	WorkbookDescription = "Auto-seeded first-run demo. Every column uses FREE, zero-key providers — no API keys required. Click any cell to see the provider waterfall."
+	WorkbookDescription = "Auto-seeded first-run demo. Every column except HQ Location uses free providers that need no API key; HQ Location is an AI research column and stays empty until an LLM key is added in Settings. Click any cell to see the provider waterfall."
 )
 
 // Company is one demo row: the lead's company name and website.
@@ -37,13 +37,13 @@ const columnsJSON = `[
  {"id":"company","name":"Company","type":"lead_field","lead_field":"company","width":160},
  {"id":"website","name":"Website","type":"lead_field","lead_field":"website","width":180},
  {"id":"find_email","name":"Email","type":"waterfall","target_field":"email","width":220},
- {"id":"verify_email","name":"Email Verify","type":"waterfall","target_field":"email_verify","width":140},
+ {"id":"verify_email","name":"Email Verify","type":"waterfall","target_field":"email_verify","input_columns":["find_email"],"width":140},
  {"id":"find_phone","name":"Phone","type":"waterfall","target_field":"phone","width":150},
  {"id":"company_desc","name":"Description","type":"waterfall","target_field":"description","width":280},
  {"id":"company_size","name":"Size","type":"waterfall","target_field":"company_size","width":120},
  {"id":"linkedin","name":"LinkedIn","type":"waterfall","target_field":"linkedin_url","width":200},
  {"id":"hiring","name":"Hiring Signals","type":"waterfall","target_field":"hiring_signals","width":180},
- {"id":"research_hq","name":"HQ Location (research)","type":"research","prompt":"What city and country is {company} ({website}) headquartered in? Answer with just the city and country.","output_format":"text","max_steps":3,"width":220}
+ {"id":"research_hq","name":"HQ Location (research, needs an LLM key)","type":"research","prompt":"What city and country is {company} ({website}) headquartered in? Answer with just the city and country.","output_format":"text","max_steps":3,"width":220}
 ]`
 
 // ColumnsJSON is the workbook's columns_config.

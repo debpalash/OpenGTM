@@ -1,10 +1,11 @@
+import { randomId } from "@/lib/insecure-context"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 export function SnapshotDialog({ onClose, onRestored }: { onClose: () => void; onRestored: () => void }) {
-  const [raw, setRaw] = useState(""); const [key] = useState(() => crypto.randomUUID())
+  const [raw, setRaw] = useState(""); const [key] = useState(() => randomId())
   const [preview, setPreview] = useState<{ companies: number; people: number } | null>(null)
   const [error, setError] = useState(""); const [busy, setBusy] = useState(false)
   async function run(dry: boolean) {
