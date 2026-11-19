@@ -280,11 +280,11 @@ func (h smtpRoutes) test(w http.ResponseWriter, r *http.Request) {
 	}
 	cfg := outreachcfg.LoadSMTP(r.Context(), res, ws)
 	if msg := cfg.ConfigError(); msg != "" { // workspace host without its own credentials: never fall back to the platform's
-		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured: "+msg)
+		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured: "+msg, httpx.StepEmail...)
 		return
 	}
 	if !cfg.Configured() {
-		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured")
+		httpx.Detail(w, http.StatusBadRequest, "SMTP not configured", httpx.StepEmail...)
 		return
 	}
 	if !smtpmail.ValidRecipient(to) { // before any dial

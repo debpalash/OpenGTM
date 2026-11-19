@@ -22,9 +22,33 @@ const RULES: Array<[RegExp, NextStep]> = [
   [/session (has )?expired|sign in again|not authenticated/i, { label: "Sign in", to: "/login" }],
 ]
 
+// Destinations the server named for error messages (X-Next-Step headers),
+// newest last. The server knows the cause, so its answer beats the wording
+// rules below. Capped so a long session cannot grow it without bound.
+const fromServer = new Map<string, NextStep>()
+const MAX_REMEMBERED = 50
+
+/** Only same-site paths: a header must never send the user off-site. */
+export function safeInternalPath(to: string | null | undefined): string | null {
+  if (!to || !to.startsWith("/") || to.startsWith("//") || to.includes("\\")) return null
+  return to
+}
+
+/** Records the page the server named for an error message. */
+export function rememberNextStep(message: string, to: string | null, label: string | null) {
+  const path = safeInternalPath(to)
+  if (!message || !path) return
+  fromServer.delete(message)
+  fromServer.set(message, { label: label?.trim() || "Fix this", to: path })
+  if (fromServer.size > MAX_REMEMBERED) fromServer.delete(fromServer.keys().next().value!)
+}
+
 /** The place a message points to, or null when it names none. */
 export function nextStepFor(message: unknown): NextStep | null {
   if (typeof message !== "string" || !message) return null
+  // Callers often wrap the server text ("Could not start: SMTP not configured").
+  const known = [...fromServer].reverse().find(([detail]) => message.includes(detail))
+  if (known) return known[1]
   for (const [pattern, step] of RULES) if (pattern.test(message)) return step
   return null
 }

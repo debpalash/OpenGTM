@@ -86,7 +86,7 @@ func (h actionRoutes) start(w http.ResponseWriter, r *http.Request) {
 	}
 	res := secrets.NewResolver(h.d.Envelope, secrets.NewPgStore(h.d.Pool), h.d.getenv())
 	if !outreachcfg.LoadSMTP(ctx, res, ws).Configured() {
-		httpx.Detail(w, http.StatusBadRequest, startNeedsSMTP)
+		httpx.Detail(w, http.StatusBadRequest, startNeedsSMTP, httpx.StepEmail...)
 		return
 	}
 	if strings.TrimSpace(seq.ConsentBasis) == "" {
