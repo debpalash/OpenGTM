@@ -62,7 +62,6 @@ export function CommandMenuContent({ open, setOpen }: { open: boolean; setOpen: 
               >
                 <item.icon className="mr-2 size-4" aria-hidden="true" />
                 {item.label}
-                <span className="ml-auto text-xs text-muted-foreground">{area.label}</span>
               </CommandItem>
             ))}
           </CommandGroup>

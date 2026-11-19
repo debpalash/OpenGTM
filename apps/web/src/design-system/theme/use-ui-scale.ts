@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react"
 
-export type UIScalePreference = "auto" | "85" | "100"
+export type UIScalePreference = "auto" | "90" | "100" | "110"
 
 declare global {
   interface Window {

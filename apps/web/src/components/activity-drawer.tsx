@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { documentScale } from "@/lib/ui-scale"
 import {
   ChevronDown,
   Loader2,
@@ -188,7 +187,7 @@ export function ActivityDrawer({
                   maxHeight,
                   Math.round(
                     dragRef.current.startH +
-                      (dragRef.current.startY - event.clientY) / documentScale()
+                      (dragRef.current.startY - event.clientY)
                   )
                 )
               )

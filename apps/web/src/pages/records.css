@@ -25,7 +25,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  height: 32px;
+  height: 36px;
   border-bottom: 1px solid var(--border);
   color: var(--muted-foreground);
   background: var(--gtm-canvas);
@@ -36,7 +36,7 @@
 }
 .records-table td {
   padding: 3px 12px;
-  height: 40px;
+  height: 44px;
   border-bottom: 1px solid var(--border);
   background: var(--gtm-surface);
   max-width: 260px;
@@ -59,10 +59,10 @@
   padding-block: 0;
 }
 .records-table[data-density="compact"] .gtm-checkbox-target {
-  height: max(24px, var(--gtm-target-min));
+  height: var(--gtm-target-min);
 }
 .records-table[data-density="comfortable"] td {
-  height: 48px;
+  height: 52px;
   padding-block: 6px;
 }
 .records-table .records-check {
@@ -299,7 +299,7 @@
   line-height: 16px;
 }
 .records-table[data-density="compact"] .records-name {
-  min-height: max(24px, var(--gtm-target-min));
+  min-height: var(--gtm-target-min);
 }
 .records-table[data-density="compact"] .records-avatar {
   width: 24px;

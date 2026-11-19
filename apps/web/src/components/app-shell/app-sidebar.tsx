@@ -245,13 +245,13 @@ export function AppSidebar() {
               </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs text-muted-foreground">{uiScale.percent}%</span></DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs">{uiScale.percent}%</span></DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="gtm-account-menu min-w-56" sideOffset={6}>
                 <DropdownMenuRadioGroup value={uiScale.preference}
                   onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
-                  <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="auto">Default · 100%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="90">Compact · 90%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="110">Large · 110%</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>

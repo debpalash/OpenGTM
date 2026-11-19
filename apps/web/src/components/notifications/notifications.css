@@ -42,7 +42,7 @@
 .gtm-attention__eyebrow,
 .gtm-attention__section-kicker {
   color: var(--t-font-color-secondary);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.14em;
 }
@@ -62,7 +62,7 @@
 .gtm-attention__total > svg { flex: none; }
 .gtm-attention__number { font-variant-numeric: tabular-nums; font-size: 23px; font-weight: 600; letter-spacing: -0.04em; }
 .gtm-attention__total-label { font-size: 12px; font-weight: 600; white-space: nowrap; }
-.gtm-attention__total-label small { display: block; margin-top: 2px; font-size: 10px; font-weight: 400; color: var(--t-font-color-secondary); }
+.gtm-attention__total-label small { display: block; margin-top: 2px; font-size: 12px; font-weight: 400; color: var(--t-font-color-secondary); }
 
 .gtm-attention__feed { margin-top: 38px; }
 .gtm-attention__feed-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
@@ -77,7 +77,7 @@
 .gtm-attention__filter { display: inline-flex; align-items: center; gap: 7px; min-height: 30px; padding: 4px 12px; border-radius: var(--t-border-radius-md); color: var(--t-font-color-secondary); font-size: 12px; font-weight: 500; transition: background-color var(--gtm-duration-fast), color var(--gtm-duration-fast); }
 .gtm-attention__filter:hover { color: var(--t-font-color-primary); }
 .gtm-attention__filter[aria-pressed="true"] { background: var(--t-background-primary); color: var(--t-font-color-primary); box-shadow: var(--gtm-shadow-card); }
-.gtm-attention__filter-count { min-width: 19px; padding: 1px 5px; border-radius: 99px; background: var(--t-background-transparent-medium); font-size: 10px; font-variant-numeric: tabular-nums; text-align: center; }
+.gtm-attention__filter-count { min-width: 19px; padding: 1px 5px; border-radius: 99px; background: var(--t-background-transparent-medium); font-size: 12px; font-variant-numeric: tabular-nums; text-align: center; }
 .gtm-attention__shown { color: var(--t-font-color-secondary); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .gtm-attention__list { display: grid; gap: 8px; }
@@ -105,8 +105,8 @@
 .gtm-notification-row__icon { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: var(--t-border-radius-md); background: var(--attention-critical-wash); color: var(--attention-critical); }
 .gtm-notification-row[data-severity="urgent"] .gtm-notification-row__icon { background: var(--attention-urgent-wash); color: var(--attention-urgent); }
 .gtm-notification-row__body { display: block; min-width: 0; flex: 1; }
-.gtm-notification-row__meta { display: flex; align-items: center; flex-wrap: wrap; column-gap: 9px; row-gap: 3px; font-size: 11px; }
-.gtm-notification-row__severity { color: var(--attention-critical); font-size: 10px; font-weight: 700; letter-spacing: 0.065em; text-transform: uppercase; }
+.gtm-notification-row__meta { display: flex; align-items: center; flex-wrap: wrap; column-gap: 9px; row-gap: 3px; font-size: 12px; }
+.gtm-notification-row__severity { color: var(--attention-critical); font-size: 12px; font-weight: 700; letter-spacing: 0.065em; text-transform: uppercase; }
 .gtm-notification-row[data-severity="urgent"] .gtm-notification-row__severity { color: var(--attention-urgent); }
 .gtm-notification-row__source { color: var(--t-font-color-secondary); }
 .gtm-notification-row__source::before { content: "·"; margin-right: 9px; color: var(--t-font-color-tertiary); }
@@ -129,7 +129,7 @@
 .gtm-attention__state-action { min-height: 32px; margin-top: 8px; padding: 5px 12px; border: 1px solid var(--t-border-color-strong); border-radius: var(--t-border-radius-md); font-size: 12px; font-weight: 500; }
 .gtm-attention__state-action:hover:not(:disabled) { background: var(--t-background-secondary); }
 .gtm-attention__state-action:disabled { opacity: 0.6; cursor: wait; }
-.gtm-attention__footnote { margin-top: 16px; color: var(--t-font-color-secondary); font-size: 11px; }
+.gtm-attention__footnote { margin-top: 16px; color: var(--t-font-color-secondary); font-size: 12px; }
 
 @media (max-width: 800px) {
   .gtm-attention__overview { grid-template-columns: 1fr; }

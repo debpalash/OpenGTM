@@ -17,7 +17,6 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { parseClipboardTable, serializeClipboardTable } from "@/lib/workbook-clipboard"
 import { workbookColumnWindow } from "@/lib/workbook-column-window"
-import { documentScale } from "@/lib/ui-scale"
 import { loadedCellProgress, isExecutableColumn } from "@/lib/workbook-progress"
 import {
   useWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
@@ -441,9 +440,7 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
   } = useSortable({ id })
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform ? {
-      ...transform, x: transform.x / documentScale(), y: transform.y / documentScale(),
-    } : null),
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     width: w,
@@ -768,12 +765,11 @@ export default function WorkbookEditorPage() {
     e.preventDefault()
     e.stopPropagation()
     const startW = columnWidthsRef.current[colId] || 180
-    const scale = documentScale()
     resizeRef.current = { colId, startX: e.clientX, startW }
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!resizeRef.current) return
-      const diff = (ev.clientX - resizeRef.current.startX) / scale
+      const diff = ev.clientX - resizeRef.current.startX
       const newW = Math.max(80, Math.min(600, resizeRef.current.startW + diff))
       columnWidthsRef.current[resizeRef.current.colId] = newW
       // Direct DOM update — zero React re-renders during drag
@@ -887,8 +883,7 @@ export default function WorkbookEditorPage() {
                 title={col.name}
                 onContextMenu={(e) => {
                   e.preventDefault()
-                  const scale = documentScale()
-                  setCtxMenu({ x: e.clientX / scale, y: e.clientY / scale, colId: col.id })
+                  setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
                 }}
               >
                 <ColumnDragHandle name={col.name} />
@@ -1510,7 +1505,7 @@ export default function WorkbookEditorPage() {
 
         <div className="workbook-toolbar-heading">
           <h1 tabIndex={-1} data-page-title className="text-lg font-semibold truncate">{workbook.name}</h1>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Filter className="size-3" />
               {filterDesc}
@@ -1534,13 +1529,13 @@ export default function WorkbookEditorPage() {
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="Search rows..."
             value={globalFilter}
             onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1); setWorkbookCursor(null); setCursorHistory([]); setAllMatchingSelected(false); setRowSelection({}) }}
-            className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+            className="h-8 w-52 pl-8 pr-2 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
           />
           {globalFilter && (
             <button

@@ -10,6 +10,7 @@
 //  - Stats grid covers every per-status key; detail has Steps | Sends log |
 //    Suppressions tabs; auto-paused banner + Resume; 400/403 detail surfaced.
 
+import { PageHeader } from "@/design-system/patterns/workbench"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
 import { toast } from "sonner"
@@ -88,21 +89,16 @@ export default function OutreachPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 tabIndex={-1} data-page-title className="flex items-center gap-2 text-base font-semibold">
-            {draftId ? <FileText className="size-4" /> : <Send className="size-4" />}
-            Outreach
-          </h1>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {draftId
-              ? "Inspect the saved message and evidence behind each personalized claim."
-              : "Grounded drafts, email sequences, and delivery tracking."}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
+    <div className="flex flex-col">
+      <PageHeader
+        title="Outreach"
+        description={
+          draftId
+            ? "Inspect the saved message and evidence behind each personalized claim."
+            : "Grounded drafts, email sequences, and delivery tracking."
+        }
+        actions={
+          <>
           {!draftId && smtpStatus && (
             <span
               className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${
@@ -122,20 +118,17 @@ export default function OutreachPage() {
           {!draftId && view === "list" && (
             <Gate need="admin">
               <Button
-                size="sm"
                 variant="outline"
                 onClick={() => setView("create")}
-                className="h-7 gap-1 text-xs"
               >
-                <Plus className="size-3" /> New Sequence
+                <Plus /> New Sequence
               </Button>
             </Gate>
           )}
-        </div>
-      </div>
-
-      <Separator />
-
+          </>
+        }
+      />
+      <div className="flex flex-col gap-3 p-4">
       {/* Member banner — enroll-yes / activate-no asymmetry (spec §6) */}
       {!draftId && !canAdmin && !isOwner && (
         <div className="flex items-start gap-2 rounded-md border border-sky-400/20 bg-sky-400/5 px-3 py-2 text-xs text-sky-700 dark:text-sky-300">
@@ -197,6 +190,7 @@ export default function OutreachPage() {
           }}
         />
       )}
+      </div>
     </div>
   )
 }
