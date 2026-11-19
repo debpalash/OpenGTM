@@ -146,8 +146,8 @@ def test_install_records_a_timeout_and_reraises():
 async def test_every_backend_cooling_is_reported_as_rate_limited_without_a_request(make_client):
     from types import SimpleNamespace
 
-    from browser_service.scrapers.search import SearchRatelimitError, classify_search_error, ddgs_search
     from browser_service.engines import Deadline
+    from browser_service.scrapers.search import SearchRatelimitError, classify_search_error, ddgs_search
 
     saved = backend_health.health
     h = BackendHealth(Clock())
@@ -155,8 +155,10 @@ async def test_every_backend_cooling_is_reported_as_rate_limited_without_a_reque
     try:
         h.record_status("brave", 429)
         h.record_status("mojeek", 403)
-        deps = SimpleNamespace(settings=SimpleNamespace(search_backends="brave, mojeek", search_timeout_s=5,
-                                                        max_download_bytes=1), proxy=None)
+        deps = SimpleNamespace(
+            settings=SimpleNamespace(search_backends="brave, mojeek", search_timeout_s=5, max_download_bytes=1),
+            proxy=None,
+        )
         with pytest.raises(SearchRatelimitError) as ei:
             await ddgs_search(deps, "text", "q", 5, Deadline(10))
         assert classify_search_error(ei.value) == "rate_limited"
