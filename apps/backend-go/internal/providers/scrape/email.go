@@ -46,9 +46,9 @@ func personalViaSearch(ctx context.Context, s Search, name, company, domain stri
 	if first == "" {
 		return ""
 	}
-	parts := []string{`"` + name + `"`, "email", "@" + domain}
+	parts := []string{phrase(name), "email", "@" + domain}
 	if company != "" {
-		parts = append(parts, `"`+company+`"`)
+		parts = append(parts, phrase(company))
 	}
 	for _, r := range s.Text(ctx, strings.Join(parts, " "), 5) {
 		for _, e := range snippetEmailRe.FindAllString(r.Title+" "+r.Body, -1) {

@@ -294,7 +294,12 @@ func intOf(v any) int64 {
 	case int:
 		return int64(x)
 	case json.Number:
-		n, _ := strconv.ParseInt(string(x), 10, 64)
+		// Row and lead ids are 32-bit in the schema; a value outside that
+		// range is not an id, so it reads as 0 rather than wrapping.
+		n, err := strconv.ParseInt(string(x), 10, 32)
+		if err != nil {
+			return 0
+		}
 		return n
 	}
 	return 0

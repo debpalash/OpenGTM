@@ -43,7 +43,7 @@ func (socialFinder) Enrich(ctx context.Context, _ *http.Client, _ func() (string
 	}
 	f := providers.NewObj()
 	if ls(in.Lead, "linkedin_url") == "" {
-		for _, r := range s.Text(ctx, `site:linkedin.com/company "`+company+`"`, 2) {
+		for _, r := range s.Text(ctx, `site:linkedin.com/company `+phrase(company), 2) {
 			if strings.Contains(r.Href, "linkedin.com/company") {
 				f.Set("linkedin_url", r.Href)
 				break
@@ -51,7 +51,7 @@ func (socialFinder) Enrich(ctx context.Context, _ *http.Client, _ func() (string
 		}
 	}
 	if ls(in.Lead, "twitter_url") == "" {
-		for _, r := range s.Text(ctx, `site:twitter.com OR site:x.com "`+company+`"`, 2) {
+		for _, r := range s.Text(ctx, `site:twitter.com OR site:x.com `+phrase(company), 2) {
 			if strings.Contains(r.Href, "twitter.com/") || strings.Contains(r.Href, "x.com/") {
 				f.Set("twitter_url", r.Href)
 				break
@@ -176,9 +176,9 @@ func (facebookPages) Enrich(ctx context.Context, _ *http.Client, _ func() (strin
 	if s == nil {
 		return fail(in, errNoWeb), nil
 	}
-	q := `site:facebook.com "` + company + `"`
+	q := `site:facebook.com ` + phrase(company)
 	if city := ls(in.Lead, "city"); city != "" {
-		q += ` "` + city + `"`
+		q += ` ` + phrase(city)
 	}
 	q += " business"
 	var data *providers.Obj
@@ -297,9 +297,9 @@ func (localBusiness) Enrich(ctx context.Context, _ *http.Client, _ func() (strin
 	if s == nil {
 		return fail(in, errNoWeb), nil
 	}
-	q := `"` + company + `"`
+	q := phrase(company)
 	if city := ls(in.Lead, "city"); city != "" {
-		q += ` "` + city + `"`
+		q += ` ` + phrase(city)
 	}
 	f := providers.NewObj()
 	for _, r := range webSearch(ctx, s, q+" phone address contact", 8) {
@@ -421,7 +421,7 @@ func (companyIntel) Enrich(ctx context.Context, _ *http.Client, _ func() (string
 		return strings.Contains(strings.ToLower(r.Title), lower) || strings.Contains(strings.ToLower(r.Body), lower)
 	}
 	var all strings.Builder
-	for _, r := range webSearch(ctx, s, `site:crunchbase.com "`+company+`"`, 3) {
+	for _, r := range webSearch(ctx, s, `site:crunchbase.com `+phrase(company), 3) {
 		if mentions(r) {
 			all.WriteString(" " + r.Title + " " + r.Body)
 		}
@@ -429,7 +429,7 @@ func (companyIntel) Enrich(ctx context.Context, _ *http.Client, _ func() (string
 	if err := sleep(ctx, 300*time.Millisecond); err != nil {
 		return providers.Output{}, err
 	}
-	funding := webSearch(ctx, s, `"`+company+`" funding OR raised OR series OR news`, 8)
+	funding := webSearch(ctx, s, phrase(company)+` funding OR raised OR series OR news`, 8)
 	for _, r := range funding {
 		if mentions(r) {
 			all.WriteString(" " + r.Title + " " + r.Body)
@@ -547,7 +547,7 @@ func (emailHarvester) Enrich(ctx context.Context, _ *http.Client, _ func() (stri
 	all := map[string]bool{}
 	type named struct{ name, email string }
 	var names []named
-	for _, q := range []string{`site:` + domain + ` email OR contact OR "@` + domain + `"`, `"@` + domain + `" -site:` + domain} {
+	for _, q := range []string{`site:` + domain + ` email OR contact OR ` + phrase("@"+domain), phrase("@"+domain) + ` -site:` + domain} {
 		for _, r := range webSearch(ctx, s, q, 8) {
 			emails := ehEmailRe.FindAllString(r.Title+" "+r.Body, -1)
 			for _, e := range emails {

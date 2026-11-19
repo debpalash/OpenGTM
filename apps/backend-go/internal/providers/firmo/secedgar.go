@@ -240,7 +240,7 @@ func mapValues(m map[string]any) []any {
 }
 
 func (p secEdgar) fromFulltext(ctx context.Context, s secClient, company string) (string, error) {
-	data, _, err := s.json(ctx, secFTSURL, [][2]string{{"q", `"` + company + `"`}, {"forms", "D"}})
+	data, _, err := s.json(ctx, secFTSURL, [][2]string{{"q", phrase(company)}, {"forms", "D"}})
 	if err != nil || !providers.Truthy(data) {
 		return "", err
 	}

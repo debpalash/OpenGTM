@@ -40,7 +40,7 @@ func (j JobSpy) maxJobs() int {
 }
 
 func (j JobSpy) searchJobs(ctx context.Context, s Search, company, city string) ([]job, error) {
-	queries := []string{`site:indeed.com "` + company + `" jobs`, `site:naukri.com "` + company + `" jobs`}
+	queries := []string{`site:indeed.com ` + phrase(company) + ` jobs`, `site:naukri.com ` + phrase(company) + ` jobs`}
 	if city != "" {
 		for i := range queries {
 			queries[i] += " " + city
