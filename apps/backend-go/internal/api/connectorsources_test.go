@@ -16,10 +16,10 @@ func TestConnectorSourcesDefaultToBuiltin(t *testing.T) {
 	t.Chdir(t.TempDir()) // no repo-relative paths exist
 	dir, trust := connectorSources(lookupOf(nil))
 	idx, err := manifest.LoadIndex(dir, "optional", manifest.LoadTrustStore(trust))
-	if err != nil || len(idx) != 13 {
+	if err != nil || len(idx) != 23 {
 		t.Fatalf("builtin index: %d manifests, err %v", len(idx), err)
 	}
-	if rep := connectors.ValidateDirectory(dir, "optional", manifest.LoadTrustStore(trust)); rep.Count != 13 {
+	if rep := connectors.ValidateDirectory(dir, "optional", manifest.LoadTrustStore(trust)); rep.Count != 23 {
 		t.Fatalf("builtin validation saw %d manifests", rep.Count)
 	}
 	// An empty override is "unset", as before.

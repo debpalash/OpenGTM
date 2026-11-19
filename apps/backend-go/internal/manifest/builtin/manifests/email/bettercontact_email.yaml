@@ -1,0 +1,70 @@
+# BetterContact "Enrich leads" (email) -- declarative provider manifest (asynchronous: submit, then poll).
+# Docs: https://doc.bettercontact.rocks/api-reference/endpoint/create.md (POST /async),
+# https://doc.bettercontact.rocks/api-reference/endpoint/get.md (GET /async/{request_id}),
+# https://doc.bettercontact.rocks/api-reference/statuses.md. Base URL
+# https://app.bettercontact.rocks/api/v2; auth is the X-API-Key header.
+# Flow: POST returns 201 with id. The poll GETs the result: HTTP 202 with status not_started or
+# processing means keep waiting; HTTP 200 with status "terminated" is the only state that
+# guarantees results, and "on_hold" (the account ran out of credits) fails the lookup. The
+# docs say to branch on status, never on the HTTP code alone, which is what done_when and
+# failed_when do. The poll waits 5 s before each request; the lookup is capped at 120 s and, in
+# a workbook run, by its own budget (the first request's timeout plus max_total), not by the
+# workspace provider_timeout setting; a poll that uses up max_total is recorded as one timeout.
+# BetterContact submissions are not idempotent (a repeated POST bills twice), and this
+# manifest never retries the POST.
+# A found address only counts when contact_email_address_status is deliverable, catch_all or
+# catch_all_safe (the statuses the docs call safe to send to).
+# Credits depend on the plan, so cost_per_lookup is 0 (unknown).
+# Terms: the BetterContact terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
+manifest_version: "1"
+name: bettercontact_email
+display_name: BetterContact Email Finder
+author: OpenGTM
+homepage: https://doc.bettercontact.rocks/
+tags: [email, enrichment, byok, async]
+capability: email
+capabilities: [email]
+description: BetterContact /async - name + company domain -> verified work email (asynchronous waterfall).
+default_confidence: 0.85
+cost_per_lookup: 0
+auth:
+  type: header
+  param: X-API-Key
+  env_var: BETTERCONTACT_API_KEY
+request:
+  method: POST
+  url: https://app.bettercontact.rocks/api/v2/async
+  headers:
+    Content-Type: application/json
+  body:
+    data:
+      - first_name: "{{input.first_name}}"
+        last_name: "{{input.last_name}}"
+        company: "{{input.company}}"
+        company_domain: "{{input.domain}}"
+        linkedin_url: "{{input.linkedin_url}}"
+    enrich_email_address: true
+  timeout: 20
+poll:
+  request:
+    method: GET
+    url: https://app.bettercontact.rocks/api/v2/async/{{response.id}}
+    timeout: 20
+  interval: 5
+  max_attempts: 24
+  max_total: 120
+  done_when:
+    status: [200]
+    path: "$.status"
+    equals: terminated
+  failed_when:
+    path: "$.status"
+    equals: on_hold
+response:
+  error_path: error
+  error_message_path: error
+  success_when:
+    path: "$.data[0].contact_email_address_status"
+    in: [deliverable, catch_all, catch_all_safe]
+  mappings:
+    email: "$.data[0].contact_email_address"

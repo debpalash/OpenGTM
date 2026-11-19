@@ -40,14 +40,14 @@ func (r manifestRunner) Run(ctx context.Context, _ string, provider string, in p
 	if !ok {
 		return providers.Output{}, provcall.ErrUnknownProvider
 	}
-	pctx, cancel := context.WithTimeout(ctx, timeout)
+	pctx, cancel := context.WithTimeout(ctx, m.CallTimeout(timeout))
 	defer cancel()
 	start := time.Now()
 	res := manifest.ExecuteChecked(pctx, rs.deps.Client, m, leadStrings(in.Lead), rs.credFunc(pctx), rs.deps.URLCheck)
 	if ctx.Err() != nil {
 		return providers.Output{}, context.Cause(ctx)
 	}
-	timedOut := errors.Is(pctx.Err(), context.DeadlineExceeded)
+	timedOut := errors.Is(pctx.Err(), context.DeadlineExceeded) || res.Error == "poll_timeout"
 	out := providers.Output{Confidence: res.Confidence, Error: res.Error}
 	if timedOut {
 		out = providers.Output{Error: "timeout"}

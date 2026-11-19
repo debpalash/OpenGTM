@@ -149,6 +149,96 @@
           "icon": "\ud83d\udd2d",
           "id": "prospeo",
           "name": "Prospeo"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Finder + Verifier (API key)",
+          "configured": false,
+          "docs_url": "https://docs.tomba.io/authentication",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udce7",
+          "id": "tomba",
+          "name": "Tomba"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Secret for the Tomba API key",
+          "configured": false,
+          "docs_url": "https://docs.tomba.io/authentication",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udd10",
+          "id": "tomba_secret",
+          "name": "Tomba Secret"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Verification",
+          "configured": false,
+          "docs_url": "https://developers.neverbounce.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udee1",
+          "id": "neverbounce",
+          "name": "NeverBounce"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Verification",
+          "configured": false,
+          "docs_url": "https://emailable.com/docs/api",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udcee",
+          "id": "emailable",
+          "name": "Emailable"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Verification",
+          "configured": false,
+          "docs_url": "https://docs.kickbox.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83e\udd4a",
+          "id": "kickbox",
+          "name": "Kickbox"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Finder (asynchronous)",
+          "configured": false,
+          "docs_url": "https://api-doc.icypeas.com/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83e\uddca",
+          "id": "icypeas",
+          "name": "Icypeas"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email Finder (asynchronous)",
+          "configured": false,
+          "docs_url": "https://developer.dropcontact.com/en/reference/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83d\udca7",
+          "id": "dropcontact",
+          "name": "Dropcontact"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Email + Phone Waterfall (asynchronous)",
+          "configured": false,
+          "docs_url": "https://doc.bettercontact.rocks/",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83e\udd1d",
+          "id": "bettercontact",
+          "name": "BetterContact"
+        },
+        {
+          "api_key_masked": "",
+          "capability": "Company Size + Description",
+          "configured": false,
+          "docs_url": "https://www.thecompaniesapi.com/api/authentication",
+          "free_tier": "Paid, API key required",
+          "icon": "\ud83c\udfe2",
+          "id": "thecompaniesapi",
+          "name": "The Companies API"
         }
       ]
     },

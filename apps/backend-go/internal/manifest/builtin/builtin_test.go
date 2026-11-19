@@ -65,7 +65,7 @@ func TestPathsLoadBuiltins(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(idx) != 13 {
-		t.Fatalf("builtin index has %d manifests, want 13", len(idx))
+	if len(idx) != 23 {
+		t.Fatalf("builtin index has %d manifests, want 23", len(idx))
 	}
 }

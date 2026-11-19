@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 )
 
@@ -118,12 +119,21 @@ func (a *ManifestAllow) Manifest(ctx context.Context, name string) (json.RawMess
 	}
 	var m struct {
 		Auth struct {
-			EnvVar string `json:"env_var"`
+			EnvVar    string `json:"env_var"`
+			Secondary *struct {
+				EnvVar string `json:"env_var"`
+			} `json:"secondary"`
 		} `json:"auth"`
 	}
-	if json.Unmarshal(raw, &m) == nil && m.Auth.EnvVar != "" {
+	if json.Unmarshal(raw, &m) == nil {
 		a.mu.Lock()
-		a.set[m.Auth.EnvVar] = struct{}{}
+		// Exactly the two declared credentials: never extra_env, never a name merely templated.
+		if m.Auth.EnvVar != "" && !manifest.EnvDenied(m.Auth.EnvVar) {
+			a.set[m.Auth.EnvVar] = struct{}{}
+		}
+		if m.Auth.Secondary != nil && m.Auth.Secondary.EnvVar != "" && !manifest.EnvDenied(m.Auth.Secondary.EnvVar) {
+			a.set[m.Auth.Secondary.EnvVar] = struct{}{}
+		}
 		a.mu.Unlock()
 	}
 	return raw, sha, nil

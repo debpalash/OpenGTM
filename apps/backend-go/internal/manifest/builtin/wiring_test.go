@@ -56,6 +56,14 @@ func TestPackManifestsAreWiredIntoTheApp(t *testing.T) {
 		if !secret(m.Auth.EnvVar) {
 			t.Errorf("%s: %s is not in settings/registry.json secret_app_keys, so it would be stored in plain text", name, m.Auth.EnvVar)
 		}
+		if m.Auth.Secondary != nil {
+			if !cardKeys[m.Auth.Secondary.EnvVar] {
+				t.Errorf("%s: %s has no enrichment_providers entry in settings/registry.json", name, m.Auth.Secondary.EnvVar)
+			}
+			if !secret(m.Auth.Secondary.EnvVar) {
+				t.Errorf("%s: %s is not in settings/registry.json secret_app_keys", name, m.Auth.Secondary.EnvVar)
+			}
+		}
 		if legacyManifests[name] {
 			continue // their catalog and registry entries predate this test
 		}

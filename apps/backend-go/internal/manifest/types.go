@@ -15,6 +15,9 @@ type AuthSpec struct {
 	EnvVar string `json:"env_var"`
 	// ExtraEnv lists additional ${env:NAME} variables the manifest may template.
 	ExtraEnv []string `json:"extra_env"`
+	// Secondary is an optional second credential (Go-only extension; absent = none), for vendors
+	// that want a key plus a secret. It is resolved like env_var and is never readable by templates.
+	Secondary *SecondaryAuth `json:"secondary"`
 }
 
 // RequestSpec mirrors RequestSpec. Header/query values and the body template
@@ -40,6 +43,9 @@ type ResponseSpec struct {
 	// ValueMaps translates the projected value of a mapped field (Go-only extension; absent =
 	// values pass through unchanged).
 	ValueMaps map[string]ValueMap `json:"value_maps"`
+	// SuccessWhen, when set, must hold for the response to count as a hit (Go-only extension): a
+	// 200 whose status field says otherwise becomes a miss or an error.
+	SuccessWhen *Cond `json:"success_when"`
 }
 
 // ValueMap translates one mapped field's value. Values maps the vendor's text (exact,
@@ -70,7 +76,10 @@ type Manifest struct {
 	Auth              AuthSpec     `json:"auth"`
 	Request           RequestSpec  `json:"request"`
 	Response          ResponseSpec `json:"response"`
-	InputFields       []string     `json:"input_fields"`
+	// Poll, when set, makes the call asynchronous (Go-only extension): a second request is
+	// repeated until its response says done or failed, and that response is the one mapped.
+	Poll        *PollSpec `json:"poll"`
+	InputFields []string  `json:"input_fields"`
 }
 
 type rawRequest struct {
@@ -147,4 +156,7 @@ type Result struct {
 	DurationMS float64
 	Error      string
 	HTTPStatus int
+	// Requests is how many HTTP requests the lookup made (the submit plus any poll requests). The
+	// caller still treats it as one lookup for cost and budget.
+	Requests int
 }

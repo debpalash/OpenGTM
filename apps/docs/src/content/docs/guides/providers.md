@@ -37,6 +37,16 @@ API key at the vendor's direct price. Keys go in **Settings → API Keys**
 | `findymail_linkedin` | LinkedIn URL from an email | `FINDYMAIL_API_KEY` | | plan-dependent (1 credit) |
 | `contactout_email` | work email from a LinkedIn URL ([docs](https://api.contactout.com/)) | `CONTACTOUT_API_KEY` | | plan-dependent (1 email credit) |
 | `contactout_phone` | phone from a LinkedIn URL | `CONTACTOUT_API_KEY` | | plan-dependent (1 phone credit) |
+| `tomba_email_finder` | email ([docs](https://docs.tomba.io/openapi.md)) | `TOMBA_API_KEY` and `TOMBA_SECRET_KEY` | | plan-dependent |
+| `tomba_verify` | email verify | `TOMBA_API_KEY` and `TOMBA_SECRET_KEY` | | plan-dependent |
+| `neverbounce_verify` | email verify ([docs](https://developers.neverbounce.com/)) | `NEVERBOUNCE_API_KEY` | | volume-tiered |
+| `emailable_verify` | email verify ([docs](https://emailable.com/docs/api)) | `EMAILABLE_API_KEY` | | volume-tiered |
+| `kickbox_verify` | email verify ([docs](https://docs.kickbox.com/)) | `KICKBOX_API_KEY` | | volume-tiered |
+| `icypeas_email` | email, asynchronous ([docs](https://api-doc.icypeas.com/)) | `ICYPEAS_API_KEY` | | plan-dependent |
+| `dropcontact_email` | email, asynchronous ([docs](https://developer.dropcontact.com/en/reference/)) | `DROPCONTACT_API_KEY` | | plan-dependent |
+| `bettercontact_email` | email, asynchronous ([docs](https://doc.bettercontact.rocks/)) | `BETTERCONTACT_API_KEY` | | plan-dependent |
+| `bettercontact_phone` | phone, asynchronous | `BETTERCONTACT_API_KEY` | | plan-dependent |
+| `thecompaniesapi_company` | company size, description ([docs](https://www.thecompaniesapi.com/api/authentication)) | `THECOMPANIESAPI_API_KEY` | | plan-dependent |
 | `companies_house` | UK register firmographics | `COMPANIES_HOUSE_API_KEY` | free | $0 |
 | `mca_registry` | India MCA register | `DATA_GOV_IN_KEY` | free | $0 |
 
@@ -47,6 +57,17 @@ vendor does not publish a per-call price, the cost is recorded as 0, which
 means unknown, not free. The three verifiers translate the vendor's result
 words to `valid`, `invalid`, `catch_all`, `risky` or `unknown` before they
 are stored.
+
+The `tomba_*`, `neverbounce_verify`, `emailable_verify`, `kickbox_verify`,
+`icypeas_email`, `dropcontact_email`, `bettercontact_*` and
+`thecompaniesapi_company` rows are manifests too. The Tomba ones need two
+credentials (a key and a secret, two Settings cards). `icypeas_email`,
+`dropcontact_email` and `bettercontact_*` are asynchronous: they submit a
+lookup and poll for the result, for up to 90 to 120 seconds. They run under
+their own `poll.max_total` budget, not the workspace `provider_timeout`, so
+they work with default settings. Each lookup holds one of the 8 provider
+workers while it polls, so put them last in a waterfall (see
+[Provider manifests](/guides/provider-manifests/)).
 
 ## Free and keyless
 

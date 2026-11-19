@@ -1,0 +1,130 @@
+{
+  "docs": [
+    "https://developer.dropcontact.com/openapi.json (POST /v1/enrich/all, GET /v1/enrich/all/{request_id}, schemas PostAllResponse, EnrichResultResponse, ErrorResponse)",
+    "https://developer.dropcontact.com/en/reference/errors/"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "api.dropcontact.com",
+    "path": "/v1/enrich/all",
+    "query": {},
+    "headers": {
+      "X-Access-Token": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "data": [
+        {
+          "first_name": "Ada",
+          "last_name": "Lovelace",
+          "company": "",
+          "website": "acme.com",
+          "linkedin": "https://www.linkedin.com/in/ada-lovelace"
+        }
+      ],
+      "siren": false,
+      "language": "en"
+    }
+  },
+  "poll": {
+    "method": "GET",
+    "host": "api.dropcontact.com",
+    "path": "/v1/enrich/all/qzmxkpvlrtdnhwa",
+    "query": {},
+    "headers": {
+      "X-Access-Token": "test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "hit_after_not_ready",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "wait.json"
+        },
+        {
+          "status": 200,
+          "file": "ready.json"
+        }
+      ],
+      "fields": {
+        "email": "dc@dropcontact.io"
+      }
+    },
+    {
+      "name": "ready_without_email_is_a_miss",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "noemail.json"
+        }
+      ],
+      "error": "no_data"
+    },
+    {
+      "name": "error_true_on_poll_fails_with_the_reason",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "err.json"
+        }
+      ],
+      "error": "Too many records, you can only submit up to 250 records"
+    },
+    {
+      "name": "error_on_submit_ends_the_lookup",
+      "steps": [
+        {
+          "status": 200,
+          "file": "err.json"
+        }
+      ],
+      "error": "Too many records, you can only submit up to 250 records"
+    },
+    {
+      "name": "bad_key_is_401",
+      "steps": [
+        {
+          "status": 401,
+          "file": "err.json"
+        }
+      ],
+      "error": "http_401"
+    },
+    {
+      "name": "other_accounts_request_is_403",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 403,
+          "file": "err.json"
+        }
+      ],
+      "error": "http_403"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

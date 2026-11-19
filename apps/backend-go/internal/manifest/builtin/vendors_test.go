@@ -37,25 +37,40 @@ var legacyManifests = map[string]bool{
 	"leadmagic_company": true, "leadmagic_email": true, "leadmagic_mobile": true, "prospeo_mobile": true,
 }
 
+type vendorRequest struct {
+	Method  string            `json:"method"`
+	Host    string            `json:"host"`
+	Path    string            `json:"path"`
+	Query   map[string]string `json:"query"`
+	Headers map[string]string `json:"headers"`
+	Body    json.RawMessage   `json:"body"`
+}
+
 type vendorCase struct {
 	Docs       []string          `json:"docs"`
 	Lead       map[string]string `json:"lead"`
 	Credential string            `json:"credential"`
-	Request    struct {
-		Method  string            `json:"method"`
-		Host    string            `json:"host"`
-		Path    string            `json:"path"`
-		Query   map[string]string `json:"query"`
-		Headers map[string]string `json:"headers"`
-		Body    json.RawMessage   `json:"body"`
-	} `json:"request"`
+	// SecondaryCredential is the value served for auth.secondary.env_var (key plus secret vendors).
+	SecondaryCredential string        `json:"secondary_credential"`
+	Request             vendorRequest `json:"request"`
+	// Poll is the request every poll step must send (asynchronous vendors).
+	Poll      *vendorRequest   `json:"poll"`
 	Responses []vendorResponse `json:"responses"`
 }
 
+type vendorStep struct {
+	Status int    `json:"status"`
+	File   string `json:"file"`
+}
+
+// vendorResponse is one scripted vendor answer. A synchronous vendor answers with Status and
+// File. An asynchronous one lists Steps: step 0 answers the submit request and every later step
+// answers one poll request, in order; the vendor must see exactly that many requests.
 type vendorResponse struct {
 	Name   string         `json:"name"`
 	Status int            `json:"status"`
 	File   string         `json:"file"`
+	Steps  []vendorStep   `json:"steps"`
 	Fields map[string]any `json:"fields"` // expected mapped fields on a hit
 	Error  string         `json:"error"`  // expected Result.Error on a miss or failure
 }
@@ -130,8 +145,11 @@ func TestBuiltinManifestPolicy(t *testing.T) {
 		if m.Homepage == "" {
 			t.Errorf("%s: homepage must point at the vendor docs", name)
 		}
-		if m.Auth.Type != "none" && m.Auth.Value != "" {
-			t.Errorf("%s: auth.value must not be set; the key comes from auth.env_var", name)
+		if m.Auth.Type != "none" && m.Auth.Value != "" && !strings.Contains(m.Auth.Value, "${env:"+m.Auth.EnvVar+"}") {
+			t.Errorf("%s: auth.value may only wrap ${env:%s}; the key comes from auth.env_var", name, m.Auth.EnvVar)
+		}
+		if m.Poll != nil && !strings.HasPrefix(m.Poll.Request.URL, "https://") {
+			t.Errorf("%s: poll.request.url must be https", name)
 		}
 	}
 	// No secret-looking literal in any manifest file.
@@ -181,17 +199,37 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 	if envVar == "" {
 		t.Fatal("manifest has no auth.env_var")
 	}
+	secEnv := ""
+	if m.Auth.Secondary != nil {
+		secEnv = m.Auth.Secondary.EnvVar
+		if c.SecondaryCredential == "" {
+			t.Fatal("manifest has auth.secondary but case.json has no secondary_credential")
+		}
+	}
 	cred := func(k string) (string, error) {
 		if k == envVar {
 			return c.Credential, nil
 		}
+		if secEnv != "" && k == secEnv {
+			return c.SecondaryCredential, nil
+		}
 		return "", nil
+	}
+	if m.Poll != nil {
+		if c.Poll == nil {
+			t.Fatal("manifest has poll but case.json has no poll request")
+		}
+		// The test server answers at once, so run the poll at the engine's shortest interval.
+		ps := *m.Poll
+		ps.Interval = manifest.MinPollInterval.Seconds()
+		m.Poll = &ps
 	}
 
 	var mu sync.Mutex
 	var seen []seenRequest
 	var cur vendorResponse
 	var curBody []byte
+	var stepBodies [][]byte
 	srv := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		b, _ := io.ReadAll(r.Body)
 		q := map[string]string{}
@@ -201,6 +239,13 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 		mu.Lock()
 		seen = append(seen, seenRequest{r.Method, r.Host, r.URL.Path, q, r.Header.Clone(), b, r.URL.String()})
 		status, body := cur.Status, curBody
+		if len(cur.Steps) > 0 {
+			i := len(seen) - 1
+			if i >= len(cur.Steps) {
+				i = len(cur.Steps) - 1
+			}
+			status, body = cur.Steps[i].Status, stepBodies[i]
+		}
 		mu.Unlock()
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(status)
@@ -217,12 +262,25 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 
 	for _, resp := range c.Responses {
 		t.Run(resp.Name, func(t *testing.T) {
-			body, err := os.ReadFile(filepath.Join(vendorsDir, name, resp.File))
-			if err != nil {
-				t.Fatal(err)
+			var body []byte
+			var bodies [][]byte
+			if len(resp.Steps) > 0 {
+				for _, st := range resp.Steps {
+					b, err := os.ReadFile(filepath.Join(vendorsDir, name, st.File))
+					if err != nil {
+						t.Fatal(err)
+					}
+					bodies = append(bodies, b)
+				}
+			} else {
+				b, err := os.ReadFile(filepath.Join(vendorsDir, name, resp.File))
+				if err != nil {
+					t.Fatal(err)
+				}
+				body = b
 			}
 			mu.Lock()
-			seen, cur, curBody = nil, resp, body
+			seen, cur, curBody, stepBodies = nil, resp, body, bodies
 			mu.Unlock()
 
 			// nil check func: the default egress guard (https/host rules) applies.
@@ -231,13 +289,25 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 			mu.Lock()
 			got := append([]seenRequest(nil), seen...)
 			mu.Unlock()
-			if len(got) != 1 {
-				t.Fatalf("vendor saw %d requests, want 1 (result %+v)", len(got), res)
+			wantReqs := 1
+			if len(resp.Steps) > 0 {
+				wantReqs = len(resp.Steps)
 			}
-			assertRequest(t, c, got[0])
+			if len(got) != wantReqs || res.Requests != wantReqs {
+				t.Fatalf("vendor saw %d requests (engine counted %d), want %d (result %+v)", len(got), res.Requests, wantReqs, res)
+			}
+			for i, r := range got {
+				want := c.Request
+				if i > 0 {
+					want = *c.Poll
+				}
+				assertRequest(t, c, want, r)
+			}
 
-			if strings.Contains(res.Error, c.Credential) {
-				t.Errorf("error text leaks the credential: %q", res.Error)
+			for _, secret := range []string{c.Credential, c.SecondaryCredential} {
+				if secret != "" && strings.Contains(res.Error, secret) {
+					t.Errorf("error text leaks a credential: %q", res.Error)
+				}
 			}
 			if resp.Error != "" {
 				if res.Success || res.Error != resp.Error {
@@ -266,6 +336,29 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 		})
 	}
 
+	if secEnv != "" {
+		t.Run("missing_secondary_makes_no_call", func(t *testing.T) {
+			mu.Lock()
+			seen = nil
+			mu.Unlock()
+			res := manifest.ExecuteChecked(context.Background(), client, m, c.Lead,
+				func(k string) (string, error) {
+					if k == envVar {
+						return c.Credential, nil
+					}
+					return "", nil
+				}, nil)
+			if res.Success || res.Error != name+": missing "+secEnv {
+				t.Fatalf("result %+v", res)
+			}
+			mu.Lock()
+			defer mu.Unlock()
+			if len(seen) != 0 {
+				t.Fatalf("a request went out without the second credential")
+			}
+		})
+	}
+
 	t.Run("missing_key_makes_no_call", func(t *testing.T) {
 		mu.Lock()
 		seen = nil
@@ -283,63 +376,69 @@ func runVendorCase(t *testing.T, name string, m manifest.Manifest) {
 	})
 }
 
-func assertRequest(t *testing.T, c vendorCase, r seenRequest) {
+func assertRequest(t *testing.T, c vendorCase, want vendorRequest, r seenRequest) {
 	t.Helper()
-	if r.method != c.Request.Method || r.path != c.Request.Path {
-		t.Errorf("request %s %s, want %s %s", r.method, r.path, c.Request.Method, c.Request.Path)
+	if r.method != want.Method || r.path != want.Path {
+		t.Errorf("request %s %s, want %s %s", r.method, r.path, want.Method, want.Path)
 	}
-	if r.host != c.Request.Host {
-		t.Errorf("host %q, want %q", r.host, c.Request.Host)
+	if r.host != want.Host {
+		t.Errorf("host %q, want %q", r.host, want.Host)
 	}
-	if !reflect.DeepEqual(r.query, orEmpty(c.Request.Query)) {
-		t.Errorf("query %v, want %v", r.query, c.Request.Query)
+	if !reflect.DeepEqual(r.query, orEmpty(want.Query)) {
+		t.Errorf("query %v, want %v", r.query, want.Query)
 	}
-	for k, v := range c.Request.Headers {
+	for k, v := range want.Headers {
 		if got := r.header.Get(k); got != v {
 			t.Errorf("header %s = %q, want %q", k, got, v)
 		}
 	}
-	// The credential appears in the one place the manifest declares and nowhere else.
-	inHeader := false
-	for _, vs := range r.header {
-		for _, v := range vs {
-			if strings.Contains(v, c.Credential) {
-				inHeader = true
+	// Each credential appears in the one place the case declares and nowhere else; neither is
+	// ever in the URL path or the body.
+	for _, secret := range []string{c.Credential, c.SecondaryCredential} {
+		if secret == "" {
+			continue
+		}
+		inHeader := false
+		for _, vs := range r.header {
+			for _, v := range vs {
+				if strings.Contains(v, secret) {
+					inHeader = true
+				}
 			}
 		}
-	}
-	inQuery := strings.Contains(r.rawURL, c.Credential)
-	inBody := strings.Contains(string(r.body), c.Credential)
-	wantHeader, wantQuery := false, false
-	for _, v := range c.Request.Headers {
-		if strings.Contains(v, c.Credential) {
-			wantHeader = true
+		inQuery := strings.Contains(r.rawURL, secret)
+		inBody := strings.Contains(string(r.body), secret)
+		wantHeader, wantQuery := false, false
+		for _, v := range want.Headers {
+			if strings.Contains(v, secret) {
+				wantHeader = true
+			}
+		}
+		for _, v := range want.Query {
+			if strings.Contains(v, secret) {
+				wantQuery = true
+			}
+		}
+		if inHeader != wantHeader || inQuery != wantQuery || inBody || strings.Contains(r.path, secret) {
+			t.Errorf("credential placement: header=%v query=%v body=%v, want header=%v query=%v body=false and not in the path",
+				inHeader, inQuery, inBody, wantHeader, wantQuery)
 		}
 	}
-	for _, v := range c.Request.Query {
-		if strings.Contains(v, c.Credential) {
-			wantQuery = true
-		}
-	}
-	if inHeader != wantHeader || inQuery != wantQuery || inBody {
-		t.Errorf("credential placement: header=%v query=%v body=%v, want header=%v query=%v body=false",
-			inHeader, inQuery, inBody, wantHeader, wantQuery)
-	}
-	if len(c.Request.Body) == 0 || string(c.Request.Body) == "null" {
+	if len(want.Body) == 0 || string(want.Body) == "null" {
 		if len(r.body) != 0 {
 			t.Errorf("unexpected request body %s", r.body)
 		}
 		return
 	}
-	var want, got any
-	if err := json.Unmarshal(c.Request.Body, &want); err != nil {
+	var wantBody, gotBody any
+	if err := json.Unmarshal(want.Body, &wantBody); err != nil {
 		t.Fatal(err)
 	}
-	if err := json.Unmarshal(r.body, &got); err != nil {
+	if err := json.Unmarshal(r.body, &gotBody); err != nil {
 		t.Fatalf("request body is not JSON: %s", r.body)
 	}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("request body %s, want %s", r.body, c.Request.Body)
+	if !reflect.DeepEqual(gotBody, wantBody) {
+		t.Errorf("request body %s, want %s", r.body, want.Body)
 	}
 }
 

@@ -1,0 +1,45 @@
+# Emailable "Verify an email" -- declarative provider manifest.
+# Docs: https://emailable.com/docs/api/emails.md (GET /v1/verify),
+# https://emailable.com/docs/api/authentication.md (Authorization: Bearer <key>),
+# https://emailable.com/docs/api/status-codes.md.
+# Synchronous. A verification that runs long answers HTTP 249 with only a message; the docs
+# say to send the request again, so success_when requires HTTP 200 and the 249 message is
+# reported as the error. Errors (401, 402, 403, 429) arrive as http_NNN.
+# state is one of deliverable, undeliverable, risky, unknown; value_maps translates it to the
+# native words (valid, invalid, risky, unknown). Emailable reports catch-all in the separate
+# accept_all field, which a single mapping cannot read, so catch_all is never produced here.
+# Billing is per credit and tiered, so cost_per_lookup is 0 (unknown).
+manifest_version: "1"
+name: emailable_verify
+display_name: Emailable Email Verifier
+author: OpenGTM
+homepage: https://emailable.com/docs/api/emails
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: Emailable /v1/verify - email -> valid, risky, invalid or unknown.
+default_confidence: 0.9
+cost_per_lookup: 0
+auth:
+  type: bearer
+  env_var: EMAILABLE_API_KEY
+request:
+  method: GET
+  url: https://api.emailable.com/v1/verify
+  query:
+    email: "{{input.email}}"
+  timeout: 30
+response:
+  error_message_path: message
+  success_when:
+    status: [200]
+  mappings:
+    email_verify: "$.state"
+  value_maps:
+    email_verify:
+      values:
+        deliverable: valid
+        undeliverable: invalid
+        risky: risky
+        unknown: unknown
+      default: unknown

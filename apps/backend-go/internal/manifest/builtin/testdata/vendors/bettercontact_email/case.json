@@ -1,0 +1,184 @@
+{
+  "docs": [
+    "https://doc.bettercontact.rocks/api-reference/endpoint/create.md",
+    "https://doc.bettercontact.rocks/api-reference/endpoint/get.md",
+    "https://doc.bettercontact.rocks/api-reference/statuses.md"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "app.bettercontact.rocks",
+    "path": "/api/v2/async",
+    "query": {},
+    "headers": {
+      "X-API-Key": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "data": [
+        {
+          "first_name": "Ada",
+          "last_name": "Lovelace",
+          "company": "",
+          "company_domain": "acme.com",
+          "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+        }
+      ],
+      "enrich_email_address": true
+    }
+  },
+  "poll": {
+    "method": "GET",
+    "host": "app.bettercontact.rocks",
+    "path": "/api/v2/async/fefbc2203558eb3adcea",
+    "query": {},
+    "headers": {
+      "X-API-Key": "test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "hit_after_202s",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 202,
+          "file": "processing.json"
+        },
+        {
+          "status": 202,
+          "file": "processing.json"
+        },
+        {
+          "status": 200,
+          "file": "email_ok.json"
+        }
+      ],
+      "fields": {
+        "email": "ada@acme.com"
+      }
+    },
+    {
+      "name": "catch_all_counts",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "email_catch_all.json"
+        }
+      ],
+      "fields": {
+        "email": "ada@acme.com"
+      }
+    },
+    {
+      "name": "undeliverable_is_a_miss",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "email_bad.json"
+        }
+      ],
+      "error": "no_data"
+    },
+    {
+      "name": "not_found_is_a_miss",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "email_none.json"
+        }
+      ],
+      "error": "no_data"
+    },
+    {
+      "name": "out_of_credits_on_hold_fails",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "on_hold.json"
+        }
+      ],
+      "error": "poll_failed"
+    },
+    {
+      "name": "a_200_before_terminated_keeps_waiting",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "processing.json"
+        },
+        {
+          "status": 200,
+          "file": "email_ok.json"
+        }
+      ],
+      "fields": {
+        "email": "ada@acme.com"
+      }
+    },
+    {
+      "name": "unknown_request_is_406",
+      "steps": [
+        {
+          "status": 201,
+          "file": "submit.json"
+        },
+        {
+          "status": 406,
+          "file": "bad_id.json"
+        }
+      ],
+      "error": "http_406"
+    },
+    {
+      "name": "bad_key_is_401",
+      "steps": [
+        {
+          "status": 401,
+          "file": "unauthorized.json"
+        }
+      ],
+      "error": "http_401"
+    },
+    {
+      "name": "out_of_credits_on_submit_is_402",
+      "steps": [
+        {
+          "status": 402,
+          "file": "credits.json"
+        }
+      ],
+      "error": "http_402"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

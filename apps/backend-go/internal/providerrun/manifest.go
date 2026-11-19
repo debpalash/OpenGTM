@@ -128,7 +128,7 @@ func (r *Runner) manifestConfigured(ctx context.Context, ws string, m manifest.M
 // semaphore and the caller's timeout. Like runGo, a vendor failure is Output.Error and a returned
 // error is infrastructure.
 func (r *Runner) runManifest(ctx context.Context, ws string, m manifest.Manifest, in providers.Input, timeout time.Duration) (providers.Output, bool, error) {
-	cctx, cancel := context.WithTimeout(providers.WithWorkspace(ctx, ws), timeout)
+	cctx, cancel := context.WithTimeout(providers.WithWorkspace(ctx, ws), m.CallTimeout(timeout))
 	defer cancel()
 	cred, _, err := r.manifestCreds(cctx, ws, m)
 	if err != nil {
@@ -154,6 +154,9 @@ func (r *Runner) runManifest(ctx context.Context, ws string, m manifest.Manifest
 		return providers.Output{}, false, ctx.Err()
 	}
 	if errors.Is(cctx.Err(), context.DeadlineExceeded) {
+		return providers.Output{Error: "timeout"}, true, nil
+	}
+	if res.Error == "poll_timeout" {
 		return providers.Output{Error: "timeout"}, true, nil
 	}
 	out := providers.Output{Confidence: res.Confidence, Error: res.Error}

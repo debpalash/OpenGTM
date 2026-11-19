@@ -69,6 +69,16 @@ var vendors = []Vendor{
 	{Name: "findymail_linkedin", BYOK: true, Capabilities: []string{"linkedin_url"}, PerPageSize: 25, Notes: "1 finder credit per profile found; plan-dependent price (unknown)"},
 	{Name: "contactout_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "1 email credit per email found; plan-dependent price (unknown)"},
 	{Name: "contactout_phone", BYOK: true, Capabilities: []string{"phone"}, PerPageSize: 25, Notes: "1 phone credit per number found; plan-dependent price (unknown)"},
+	{Name: "tomba_email_finder", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "plan-dependent credits (unknown); needs TOMBA_API_KEY and TOMBA_SECRET_KEY"},
+	{Name: "tomba_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "plan-dependent credits (unknown); needs TOMBA_API_KEY and TOMBA_SECRET_KEY"},
+	{Name: "neverbounce_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "volume-tiered price (unknown per lookup); https://www.neverbounce.com/pricing"},
+	{Name: "emailable_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "volume-tiered price (unknown per lookup)"},
+	{Name: "kickbox_verify", BYOK: true, Capabilities: []string{"email_verify"}, PerPageSize: 25, Notes: "volume-tiered price (unknown per lookup)"},
+	{Name: "icypeas_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "charged only for results; plan-dependent price (unknown); asynchronous, polls up to 90 s"},
+	{Name: "dropcontact_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "charged only for found data; plan-dependent price (unknown); asynchronous, polls up to 120 s"},
+	{Name: "bettercontact_email", BYOK: true, Capabilities: []string{"email"}, PerPageSize: 25, Notes: "plan-dependent credits (unknown); asynchronous, polls up to 120 s"},
+	{Name: "bettercontact_phone", BYOK: true, Capabilities: []string{"phone"}, PerPageSize: 25, Notes: "plan-dependent credits (unknown); asynchronous, polls up to 120 s"},
+	{Name: "thecompaniesapi_company", BYOK: true, Capabilities: []string{"company_size", "description"}, PerPageSize: 25, Notes: "plan-dependent credits (unknown)"},
 }
 
 var vendorIndex = func() map[string]*Vendor {

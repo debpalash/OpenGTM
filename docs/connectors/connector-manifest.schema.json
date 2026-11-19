@@ -19,13 +19,20 @@
     "cost_per_lookup": {"type": "number", "minimum": 0},
     "auth": {
       "type": "object",
-      "properties": {"type": {"enum": ["none", "header", "bearer", "query"]}, "param": {"type": ["string", "null"]}, "value": {"type": ["string", "null"]}, "env_var": {"type": ["string", "null"]}}
+      "properties": {"type": {"enum": ["none", "header", "bearer", "query"]}, "param": {"type": ["string", "null"]}, "value": {"type": ["string", "null"]}, "env_var": {"type": ["string", "null"]}, "secondary": {"type": "object", "required": ["type", "param", "env_var"], "properties": {"type": {"enum": ["header", "query"]}, "param": {"type": "string"}, "env_var": {"type": "string"}}}}
     },
     "request": {
       "type": "object", "required": ["url"],
       "properties": {"method": {"enum": ["GET", "POST", "PUT", "PATCH"]}, "url": {"type": "string", "pattern": "^https://"}, "headers": {"type": "object"}, "query": {"type": "object"}, "body": {}, "body_template": {}, "timeout": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "omit_empty": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}}
     },
-    "response": {"type": "object", "required": ["mappings"], "properties": {"error_path": {"type": ["string", "null"]}, "error_message_path": {"type": ["string", "null"]}, "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}, "value_maps": {"type": "object", "additionalProperties": {"type": "object", "required": ["values"], "properties": {"values": {"type": "object", "additionalProperties": {"type": "string"}}, "default": {"type": ["string", "null"]}}}}}},
+    "response": {"type": "object", "required": ["mappings"], "properties": {"error_path": {"type": ["string", "null"]}, "error_message_path": {"type": ["string", "null"]}, "success_when": {"$ref": "#/definitions/cond"}, "mappings": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string"}}, "value_maps": {"type": "object", "additionalProperties": {"type": "object", "required": ["values"], "properties": {"values": {"type": "object", "additionalProperties": {"type": "string"}}, "default": {"type": ["string", "null"]}}}}}},
+    "poll": {
+      "type": "object", "required": ["request", "done_when"],
+      "properties": {"request": {"type": "object", "required": ["url"]}, "interval": {"type": "number", "minimum": 0.1, "maximum": 60}, "max_attempts": {"type": "integer", "minimum": 1, "maximum": 60}, "max_total": {"type": "number", "exclusiveMinimum": 0, "maximum": 120}, "done_when": {"$ref": "#/definitions/cond"}, "failed_when": {"$ref": "#/definitions/cond"}, "allowed_hosts": {"type": "array", "items": {"type": "string"}}}
+    },
     "input_fields": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "definitions": {
+    "cond": {"type": "object", "properties": {"path": {"type": "string"}, "equals": {}, "in": {"type": "array"}, "status": {"type": "array", "items": {"type": "integer"}}}}
   }
 }

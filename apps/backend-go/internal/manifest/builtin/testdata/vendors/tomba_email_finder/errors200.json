@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "type": "params_invalid",
+    "message": "Either domain or company parameter must be provided.",
+    "code": 422
+  }
+}

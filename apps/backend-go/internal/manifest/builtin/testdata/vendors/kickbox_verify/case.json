@@ -1,0 +1,80 @@
+{
+  "docs": [
+    "https://docs.kickbox.com/docs/single-verification-api.md",
+    "https://docs.kickbox.com/docs/using-the-api.md"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.kickbox.com",
+    "path": "/v2/verify",
+    "query": {
+      "email": "ada@acme.com",
+      "timeout": "10000"
+    },
+    "headers": {
+      "Authorization": "Bearer test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "deliverable",
+      "status": 200,
+      "file": "deliverable.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "undeliverable",
+      "status": 200,
+      "file": "undeliverable.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "risky",
+      "status": 200,
+      "file": "risky.json",
+      "fields": {
+        "email_verify": "risky"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": 200,
+      "file": "unknown.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "unlisted_word_is_unknown",
+      "status": 200,
+      "file": "other.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "success_false_is_an_error_with_the_message",
+      "status": 200,
+      "file": "failed.json",
+      "error": "Balance Depleted"
+    },
+    {
+      "name": "forbidden_is_403",
+      "status": 403,
+      "file": "failed.json",
+      "error": "http_403"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "type": "unknown_record",
+    "message": "Disposable and webmail domains are not supported.",
+    "code": 400
+  }
+}

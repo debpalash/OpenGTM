@@ -1,0 +1,71 @@
+# Icypeas "Email search" -- declarative provider manifest (asynchronous: submit, then poll).
+# Docs: https://api-doc.icypeas.com/overview.md, https://api-doc.icypeas.com/how-it-works.md,
+# https://api-doc.icypeas.com/statuses.md and the OpenAPI spec https://api-doc.icypeas.com/openapi.json
+# (POST /email-search, POST /bulk-single-searchs/read).
+# Auth: Authorization: <API key>, the key alone with no "Bearer" prefix (key-only mode; the
+# docs' separate signature mode is not used).
+# Flow: POST /email-search returns item._id; the poll POSTs {"mode":"single","id":<_id>} to
+# /bulk-single-searchs/read every 3 s (the docs limit reads to 30 per minute and ask for at
+# least 3 s between two reads) until item status is no longer NONE, SCHEDULED or IN_PROGRESS.
+# FOUND, DEBITED, NOT_FOUND and DEBITED_NOT_FOUND end the lookup; BAD_INPUT,
+# INSUFFICIENT_FUNDS and ABORTED fail it. The whole lookup is capped at 90 s and, in a
+# workbook run, by its own budget (the first request's timeout plus max_total), not by the
+# workspace provider_timeout setting; a poll that uses up max_total is recorded as one timeout.
+# Input mistakes come back as HTTP 200 with success false and validationErrors, reported as the error.
+# A found address only counts when its certainty is ultra_sure, very_sure or probable.
+# Billing: credits are charged only for results; the price depends on the plan, so
+# cost_per_lookup is 0 (unknown). domainOrCompany is the lead's website domain.
+# Terms: the Icypeas terms of service allow use of the output as part of the customer's own
+# products (https://www.icypeas.com/legal/terms-of-service, "License to Use and Resell Data").
+manifest_version: "1"
+name: icypeas_email
+display_name: Icypeas Email Finder
+author: OpenGTM
+homepage: https://api-doc.icypeas.com/
+tags: [email, enrichment, byok, async]
+capability: email
+capabilities: [email]
+description: Icypeas /email-search + /bulk-single-searchs/read - name + company domain -> professional email.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: header
+  param: Authorization
+  env_var: ICYPEAS_API_KEY
+request:
+  method: POST
+  url: https://app.icypeas.com/api/email-search
+  headers:
+    Content-Type: application/json
+  body:
+    firstname: "{{input.first_name}}"
+    lastname: "{{input.last_name}}"
+    domainOrCompany: "{{input.domain}}"
+  timeout: 20
+poll:
+  request:
+    method: POST
+    url: https://app.icypeas.com/api/bulk-single-searchs/read
+    headers:
+      Content-Type: application/json
+    body_template:
+      mode: single
+      id: "{{response.item._id}}"
+    timeout: 20
+  interval: 3
+  max_attempts: 30
+  max_total: 90
+  done_when:
+    path: "$.items[0].status"
+    in: [FOUND, DEBITED, NOT_FOUND, DEBITED_NOT_FOUND]
+  failed_when:
+    path: "$.items[0].status"
+    in: [BAD_INPUT, INSUFFICIENT_FUNDS, ABORTED]
+response:
+  error_path: validationErrors
+  error_message_path: validationErrors[0].message
+  success_when:
+    path: "$.items[0].results.emails[0].certainty"
+    in: [ultra_sure, very_sure, probable]
+  mappings:
+    email: "$.items[0].results.emails[0].email"

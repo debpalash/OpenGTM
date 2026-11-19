@@ -1038,6 +1038,177 @@
             "quality_sample",
             "tenant_isolation"
           ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "tomba_email_finder",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "tomba_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "neverbounce_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "emailable_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email_verify"
+          ],
+          "certification": null,
+          "confidence": 0.9,
+          "maturity": "beta",
+          "name": "kickbox_verify",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "icypeas_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.8,
+          "maturity": "beta",
+          "name": "dropcontact_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "email"
+          ],
+          "certification": null,
+          "confidence": 0.85,
+          "maturity": "beta",
+          "name": "bettercontact_email",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "phone"
+          ],
+          "certification": null,
+          "confidence": 0.75,
+          "maturity": "beta",
+          "name": "bettercontact_phone",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
+        },
+        {
+          "capabilities": [
+            "company_size",
+            "description"
+          ],
+          "certification": null,
+          "confidence": 0.75,
+          "maturity": "beta",
+          "name": "thecompaniesapi_company",
+          "required_checks": [
+            "external_read",
+            "failure_recovery",
+            "normalization",
+            "provenance",
+            "quality_sample",
+            "tenant_isolation"
+          ]
         }
       ]
     },

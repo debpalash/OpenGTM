@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "type": "params_invalid",
+    "message": "The email is not valid.",
+    "code": 422
+  }
+}

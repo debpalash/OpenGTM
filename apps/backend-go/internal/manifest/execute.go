@@ -44,58 +44,100 @@ func ExecuteChecked(ctx context.Context, client *http.Client, m Manifest, lead m
 	if perr != "" {
 		return Result{Error: perr}
 	}
-	target, headers, params, body, req := p.Target, p.Headers, p.Params, p.Body, p.Spec
 
 	rctx := ctx
-	if req.Timeout > 0 {
+	if p.Spec.Timeout > 0 {
 		var cancel context.CancelFunc
-		rctx, cancel = context.WithTimeout(ctx, time.Duration(req.Timeout*float64(time.Second)))
+		rctx, cancel = context.WithTimeout(ctx, time.Duration(p.Spec.Timeout*float64(time.Second)))
 		defer cancel()
 	}
-
-	httpReq, err := buildRequest(rctx, req.Method, target, headers, params, body)
-	if err != nil {
-		return Result{Error: scrubbed(failure(err), p.Secrets)}
-	}
-	resp, err := client.Do(httpReq)
-	if err != nil {
-		return Result{Error: scrubbed(failure(err), p.Secrets)}
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return Result{Error: "http_" + itoa(resp.StatusCode), HTTPStatus: resp.StatusCode, DurationMS: elapsed()}
-	}
-	raw, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes+1))
-	if err != nil {
-		return Result{Error: scrubbed(failure(err), p.Secrets), HTTPStatus: resp.StatusCode}
-	}
-	dur := elapsed()
-	var data any
-	if len(raw) > maxBodyBytes {
-		return Result{Error: "non_json_response", HTTPStatus: resp.StatusCode, DurationMS: dur}
-	}
-	if data, err = canonjson.Decode(raw); err != nil {
-		return Result{Error: "non_json_response", HTTPStatus: resp.StatusCode, DurationMS: dur}
+	data, status, errStr := p.do(rctx, client, p)
+	reqs := 1
+	if errStr != "" {
+		return Result{Error: errStr, HTTPStatus: status, DurationMS: elapsed(), Requests: reqs}
 	}
 
 	rs := m.Response
-	if rs.ErrorPath != "" && pyTruthy(ProjectValue(data, "$."+rs.ErrorPath)) {
-		msg := "provider_error"
-		if rs.ErrorMessagePath != "" {
-			msg = pyStr(ProjectValue(data, "$."+rs.ErrorMessagePath))
+	if m.Poll != nil {
+		// A vendor error on the submit response ends the lookup before any poll request.
+		if msg, bad := responseError(rs, data, p.Secrets); bad {
+			return Result{Error: msg, HTTPStatus: status, DurationMS: elapsed(), Requests: reqs}
 		}
-		return Result{Error: truncRunes(providers.Scrub(msg, p.Secrets...), 120), HTTPStatus: resp.StatusCode, DurationMS: dur}
+		var perr string
+		if data, status, perr = runPoll(ctx, client, m, p, data, &reqs); perr != "" {
+			if perr == "poll_failed" {
+				if msg, bad := responseError(rs, data, p.Secrets); bad && msg != "provider_error" {
+					perr = msg
+				}
+			}
+			return Result{Error: scrubbed(perr, p.Secrets), HTTPStatus: status, DurationMS: elapsed(), Requests: reqs}
+		}
+	}
+	dur := elapsed()
+	if msg, bad := responseError(rs, data, p.Secrets); bad {
+		return Result{Error: msg, HTTPStatus: status, DurationMS: dur, Requests: reqs}
+	}
+	if sw := rs.SuccessWhen; sw != nil && !sw.Match(data, status) {
+		// A 200 that says "not a success": the vendor's message when it gave one, else a miss.
+		msg := "no_data"
+		if rs.ErrorMessagePath != "" {
+			if t, ok := condText(ProjectValue(data, "$."+rs.ErrorMessagePath)); ok {
+				msg = truncRunes(providers.Scrub(t, p.Secrets...), 120)
+			}
+		}
+		return Result{Error: msg, HTTPStatus: status, DurationMS: dur, Requests: reqs}
 	}
 
 	fields := Normalize(ApplyValueMaps(Project(data, rs.Mappings), rs.ValueMaps))
 	res := Result{
 		Success: len(fields) > 0, Fields: fields, Confidence: m.DefaultConfidence,
-		DurationMS: dur, HTTPStatus: resp.StatusCode,
+		DurationMS: dur, HTTPStatus: status, Requests: reqs,
 	}
 	if !res.Success {
 		res.Error = "no_data"
 	}
 	return res
+}
+
+// responseError is the vendor-reported error of a decoded response (response.error_path), with
+// credential values scrubbed and the text capped.
+func responseError(rs ResponseSpec, data any, secrets []string) (string, bool) {
+	if rs.ErrorPath == "" || !pyTruthy(ProjectValue(data, "$."+rs.ErrorPath)) {
+		return "", false
+	}
+	msg := "provider_error"
+	if rs.ErrorMessagePath != "" {
+		msg = pyStr(ProjectValue(data, "$."+rs.ErrorMessagePath))
+	}
+	return truncRunes(providers.Scrub(msg, secrets...), 120), true
+}
+
+// do sends one prepared request and decodes its JSON response. errStr is the Python-contract
+// error text ("http_NNN", "non_json_response", a scrubbed transport failure) or "".
+func (p *Prepared) do(ctx context.Context, client *http.Client, pr *Prepared) (data any, status int, errStr string) {
+	httpReq, err := buildRequest(ctx, pr.Spec.Method, pr.Target, pr.Headers, pr.Params, pr.Body)
+	if err != nil {
+		return nil, 0, scrubbed(failure(err), p.Secrets)
+	}
+	resp, err := client.Do(httpReq)
+	if err != nil {
+		return nil, 0, scrubbed(failure(err), p.Secrets)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		return nil, resp.StatusCode, "http_" + itoa(resp.StatusCode)
+	}
+	raw, err := io.ReadAll(io.LimitReader(resp.Body, maxBodyBytes+1))
+	if err != nil {
+		return nil, resp.StatusCode, scrubbed(failure(err), p.Secrets)
+	}
+	if len(raw) > maxBodyBytes {
+		return nil, resp.StatusCode, "non_json_response"
+	}
+	if data, err = canonjson.Decode(raw); err != nil {
+		return nil, resp.StatusCode, "non_json_response"
+	}
+	return data, resp.StatusCode, ""
 }
 
 // Prepared is a fully rendered, vetted request: every step that can fail
@@ -106,9 +148,14 @@ type Prepared struct {
 	Params  map[string]string
 	Body    any
 	Spec    RequestSpec
-	// Secrets are the non-empty credential values resolved for this request; error text that
-	// leaves the package is scrubbed of them.
+	// Secrets are the non-empty credential values resolved for this request (and any poll request
+	// rendered from it); error text that leaves the package is scrubbed of them.
 	Secrets []string
+
+	m     Manifest
+	env   func(string) string
+	tctx  map[string]any
+	check func(rawURL string) error
 }
 
 // SecurityProblem returns a stable refusal reason ("templated_authority" or
@@ -123,7 +170,7 @@ func SecurityProblem(m Manifest) string {
 	if a.Type != "none" && a.Type != "" && a.Value != "" && !envRE.MatchString(a.Value) {
 		return "literal_auth_value"
 	}
-	return ""
+	return extProblem(m)
 }
 
 // authorityEnd is the index where the path/query/fragment of u begins.
@@ -148,8 +195,8 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 		return nil, r
 	}
 	allowed := allowedEnvNames(m)
-	var secretVals []string
-	env := func(v string) string {
+	p := &Prepared{m: m}
+	p.env = func(v string) string {
 		if cred == nil {
 			return ""
 		}
@@ -161,18 +208,49 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 			return ""
 		}
 		if s != "" {
-			secretVals = append(secretVals, s)
+			p.Secrets = append(p.Secrets, s)
 		}
 		return s
 	}
-	tctx := map[string]any{"input": InputContext(lead)}
-	req := m.Request
+	p.tctx = map[string]any{"input": InputContext(lead)}
+	// SSRF guard on the templated URL; DNS vetting happens at dial time.
+	if check == nil {
+		check = func(raw string) error { return egress.CheckURL(raw, true) }
+	}
+	p.check = check
+	r, perr := p.render(m.Request, nil, nil)
+	if perr != "" {
+		return nil, perr
+	}
+	p.Target, p.Headers, p.Params, p.Body, p.Spec = r.Target, r.Headers, r.Params, r.Body, r.Spec
+	return p, ""
+}
+
+// render builds one request of the manifest (the main request, or the poll request when extra
+// carries the first response). hosts, when non-nil, is the set of hosts the rendered URL may
+// have. Both credentials are applied here and only here: into a header or query parameter,
+// never into the URL path.
+func (p *Prepared) render(req RequestSpec, extra map[string]any, hosts map[string]bool) (*Prepared, string) {
+	m, env := p.m, p.env
+	tctx := p.tctx
+	if extra != nil {
+		tctx = map[string]any{}
+		for k, v := range p.tctx {
+			tctx[k] = v
+		}
+		for k, v := range extra {
+			tctx[k] = v
+		}
+		if missingReference(req, tctx) {
+			return nil, "poll_missing_reference"
+		}
+	}
 	target := renderURL(req.URL, tctx, env)
-	headers := make(map[string]string, len(req.Headers)+1)
+	headers := make(map[string]string, len(req.Headers)+2)
 	for k, v := range req.Headers {
 		headers[k] = RenderString(pyStr(v), tctx, env)
 	}
-	params := make(map[string]string, len(req.Query)+1)
+	params := make(map[string]string, len(req.Query)+2)
 	for k, v := range req.Query {
 		params[k] = RenderString(pyStr(v), tctx, env)
 	}
@@ -201,16 +279,70 @@ func Prepare(m Manifest, lead map[string]string, cred func(envVar string) (strin
 		case "query":
 			params[orDefault(a.Param, "api_key")] = value
 		}
+		if s := a.Secondary; s != nil {
+			sv := env(s.EnvVar)
+			if sv == "" {
+				return nil, m.Name + ": missing " + s.EnvVar
+			}
+			if s.Type == "header" {
+				headers[s.Param] = sv
+			} else {
+				params[s.Param] = sv
+			}
+		}
 	}
 
-	// SSRF guard on the templated URL; DNS vetting happens at dial time.
-	if check == nil {
-		check = func(raw string) error { return egress.CheckURL(raw, true) }
-	}
-	if err := check(target); err != nil {
+	if err := p.check(target); err != nil {
 		return nil, "blocked_url: " + truncRunes(blockedReason(err), 60)
 	}
-	return &Prepared{Target: target, Headers: headers, Params: params, Body: body, Spec: req, Secrets: secretVals}, ""
+	if hosts != nil && !hosts[hostOf(target)] {
+		return nil, "blocked_url: host not allowed"
+	}
+	return &Prepared{Target: target, Headers: headers, Params: params, Body: body, Spec: req}, ""
+}
+
+// missingReference reports a {{response.x}} reference without a default that has no value in the
+// first response: polling a URL with an empty id would hit the wrong resource.
+func missingReference(v any, ctx map[string]any) bool {
+	switch x := v.(type) {
+	case RequestSpec:
+		if missingReference(x.URL, ctx) || missingReference(x.BodyTemplate, ctx) {
+			return true
+		}
+		for _, h := range x.Headers {
+			if missingReference(h, ctx) {
+				return true
+			}
+		}
+		for _, q := range x.Query {
+			if missingReference(q, ctx) {
+				return true
+			}
+		}
+	case string:
+		for _, g := range varRE.FindAllStringSubmatch(x, -1) {
+			path := pyStrip(g[1])
+			if !strings.HasPrefix(path, "response.") || g[2] != "" {
+				continue
+			}
+			if s, ok := condText(lookup(path, ctx)); !ok || s == "" {
+				return true
+			}
+		}
+	case map[string]any:
+		for _, e := range x {
+			if missingReference(e, ctx) {
+				return true
+			}
+		}
+	case []any:
+		for _, e := range x {
+			if missingReference(e, ctx) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func orDefault(s, d string) string {
@@ -294,6 +426,9 @@ func allowedEnvNames(m Manifest) map[string]struct{} {
 	names := map[string]struct{}{}
 	if m.Auth.EnvVar != "" && !EnvDenied(m.Auth.EnvVar) {
 		names[m.Auth.EnvVar] = struct{}{}
+	}
+	if n := secondaryEnv(m.Auth); n != "" && !EnvDenied(n) {
+		names[n] = struct{}{}
 	}
 	for _, n := range m.Auth.ExtraEnv {
 		if n != "" && !EnvDenied(n) {

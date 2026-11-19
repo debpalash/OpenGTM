@@ -293,6 +293,13 @@ func checkManifest(m manifest.Manifest, names map[string]bool) string {
 			return "response.value_maps names a field that is not in response.mappings"
 		}
 	}
+	// Go-only extensions (auth.secondary, response.success_when, poll): refused with the engine's reason.
+	if m.Poll != nil && !strings.HasPrefix(m.Poll.Request.URL, "https://") {
+		return "connector poll URL must use HTTPS"
+	}
+	if p := manifest.ExtensionProblem(m); p != "" {
+		return p
+	}
 	return ""
 }
 

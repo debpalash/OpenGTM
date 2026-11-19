@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "result": "unknown",
+  "flags": [
+    "has_dns"
+  ],
+  "suggested_correction": "",
+  "execution_time": 499
+}
