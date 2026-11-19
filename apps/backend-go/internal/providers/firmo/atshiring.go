@@ -131,7 +131,7 @@ func titlesToSignals(titles []string) jo {
 // atsHiring ports providers/ats_hiring.py. Redirects on the board APIs are
 // followed like httpx (20 hops) with every hop URL-checked. An uncaught Python exception (a board
 // whose JSON has an unexpected shape) is reported as the provider error.
-type atsHiring struct{}
+type atsHiring struct{ providers.Upstream }
 
 func (atsHiring) Name() string { return "ats_hiring" }
 

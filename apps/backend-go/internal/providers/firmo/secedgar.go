@@ -52,7 +52,7 @@ func secNorm(name string) string {
 // carrying the SEC User-Agent and the limiter. The SEC asks for a descriptive
 // User-Agent: Input.Settings["SEC_EDGAR_USER_AGENT"] (global operator
 // config) or the default.
-type secEdgar struct{}
+type secEdgar struct{ providers.Upstream }
 
 func (secEdgar) Name() string { return "sec_edgar" }
 

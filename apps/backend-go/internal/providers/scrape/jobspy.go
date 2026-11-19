@@ -22,6 +22,7 @@ var (
 // JobSpy is the jobspy provider (hiring and tech intent from job-search
 // results). MaxJobs 0 means 5.
 type JobSpy struct {
+	providers.Upstream
 	gated
 	MaxJobs int
 	Delay   time.Duration // between queries; 0 = 1 s

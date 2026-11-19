@@ -39,7 +39,7 @@ func cleanStr(v any) string {
 }
 
 // companiesHouse ports providers/companies_house.py.
-type companiesHouse struct{}
+type companiesHouse struct{ providers.Upstream }
 
 func (companiesHouse) Name() string     { return "companies_house" }
 func (companiesHouse) KeyEnv() []string { return []string{"COMPANIES_HOUSE_API_KEY"} }

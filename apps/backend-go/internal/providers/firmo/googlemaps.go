@@ -22,7 +22,7 @@ const (
 )
 
 // googleMaps ports providers/google_maps.py.
-type googleMaps struct{}
+type googleMaps struct{ providers.Upstream }
 
 func (googleMaps) Name() string     { return "google_maps" }
 func (googleMaps) KeyEnv() []string { return []string{"GOOGLE_MAPS_API_KEY"} }

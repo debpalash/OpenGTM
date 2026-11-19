@@ -29,7 +29,7 @@ var (
 // wikidata ports providers/wikidata_provider.py (WikidataProvider.enrich).
 // resolve_identity, a separate Python entry point used by the domain resolver,
 // is not an enrichment call and is not ported here.
-type wikidata struct{}
+type wikidata struct{ providers.Upstream }
 
 func (wikidata) Name() string { return "wikidata" }
 

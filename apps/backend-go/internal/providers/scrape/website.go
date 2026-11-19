@@ -26,7 +26,10 @@ import (
 
 // ── website_scraper_provider.py ────────────────────────────────────────────
 
-type websiteScraper struct{ gated }
+type websiteScraper struct {
+	gated
+	providers.TargetSite
+}
 
 func (websiteScraper) Name() string { return "website_scraper" }
 
@@ -119,6 +122,7 @@ var (
 )
 
 type deepScraper struct {
+	providers.TargetSite
 	gated
 	MaxPages int           // 0 = 8
 	Timeout  time.Duration // 0 = 10 s

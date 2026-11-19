@@ -14,7 +14,10 @@ import (
 
 var dmTargetTitles = []string{"Founder", "CEO", "Managing Director", "CHRO", "HR Director", "CTO", "COO", "VP HR"}
 
-type decisionMaker struct{ gated }
+type decisionMaker struct {
+	gated
+	providers.Upstream
+}
 
 func (decisionMaker) Name() string { return "decision_maker" }
 

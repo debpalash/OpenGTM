@@ -9,7 +9,7 @@ import (
 )
 
 // abstractAPI ports providers/abstract_api.py (AbstractAPIProvider).
-type abstractAPI struct{}
+type abstractAPI struct{ providers.Upstream }
 
 func (abstractAPI) Name() string     { return "abstract_api" }
 func (abstractAPI) KeyEnv() []string { return []string{"ABSTRACT_API_KEY"} }

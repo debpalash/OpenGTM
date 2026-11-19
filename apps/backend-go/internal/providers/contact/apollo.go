@@ -10,7 +10,7 @@ import (
 const apolloBase = "https://api.apollo.io/api/v1"
 
 // apollo ports providers/apollo_io.py (ApolloProvider).
-type apollo struct{}
+type apollo struct{ providers.Upstream }
 
 func (apollo) Name() string     { return "apollo_io" }
 func (apollo) KeyEnv() []string { return []string{"APOLLO_API_KEY"} }

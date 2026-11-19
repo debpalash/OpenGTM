@@ -119,7 +119,10 @@ func emailViaSearch(ctx context.Context, s Search, company, city, domain string)
 
 // ── ddg_email_provider.py ──────────────────────────────────────────────────
 
-type ddgEmail struct{ gated }
+type ddgEmail struct {
+	gated
+	providers.Upstream
+}
 
 func (ddgEmail) Name() string { return "ddg_email" }
 
@@ -163,7 +166,10 @@ func (ddgEmail) Enrich(ctx context.Context, _ *http.Client, _ func() (string, er
 
 // ── mailscout_verify.py ────────────────────────────────────────────────────
 
-type mailScout struct{ gated }
+type mailScout struct {
+	gated
+	providers.TargetSite
+}
 
 func (mailScout) Name() string { return "mailscout" }
 

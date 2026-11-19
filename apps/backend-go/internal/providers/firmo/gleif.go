@@ -66,7 +66,7 @@ func gleifNorm(name string) string {
 // gleif ports providers/gleif.py (GleifProvider). Redirects are followed like
 // httpx's follow_redirects=True (20 hops) but every hop is URL-checked and
 // passes the rate limiter.
-type gleif struct{}
+type gleif struct{ providers.Upstream }
 
 func (gleif) Name() string { return "gleif" }
 

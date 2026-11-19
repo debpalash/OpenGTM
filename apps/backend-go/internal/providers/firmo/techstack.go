@@ -381,7 +381,7 @@ func settingBool(in providers.Input, key string, def bool) bool {
 // Settings["TECH_STACK_WEBSITE_FETCH_ENABLED"] is true (global operator
 // config, default off exactly like Python); TECH_STACK_RESPECT_ROBOTS
 // defaults to true; TLS verification is always on.
-type techStack struct{}
+type techStack struct{ providers.TargetSite }
 
 func (techStack) Name() string { return "tech_stack" }
 

@@ -13,7 +13,7 @@ const snovBase = "https://api.snov.io/v1"
 // snovio ports providers/snovio.py (SnovioProvider): OAuth2 client
 // credentials, then a domain email search. The key callback returns
 // JoinKeys(client id, client secret).
-type snovio struct{}
+type snovio struct{ providers.Upstream }
 
 func (snovio) Name() string     { return "snovio" }
 func (snovio) KeyEnv() []string { return []string{"SNOVIO_CLIENT_ID", "SNOVIO_CLIENT_SECRET"} }
