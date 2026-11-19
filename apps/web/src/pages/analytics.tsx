@@ -30,14 +30,14 @@ const tt = { contentStyle: { backgroundColor: "var(--color-popover)", border: "1
 const fmt = (n: number) => n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(1)}K` : String(n)
 
 // ── Metric Tile (compact KPI) ────────────────────────────────────
-function Metric({ label, value, sub, icon: Icon, color = "text-primary", delta }: {
-  label: string; value: string | number; sub?: string; icon: any; color?: string; delta?: number
+function Metric({ label, value, sub, icon: Icon, delta }: {
+  label: string; value: string | number; sub?: string; icon: any; delta?: number
 }) {
   return (
-    <div className="group rounded-lg border bg-card p-3 space-y-1 hover:border-primary/20 hover:shadow-sm transition-all duration-200 cursor-default">
+    <div className="rounded-lg bg-card p-3 space-y-1">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider truncate">{label}</span>
-        <div className={`p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ${color} group-hover:scale-110 transition-transform duration-200`}>
+        <div className="p-1.5 rounded-lg bg-muted text-muted-foreground">
           <Icon className="size-3.5" />
         </div>
       </div>
@@ -216,11 +216,11 @@ export default function AnalyticsPage() {
         <Region query={overviewQuery} label="Summary metrics" emptyHint="" loadingHeight="h-20">{() => (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
           <Metric label="Total Leads" value={fmt(totalLeads)} icon={Database} delta={overview?.leads_this_week} sub={`${overview?.leads_this_month || 0} this month`} />
-          <Metric label="Avg Score" value={overview?.avg_score || 0} icon={Target} color="text-amber-500" sub={`${overview?.tiers?.hot || 0} hot · ${overview?.tiers?.warm || 0} warm`} />
-          <Metric label="Email Rate" value={softPct(overview?.enrichment?.email_pct || 0, overview?.enrichment?.with_email || 0)} icon={Mail} color="text-emerald-500" sub={`${fmt(overview?.enrichment?.with_email || 0)} verified`} />
-          <Metric label="Conversion" value={pipeline ? softPct(conversionRate, qualifiedCount) : "—"} icon={TrendingUp} color="text-violet-500" sub={pipeline ? `${fmt(qualifiedCount)} qualified` : pipelineQuery.isError ? "Pipeline unavailable" : "Loading pipeline"} />
-          <Metric label="Data Quality" value={softPct(dataQuality, overview?.enrichment?.with_contact || 0)} icon={Shield} color="text-cyan-500" sub="email+contact+linkedin" />
-          <Metric label="Job Success" value={`${overview?.jobs?.success_rate || 0}%`} icon={Zap} color="text-orange-500" sub={`${overview?.jobs?.completed || 0}/${overview?.jobs?.total || 0} done`} />
+          <Metric label="Avg Score" value={overview?.avg_score || 0} icon={Target} sub={`${overview?.tiers?.hot || 0} hot · ${overview?.tiers?.warm || 0} warm`} />
+          <Metric label="Email Rate" value={softPct(overview?.enrichment?.email_pct || 0, overview?.enrichment?.with_email || 0)} icon={Mail} sub={`${fmt(overview?.enrichment?.with_email || 0)} verified`} />
+          <Metric label="Conversion" value={pipeline ? softPct(conversionRate, qualifiedCount) : "—"} icon={TrendingUp} sub={pipeline ? `${fmt(qualifiedCount)} qualified` : pipelineQuery.isError ? "Pipeline unavailable" : "Loading pipeline"} />
+          <Metric label="Data Quality" value={softPct(dataQuality, overview?.enrichment?.with_contact || 0)} icon={Shield} sub="email+contact+linkedin" />
+          <Metric label="Job Success" value={`${overview?.jobs?.success_rate || 0}%`} icon={Zap} sub={`${overview?.jobs?.completed || 0}/${overview?.jobs?.total || 0} done`} />
         </div>
         )}</Region>
 
@@ -454,11 +454,11 @@ function CurrentModelView({ overview }: { overview: AnalyticsOverview }) {
       {nothing && <div className="overview-notice" role="status">No companies, people or workbook activity in this workspace yet. Import a sample or run a workbook and the figures appear here.</div>}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
         <Metric label="Companies" value={fmt(rec.companies)} icon={Database} sub={`${fmt(rec.companies_needing_domain)} need a domain`} />
-        <Metric label="People" value={fmt(rec.people)} icon={Users} color="text-violet-500" sub={`${fmt(rec.people_with_email)} with email`} />
-        <Metric label="Email coverage" value={`${rec.email_pct}%`} icon={Mail} color="text-emerald-500" sub={`${fmt(rec.people_with_email)} of ${fmt(rec.people)} people`} />
-        <Metric label="Verified emails" value={fmt(rec.verified_emails)} icon={Shield} color="text-cyan-500" sub={`${rec.verified_pct}% of people`} />
-        <Metric label="Cells filled" value={fmt(act?.cells_filled ?? 0)} icon={CheckCircle2} color="text-amber-500" sub={`${act?.fill_rate_pct ?? 0}% of ${fmt(ran)} run (${act?.window_days ?? 30}d)`} />
-        <Metric label="Provider spend" value={usd(spend?.window_usd ?? 0)} icon={Zap} color="text-orange-500" sub={`${usd(spend?.total_usd ?? 0)} all time`} />
+        <Metric label="People" value={fmt(rec.people)} icon={Users} sub={`${fmt(rec.people_with_email)} with email`} />
+        <Metric label="Email coverage" value={`${rec.email_pct}%`} icon={Mail} sub={`${fmt(rec.people_with_email)} of ${fmt(rec.people)} people`} />
+        <Metric label="Verified emails" value={fmt(rec.verified_emails)} icon={Shield} sub={`${rec.verified_pct}% of people`} />
+        <Metric label="Cells filled" value={fmt(act?.cells_filled ?? 0)} icon={CheckCircle2} sub={`${act?.fill_rate_pct ?? 0}% of ${fmt(ran)} run (${act?.window_days ?? 30}d)`} />
+        <Metric label="Provider spend" value={usd(spend?.window_usd ?? 0)} icon={Zap} sub={`${usd(spend?.total_usd ?? 0)} all time`} />
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
         <Panel title={`Cells filled per day (${act?.window_days ?? 30}d)`} icon={TrendingUp} className="lg:col-span-8" badge={act ? `${act.workbooks_run} of ${act.workbooks} workbooks run` : undefined}>

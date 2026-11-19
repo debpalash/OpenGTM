@@ -28,7 +28,7 @@ export function ResearchEvidenceInspector({ evidence }: { evidence: ResearchEvid
             <p className="font-medium">{citation.title || `Source ${index + 1}`}</p>
             <p className="text-sm">Fetched: {citation.fetched_at && Number.isFinite(Date.parse(citation.fetched_at)) ? new Date(citation.fetched_at).toLocaleString() : "Not recorded"}</p>
             {href ? <a href={href} target="_blank" rel="noopener noreferrer" className="underline break-all focus-visible:outline-2 focus-visible:outline-ring">{citation.url}<span className="sr-only"> (opens in a new tab)</span></a> : <p className="break-all">{citation.url} — link unavailable</p>}
-            {citation.quoted_text && <blockquote className="border-l-2 border-border pl-3 mt-2 whitespace-pre-wrap">{citation.quoted_text}</blockquote>}
+            {citation.quoted_text && <blockquote className="mt-2 whitespace-pre-wrap rounded-md bg-muted px-3 py-2">{citation.quoted_text}</blockquote>}
           </li>
         })}</ol>
       </Dialog.Body>

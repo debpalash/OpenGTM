@@ -72,9 +72,9 @@ interface ConfirmationInfo {
 }
 
 const LEVEL_COLORS = {
-  high: "border-red-500/30 bg-red-500/5 text-red-400",
-  medium: "border-amber-500/30 bg-amber-500/5 text-amber-400",
-  low: "border-blue-500/30 bg-blue-500/5 text-blue-400",
+  high: "bg-red-500/10 text-red-700 dark:text-red-300",
+  medium: "bg-amber-500/10 text-amber-800 dark:text-amber-300",
+  low: "bg-muted text-foreground",
 } as const
 
 function ConfirmationItem({ info }: { info: ConfirmationInfo }) {
@@ -85,15 +85,15 @@ function ConfirmationItem({ info }: { info: ConfirmationInfo }) {
   const LevelIcon = info.level === "high" ? AlertTriangle : info.level === "medium" ? ShieldAlert : ShieldCheck
   const lines = info.description.split("\n").filter(Boolean)
   return (
-    <div className={`flex items-start gap-3 p-3.5 rounded-xl border ${LEVEL_COLORS[info.level]}`}>
+    <div className={`flex items-start gap-3 p-3.5 rounded-xl ${LEVEL_COLORS[info.level]}`}>
       <LevelIcon className="size-5 shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm font-medium">{lines[0] || info.label}</span>
           <span className={`px-1.5 py-0.5 text-xs font-medium rounded-full uppercase tracking-wider ${
-            info.level === "high" ? "bg-red-500/20 text-red-300"
-            : info.level === "medium" ? "bg-amber-500/20 text-amber-300"
-            : "bg-blue-500/20 text-blue-300"
+            info.level === "high" ? "bg-red-500/15"
+            : info.level === "medium" ? "bg-amber-500/15"
+            : "bg-background text-muted-foreground"
           }`}>{info.level} risk</span>
         </div>
         {lines.slice(1).map((line, i) => (
@@ -690,7 +690,7 @@ export default function ChatPage() {
                   ) : isAssistant ? (
                     /* ── Assistant Message ── */
                     <div className="flex gap-3">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/5 text-primary mt-1 ring-1 ring-primary/10">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground mt-1">
                         <Bot className="size-4" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -714,7 +714,7 @@ export default function ChatPage() {
                   ) : isTool && toolJobId ? (
                     /* ── Inline Task Progress Card ── */
                     <div className="flex gap-3">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 mt-1 ring-1 ring-amber-500/10">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-amber-700 dark:text-amber-400 mt-1">
                         <Zap className="size-4" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -730,7 +730,7 @@ export default function ChatPage() {
           {/* ── Streaming Response ── */}
           {(streamingContent || streamingTool || reasoningSteps.length > 0 || (isLoading && !streamingContent && !streamingTool)) && (
             <div className="flex gap-3 mt-5 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-primary/5 text-primary mt-1 ring-1 ring-primary/10">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-foreground mt-1">
                 <Bot className="size-4" />
               </div>
               <div className="flex-1 min-w-0">
@@ -754,7 +754,7 @@ export default function ChatPage() {
           {/* ── Confirmation Gate (human-in-the-loop) ── */}
           {confirmations.length > 0 && (
             <div className="flex gap-3 mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 mt-1 ring-1 ring-amber-500/10">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-amber-700 dark:text-amber-400 mt-1">
                 <ShieldAlert className="size-4" />
               </div>
               <div className="flex-1 min-w-0">
@@ -770,7 +770,7 @@ export default function ChatPage() {
           {/* ── Inline Task Progress Cards (from streaming) ── */}
           {streamingJobIds.map((jid) => (
             <div key={jid} className="flex gap-3 mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-amber-500/10 to-amber-500/5 text-amber-500 mt-1 ring-1 ring-amber-500/10">
+              <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-amber-700 dark:text-amber-400 mt-1">
                 <Zap className="size-4" />
               </div>
               <div className="flex-1 min-w-0">

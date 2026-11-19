@@ -425,8 +425,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
 
     return (
       <Card
-        className="cursor-pointer hover:bg-accent/50 transition-colors border-l-2"
-        style={{ borderLeftColor: isRunning ? "var(--primary)" : job.status === "done" ? "hsl(142, 76%, 36%)" : job.status === "failed" ? "var(--destructive)" : "transparent" }}
+        className="cursor-pointer hover:bg-accent/50 transition-colors"
         onClick={() => navigate(`/agents/${job.id}`)}
       >
         <CardContent className="p-3 space-y-2">

@@ -69,14 +69,6 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "text-orange-500",
 }
 
-const STATUS_BG: Record<string, string> = {
-  running: "border-l-blue-500",
-  done: "border-l-green-500",
-  failed: "border-l-destructive",
-  pending: "border-l-muted-foreground",
-  cancelled: "border-l-orange-500",
-}
-
 type FilterStatus = "all" | "running" | "done" | "failed"
 
 interface AgentCapability {
@@ -208,9 +200,8 @@ function TaskListRow({ job, onClick }: { job: Job; onClick: () => void }) {
     <div
       className={cn(
         "w-full flex items-center gap-2 px-3 py-2 rounded-lg",
-        "border-l-2 hover:bg-muted/50 transition-all duration-200 group",
-        STATUS_BG[job.status] || "border-l-transparent",
-        isRunning && "bg-blue-500/[0.03]",
+        "hover:bg-muted/50 transition-colors duration-200 group",
+        isRunning && "bg-muted/40",
       )}
     >
       <button onClick={onClick} className="flex items-center gap-2.5 flex-1 min-w-0 text-left">

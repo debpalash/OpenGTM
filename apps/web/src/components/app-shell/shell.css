@@ -114,7 +114,7 @@
 [data-sidebar="group-label"] { height:var(--gtm-target-min); min-height:var(--gtm-target-min); font-size:.75rem; color:var(--muted-foreground); font-weight:500; padding-inline:12px; }
 [data-sidebar="menu"] { gap:0; }
 [data-sidebar="menu-button"] { min-height:var(--gtm-sidebar-row); height:var(--gtm-sidebar-row); padding:4px 12px; gap:8px; border-radius:var(--gtm-radius-control); font-size:.875rem; color:var(--muted-foreground); }
-[data-sidebar="menu-button"][data-active=true] { color:var(--gtm-link); background:var(--gtm-selection); font-weight:600; }
+[data-sidebar="menu-button"][data-active=true] { color:var(--foreground); background:var(--gtm-selection); font-weight:600; }
 [data-sidebar="menu-button"][data-size="lg"] { height:48px; min-height:48px; }
 [data-sidebar="menu-action"] { top:2px; right:4px; width:var(--gtm-control-sm); height:var(--gtm-control-sm); min-width:var(--gtm-target-min); min-height:var(--gtm-target-min); }
 [data-sidebar="menu-action"]~[data-sidebar="menu-button"] { padding-right:40px; }
@@ -152,7 +152,7 @@
   background:var(--gtm-surface);
 }
 .gtm-account-theme-option[aria-checked="true"] {
-  color:var(--gtm-link);
+  color:var(--foreground);
   background:var(--gtm-selection);
   box-shadow:inset 0 0 0 1px var(--gtm-border-control);
 }
@@ -161,7 +161,7 @@
 
 /* Navigation areas (nav-areas.tsx): disclosure rows with an indented page list. */
 .gtm-nav-area-toggle[data-current] { color:var(--sidebar-foreground); font-weight:600; }
-.gtm-nav-area-toggle[data-current] > svg:first-child { color:var(--gtm-link); }
+.gtm-nav-area-toggle[data-current] > svg:first-child { color:var(--foreground); }
 .gtm-nav-chevron { flex:none; opacity:.6; transition:transform .15s ease; }
 [data-sidebar="menu-sub"] { gap:0; margin-inline:18px 4px; padding-inline:6px 0; }
 [data-sidebar="menu-sub-button"] {
@@ -169,7 +169,7 @@
   padding-inline:12px; gap:8px; font-size:.875rem; color:var(--muted-foreground);
 }
 [data-sidebar="menu-sub-button"] > svg { color:currentColor !important; }
-[data-sidebar="menu-sub-button"][data-active] { color:var(--gtm-link); background:var(--gtm-selection); font-weight:600; }
+[data-sidebar="menu-sub-button"][data-active] { color:var(--foreground); background:var(--gtm-selection); font-weight:600; }
 .gtm-nav-assistant { border:1px solid var(--sidebar-border); padding-inline:9px; color:var(--sidebar-foreground); }
 .gtm-nav-assistant[data-active=true] { border-color:transparent; }
 [data-collapsible="icon"] .gtm-nav-assistant { border-color:transparent; }

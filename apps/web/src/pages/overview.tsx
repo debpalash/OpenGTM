@@ -16,7 +16,7 @@ import {
   Upload,
   Users
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useAuth } from "@/lib/auth-context"
 import { recordAPI } from "@/lib/records"
@@ -66,7 +66,7 @@ export default function OverviewPage() {
           <>
             <Link
               to="/companies?import=1"
-              className="overview-primary-link"
+              className={buttonVariants({ variant: "outline" })}
               aria-label="Import records"
             >
               <Upload aria-hidden="true" />

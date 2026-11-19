@@ -81,6 +81,9 @@ export function GetStartedCard() {
 
   const state = query.data
   const visible = showChecklist(state, dismissed)
+  const steps = state ? buildSteps(state) : []
+  // One filled button per view: only the first unfinished step gets it.
+  const nextId = steps.find((step) => !step.done)?.id
   return (
     <>
       <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
@@ -105,7 +108,7 @@ export function GetStartedCard() {
             <span style={{ width: `${state.total ? (state.done_count / state.total) * 100 : 0}%` }} />
           </div>
           <ol className="getstarted-steps">
-            {buildSteps(state).map((step, index) => (
+            {steps.map((step, index) => (
               <li key={step.id} className="getstarted-step" data-done={step.done || undefined}>
                 <span className="getstarted-mark" aria-hidden="true">
                   {step.done ? <Check /> : <Circle />}
@@ -130,7 +133,7 @@ export function GetStartedCard() {
                     {step.actions.map((action, i) =>
                       action.kind === "link" ? (
                         // A real link (not a button role) styled like a button: it navigates.
-                        <Link key={action.label} to={action.to} className={buttonVariants({ variant: i === 0 ? "default" : "outline" })}>
+                        <Link key={action.label} to={action.to} className={buttonVariants({ variant: i === 0 && step.id === nextId ? "default" : "outline" })}>
                           {action.label}
                           <ArrowRight aria-hidden="true" />
                         </Link>
