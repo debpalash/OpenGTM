@@ -27,7 +27,18 @@ export const analyticsOverview = {
     email_pct: 100, phone_pct: 33, website_pct: 100, contact_pct: 67
   },
   email_confidence: {},
-  jobs: { total: 3, completed: 2, failed: 1, success_rate: 67 }
+  jobs: { total: 3, completed: 2, failed: 1, success_rate: 67 },
+  records: { companies: 25, people: 40, people_with_email: 12, verified_emails: 5, companies_needing_domain: 1, email_pct: 30.0, verified_pct: 12.5 },
+  activity: {
+    window_days: 30, workbooks: 1, workbooks_run: 1, running_workbooks: 0, failed_workbooks: 0, cells_filled: 75, cells_no_data: 25, fill_rate_pct: 75.0,
+    by_day: [{ date: "2026-11-18", filled: 0, no_data: 0 }, { date: "2026-11-19", filled: 75, no_data: 25 }]
+  },
+  providers: [
+    { provider: "apollo", cells_filled: 50, share_pct: 66.7, paid_attempts: 50, spend_usd: 1.25 },
+    { provider: "hunter", cells_filled: 25, share_pct: 33.3, paid_attempts: 0, spend_usd: 0 }
+  ],
+  spend: { window_days: 30, window_usd: 1.25, total_usd: 1.25, by_day: [{ date: "2026-11-19", usd: 1.25 }] },
+  legacy: { present: true, leads: 3 }
 }
 export const analyticsCollection = { jobs_by_day: [], leads_by_day: [], avg_leads_per_job: 0 }
 export const analyticsEnrichment = { source_quality: [], by_city: [], score_distribution: [] }

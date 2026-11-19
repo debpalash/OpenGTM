@@ -54,6 +54,13 @@ type OverviewResult struct {
 	Enrichment      EnrichmentCoverage `json:"enrichment"`
 	EmailConfidence map[string]int     `json:"email_confidence"`
 	Jobs            Jobs               `json:"jobs"`
+
+	// Added after the legacy fields (never in place of them): the shared-records view of the workspace.
+	Records   RecordsSummary `json:"records"`
+	Activity  Activity       `json:"activity"`
+	Providers []ProviderRow  `json:"providers"`
+	Spend     Spend          `json:"spend"`
+	Legacy    Legacy         `json:"legacy"`
 }
 
 // Overview serves GET /api/analytics/overview for the workspace bound to tx.
@@ -63,7 +70,12 @@ func Overview(ctx context.Context, tx pgx.Tx) (OverviewResult, error) {
 		return OverviewResult{}, err
 	}
 	e, t := s.Enrichment, s.Total
+	rec, act, prv, spd, err := RecordFigures(ctx, tx)
+	if err != nil {
+		return OverviewResult{}, err
+	}
 	return OverviewResult{
+		Records: rec, Activity: act, Providers: prv, Spend: spd, Legacy: Legacy{Present: t > 0, Leads: t},
 		TotalLeads: t,
 		AvgScore:   e.AvgScore,
 		Tiers:      s.ByTier,

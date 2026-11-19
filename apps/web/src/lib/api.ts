@@ -780,6 +780,46 @@ export interface AnalyticsOverview {
     failed: number
     success_rate: number
   }
+  // Shared records and workbook activity. Absent when talking to a backend older than this field set.
+  records?: AnalyticsRecords
+  activity?: AnalyticsActivity
+  providers?: AnalyticsProvider[]
+  spend?: AnalyticsSpend
+  legacy?: { present: boolean; leads: number }
+}
+
+export interface AnalyticsRecords {
+  companies: number
+  people: number
+  people_with_email: number
+  verified_emails: number
+  companies_needing_domain: number
+  email_pct: number
+  verified_pct: number
+}
+export interface AnalyticsActivity {
+  window_days: number
+  workbooks: number
+  workbooks_run: number
+  running_workbooks: number
+  failed_workbooks: number
+  cells_filled: number
+  cells_no_data: number
+  fill_rate_pct: number
+  by_day: { date: string; filled: number; no_data: number }[]
+}
+export interface AnalyticsProvider {
+  provider: string
+  cells_filled: number
+  share_pct: number
+  paid_attempts: number
+  spend_usd: number
+}
+export interface AnalyticsSpend {
+  window_days: number
+  window_usd: number
+  total_usd: number
+  by_day: { date: string; usd: number }[]
 }
 
 export interface AnalyticsPipeline {

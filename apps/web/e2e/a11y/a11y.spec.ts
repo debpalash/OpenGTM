@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url"
 import { expect, test } from "@playwright/test"
 import { workbookId } from "./fixtures/data"
 import { externalRequests, installMocks, runAxe } from "./helpers"
+import { analyticsOverview } from "./fixtures/real-shapes"
 
 type Theme = "light" | "dark"
 type Counts = Record<string, number>
@@ -119,6 +120,41 @@ test("/analytics | 503 unavailable | light | 1440x1000", async ({ page }) => {
   const base = loadBaseline()["/analytics | light | 1440x1000"] ?? {}
   const regressions = Object.entries(gated).filter(([id, n]) => (base[id] ?? 0) < n).map(([id, n]) => `${id}: ${n}`)
   expect(regressions, "New serious/critical a11y violations on /analytics 503").toEqual([])
+})
+
+// The default analytics view is the current model; the legacy scope is a secondary filter shown only when legacy
+// rows exist. Both views are audited, in both themes.
+for (const theme of ["light", "dark"] as Theme[]) {
+  test(`/analytics | legacy scope | ${theme} | 1440x1000`, async ({ page }) => {
+    await page.setViewportSize(DESKTOP)
+    await installMocks(page, theme)
+    await page.goto("/analytics")
+    await expect(page.getByText("Verified emails", { exact: true })).toBeVisible()
+    await expect(page.getByRole("button", { name: /legacy leads/i })).toHaveAttribute("aria-pressed", "false")
+    await page.getByRole("button", { name: /legacy leads/i }).click()
+    await expect(page.getByRole("button", { name: /legacy leads/i })).toHaveAttribute("aria-pressed", "true")
+    await expect(page.getByText("Total Leads")).toBeVisible()
+    await page.waitForLoadState("networkidle")
+    await page.evaluate(() => document.fonts.ready)
+    await page.waitForTimeout(1600)
+    await expect(page.getByText(/temporarily unavailable|returned an invalid response|could not be verified/i)).toHaveCount(0)
+    const gated: Counts = {}
+    for (const v of await runAxe(page)) if (v.impact && GATED.has(v.impact)) gated[v.id] = v.nodes
+    const base = loadBaseline()[`/analytics | ${theme} | 1440x1000`] ?? {}
+    const regressions = Object.entries(gated).filter(([id, n]) => (base[id] ?? 0) < n).map(([id, n]) => `${id}: ${n}`)
+    expect(regressions, "New serious/critical a11y violations on /analytics legacy scope").toEqual([])
+  })
+}
+
+test("/analytics | no legacy rows | the legacy scope is not offered", async ({ page }) => {
+  await page.setViewportSize(DESKTOP)
+  await installMocks(page, "light")
+  await page.route("**/api/analytics/overview", async (route) => {
+    await route.fulfill({ json: { ...analyticsOverview, legacy: { present: false, leads: 0 } } })
+  })
+  await page.goto("/analytics")
+  await expect(page.getByText("Verified emails", { exact: true })).toBeVisible()
+  await expect(page.getByRole("button", { name: /legacy leads/i })).toHaveCount(0)
 })
 
 test("the login page contacts no other origin", async ({ page }) => {
