@@ -33,11 +33,18 @@ type websiteScraper struct {
 
 func (websiteScraper) Name() string { return "website_scraper" }
 
-func (websiteScraper) Enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+func (w websiteScraper) Enrich(ctx context.Context, c *http.Client, key func() (string, error), in providers.Input) (providers.Output, error) {
 	website := ls(in.Lead, "website")
 	if website == "" {
 		return fail(in, "No website URL available"), nil
 	}
+	return websiteMemory.remember(ctx, normalizeWebsiteURL(website), in, func() (providers.Output, error) {
+		return w.enrich(ctx, c, key, in)
+	})
+}
+
+func (websiteScraper) enrich(ctx context.Context, _ *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+	website := ls(in.Lead, "website")
 	fe := current().Fetch
 	if fe == nil {
 		return fail(in, errNoWeb), nil
@@ -578,7 +585,7 @@ func employeeCount(v any) (string, bool) {
 	return "", false
 }
 
-func (p deepScraper) Enrich(ctx context.Context, c *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+func (p deepScraper) Enrich(ctx context.Context, c *http.Client, key func() (string, error), in providers.Input) (providers.Output, error) {
 	website := ls(in.Lead, "website")
 	if website == "" {
 		return fail(in, "No website URL available"), nil
@@ -586,6 +593,13 @@ func (p deepScraper) Enrich(ctx context.Context, c *http.Client, _ func() (strin
 	if c == nil {
 		return fail(in, errNoWeb), nil
 	}
+	return deepMemory.remember(ctx, normalizeWebsiteURL(website), in, func() (providers.Output, error) {
+		return p.enrich(ctx, c, key, in)
+	})
+}
+
+func (p deepScraper) enrich(ctx context.Context, c *http.Client, _ func() (string, error), in providers.Input) (providers.Output, error) {
+	website := ls(in.Lead, "website")
 	maxPages, timeout := p.MaxPages, p.Timeout
 	if maxPages <= 0 {
 		maxPages = 8

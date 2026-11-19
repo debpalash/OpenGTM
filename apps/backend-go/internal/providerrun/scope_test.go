@@ -28,7 +28,7 @@ func blockUntilDone(ctx context.Context, _ *http.Client, _ func() (string, error
 func TestTargetSiteProviderTimeoutsNeverCoolDown(t *testing.T) {
 	name := uniq("t18_target")
 	providers.Register(&targetProv{fakeProv: fakeProv{name, blockUntilDone}})
-	h := newHarness(t, nil)
+	h := newHarness(t, func(d *providerrun.Deps) { d.TargetSiteTimeout = time.Millisecond }) // keep the test's own 30 ms timeouts
 	for i := 0; i < 6; i++ {
 		out, err := h.r.Run(context.Background(), "ws1", name, providers.Input{Field: "description"}, 30*time.Millisecond)
 		if err != nil || out.Error != "timeout" {

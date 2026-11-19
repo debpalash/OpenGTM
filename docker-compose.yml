@@ -39,6 +39,7 @@ x-go-env: &go-env
   # service below: a call waits for a slot in the caller instead of queueing inside the service with its
   # provider timeout running. Per process: size the service for (api + worker replicas) x this value.
   BROWSER_MAX_CONCURRENCY: ${BROWSER_MAX_CONCURRENCY:-4}
+  ENRICH_TARGET_SITE_TIMEOUT: ${ENRICH_TARGET_SITE_TIMEOUT:-30}
 
 services:
   # ── Postgres (primary store) ───

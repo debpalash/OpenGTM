@@ -16,6 +16,9 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"os"
+	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -54,6 +57,12 @@ const (
 	defaultTimeout = 10 * time.Second
 	defaultWorkers = 16
 
+	// defaultTargetSiteTimeout is the budget of a provider that fetches the lead's own site (providers.ClassTargetSite).
+	// Such a provider walks several pages one after another (deep_scraper: up to 14 paths with redirect hops;
+	// website_scraper: 4 browser renders), which took 5 to 35 s in the first-run benchmark against the 10 s default
+	// that suits a single vendor API call. ENRICH_TARGET_SITE_TIMEOUT overrides it (seconds, 3 to 120).
+	defaultTargetSiteTimeout = 30 * time.Second
+
 	ledgerTimeout = 5 * time.Second
 )
 
@@ -72,9 +81,12 @@ type Deps struct {
 	// Reacher client may reach even when private.
 	OperatorAllow []string
 	Workers       int // provider_workers: goroutines running Go providers at once
-	Log           *slog.Logger
-	Cost          func(provider string) float64 // default vendorcatalog.BaseCost
-	Now           func() time.Time
+	// TargetSiteTimeout is the timeout floor of target-site providers: they run with the larger of the caller's
+	// timeout and this budget. 0 reads ENRICH_TARGET_SITE_TIMEOUT, default 30 s.
+	TargetSiteTimeout time.Duration
+	Log               *slog.Logger
+	Cost              func(provider string) float64 // default vendorcatalog.BaseCost
+	Now               func() time.Time
 	// Manifests is the signature-verified connector index (credentials.ConnectorIndex): a provider
 	// with no Go implementation runs from its declarative manifest. nil uses this process's index
 	// over the connector settings (built-ins unless overridden).
@@ -109,6 +121,9 @@ func New(d Deps) *Runner {
 	}
 	if d.Now == nil {
 		d.Now = time.Now
+	}
+	if d.TargetSiteTimeout <= 0 {
+		d.TargetSiteTimeout = targetSiteTimeoutFromEnv()
 	}
 	if d.Manifests == nil {
 		d.Manifests = processConnectorIndex
@@ -168,6 +183,9 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 	}
 	// A gated provider (providers/scrape) runs in Go only when GO_LOCAL_PROVIDERS lists it.
 	p, native := nativeFor(provider, local)
+	if native && providers.ClassOf(p) == providers.ClassTargetSite && timeout < r.d.TargetSiteTimeout {
+		timeout = min(r.d.TargetSiteTimeout, maxTimeout)
+	}
 	var m manifest.Manifest
 	if !native {
 		_, registered := providers.Get(provider)
@@ -601,4 +619,13 @@ func (r *Runner) Configured(ctx context.Context, workspaceID, provider string) (
 		}
 	}
 	return true, nil
+}
+
+// targetSiteTimeoutFromEnv reads ENRICH_TARGET_SITE_TIMEOUT (whole seconds, 3 to 120); anything else is the default.
+func targetSiteTimeoutFromEnv() time.Duration {
+	n, err := strconv.Atoi(strings.TrimSpace(os.Getenv("ENRICH_TARGET_SITE_TIMEOUT")))
+	if err != nil || n < 3 || n > int(maxTimeout/time.Second) {
+		return defaultTargetSiteTimeout
+	}
+	return time.Duration(n) * time.Second
 }
