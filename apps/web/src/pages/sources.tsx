@@ -67,7 +67,7 @@ import {
   ShoppingCart,
   type LucideIcon
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 
 const API_BASE = import.meta.env.VITE_API_URL || ""
 

@@ -24,7 +24,7 @@ import {
   Zap,
 } from "lucide-react"
 import { BoolMark } from "@/components/semantic-icons"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 
 import {
   ConditionFieldPicker,

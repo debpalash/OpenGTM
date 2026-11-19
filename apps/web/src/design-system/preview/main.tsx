@@ -9,7 +9,7 @@ import {
   Settings,
   Upload
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { ThemeProvider } from "../theme/theme-provider"
 import { ThemeSelect } from "../theme/theme-select"
 import {

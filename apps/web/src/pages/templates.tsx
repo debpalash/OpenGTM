@@ -8,7 +8,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   Activity, Banknote, Briefcase, Building2, Combine, Cpu, Crown,
   LayoutTemplate, Loader2, Map, NotebookPen, Paintbrush, PenLine, Radar,

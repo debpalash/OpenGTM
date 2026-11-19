@@ -6,7 +6,7 @@ import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
   MoreHorizontal, Search, SquarePen, Sun, Trash2,
 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuAction,

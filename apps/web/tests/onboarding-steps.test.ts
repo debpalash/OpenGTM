@@ -41,7 +41,7 @@ test("each open step has one place to go; done steps have none", () => {
   expect(steps[0].actions).toEqual([])
   expect(steps[1].actions).toEqual([{ kind: "link", label: "Open data sources", to: "/sources" }])
   expect(buildSteps(make([]))[0].actions).toEqual([
-    { kind: "link", label: "Open AI provider settings", to: "/settings" }
+    { kind: "link", label: "Open AI provider settings", to: "/settings?tab=providers" }
   ])
 })
 

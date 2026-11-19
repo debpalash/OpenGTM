@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react"
 import { useConfirm } from "@/components/dialog-provider"
 import { useParams, useNavigate } from "react-router-dom"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   ArrowLeft, Mail, Phone, Globe, Link2, AtSign,
   MapPin, Building2, User, Calendar, Sparkles, Search,

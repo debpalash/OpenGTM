@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react"
 import { usePrompt } from "@/components/dialog-provider"
 import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   ArrowUpDown, Mail, Phone, MoreHorizontal,
   Plus, Download, RefreshCw, Globe, Flame, Sun, Snowflake,

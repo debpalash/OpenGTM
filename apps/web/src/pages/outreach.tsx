@@ -14,7 +14,7 @@ import { copyText } from "@/lib/insecure-context"
 import { PageHeader } from "@/design-system/patterns/workbench"
 import { useState } from "react"
 import { useNavigate, useSearchParams } from "react-router-dom"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   Send, Plus, Play, Pause, Trash2, MoreHorizontal, Clock,
   Mail, Users, Loader2, ChevronRight, Zap,

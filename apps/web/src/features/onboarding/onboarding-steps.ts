@@ -39,7 +39,7 @@ export function buildSteps(state: OnboardingState): ChecklistStep[] {
   const actions = (id: StepId): StepAction[] => {
     switch (id) {
       case "llm_provider":
-        return [{ kind: "link", label: "Open AI provider settings", to: "/settings" }]
+        return [{ kind: "link", label: "Open AI provider settings", to: "/settings?tab=providers" }]
       case "data_source":
         return [{ kind: "link", label: "Open data sources", to: "/sources" }]
       case "data":

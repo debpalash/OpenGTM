@@ -9,7 +9,7 @@ import { copyText } from "@/lib/insecure-context"
 
 import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue, createContext, useContext } from "react"
 import { useConfirm } from "@/components/dialog-provider"
-import { useParams, useNavigate, useSearchParams } from "react-router-dom"
+import { Link, useParams, useNavigate, useSearchParams } from "react-router-dom"
 import {
   useTable, tableFeatures, createSortedRowModel, sortFns,
   columnVisibilityFeature, rowSelectionFeature, rowSortingFeature,
@@ -60,7 +60,7 @@ import { selectedWorkbookRowIds, type WorkbookDeleteScope } from "@/lib/workbook
 import { ActivityDrawer } from "@/components/activity-drawer"
 import type { SourceEnginePanel as SourceEnginePanelType } from "@/components/source-engine-panel"
 import { CsvImportDialog, type CsvImportDraft } from "@/components/csv-import-dialog"
-import { toast } from "sonner"
+import { nextStepFor, toast } from "@/lib/notify"
 import {
   DndContext, closestCenter,
 } from "@dnd-kit/core"
@@ -109,7 +109,7 @@ function CellStatus({ status, error }: { status?: string; error?: string | null 
     // Only a real failure is red: no data is a normal result, and a missing setup is something the user can fix.
     const outcome = cellOutcome(status, error)
     if (outcome === "no_data") return <span role="img" aria-label="No data found" title="No data found" className="size-3 text-muted-foreground/50 shrink-0 text-xs leading-3">∅</span>
-    if (outcome === "needs_setup") return <a href="/settings" aria-label="Needs setup: open Settings" title="Needs setup: open Settings" className="size-3 text-[var(--gtm-warning)] shrink-0 text-xs leading-3 font-medium" onClick={e => e.stopPropagation()}>!</a>
+    if (outcome === "needs_setup") return <Link to={nextStepFor(error)?.to ?? "/settings"} aria-label={`Needs setup: ${error || "open Settings"}`} title={`Needs setup: ${error || "open Settings"}`} className="size-3 text-[var(--gtm-warning)] shrink-0 text-xs leading-3 font-medium" onClick={e => e.stopPropagation()}>!</Link>
     return <AlertCircle aria-label="Error" className="size-3 text-destructive shrink-0" />
   }
   if (status === "pending") return <Clock className="size-3 text-muted-foreground/40 shrink-0" />

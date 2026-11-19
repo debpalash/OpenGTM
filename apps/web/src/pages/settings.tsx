@@ -3,8 +3,8 @@ import { PageHeader } from "@/design-system/patterns/workbench"
 import { useConfirm } from "@/components/dialog-provider"
 import { ProviderIcon } from "@/features/settings/provider-icon"
 import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import { toast } from "sonner"
+import { Link, useSearchParams } from "react-router-dom"
+import { toast } from "@/lib/notify"
 import { ExternalLink, Check, X, Loader2, Eye, EyeOff, Globe, Mail, ShieldCheck, Download, RefreshCw, Database, Trash2, UserPlus, LockKeyhole, Copy } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -30,8 +30,14 @@ import { Gate } from "@/components/gate"
 import { useLeaveConfirmation } from "@/features/navigation/leave-guard-provider"
 import { ProviderSettingsPanel } from "@/features/settings/provider-settings"
 
+const SECTIONS = ["providers", "enrichment", "email", "agents", "pipeline", "integrations", "governance"]
+
 export default function SettingsPage() {
-  const [section, setSection] = useState("providers")
+  const [params] = useSearchParams()
+  const requested = params.get("tab") ?? ""
+  const [section, setSection] = useState(SECTIONS.includes(requested) ? requested : "providers")
+  // A link from an error or notification names the section to open.
+  useEffect(() => { if (SECTIONS.includes(requested)) setSection(requested) }, [requested])
   const { request: confirmLeave } = useLeaveConfirmation()
   const changeSection = async (next: string) => {
     if (next === section) return
