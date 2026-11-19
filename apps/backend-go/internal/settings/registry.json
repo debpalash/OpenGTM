@@ -291,34 +291,6 @@
       ]
     },
     {
-      "id": "heyreach",
-      "name": "HeyReach",
-      "icon": "heyreach",
-      "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
-      "fields": [
-        {
-          "key": "HEYREACH_API_KEY",
-          "label": "API Key",
-          "secret": true,
-          "placeholder": "HeyReach API key"
-        }
-      ]
-    },
-    {
-      "id": "lemlist",
-      "name": "lemlist",
-      "icon": "lemlist",
-      "description": "Add leads to a lemlist email campaign (audience destination).",
-      "fields": [
-        {
-          "key": "LEMLIST_API_KEY",
-          "label": "API Key",
-          "secret": true,
-          "placeholder": "lemlist API key"
-        }
-      ]
-    },
-    {
       "id": "sheets",
       "name": "Google Sheets",
       "icon": "sheets",
@@ -377,6 +349,34 @@
           "label": "Marketing API Access Token",
           "secret": true,
           "placeholder": "AQX..."
+        }
+      ]
+    },
+    {
+      "id": "heyreach",
+      "name": "HeyReach",
+      "icon": "heyreach",
+      "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
+      "fields": [
+        {
+          "key": "HEYREACH_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "HeyReach API key"
+        }
+      ]
+    },
+    {
+      "id": "lemlist",
+      "name": "lemlist",
+      "icon": "lemlist",
+      "description": "Add leads to a lemlist email campaign (audience destination).",
+      "fields": [
+        {
+          "key": "LEMLIST_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "lemlist API key"
         }
       ]
     }
