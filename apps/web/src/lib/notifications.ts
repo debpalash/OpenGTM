@@ -62,7 +62,7 @@ function workbookNotifications(payload: { workbooks: Workbook[] }, workspaceId: 
     if ("workspace_id" in workbook && workbook.workspace_id !== workspaceId) {
       throw new Error("Invalid workbooks workspace")
     }
-    if (workbook.status !== "failed") return []
+    if (workbook.status !== "failed" && workbook.status !== "completed_with_errors") return []
     if (typeof workbook.id !== "string" || !workbook.id || typeof workbook.name !== "string") {
       throw new Error("Invalid failed workbook")
     }
@@ -71,7 +71,7 @@ function workbookNotifications(payload: { workbooks: Workbook[] }, workspaceId: 
       severity: "critical" as const,
       category: "workbook" as const,
       title: workbook.name || "Workbook failed",
-      description: "Workbook failed. Open it to review the run.",
+      description: workbook.status === "failed" ? "Workbook failed. Open it to review the run." : "Workbook finished, but some cells ended in errors. Open it to review them.",
       href: `/workbooks/${routeId(workbook.id)}`,
       createdAt: timestamp(workbook.updated_at || workbook.created_at, "workbook"),
     }]

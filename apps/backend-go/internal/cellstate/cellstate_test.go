@@ -1,6 +1,27 @@
 package cellstate
 
-import "testing"
+import (
+	"encoding/json"
+	"os"
+	"testing"
+)
+
+// The web client loads the same table (apps/web/tests/workbook-outcomes.test.ts), so both classifiers agree.
+func TestSharedOutcomeTable(t *testing.T) {
+	raw, err := os.ReadFile("testdata/outcomes.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var rows []struct{ Status, Error, Outcome string }
+	if err := json.Unmarshal(raw, &rows); err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range rows {
+		if got := OfCell(r.Status, r.Error); string(got) != r.Outcome {
+			t.Errorf("OfCell(%q, %q) = %s, want %s", r.Status, r.Error, got, r.Outcome)
+		}
+	}
+}
 
 func TestOfCell(t *testing.T) {
 	long := "No LLM provider is configured: add a key in Settings"

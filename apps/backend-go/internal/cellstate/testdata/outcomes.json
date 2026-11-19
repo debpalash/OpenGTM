@@ -1,0 +1,19 @@
+[
+  {"status": "complete", "error": "", "outcome": "filled"},
+  {"status": "complete", "error": "ignored", "outcome": "filled"},
+  {"status": "skipped", "error": "", "outcome": "skipped"},
+  {"status": "error", "error": "", "outcome": "no_data"},
+  {"status": "error", "error": "no_data", "outcome": "no_data"},
+  {"status": "error", "error": "no_data: tried 3 providers", "outcome": "no_data"},
+  {"status": "error", "error": "no_answer", "outcome": "no_data"},
+  {"status": "error", "error": "no_email_to_verify", "outcome": "no_data"},
+  {"status": "error", "error": "upstream_dependency_failed", "outcome": "no_data"},
+  {"status": "error", "error": "No LLM provider is configured", "outcome": "needs_setup"},
+  {"status": "error", "error": "browser_service_unavailable: x needs the browser service", "outcome": "needs_setup"},
+  {"status": "error", "error": "no_providers_selected", "outcome": "needs_setup"},
+  {"status": "error", "error": "provider_key_missing: hunter needs an API key; add it in Settings", "outcome": "needs_setup"},
+  {"status": "error", "error": "smtp_port_blocked: SMTP port 25 is blocked on this server", "outcome": "needs_setup"},
+  {"status": "error", "error": "provider_error: hunter: HTTP 500", "outcome": "error"},
+  {"status": "error", "error": "timeout after 30s", "outcome": "error"},
+  {"status": "error", "error": "dependency cycle", "outcome": "error"}
+]
