@@ -9,6 +9,74 @@ second install.** Neither reaches 80%. About half of the empty cells are two col
 zero-key install as seeded; the other half are cells that a free provider could have filled but did not,
 because one 10 second timeout puts that provider on a 3 minute cooldown for the whole workspace.
 
+## After the fixes (branch `fix/first-run-fill-rate`, builds on PR #175 and PR #178)
+
+Seven fixes (one commit each, test first): a process-wide browser limiter sized from `BROWSER_MAX_CONCURRENCY`
+whose wait does not count against the provider timeout; a cooldown that keeps 300 s for a rate limit but needs 3
+consecutive timeouts for a timeout; a failed re-run keeps the old value; Email Verify reads the row's Email cell
+and stores the verifier's answer; specific empty-cell reasons; an honest seed description; and three separate
+numbers in the script. Measured on two fresh installs of the fixed code (`scripts/bench/first-run-fill-rate.sh`).
+
+| Number (200 enrichment cells) | Before, install 1 | Before, install 2 | After, install 1 | After, install 2 |
+| --- | --- | --- | --- | --- |
+| All filled | 107 (53.5%) | 88 (44.0%) | 121 (60.5%) | 134 (67.0%) |
+| Excluding guessed `ddg_email` role addresses | 89 (44.5%) | not computed | 115 (57.5%) | 131 (65.5%) |
+| Excluding the key-requiring column (HQ Location, 175 cells) | 107/175 (61.1%) | 88/175 (50.3%) | 121/175 (69.1%) | 134/175 (76.6%) |
+
+The three numbers are never combined. **Neither install reaches 80% excluding key columns (69.1% and 76.6%).**
+The spread between the two after-installs is 7.5 points on the same code, so quote a range. Two installs are not
+a confidence interval. The before-install columns were computed from the phase-1 data with the same rule.
+
+Per column, filled out of 25 (before is the phase-1 install 1 / install 2):
+
+| Column | Before | After install 1 | After install 2 | Empty reasons after (install 2) |
+| --- | --- | --- | --- | --- |
+| Description | 25 / 25 | 25 | 25 | none |
+| LinkedIn | 23 / 22 | 22 | 23 | timeout x2 |
+| Email | 24 / 13 | 19 | 21 | timeout x4 (3 of them skipped by cooldown) |
+| Hiring Signals | 17 / 15 | 15 | 15 | `no_data` with cooldown skip x9, timeout x1 |
+| Size | 11 / 11 | 11 | 17 | timeout x5, `no_data` x3 |
+| Phone | 7 / 2 | 10 | 12 | timeout x12 (cooldown skip), `no_data` x1 |
+| Email Verify | 0 / 0 | 19 | 21 | `upstream_dependency_failed` x4 (no Email to verify) |
+| HQ Location (research) | 0 / 0 | 0 | 0 | "No LLM provider is configured: add a key in Settings" x25 |
+
+What changed and what did not:
+
+- Email Verify went from 0 to 19 and 21 cells. **All 40 are the verdict `unknown`** (the cascade answered, no
+  SMTP verdict could be reached from this host; port 25 reachability was not measured separately). They count as
+  filled in all three numbers because the verifier did answer; without them install 1 is 102/175 (58.3%) and
+  install 2 is 113/175 (64.6%). A guessed address is no longer reported as verified.
+- A re-run in install 1 lost 0 cells and gained 16 (137/200), against 18 lost before.
+- Empty cells now carry a reason: every HQ Location cell says to add an LLM key; skipped providers say
+  "cooling down"; a cell whose Email is empty says so for Email Verify.
+- The run got slower, 551 s and 583 s against 296 s and 169 s, because browser calls now queue on the limiter
+  instead of failing early. Peak RAM was 772 and 708 MiB, comparable to before.
+
+### Remaining causes of the gap to 80% (evidence)
+
+1. **Real provider work still exceeds the 10 s timeout.** The worker logged 137 (install 1) and 144 (install 2)
+   `provider timed out` warnings, more than the 80 before, mostly `deep_scraper` (36 and 37) and
+   `website_scraper` (34 and 34), which make sequential browser calls inside one provider call. The limiter wait
+   is excluded from the clock, so these are not queueing; this is inferred from the call structure and not
+   proven by a per-call trace. Cooldown skips remain: Phone is 12 of 13 empty cells `timeout (provider cooldown
+   skip)` in install 2, so 3 consecutive timeouts is still reached because a whole column of rows runs
+   concurrently. Not measured: the result with a 30 s provider timeout (not changed here because the task did
+   not ask for it, and doing it to pass the benchmark would be tuning).
+2. **Search engines block the free providers.** Browser log, install 2: `search.brave.com` 119 fetches,
+   `www.mojeek.com` 117 fetches (install 1: 105 and 101, of which 105 x 429 and 87 x 403 are the blocked
+   answers); `search.yahoo.com` answers. Phase 1 showed the same pattern.
+3. **Email Verify has no SMTP verdict.** 40 of 40 filled verify cells are `unknown`; the 4 and 6 empty cells are
+   `upstream_dependency_failed` because Email stayed empty (timeouts).
+4. **Hiring Signals** is capped by cooldowns on `ats_hiring` and `jobspy` (9 and 8 `no_data` with cooldown skip).
+
+The ceiling from this data is the number above; it is not tuned. Fix 1 and fix 2 removed the first-run data
+loss and the single-timeout cascade, and raised the first-run rate by 7 to 23 points, but the remaining timeouts
+need a separate decision (provider timeout per provider, or fewer sequential browser calls in `deep_scraper`).
+
+## Before the fixes: the phase-1 measurement
+
+Everything below is the measurement of origin/main before the fixes, kept as the baseline.
+
 ## Identity
 
 | Field | Value |
