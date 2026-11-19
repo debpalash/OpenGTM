@@ -86,6 +86,25 @@ func sortUnorderedLists(t *testing.T, raw json.RawMessage) json.RawMessage {
 	return out
 }
 
+// newOverviewKeys are the fields added after the Python-era contract; the recorded fixtures predate them.
+var newOverviewKeys = []string{"records", "activity", "providers", "spend", "legacy"}
+
+func dropNewOverviewKeys(t *testing.T, body json.RawMessage) json.RawMessage {
+	t.Helper()
+	var m map[string]json.RawMessage
+	if err := json.Unmarshal(body, &m); err != nil {
+		t.Fatal(err)
+	}
+	for _, k := range newOverviewKeys {
+		if _, ok := m[k]; !ok {
+			t.Fatalf("overview lacks new key %q", k)
+		}
+		delete(m, k)
+	}
+	out, _ := json.Marshal(m)
+	return out
+}
+
 func TestAnalyticsFixturesMatchPython(t *testing.T) {
 	e := newAnalyticsEnv(t)
 	replayed := 0
@@ -101,6 +120,9 @@ func TestAnalyticsFixturesMatchPython(t *testing.T) {
 			}
 		}
 		replayed++
+		if strings.HasPrefix(name, "overview") && rec.Code == 200 {
+			got.Body = dropNewOverviewKeys(t, got.Body)
+		}
 		if strings.HasPrefix(name, "enrichment_") && rec.Code == 200 {
 			got.Body, fx.Response.Body = sortUnorderedLists(t, got.Body), sortUnorderedLists(t, fx.Response.Body)
 		}
@@ -117,7 +139,7 @@ func TestOverviewMatchesFixture(t *testing.T) {
 	rec := e.get("alice", "ws-alpha", "/api/analytics/overview")
 	body := rec.Body.String()
 	order := []string{"total_leads", "leads_this_week", "leads_this_month", "avg_score", "tiers", "enrichment",
-		"email_confidence", "jobs", "success_rate"}
+		"email_confidence", "jobs", "success_rate", "records", "activity", "providers", "spend", "legacy"}
 	last := -1
 	for _, k := range order {
 		i := strings.Index(body, `"`+k+`"`)
@@ -138,8 +160,13 @@ func TestOverviewEmptyWorkspaceUsesIntZero(t *testing.T) {
 	want := `{"total_leads":0,"leads_this_week":0,"leads_this_month":0,"avg_score":0.0,"tiers":{},"enrichment":{"total":0,` +
 		`"with_email":0,"with_phone":0,"with_website":0,"with_contact":0,"with_linkedin":0,"email_pct":0,"phone_pct":0,` +
 		`"website_pct":0,"contact_pct":0},"email_confidence":{},"jobs":{"total":0,"completed":0,"failed":0,"success_rate":0}}`
-	if rec.Code != 200 || rec.Body.String() != want {
-		t.Errorf("%d %s", rec.Code, rec.Body.String())
+	got := rec.Body.String()
+	// The legacy part is byte-identical; the new fields follow it. The shared-record counts depend on whatever
+	// other tests left in the workspace, so only their position and the empty activity are pinned here.
+	prefix := strings.TrimSuffix(want, "}") + `,"records":{"companies":`
+	if rec.Code != 200 || !strings.HasPrefix(got, prefix) ||
+		!strings.HasSuffix(got, `]},"providers":[],"spend":{"window_days":30,"window_usd":0,"total_usd":0,"by_day":[]},"legacy":{"present":false,"leads":0}}`) {
+		t.Errorf("%d %s", rec.Code, got)
 	}
 }
 

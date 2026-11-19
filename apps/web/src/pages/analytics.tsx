@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from "react"
+import { useMemo, useState, type ReactNode } from "react"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 import { ErrorState, PageHeader } from "@/design-system/patterns/workbench"
@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
+import type { AnalyticsOverview } from "@/lib/api"
 import {
   useAnalyticsOverview, useAnalyticsPipeline,
   useAnalyticsCollection, useAnalyticsEnrichment, useAnalyticsLLM,
@@ -128,7 +129,16 @@ export default function AnalyticsPage() {
   const { data: enrichment } = enrichmentQuery
   const llmQuery = useAnalyticsLLM()
   const { data: llm } = llmQuery
-  const requests = [overviewQuery, pipelineQuery, collectionQuery, enrichmentQuery, llmQuery]
+  // The default view is the current model (shared records and workbook activity). The legacy-lead view is a
+  // secondary scope, offered only when the workspace has legacy rows. A backend without the new fields
+  // (records absent) can only show the legacy view, as before.
+  const [chosenScope, setChosenScope] = useState<"current" | "legacy">("current")
+  const hasCurrent = overview?.records !== undefined
+  const hasLegacy = overview?.legacy ? overview.legacy.present : true
+  const scope: "current" | "legacy" = !hasCurrent ? "legacy" : !hasLegacy ? "current" : chosenScope
+  const allRequests = [overviewQuery, pipelineQuery, collectionQuery, enrichmentQuery, llmQuery]
+  // The current view reads the overview alone, so the legacy sections' failures must not affect it.
+  const requests = scope === "current" && hasCurrent ? [overviewQuery] : allRequests
   const allLoading = requests.every(query => query.data === undefined && !query.isError)
   const allUnavailable = requests.every(query => query.data === undefined && query.isError)
   const staleCount = requests.filter(query => query.data !== undefined && query.isError).length
@@ -162,7 +172,8 @@ export default function AnalyticsPage() {
   const softPct = (pct: number, count: number) => (pct <= 0 && count > 0 ? "<1%" : `${pct}%`)
   const qualifiedCount = (pipeline?.statuses?.["qualified"] || 0) + (pipeline?.statuses?.["converted"] || 0)
 
-  if (allUnavailable) return <div className="workbench-page"><PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
+  const description = scope === "current" ? "Companies, people and workbook enrichment activity." : "Historical lead pipeline and enrichment performance."
+  if (allUnavailable) return <div className="workbench-page"><PageHeader title="Analytics" description={description} /><ErrorState title="Analytics is temporarily unavailable" error={requests.find(query => query.isError)?.error} retry={retry} /></div>
   if (allLoading) return (
     <div className="p-3 space-y-3" role="status" aria-label="Loading analytics">
       <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." />
@@ -180,10 +191,19 @@ export default function AnalyticsPage() {
     <div className="h-full overflow-y-auto">
       <div className="p-3 space-y-3 max-w-[1600px] mx-auto">
 
-        <PageHeader title="Analytics" description="Historical lead pipeline and enrichment performance." actions={<Link to="/overview" className="workbench-text-action">Company & people overview</Link>} />
+        <PageHeader title="Analytics" description={description} actions={<Link to="/overview" className="workbench-text-action">Company & people overview</Link>} />
         {staleCount > 0 && <div className="overview-notice" role="alert">The latest refresh failed for {staleCount === 1 ? "one section" : `${staleCount} sections`}. Showing the last successful data, which may be out of date. <button type="button" onClick={retryFailed}>Retry</button></div>}
-        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>Scope: legacy leads</span><span>{lastLoaded === null ? "Not loaded yet" : `Updated ${relativeTime(new Date(lastLoaded).toISOString()).toLowerCase()}`}</span></div>
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+          {hasCurrent && hasLegacy ? (
+            <div role="group" aria-label="Analytics scope" className="flex items-center gap-1">
+              <span>Scope:</span>
+              <button type="button" aria-pressed={scope === "current"} onClick={() => setChosenScope("current")} className={`rounded px-2 py-0.5 border ${scope === "current" ? "bg-muted text-foreground font-medium" : ""}`}>Records and workbooks</button>
+              <button type="button" aria-pressed={scope === "legacy"} onClick={() => setChosenScope("legacy")} className={`rounded px-2 py-0.5 border ${scope === "legacy" ? "bg-muted text-foreground font-medium" : ""}`}>Legacy leads ({fmt(overview?.legacy?.leads ?? 0)})</button>
+            </div>
+          ) : <span>Scope: {scope === "current" ? "records and workbooks" : "legacy leads"}</span>}<span>{lastLoaded === null ? "Not loaded yet" : `Updated ${relativeTime(new Date(lastLoaded).toISOString()).toLowerCase()}`}</span></div>
 
+        {scope === "current" && overview && <CurrentModelView overview={overview} />}
+        {scope === "legacy" && <>
         <details className="analytics-data-tables"><summary>View chart data as tables</summary><div>
           <AnalyticsTable title="Pipeline stages" columns={["Stage","Leads"]} rows={funnelData.map(row=>[row.status,row.count])} query={pipelineQuery}/>
           <AnalyticsTable title="Score tiers" columns={["Tier","Leads"]} rows={tierData.map(row=>[row.name,row.value])} query={overviewQuery}/>
@@ -414,8 +434,67 @@ export default function AnalyticsPage() {
             </ResponsiveContainer>
             )}</Region>
           </Panel>
-
+        </>}
       </div>
+    </div>
+  )
+}
+
+const usd = (n: number) => (n > 0 && n < 0.01 ? "<$0.01" : `$${n.toFixed(2)}`)
+
+/** Shared records and workbook activity: the current data model. Reads only the overview response. */
+function CurrentModelView({ overview }: { overview: AnalyticsOverview }) {
+  const rec = overview.records!, act = overview.activity, spend = overview.spend, providers = overview.providers ?? []
+  const ran = (act?.cells_filled ?? 0) + (act?.cells_no_data ?? 0)
+  const days = act?.by_day.map(d => ({ day: d.date, filled: d.filled, no_data: d.no_data })) ?? []
+  const nothing = rec.companies === 0 && rec.people === 0 && ran === 0
+  const loaded = { data: overview, isError: false }
+  return (
+    <div className="space-y-3">
+      {nothing && <div className="overview-notice" role="status">No companies, people or workbook activity in this workspace yet. Import a sample or run a workbook and the figures appear here.</div>}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+        <Metric label="Companies" value={fmt(rec.companies)} icon={Database} sub={`${fmt(rec.companies_needing_domain)} need a domain`} />
+        <Metric label="People" value={fmt(rec.people)} icon={Users} color="text-violet-500" sub={`${fmt(rec.people_with_email)} with email`} />
+        <Metric label="Email coverage" value={`${rec.email_pct}%`} icon={Mail} color="text-emerald-500" sub={`${fmt(rec.people_with_email)} of ${fmt(rec.people)} people`} />
+        <Metric label="Verified emails" value={fmt(rec.verified_emails)} icon={Shield} color="text-cyan-500" sub={`${rec.verified_pct}% of people`} />
+        <Metric label="Cells filled" value={fmt(act?.cells_filled ?? 0)} icon={CheckCircle2} color="text-amber-500" sub={`${act?.fill_rate_pct ?? 0}% of ${fmt(ran)} run (${act?.window_days ?? 30}d)`} />
+        <Metric label="Provider spend" value={usd(spend?.window_usd ?? 0)} icon={Zap} color="text-orange-500" sub={`${usd(spend?.total_usd ?? 0)} all time`} />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-2">
+        <Panel title={`Cells filled per day (${act?.window_days ?? 30}d)`} icon={TrendingUp} className="lg:col-span-8" badge={act ? `${act.workbooks_run} of ${act.workbooks} workbooks run` : undefined}>
+          {ran === 0 ? <Empty hint="No workbook cells written in this window. Run a workbook to fill this." /> : (
+            <ResponsiveContainer width="100%" height={180}>
+              <BarChart data={days}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="day" tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "var(--color-muted-foreground)" }} />
+                <Tooltip {...tt} />
+                <Bar dataKey="filled" name="Filled" stackId="a" fill="var(--gtm-success)" />
+                <Bar dataKey="no_data" name="No data" stackId="a" fill="var(--gtm-warning)" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </Panel>
+        <Panel title="Providers" icon={Zap} className="lg:col-span-4" badge={providers.length ? `${providers.length}` : undefined}>
+          {providers.length === 0 ? <Empty hint="No provider activity in this window." /> : (
+            <div className="space-y-1.5">
+              {providers.map(p => (
+                <div key={p.provider} className="flex items-center gap-2 text-xs">
+                  <span className="flex-1 font-mono truncate text-muted-foreground">{p.provider}</span>
+                  <span className="font-medium tabular-nums">{p.cells_filled} filled</span>
+                  <span className="w-12 text-right text-muted-foreground tabular-nums">{p.share_pct}%</span>
+                  <span className="w-14 text-right tabular-nums">{usd(p.spend_usd)}</span>
+                </div>
+              ))}
+              <p className="text-xs text-muted-foreground pt-1">Share is of filled cells. Spend is what the ledger settled.</p>
+            </div>
+          )}
+        </Panel>
+      </div>
+      <details className="analytics-data-tables"><summary>View chart data as tables</summary><div>
+        <AnalyticsTable title="Cells written by day" columns={["Day", "Filled", "No data"]} rows={days.map(d => [d.day, d.filled, d.no_data])} query={loaded} />
+        <AnalyticsTable title="Providers" columns={["Provider", "Cells filled", "Share of filled", "Paid attempts", "Spend (USD)"]} rows={providers.map(p => [p.provider, p.cells_filled, `${p.share_pct}%`, p.paid_attempts, p.spend_usd.toFixed(2)])} query={loaded} />
+      </div></details>
     </div>
   )
 }
