@@ -168,7 +168,7 @@ func TestHandlerPersistsReceiptForOwningLease(t *testing.T) {
 	}
 	_ = json.Unmarshal(raw, &got)
 	rc, _ := got["execution_result"].(map[string]any)
-	if keys(rc) != "completed,errors,recorded_at,retry_count,rows,stopped,total" ||
+	if keys(rc) != "completed,errors,needs_setup,no_data,recorded_at,retry_count,rows,stopped,total" ||
 		rc["completed"] != 2.0 || rc["errors"] != 0.0 || rc["total"] != 2.0 || rc["rows"] != 2.0 || rc["stopped"] != false {
 		t.Fatalf("receipt %v", rc)
 	}
