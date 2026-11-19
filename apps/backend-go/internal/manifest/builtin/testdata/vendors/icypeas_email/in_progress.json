@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "items": [
+    {
+      "_id": "5f9d1b2c8a1e4b0012ab34cd",
+      "name": "__icypeas__individual",
+      "user": "u1",
+      "status": "IN_PROGRESS",
+      "order": 0,
+      "results": {
+        "firstname": "Ada",
+        "lastname": "Lovelace",
+        "fullname": "Ada Lovelace",
+        "emails": [],
+        "phones": [],
+        "saasServices": []
+      },
+      "system": {
+        "createdAt": "2026-11-19T10:00:00.000Z",
+        "modifiedAt": "2026-11-19T10:00:05.000Z"
+      },
+      "userData": {
+        "webhookUrl": "",
+        "externalId": ""
+      }
+    }
+  ],
+  "total": 1
+}

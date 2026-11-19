@@ -1,0 +1,15 @@
+{
+  "result": "unknown",
+  "reason": "no_connect",
+  "role": false,
+  "free": false,
+  "disposable": false,
+  "accept_all": false,
+  "did_you_mean": null,
+  "sendex": 0.23,
+  "email": "ada@acme.com",
+  "user": "ada",
+  "domain": "acme.com",
+  "success": true,
+  "message": null
+}

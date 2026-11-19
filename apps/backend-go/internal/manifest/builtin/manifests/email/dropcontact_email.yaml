@@ -1,0 +1,64 @@
+# Dropcontact "Enrich a batch of records" -- declarative provider manifest (asynchronous: submit, then poll).
+# Docs: https://developer.dropcontact.com/en/reference/ and the OpenAPI spec
+# https://developer.dropcontact.com/openapi.json (POST /v1/enrich/all, GET /v1/enrich/all/{request_id}),
+# https://developer.dropcontact.com/en/reference/errors/.
+# Auth: X-Access-Token header.
+# Flow: POST returns request_id. The poll GETs the result: HTTP 200 with success false and
+# error false means "not ready, try again in 30 seconds" (an unknown request_id answers the
+# same way), HTTP 200 with success true carries data, and error true is a failure. The poll
+# waits 30 s before each request, as the docs ask. Dropcontact usually needs a while, so a
+# workspace running this provider needs provider_timeout of about 40 s or more (the default is
+# 10 s, the maximum 120 s); the lookup is capped at 120 s whatever the setting.
+# The lead is sent as one record (first_name, last_name, company, website, linkedin); the
+# fields it does not have go out as empty strings, which Dropcontact reports as warnings.
+# Only the first found email is mapped. Dropcontact charges credits only for found data; the
+# price depends on the plan, so cost_per_lookup is 0 (unknown).
+manifest_version: "1"
+name: dropcontact_email
+display_name: Dropcontact Email Finder
+author: OpenGTM
+homepage: https://developer.dropcontact.com/en/reference/
+tags: [email, enrichment, byok, async]
+capability: email
+capabilities: [email]
+description: Dropcontact /v1/enrich/all - name + company -> professional email (asynchronous).
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: header
+  param: X-Access-Token
+  env_var: DROPCONTACT_API_KEY
+request:
+  method: POST
+  url: https://api.dropcontact.com/v1/enrich/all
+  headers:
+    Content-Type: application/json
+  body:
+    data:
+      - first_name: "{{input.first_name}}"
+        last_name: "{{input.last_name}}"
+        company: "{{input.company}}"
+        website: "{{input.domain}}"
+        linkedin: "{{input.linkedin_url}}"
+    siren: false
+    language: en
+  timeout: 20
+poll:
+  request:
+    method: GET
+    url: https://api.dropcontact.com/v1/enrich/all/{{response.request_id}}
+    timeout: 20
+  interval: 30
+  max_attempts: 4
+  max_total: 120
+  done_when:
+    path: "$.success"
+    equals: true
+  failed_when:
+    path: "$.error"
+    equals: true
+response:
+  error_path: error
+  error_message_path: reason
+  mappings:
+    email: "$.data[0].email[].email"

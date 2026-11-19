@@ -1,0 +1,46 @@
+# Tomba "Email Finder" -- declarative provider manifest.
+# Docs: https://docs.tomba.io/openapi.md (GET /email-finder), https://docs.tomba.io/authentication.md,
+# errors: https://docs.tomba.io/error-handling.md.
+# Auth: two headers, X-Tomba-Key (auth.env_var) and X-Tomba-Secret (auth.secondary). Both
+# are stored encrypted in Settings and neither is ever put in the URL.
+# Synchronous. The docs ask for a client timeout of at least 180 s because lookups run live
+# against mail servers; request.timeout here is 120 s, the engine maximum, and the run is
+# also bounded by the workspace provider_timeout setting.
+# A person with no address is HTTP 200 with data.email null (a miss, not an error). A
+# disposable or webmail domain is HTTP 400 (http_400).
+# Billing is per credit and plan dependent (https://docs.tomba.io/usage-and-quotas.md),
+# so cost_per_lookup is 0 (unknown).
+manifest_version: "1"
+name: tomba_email_finder
+display_name: Tomba Email Finder
+author: OpenGTM
+homepage: https://docs.tomba.io/
+tags: [email, enrichment, byok]
+capability: email
+capabilities: [email]
+description: Tomba /email-finder - name + company domain -> professional email.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: header
+  param: X-Tomba-Key
+  env_var: TOMBA_API_KEY
+  secondary:
+    type: header
+    param: X-Tomba-Secret
+    env_var: TOMBA_SECRET_KEY
+request:
+  method: GET
+  url: https://api.tomba.io/v1/email-finder
+  query:
+    domain: "{{input.domain}}"
+    company: "{{input.company}}"
+    first_name: "{{input.first_name}}"
+    last_name: "{{input.last_name}}"
+  omit_empty: [domain, company, first_name, last_name]
+  timeout: 120
+response:
+  error_path: errors
+  error_message_path: errors.message
+  mappings:
+    email: "$.data.email"

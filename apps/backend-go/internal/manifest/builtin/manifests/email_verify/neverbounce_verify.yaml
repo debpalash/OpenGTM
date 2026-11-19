@@ -1,0 +1,48 @@
+# NeverBounce single check -- declarative provider manifest.
+# Docs: https://developers.neverbounce.com/reference/single-check (GET /v4.2/single/check),
+# https://developers.neverbounce.com/reference/authentication (the key is the "key" query
+# parameter; there is no header form).
+# Synchronous; the docs describe a timeout parameter that defaults to 30 s.
+# A successful call is {"status":"success","result":...}. The documented reference does not
+# list the error bodies, so success_when requires status == "success": any other body (an
+# authentication or quota failure included) is a miss, never a verdict.
+# result is one of valid, invalid, disposable, catchall, unknown. value_maps translates it to
+# the native words: catchall becomes catch_all, disposable becomes invalid (as
+# emailverify/cascade.go treats it) and any other word becomes unknown.
+# Billing is per credit and tiered (https://www.neverbounce.com/pricing), so cost_per_lookup is 0.
+manifest_version: "1"
+name: neverbounce_verify
+display_name: NeverBounce Email Verifier
+author: OpenGTM
+homepage: https://developers.neverbounce.com/reference/single-check
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: NeverBounce /v4.2/single/check - email -> valid, catch_all, invalid or unknown.
+default_confidence: 0.9
+cost_per_lookup: 0
+auth:
+  type: query
+  param: key
+  env_var: NEVERBOUNCE_API_KEY
+request:
+  method: GET
+  url: https://api.neverbounce.com/v4.2/single/check
+  query:
+    email: "{{input.email}}"
+  timeout: 30
+response:
+  success_when:
+    path: "$.status"
+    equals: success
+  mappings:
+    email_verify: "$.result"
+  value_maps:
+    email_verify:
+      values:
+        valid: valid
+        invalid: invalid
+        disposable: invalid
+        catchall: catch_all
+        unknown: unknown
+      default: unknown

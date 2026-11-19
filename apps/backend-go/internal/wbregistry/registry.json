@@ -1207,6 +1207,177 @@
       ],
       "maturity": "beta",
       "certification": null
+    },
+    {
+      "name": "tomba_email_finder",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "tomba_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "neverbounce_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "emailable_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "kickbox_verify",
+      "capabilities": [
+        "email_verify"
+      ],
+      "confidence": 0.9,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "icypeas_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "dropcontact_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.8,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "bettercontact_email",
+      "capabilities": [
+        "email"
+      ],
+      "confidence": 0.85,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "bettercontact_phone",
+      "capabilities": [
+        "phone"
+      ],
+      "confidence": 0.75,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
+    },
+    {
+      "name": "thecompaniesapi_company",
+      "capabilities": [
+        "company_size",
+        "description"
+      ],
+      "confidence": 0.75,
+      "required_checks": [
+        "external_read",
+        "failure_recovery",
+        "normalization",
+        "provenance",
+        "quality_sample",
+        "tenant_isolation"
+      ],
+      "maturity": "beta",
+      "certification": null
     }
   ],
   "recipes": {

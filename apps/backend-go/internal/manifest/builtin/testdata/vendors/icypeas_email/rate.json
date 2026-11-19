@@ -1,0 +1,6 @@
+{
+  "message": "You have exceeded the max number of requests per minute.",
+  "error": "RateLimitExceededError",
+  "status": 429,
+  "code": "rate_limit_exceeded_error"
+}

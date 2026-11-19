@@ -71,7 +71,8 @@ This table comes from `internal/manifest/types.go`, `registry.go` and
 | `param` | `Authorization` for `header`, `api_key` for `query` | Header name or query parameter name that carries the key. Ignored for `bearer`. |
 | `env_var` | | Name of the credential, for example `ACME_API_KEY`. Required unless `type` is `none`. The value is read from the workspace secret, then Settings, then the environment. |
 | `value` | | Optional template for the credential, for example `Basic ${env:ACME_API_KEY}`. It must contain `${env:NAME}`. A literal secret is refused. |
-| `extra_env` | | More credential names the manifest may use as `${env:NAME}`. Avoid; see the limits above. |
+| `extra_env` | | More credential names the manifest may use as `${env:NAME}`. Avoid; see the limits above. Connectors that declare it are not run by the worker; use `secondary` instead. |
+| `secondary` | | A second credential, for vendors that need a key and a secret. See below. |
 
 How the key is placed:
 
@@ -81,6 +82,35 @@ How the key is placed:
 
 If the credential is missing, no request is made and the result is
 `<name>: missing <ENV_VAR>`.
+
+#### `auth.secondary`
+
+Some vendors need two values, for example Tomba (`X-Tomba-Key` and
+`X-Tomba-Secret`). Declare the second one explicitly:
+
+```yaml
+auth:
+  type: header
+  param: X-Tomba-Key
+  env_var: TOMBA_API_KEY
+  secondary:
+    type: header            # header or query only
+    param: X-Tomba-Secret
+    env_var: TOMBA_SECRET_KEY
+```
+
+Rules:
+
+- `secondary.type` is `header` or `query`. Both values go only into a header
+  or a query parameter, never into the URL path, a body or a log line.
+- If either value is missing, no request is made and the result is
+  `<name>: missing <ENV_VAR>`.
+- The credential allow-list is exactly `auth.env_var` plus
+  `auth.secondary.env_var`. A third `${env:NAME}` does not resolve.
+- Both names need an `enrichment_providers` card and a `secret_app_keys` entry
+  in `settings/registry.json`, one card per name. Neither may be a platform
+  secret on the deny-list; the validator refuses the manifest if it is.
+- Both values are removed from error bodies and transport errors.
 
 ### `request`
 
@@ -104,6 +134,30 @@ The response body is read up to 1 MiB and must be JSON.
 | `error_path` | Optional path. If it holds a truthy value (non-empty string, `true`, non-zero), the call is a failure even though the HTTP status was 2xx. |
 | `error_message_path` | Optional path of the text to report. Cut to 120 characters. |
 | `value_maps` | Optional. Translates the value of a mapped field. See below. |
+| `success_when` | Optional condition on the (final) response. If it does not match, the call is a failure. See below. |
+
+#### `success_when` and conditions
+
+Some vendors answer HTTP 200 with a body that says the lookup failed or found
+nothing usable. A condition decides. It is used by `success_when`,
+`poll.done_when` and `poll.failed_when`:
+
+| Key | Meaning |
+|---|---|
+| `path` | A path in the JSON body, for example `$.status`. |
+| `equals` | Matches when the value at `path` equals this scalar. Text, numbers and booleans are compared as text (`true`, `42`). |
+| `in` | Matches when the value is any one of this list. |
+| `status` | A list of HTTP status codes. Matches when the status is one of them. |
+
+A condition needs `path` with `equals` or `in`, or `status`, or both kinds
+(then both must match). A missing, null or empty value never matches. When
+`success_when` fails, the result is the text of `error_message_path` (cut and
+scrubbed) or `no_data`.
+
+```yaml
+response:
+  success_when: {path: $.status, equals: success}
+```
 
 #### `value_maps`
 
@@ -158,6 +212,49 @@ A mapping that gives nothing, or an empty string, is dropped. If every
 mapping is dropped the result is `no_data`. The fields `phone` and
 `mobile_phone` are normalised to E.164 when possible.
 
+### `poll` (asynchronous vendors)
+
+Some vendors accept a lookup, return an id, and finish later. A `poll` block
+adds a second request that is repeated until the vendor says it is done. One
+lookup is still one `Execute` call; `Result.Requests` shows the HTTP requests
+that were made.
+
+```yaml
+poll:
+  request:
+    method: GET
+    url: https://api.example.com/v1/enrich/{{response.request_id}}
+    timeout: 20
+  interval: 5          # seconds waited before every poll request, 0.1 to 60
+  max_attempts: 24     # poll requests, 1 to 60
+  max_total: 120       # seconds for the whole sequence, at most 120
+  done_when: {path: $.status, equals: terminated}
+  failed_when: {path: $.status, equals: on_hold}   # optional
+```
+
+- `poll.request` has the same fields as `request`. Write `body_template`
+  there, not `body`: the `body` shorthand works only at the top level.
+- `{{response.path}}` reads a value from the first response. It is escaped
+  like `{{input.x}}`, so an id cannot add path segments or a host. If the
+  value is missing, no poll request is made (`poll_missing_reference`).
+- The poll URL host must be written literally and must equal the request host
+  or be listed in `poll.allowed_hosts` (plain host names). Redirects are not
+  followed. The same credentials, egress guard and https rule apply.
+- `failed_when` is checked before `done_when`. Both may test a body field and
+  the HTTP status.
+- Poll errors: `poll_failed`, `poll_max_attempts`, `poll_timeout`,
+  `poll_missing_reference`.
+- A vendor error on the first response (`error_path`) ends the lookup without
+  polling.
+
+**Timeouts.** The poll runs inside the caller's deadline. The effective limit
+is the smallest of `poll.max_total` (at most 120 s), the caller's
+`provider_timeout` (default 10 s, 3 to 120) and the 120 s runner cap. With the
+default 10 s, a vendor that needs 30 s reports `timeout`. A workspace that
+uses a slow asynchronous vendor must raise `provider_timeout` in Settings. A
+poll holds one worker slot for its whole duration, so keep `max_total` as small
+as the vendor allows.
+
 ### Templates
 
 - `{{input.name}}` is replaced by a lead value. Missing values become an
@@ -173,7 +270,7 @@ mapping is dropped the result is `no_data`. The fields `phone` and
   your own text are written as you typed them.
 - `${env:NAME}` is replaced by a credential. It works only in text you
   wrote in the manifest, never in a lead value, and only for `auth.env_var`
-  and `auth.extra_env`.
+  and `auth.extra_env`. `auth.secondary.env_var` is also allowed.
 
 ### Results and errors
 
@@ -186,7 +283,8 @@ mapping is dropped the result is `no_data`. The fields `phone` and
 | text from `error_message_path` | `error_path` was truthy. |
 | `<name>: missing <ENV_VAR>` | No credential. No request was made. |
 | `blocked_url: ...` | The URL was refused by the egress guard. |
-| `timeout` | The call took longer than `request.timeout`. |
+| `timeout` | The call took longer than `request.timeout`, or a poll ran past the caller's deadline. |
+| `poll_failed`, `poll_max_attempts`, `poll_timeout`, `poll_missing_reference` | See `poll` above. |
 
 ## Worked example
 

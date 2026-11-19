@@ -49,6 +49,27 @@ func valueMapsDoc(in map[string]manifest.ValueMap) map[string]any {
 	return out
 }
 
+func secondaryDoc(s *manifest.SecondaryAuth) any {
+	if s == nil {
+		return nil
+	}
+	return s.Doc()
+}
+
+func condDoc(c *manifest.Cond) any {
+	if c == nil {
+		return nil
+	}
+	return c.Doc()
+}
+
+func pollDoc(p *manifest.PollSpec) any {
+	if p == nil {
+		return nil
+	}
+	return p.Doc()
+}
+
 type raw []byte
 
 func writeValue(b *bytes.Buffer, v any) error {
@@ -159,7 +180,7 @@ func manifestDoc(m manifest.Manifest) ordered {
 			{"param", nullable(m.Auth.Param)},
 			{"value", nullable(m.Auth.Value)},
 			{"env_var", nullable(m.Auth.EnvVar)},
-		}},
+		}.with(m.Auth.Secondary != nil, "secondary", secondaryDoc(m.Auth.Secondary))},
 		{"request", ordered{
 			{"method", m.Request.Method},
 			{"url", m.Request.URL},
@@ -172,9 +193,10 @@ func manifestDoc(m manifest.Manifest) ordered {
 			{"error_path", nullable(m.Response.ErrorPath)},
 			{"error_message_path", nullable(m.Response.ErrorMessagePath)},
 			{"mappings", mappings},
-		}.with(len(m.Response.ValueMaps) > 0, "value_maps", valueMapsDoc(m.Response.ValueMaps))},
+		}.with(len(m.Response.ValueMaps) > 0, "value_maps", valueMapsDoc(m.Response.ValueMaps)).
+			with(m.Response.SuccessWhen != nil, "success_when", condDoc(m.Response.SuccessWhen))},
 		{"input_fields", strs(m.InputFields)},
-	}
+	}.with(m.Poll != nil, "poll", pollDoc(m.Poll))
 }
 
 // providerNames is dict.fromkeys(n for c in columns for n in _provider_chain(c)).

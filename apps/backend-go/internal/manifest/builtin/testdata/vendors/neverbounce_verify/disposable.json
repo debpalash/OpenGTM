@@ -1,0 +1,11 @@
+{
+  "status": "success",
+  "result": "disposable",
+  "flags": [
+    "has_dns",
+    "has_dns_mx",
+    "disposable_email"
+  ],
+  "suggested_correction": "",
+  "execution_time": 499
+}

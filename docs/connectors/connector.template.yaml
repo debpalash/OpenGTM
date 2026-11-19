@@ -22,6 +22,10 @@ cost_per_lookup: 0
 auth:
   type: bearer            # header | bearer | query | none
   env_var: ACME_API_KEY   # never put the key itself in this file
+  # secondary:            # optional second credential (key plus secret vendors)
+  #   type: header        # header | query
+  #   param: X-Acme-Secret
+  #   env_var: ACME_SECRET_KEY
 request:
   method: POST            # GET | POST | PUT | PATCH
   url: https://api.provider.example/v1/email/find   # https only
@@ -36,6 +40,7 @@ request:
 response:
   error_path: error       # optional: a truthy value here marks the call failed
   error_message_path: message
+  # success_when: {path: $.status, equals: success}   # optional: fail unless this matches
   mappings:
     email: "$.data.email"
   # Optional: translate a vendor word. Needed for email_verify (native words
@@ -45,3 +50,17 @@ response:
   #     values: {deliverable: valid, undeliverable: invalid}
   #     default: unknown
 input_fields: [first_name, last_name, domain]
+# Optional: asynchronous vendors. The first request returns an id, this block
+# repeats until done_when matches. Write body_template (not body) in poll.request.
+# The effective limit is min(max_total, provider_timeout, 120 s); see the guide.
+# poll:
+#   request:
+#     method: GET
+#     url: https://api.provider.example/v1/email/find/{{response.id}}
+#     timeout: 20
+#   interval: 5            # seconds, 0.1 to 60
+#   max_attempts: 24       # 1 to 60
+#   max_total: 120         # seconds, at most 120
+#   done_when: {path: $.status, equals: done}
+#   failed_when: {path: $.status, equals: failed}
+#   # allowed_hosts: [other-api.provider.example]

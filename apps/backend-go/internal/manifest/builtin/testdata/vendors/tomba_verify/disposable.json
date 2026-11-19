@@ -1,0 +1,34 @@
+{
+  "data": {
+    "email": {
+      "accept_all": false,
+      "block": false,
+      "disposable": true,
+      "email": "ada@acme.com",
+      "gibberish": false,
+      "greylisted": false,
+      "mx": {
+        "records": [
+          "aspmx.l.google.com"
+        ]
+      },
+      "mx_check": true,
+      "phone_number": false,
+      "regex": true,
+      "result": "risky",
+      "score": 99,
+      "smtp_check": true,
+      "smtp_provider": "Google",
+      "smtp_server": true,
+      "status": "disposable",
+      "webmail": false,
+      "whois": {
+        "created_date": null,
+        "referral_url": null,
+        "registrar_name": null
+      }
+    },
+    "phone_data": null,
+    "sources": []
+  }
+}

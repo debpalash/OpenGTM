@@ -1,0 +1,60 @@
+{
+  "docs": [
+    "https://www.thecompaniesapi.com/api/authentication (Authorization: Basic <token>)",
+    "https://api.thecompaniesapi.com/v2/openapi (GET /v2/companies/{domain}, schema CompanyV2; bodies are built from the schema)"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.thecompaniesapi.com",
+    "path": "/v2/companies/acme.com",
+    "query": {},
+    "headers": {
+      "Authorization": "Basic test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "company_size": "50-200",
+        "description": "Acme builds analytical engines."
+      }
+    },
+    {
+      "name": "size_only",
+      "status": 200,
+      "file": "size_only.json",
+      "fields": {
+        "company_size": "1k-5k"
+      }
+    },
+    {
+      "name": "unknown_company_is_404",
+      "status": 404,
+      "file": "not_found.json",
+      "error": "http_404"
+    },
+    {
+      "name": "bad_token_is_401",
+      "status": 401,
+      "file": "unauthorized.json",
+      "error": "http_401"
+    },
+    {
+      "name": "no_credits_is_403",
+      "status": 403,
+      "file": "credits.json",
+      "error": "http_403"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

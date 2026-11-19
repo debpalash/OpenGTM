@@ -1,0 +1,22 @@
+{
+  "data": {
+    "accept_all": false,
+    "company": "Acme",
+    "country": "US",
+    "department": "engineering",
+    "email": null,
+    "first_name": "Ada",
+    "full_name": "Ada Lovelace",
+    "gender": "female",
+    "last_name": "Lovelace",
+    "linkedin": "https://www.linkedin.com/in/ada-lovelace",
+    "pattern": "{first}",
+    "phone_number": false,
+    "position": "Engineer",
+    "score": 0,
+    "sources": null,
+    "twitter": null,
+    "type": null,
+    "website_url": "acme.com"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "message": "Unauthorized access.",
+  "error": "UnauthorizedAccessError",
+  "status": 401,
+  "code": "unauthorized_access_error"
+}

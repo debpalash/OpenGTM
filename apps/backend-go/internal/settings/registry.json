@@ -293,6 +293,78 @@
       "free_tier": "75 credits/month",
       "docs": "https://prospeo.io",
       "icon": "🔭"
+    },
+    "tomba": {
+      "name": "Tomba",
+      "env_key": "TOMBA_API_KEY",
+      "capability": "Email Finder + Verifier (API key)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.tomba.io/authentication",
+      "icon": "📧"
+    },
+    "tomba_secret": {
+      "name": "Tomba Secret",
+      "env_key": "TOMBA_SECRET_KEY",
+      "capability": "Secret for the Tomba API key",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.tomba.io/authentication",
+      "icon": "🔐"
+    },
+    "neverbounce": {
+      "name": "NeverBounce",
+      "env_key": "NEVERBOUNCE_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developers.neverbounce.com/",
+      "icon": "🛡"
+    },
+    "emailable": {
+      "name": "Emailable",
+      "env_key": "EMAILABLE_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://emailable.com/docs/api",
+      "icon": "📮"
+    },
+    "kickbox": {
+      "name": "Kickbox",
+      "env_key": "KICKBOX_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.kickbox.com/",
+      "icon": "🥊"
+    },
+    "icypeas": {
+      "name": "Icypeas",
+      "env_key": "ICYPEAS_API_KEY",
+      "capability": "Email Finder (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://api-doc.icypeas.com/",
+      "icon": "🧊"
+    },
+    "dropcontact": {
+      "name": "Dropcontact",
+      "env_key": "DROPCONTACT_API_KEY",
+      "capability": "Email Finder (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developer.dropcontact.com/en/reference/",
+      "icon": "💧"
+    },
+    "bettercontact": {
+      "name": "BetterContact",
+      "env_key": "BETTERCONTACT_API_KEY",
+      "capability": "Email + Phone Waterfall (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://doc.bettercontact.rocks/",
+      "icon": "🤝"
+    },
+    "thecompaniesapi": {
+      "name": "The Companies API",
+      "env_key": "THECOMPANIESAPI_API_KEY",
+      "capability": "Company Size + Description",
+      "free_tier": "Paid, API key required",
+      "docs": "https://www.thecompaniesapi.com/api/authentication",
+      "icon": "🏢"
     }
   },
   "integrations": [
@@ -802,6 +874,7 @@
     "ANYMAIL_FINDER_API_KEY",
     "APOLLO_API_KEY",
     "ATTIO_ACCESS_TOKEN",
+    "BETTERCONTACT_API_KEY",
     "BOUNCER_API_KEY",
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",
@@ -809,6 +882,8 @@
     "COMPANYENRICH_API_KEY",
     "CONTACTOUT_API_KEY",
     "CUSTOM_OPENAI_API_KEY",
+    "DROPCONTACT_API_KEY",
+    "EMAILABLE_API_KEY",
     "FINDYMAIL_API_KEY",
     "GITHUB_MODELS_API_KEY",
     "GOOGLE_ADS_ACCESS_TOKEN",
@@ -820,13 +895,16 @@
     "HUBSPOT_TOKEN",
     "HUGGINGFACE_API_KEY",
     "HUNTER_API_KEY",
+    "ICYPEAS_API_KEY",
     "IPINFO_TOKEN",
+    "KICKBOX_API_KEY",
     "LEADMAGIC_API_KEY",
     "LEMLIST_API_KEY",
     "LINKEDIN_ACCESS_TOKEN",
     "META_ACCESS_TOKEN",
     "MILLIONVERIFIER_API_KEY",
     "MISTRAL_API_KEY",
+    "NEVERBOUNCE_API_KEY",
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
     "OPENAI_API_KEY",
@@ -835,6 +913,9 @@
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
     "SCAVIO_API_KEY",
-    "SILICONFLOW_API_KEY"
+    "SILICONFLOW_API_KEY",
+    "THECOMPANIESAPI_API_KEY",
+    "TOMBA_API_KEY",
+    "TOMBA_SECRET_KEY"
   ]
 }
