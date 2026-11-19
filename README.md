@@ -111,6 +111,17 @@ exists, and setup closes for good once an admin is created. The installer
 generates database, runtime-role, signing and service-token secrets, then starts
 the stack. It leaves an existing `.env` untouched.
 
+### Low-memory install
+
+The browser service (Chromium) is the heaviest part. Skip it with the lite
+override: `docker compose -f docker-compose.yml -f docker-compose.lite.yml up -d --build`.
+Measured idle after start, empty database: about 396 MiB across the default
+stack's containers versus about 113 MiB in lite mode, and 2.43 GB versus 0.52 GB of
+images. Lite mode cannot run lead collection jobs or page scraping (they fail with
+a "browser service" error); everything else works. Numbers, caveats and the list
+of what is unavailable are in the
+[Docker guide](https://opengtm.palash.dev/self-hosting/docker/#low-memory-install).
+
 ### On a server
 
 Use a reviewed Go tag or commit. The example starts from `main`; replace

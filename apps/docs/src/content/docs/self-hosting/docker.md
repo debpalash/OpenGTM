@@ -45,6 +45,74 @@ workbook WebSocket get one-hour reads and never log their `?token=`. Auth
 routes are at `/auth/`, not `/api/auth/`. `/internal/`, `/admin` and `/scim`
 are not exposed.
 
+## Low-memory install
+
+The default stack is small except for the browser service (Playwright and
+Chromium). `docker-compose.lite.yml` is an opt-in override that does not start
+it. The default `docker compose up` is unchanged.
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.lite.yml up -d --build
+# or put COMPOSE_FILE=docker-compose.yml:docker-compose.lite.yml in .env
+```
+
+Measured on Docker Compose v5.8.0 (Linux, amd64) with `docker stats --no-stream`,
+three samples 10 to 15 seconds apart after every service was healthy, empty
+database, nothing running. Memory is idle working set, not a peak: under load the
+browser service can use up to its `BROWSER_MEM_LIMIT` (default 2 GB).
+
+| Service | Default (MiB) | Lite (MiB) | Image size |
+|---|---|---|---|
+| `browser` | 285.7 | not started | 1.91 GB |
+| `postgres` | 48.4 | 52.4 | 294 MB |
+| `nginx` | 16.1 | 15.8 | 63 MB |
+| `worker-go` | 13.8 | 12.5 | 37.9 MB |
+| `scheduler-go` | 12.5 | 8.3 | 28 MB |
+| `api-go` | 11.7 | 15.6 | 48.8 MB |
+| `redis` | 8.2 | 8.4 | 39.1 MB |
+| `migrate` (exits after start) | 0 | 0 | 13.1 MB |
+| **Total** | **396** | **113** | **2.43 GB** vs **0.52 GB** |
+
+Image sizes are the uncompressed sizes `docker images` reports. Idle memory
+grows with data and traffic, so treat these as a floor.
+
+What you give up without the browser service (verified by running the override):
+
+- `collect`, `bulk_enrich`, `source_health_check` and workbook collection-query
+  jobs. The worker logs `collect pipeline not wired` at start, and each such job
+  ends `failed` with `collect cannot run: BROWSER_SERVICE_URL / BROWSER_SERVICE_TOKEN not set`.
+  `POST /api/collect` still answers 200 and enqueues the job; it is refused later,
+  not up front.
+- `POST /api/v2/scraper/scrape` answers `browser service is not available`.
+  Google Maps and LinkedIn roster discovery and the browser tier of web fetch use
+  the same service.
+
+Everything that does not render pages keeps working: the UI, CSV import,
+workbooks, API-backed providers, LLM columns and outreach. This was not
+exercised with real provider keys. `GET /api/system-stats` has no field that says
+the browser service is absent; it simply omits its `browser` counters.
+
+To add it back, drop the second `-f` (or `COMPOSE_FILE`) and run
+`docker compose up -d`.
+
+## Running two stacks on one machine
+
+Compose names containers `<project>-<service>-1`, so give each copy its own
+project name, host ports and network subnet:
+
+```bash
+docker compose -p gtm-a --env-file a.env up -d   # a.env: PORT=3000 API_GO_PORT=8001 POSTGRES_PORT=5432 REDIS_PORT=6379
+docker compose -p gtm-b --env-file b.env up -d   # b.env: PORT=3100 API_GO_PORT=8101 POSTGRES_PORT=5532 REDIS_PORT=6479 LEAD_NET_SUBNET=172.29.251.0/24
+```
+
+`lead_net` has a fixed subnet (`LEAD_NET_SUBNET`, default `172.29.250.0/24`)
+because `TRUST_PROXY_CIDRS` trusts nginx's `X-Real-IP` by that range. Two stacks
+with the same subnet fail with `Pool overlaps with other one on this address
+space`. `scripts/install.sh` writes a free `172.29.25x.0/24` into a new `.env`
+when the default is taken. Changing the subnet of an existing install only takes
+effect when its network is recreated (`docker compose down`, then `up`); data
+volumes are kept.
+
 ## Browser service
 
 The browser service is reachable only from the Go services on an internal
