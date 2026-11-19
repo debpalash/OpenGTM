@@ -21,7 +21,7 @@ import { queryClient, queryKeys } from "@/lib/query-client"
 import { TaskDetailCard } from "@/components/task-detail-card"
 import { HybridMessage } from "@/components/openui-renderer"
 import { AutopilotPlanCard, type AutopilotPlan } from "@/components/autopilot-plan-card"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { ChatHome, ChatSky } from "@/components/chat-home/chat-home"
 import { Composer, type ComposerHandle } from "@/components/chat-home/composer"
 

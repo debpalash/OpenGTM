@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { Button } from "@/design-system/primitives"
 import { fetchWorkbookTemplates, createWorkbookFromTemplate } from "@/lib/workbook-templates-api"
 import { workbookKeys } from "@/lib/workbook-hooks"

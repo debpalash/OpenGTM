@@ -13,7 +13,7 @@ import {
   Check, ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
 } from "lucide-react"
 import { NativeSelect } from "@/components/ui/native-select"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   useCreateView, useDeleteView, useUpdateView, useWorkbookViews,
 } from "@/lib/workbook-hooks"

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Plus } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { Button, Dialog, Input } from "@/design-system/primitives"
 import { useCreateWorkbook } from "@/lib/workbook-hooks"
 import { NativeSelect } from "@/components/ui/native-select"

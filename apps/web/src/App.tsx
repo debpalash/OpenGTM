@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider, Outlet, Routes, Route, Navigate, Link, useLocation } from "react-router-dom"
 import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
+import { setNavigator } from "@/lib/notify"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { DialogProvider } from "@/components/dialog-provider"
 import { RouteError } from "@/components/route-error"
@@ -305,6 +306,8 @@ const router = createBrowserRouter([
     ]
   }
 ])
+setNavigator((to) => void router.navigate(to))
+
 export default function App() {
   return (
     <TooltipProvider>

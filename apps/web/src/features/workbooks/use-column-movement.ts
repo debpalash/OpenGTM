@@ -6,7 +6,7 @@ import {
   useSensors,
   type DndContextProps
 } from "@dnd-kit/core"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { useSaveWorkbookColumnOrder } from "@/lib/workbook-hooks"
 import type { ColumnConfig } from "@/lib/workbook-api"
 

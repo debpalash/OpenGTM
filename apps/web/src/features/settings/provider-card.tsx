@@ -1,7 +1,7 @@
 import { ProviderIcon } from "./provider-icon"
 import { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useAuth } from "@/lib/auth-context"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   ExternalLink,
   Check,

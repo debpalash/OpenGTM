@@ -11,7 +11,7 @@
 
 import { useEffect, useState, useRef, useId } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
 } from "@/components/ui/sheet"

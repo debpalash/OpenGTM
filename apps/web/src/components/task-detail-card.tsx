@@ -20,7 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { openEventStream } from "@/lib/events"
 import { cn } from "@/lib/utils"
 import { queryClient, queryKeys } from "@/lib/query-client"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 
 // ── Types ────────────────────────────────────────────────────────
 

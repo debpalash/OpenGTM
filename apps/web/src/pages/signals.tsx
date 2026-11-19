@@ -1,6 +1,6 @@
 import { PageHeader } from "@/design-system/patterns/workbench"
 import { useState, useEffect } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   Activity, Users, TrendingUp, Code, Globe, Newspaper,
   BarChart3, MessageSquare, RefreshCw, Loader2, Filter,

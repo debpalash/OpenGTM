@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useSearchParams } from "react-router-dom"
 import { Table2, Trash2 } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { Button, Input, AlertDialog } from "@/design-system/primitives"
 import { quickLookProps } from "@/components/quick-look/quick-look"
 import { useWorkbooks, useDeleteWorkbook } from "@/lib/workbook-hooks"

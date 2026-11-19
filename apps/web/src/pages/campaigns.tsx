@@ -1,7 +1,7 @@
 import { copyText } from "@/lib/insecure-context"
 import { PageHeader } from "@/design-system/patterns/workbench"
 import React, { useState } from "react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import {
   MessageSquare, Zap, Users, Send, Copy, RefreshCw,
   Mail, CheckCircle2,

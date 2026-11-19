@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Play, Sparkles, Square } from "lucide-react"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { Button, Dialog } from "@/design-system/primitives"
 import { fetchRunEstimate } from "@/lib/workbook-api"
 import { useRunWorkbook, useStopWorkbook } from "@/lib/workbook-hooks"

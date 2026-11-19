@@ -12,7 +12,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query"
-import { toast } from "sonner"
+import { toast } from "@/lib/notify"
 import { queryKeys } from "./query-client"
 import {
   ApiError,
