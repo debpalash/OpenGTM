@@ -18,7 +18,7 @@ not try to get around it (no fingerprint spoofing, no proxy rotation to defeat a
 is the only thing that fixes blocked keyless search:
 
 - Set one of the keys in `.env` (`SERPAPI_KEY`, `BRAVE_SEARCH_KEY`, `BING_SEARCH_KEY`, `GOOGLE_CSE_KEY` with `GOOGLE_CSE_ID`,
-  `SERPINGAPI_API_KEY`, `SERPLY_API_KEY`, ...). Settings shows which are configured.
+  `SERPINGAPI_API_KEY`, `SERPLY_API_KEY`, ...).
 - Or run SearXNG and set `SEARXNG_URL` (or `SEARXPOOL_URL` for a pool).
 
 ## How the keyless path behaves when a backend says no
