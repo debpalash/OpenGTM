@@ -87,7 +87,7 @@ func TestRunHappyPath(t *testing.T) {
 			}
 		case "workbook_status":
 			status++
-			if keys(m) != "completed,errors,status,total,type" || m["status"] != "complete" || m["completed"] != 3.0 || m["errors"] != 0.0 || m["total"] != 3.0 {
+			if keys(m) != "completed,errors,needs_setup,no_data,status,total,type" || m["status"] != "complete" || m["completed"] != 3.0 || m["errors"] != 0.0 || m["total"] != 3.0 {
 				t.Fatalf("status msg %v", m)
 			}
 		}

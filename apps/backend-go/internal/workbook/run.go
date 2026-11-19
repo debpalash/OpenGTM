@@ -641,7 +641,7 @@ func (rs *runState) finalize(ctx context.Context, res *Result, runErr error, nLe
 	if owns {
 		rs.flushChanges(fctx)
 		rs.publish(fctx, map[string]any{"type": "workbook_status", "status": status,
-			"completed": res.Completed, "errors": res.Errors, "total": res.Total})
+			"completed": res.Completed, "no_data": res.NoData, "needs_setup": res.NeedsSetup, "errors": res.Errors, "total": res.Total})
 	}
 }
 
