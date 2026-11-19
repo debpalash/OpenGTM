@@ -8,12 +8,12 @@
   --gtm-chat-glass: var(--gtm-glass);
   --gtm-chat-glass-strong: var(--gtm-glass-strong);
   --gtm-chat-edge: var(--gtm-glass-edge);
-  --gtm-chat-hover: rgb(15 23 42 / 0.05);
-  --gtm-chat-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -12px rgb(30 64 110 / 0.22);
+  --gtm-chat-hover: rgb(23 23 26 / 0.05);
+  --gtm-chat-shadow: 0 1px 2px rgb(15 23 42 / 0.05), 0 12px 32px -12px rgb(23 23 26 / 0.14);
 }
 .dark .gtm-chat {
-  --gtm-chat-cloud: rgb(148 180 220 / 0.1);
-  --gtm-chat-arc: rgb(148 180 220 / 0.12);
+  --gtm-chat-cloud: rgb(237 237 240 / 0.04);
+  --gtm-chat-arc: rgb(237 237 240 / 0.07);
   --gtm-chat-hover: rgb(255 255 255 / 0.06);
   --gtm-chat-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 16px 40px -16px rgb(0 0 0 / 0.6);
 }
@@ -65,14 +65,9 @@
 
 .gtm-chat-card, .gtm-chat-recent { transition: background-color 150ms, box-shadow 200ms, transform 200ms var(--gtm-ease-out, ease-out); }
 .gtm-chat-card:hover, .gtm-chat-recent:hover { background: var(--gtm-chat-glass-strong); box-shadow: var(--gtm-chat-shadow); transform: translateY(-1px); }
-.gtm-chat-card:focus-visible, .gtm-chat-pill:focus-visible, .gtm-chat-recent:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--gtm-focus-ring, rgb(31 122 224 / 0.3)); }
-.gtm-chat-card-icon { --tone: #1f7ae0; color: var(--tone); background: color-mix(in oklab, var(--tone) 13%, transparent); }
-.gtm-chat-card[data-tone="amber"] .gtm-chat-card-icon { --tone: #d97706; }
-.gtm-chat-card[data-tone="violet"] .gtm-chat-card-icon { --tone: #7c3aed; }
-.gtm-chat-card[data-tone="emerald"] .gtm-chat-card-icon { --tone: #059669; }
-.gtm-chat-card[data-tone="rose"] .gtm-chat-card-icon { --tone: #e11d48; }
-.gtm-chat-card[data-tone="slate"] .gtm-chat-card-icon { --tone: #64748b; }
-.dark .gtm-chat-card-icon { color: color-mix(in oklab, var(--tone) 70%, white); }
+.gtm-chat-card:focus-visible, .gtm-chat-pill:focus-visible, .gtm-chat-recent:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--gtm-focus-ring); }
+/* One quiet tone for every card icon; the words carry the meaning. */
+.gtm-chat-card-icon { color: var(--foreground); background: var(--gtm-well); }
 
 /* Mascot */
 .gtm-chat-mascot { width: 148px; height: auto; overflow: visible; }

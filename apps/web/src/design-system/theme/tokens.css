@@ -85,6 +85,8 @@
   --gtm-link: #2f55d4;
   --gtm-focus-ring: #2f55d4;
   --gtm-selection: rgb(23 23 26 / 0.07);
+  /* Hairlines only where cells must line up (the workbook grid). */
+  --gtm-grid-line: rgb(23 23 26 / 0.07);
   --gtm-chart-purple: #7150ba;
   --gtm-chart-teal: #167f87;
   --gtm-success: #157347;
@@ -121,6 +123,7 @@
   --gtm-link: #a9bcff;
   --gtm-focus-ring: #a9bcff;
   --gtm-selection: rgb(237 237 240 / 0.08);
+  --gtm-grid-line: rgb(237 237 240 / 0.07);
   --gtm-chart-purple: #c4afff;
   --gtm-chart-teal: #7dd4db;
   --gtm-success: #8ed8b0;

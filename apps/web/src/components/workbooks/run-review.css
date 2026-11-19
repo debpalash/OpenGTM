@@ -1,7 +1,15 @@
 .gtm-run-review { max-width: min(560px, calc(100vw - 32px)); overflow: hidden; }
 .gtm-run-review-body { min-height: 0; overflow-y: auto; }
-.gtm-run-review > :last-child { padding-top: 16px; border-top: 1px solid var(--t-border-color-medium); }
+.gtm-run-review > :last-child { padding-top: 16px; }
 .gtm-run-facts { display: grid; grid-template-columns: minmax(100px, 1fr) minmax(0, 2fr); gap: 8px 16px; font-size: 13px; }
 .gtm-run-facts dt { color: var(--t-font-color-secondary); }
 .gtm-run-facts dd { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
 @media (max-width: 640px) { .gtm-run-review button { min-height: 44px; } .gtm-run-facts { grid-template-columns: 1fr; gap: 4px; } .gtm-run-facts dd { margin-bottom: 8px; } }
+.gtm-run-breakdown { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.gtm-run-breakdown caption { text-align: left; font-weight: 500; padding-bottom: 6px; }
+.gtm-run-breakdown th, .gtm-run-breakdown td { text-align: left; vertical-align: top; padding: 6px 8px; overflow-wrap: anywhere; }
+.gtm-run-breakdown thead th { color: var(--t-font-color-secondary); font-weight: 500; font-size: 12px; }
+.gtm-run-breakdown tbody tr:nth-child(odd) { background: var(--gtm-well); }
+.gtm-run-breakdown tbody th { font-weight: 500; }
+.gtm-run-breakdown td:last-child, .gtm-run-breakdown thead th:last-child { text-align: right; white-space: nowrap; }
+.gtm-run-unpriced { display: block; color: var(--t-font-color-secondary); font-size: 12px; }

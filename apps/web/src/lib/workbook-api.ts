@@ -705,7 +705,7 @@ export interface RunCostEstimate {
   rows: number
   worst_usd: number
   best_usd: number
-  breakdown: Array<{ column: string; paid_providers: string[]; worst_usd: number; best_usd: number }>
+  breakdown: Array<{ column: string; paid_providers: string[]; worst_usd: number; best_usd: number; unknown_providers?: string[] }>
   note: string
 }
 

@@ -231,7 +231,7 @@ function ActivityTab({ workbookId, open }: { workbookId: string; open: boolean }
     <div className="space-y-2 py-3">
       {items.length === 0 && <p className="text-xs text-muted-foreground">No activity yet.</p>}
       {items.map((a) => (
-        <div key={a.id} className="text-xs border-l-2 pl-2 py-0.5">
+        <div key={a.id} className="text-xs py-0.5">
           <span className="font-medium">{a.kind}</span> · {a.message}
         </div>
       ))}

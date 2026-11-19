@@ -220,7 +220,7 @@ func (h hubspotRoutes) sync(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !h.hs.IsConnected(r.Context(), wc.WorkspaceID) {
-		httpx.Detail(w, http.StatusBadRequest, "HubSpot not connected. Add token first.")
+		httpx.Detail(w, http.StatusBadRequest, "HubSpot not connected. Add token first.", httpx.StepIntegrations...)
 		return
 	}
 	leads, err := syncLeads(r.Context(), wc, req)
@@ -257,7 +257,7 @@ func (h hubspotRoutes) contacts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !h.hs.IsConnected(r.Context(), wc.WorkspaceID) {
-		httpx.Detail(w, http.StatusBadRequest, "HubSpot not connected")
+		httpx.Detail(w, http.StatusBadRequest, "HubSpot not connected", httpx.StepIntegrations...)
 		return
 	}
 	contacts, err := h.hs.GetContacts(r.Context(), wc.WorkspaceID, limit)

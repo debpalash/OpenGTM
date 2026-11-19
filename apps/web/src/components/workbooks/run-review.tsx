@@ -3,15 +3,15 @@ import { useQuery } from "@tanstack/react-query"
 import { Play, Sparkles, Square } from "lucide-react"
 import { toast } from "@/lib/notify"
 import { Button, Dialog } from "@/design-system/primitives"
-import { fetchRunEstimate } from "@/lib/workbook-api"
+import { fetchRunEstimate, type RunCostEstimate } from "@/lib/workbook-api"
 import { useRunWorkbook, useStopWorkbook } from "@/lib/workbook-hooks"
 import "./run-review.css"
 
 type Scope = { fillMissing: boolean; viewId: string | null; viewName: string; search: string }
 
-export function WorkbookRunReview({ workbookId, viewId, viewName, search, running, busy, outputColumns, initiallyOpen=false }: {
+export function WorkbookRunReview({ workbookId, viewId, viewName, search, running, busy, outputColumns, columnNames = {}, initiallyOpen=false }: {
   workbookId: string; viewId: string | null; viewName: string; search: string
-  running: boolean; busy: boolean; outputColumns: string[]; initiallyOpen?: boolean
+  running: boolean; busy: boolean; outputColumns: string[]; columnNames?: Record<string, string>; initiallyOpen?: boolean
 }) {
   const [scope, setScope] = useState<Scope | null>(()=>initiallyOpen?{fillMissing:false,viewId,viewName,search:search.trim()}:null)
   const [error, setError] = useState("")
@@ -71,6 +71,7 @@ export function WorkbookRunReview({ workbookId, viewId, viewName, search, runnin
           <dl className="gtm-run-facts"><dt>Saved view</dt><dd>{scope?.viewName || "All rows"}</dd><dt>Search</dt><dd>{scope?.search || "None"}</dd><dt>Mode</dt><dd>{scope?.fillMissing ? "Fill incomplete cells; preserve complete values" : "Normal run; existing success-skip rules apply"}</dd></dl>
           {estimate.isFetching ? <p role="status" className="mt-4 text-sm">Loading current estimate…</p> : estimate.isError ? <p role="alert" className="mt-4 text-sm text-destructive">{estimate.error.message}</p> : estimate.data && <>
             <dl className="gtm-run-facts mt-4"><dt>Matching rows</dt><dd>{estimate.data.rows.toLocaleString()}</dd><dt>Catalog provider estimate</dt><dd>${estimate.data.best_usd.toFixed(4)}–${estimate.data.worst_usd.toFixed(4)}</dd></dl>
+            {estimate.data.breakdown.length > 0 && <RunBreakdown rows={estimate.data.rows} breakdown={estimate.data.breakdown} columnNames={columnNames} />}
             <p className="mt-3 text-sm text-muted-foreground">Not a spending cap or a complete quote. AI, research, HTTP, and destination charges may not be included. Fill-missing estimates do not subtract already-complete cells.</p>
             {!!estimate.data.unknown_providers?.length && <p role="alert" className="mt-3 text-sm break-words">Unpriced providers: {estimate.data.unknown_providers.join(", ")}. Their charges are excluded from this estimate. Review provider pricing before starting.</p>}
             {estimate.data.catalog_complete === undefined && <p role="status" className="mt-3 text-sm">Provider price coverage was not reported. Do not interpret a zero estimate as a free run.</p>}
@@ -88,4 +89,38 @@ export function WorkbookRunReview({ workbookId, viewId, viewName, search, runnin
       </Dialog.Popup>
     </Dialog.Root>
   </>
+}
+
+const usd = (value: number) => "$" + value.toFixed(value > 0 && value < 0.01 ? 4 : 2)
+
+/** What each column will do on this run, and what it may cost. */
+function RunBreakdown({ rows, breakdown, columnNames }: {
+  rows: number
+  breakdown: RunCostEstimate["breakdown"]
+  columnNames: Record<string, string>
+}) {
+  return (
+    <table className="gtm-run-breakdown mt-4">
+      <caption>What will run on {rows.toLocaleString()} {rows === 1 ? "row" : "rows"}</caption>
+      <thead><tr><th scope="col">Column</th><th scope="col">Providers that charge</th><th scope="col">Estimate</th></tr></thead>
+      <tbody>
+        {breakdown.map(entry => {
+          const unpriced = entry.unknown_providers ?? []
+          const cost = entry.worst_usd > 0
+            ? (entry.best_usd === entry.worst_usd ? usd(entry.worst_usd) : usd(entry.best_usd) + "–" + usd(entry.worst_usd))
+            : unpriced.length ? "Unknown" : "$0"
+          return (
+            <tr key={entry.column}>
+              <th scope="row">{columnNames[entry.column] || entry.column}</th>
+              <td>
+                {entry.paid_providers.length ? entry.paid_providers.join(", ") : "None in the catalog"}
+                {unpriced.length > 0 && <span className="gtm-run-unpriced">Unpriced: {unpriced.join(", ")}</span>}
+              </td>
+              <td>{cost}</td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </table>
+  )
 }

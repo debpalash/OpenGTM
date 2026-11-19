@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { readdirSync, readFileSync, statSync } from "node:fs"
 import { join } from "node:path"
-import { nextStepFor } from "../src/lib/notify"
+import { nextStepFor, rememberNextStep, safeInternalPath } from "../src/lib/notify"
 
 describe("nextStepFor", () => {
   test("server messages point at the exact place to fix them", () => {
@@ -34,4 +34,27 @@ test("toasts are imported from lib/notify so they carry their next step", () => 
   }
   walk(join(import.meta.dir, "../src"))
   expect(offenders).toEqual([])
+})
+
+describe("server-sent next steps", () => {
+  test("a destination from X-Next-Step beats the wording rules", () => {
+    rememberNextStep("Quota exceeded for workspace", "/settings?tab=billing", "Open billing")
+    expect(nextStepFor("Could not run: Quota exceeded for workspace")).toEqual({
+      label: "Open billing",
+      to: "/settings?tab=billing",
+    })
+  })
+
+  test("off-site destinations are ignored", () => {
+    for (const to of ["https://evil.example", "//evil.example", "/\\evil.example", "settings", ""]) {
+      rememberNextStep(`bad ${to}`, to, "x")
+      expect(nextStepFor(`bad ${to}`)).toBeNull()
+    }
+    expect(safeInternalPath("/settings?tab=email")).toBe("/settings?tab=email")
+  })
+
+  test("a missing label falls back to a generic one", () => {
+    rememberNextStep("Widget missing", "/sources", null)
+    expect(nextStepFor("Widget missing")?.label).toBe("Fix this")
+  })
 })

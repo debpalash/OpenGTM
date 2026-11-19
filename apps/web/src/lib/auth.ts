@@ -6,6 +6,8 @@
 // so every same-origin /api request (and /auth/me) carries the right headers and
 // 401s funnel through a single logout handler.
 
+import { rememberNextStep } from "@/lib/notify"
+
 const TOKEN_KEY = "yupcha_token"
 const WS_KEY = "yupcha_workspace_id"
 // Each tab keeps the workspace it actually displays. localStorage remembers the
@@ -65,6 +67,18 @@ function needsAuth(url: string): boolean {
   return url.startsWith("/api/") || url.startsWith("/auth/me")
 }
 
+/** Remembers where the server says an error is fixed, for the error toast. */
+async function noteNextStep(res: Response): Promise<void> {
+  try {
+    const body = (await res.clone().json()) as { detail?: unknown }
+    if (typeof body?.detail === "string") {
+      rememberNextStep(body.detail, res.headers.get("X-Next-Step"), res.headers.get("X-Next-Step-Label"))
+    }
+  } catch {
+    // not JSON: nothing to remember
+  }
+}
+
 let installed = false
 
 /** Wrap window.fetch exactly once. Idempotent. Call before the app renders. */
@@ -94,6 +108,8 @@ export function installFetchInterceptor(): void {
       clearToken()
       unauthorizedHandler?.()
     }
+    // Awaited so the destination is known before the caller shows its toast.
+    if (!res.ok && res.headers.get("X-Next-Step")) await noteNextStep(res)
     return res
   }
 }
