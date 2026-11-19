@@ -73,6 +73,118 @@ The ceiling from this data is the number above; it is not tuned. Fix 1 and fix 2
 loss and the single-timeout cascade, and raised the first-run rate by 7 to 23 points, but the remaining timeouts
 need a separate decision (provider timeout per provider, or fewer sequential browser calls in `deep_scraper`).
 
+## Round 2 (branch `fix/first-run-fill-rate` at `baa6b664`): 82.0% and 82.5% all filled
+
+Round 1 (above) is kept as measured. Round 2 adds, on top of it: a 30 s budget for target-site providers and
+one site walk per run for `deep_scraper` and `website_scraper`; the cell and run outcome model (`filled`,
+`no_data`, `needs_setup`, `error`; run status `complete`, `completed_with_errors`, `failed`); search backends that
+cool down after a 429 or 403; the Email Verify root-cause fix (below); and a stricter filled rule and a fourth
+number in the script. Measured with `scripts/bench/first-run-fill-rate.sh` on two fresh installs run one after
+the other (2026-11-19 08:33 to 08:43 host clock), commit `baa6b66470e94312f4585625002cd71cbc36d430`, no paid keys, no
+LLM key, both runs `completed` with 0 re-runs. Work files: not kept in the repo.
+
+### Four rates (200 enrichment cells each)
+
+| Rate | Original (phase 1) install 1 / 2 | Round 1 install 1 / 2 | Round 2 install 1 | Round 2 install 2 |
+| --- | --- | --- | --- | --- |
+| All filled | 107 (53.5%) / 88 (44.0%) | 121 (60.5%) / 134 (67.0%) | **164 (82.0%)** | **165 (82.5%)** |
+| Excluding guessed `ddg_email` role addresses | 89 (44.5%) / not computed | 115 (57.5%) / 131 (65.5%) | 154 (77.0%), 10 removed | 154 (77.0%), 11 removed |
+| Excluding the key-requiring column (HQ Location, 175 cells) | 107/175 (61.1%) / 88/175 (50.3%) | 121/175 (69.1%) / 134/175 (76.6%) | 164/175 (93.7%) | 165/175 (94.3%) |
+| Excluding environment-limited columns | not computed | not computed | 164/200 (82.0%), none left out | 165/200 (82.5%), none left out |
+
+The four numbers are never combined. The rule for "filled" changed between rounds (commit `baa6b664`): a cell is
+filled only when it carries an informative value. The round 1 numbers used the earlier rule, in which the 40
+Email Verify cells whose verdict was `unknown` counted as filled; under the round 2 rule they would not, so the
+round 1 and round 2 columns are not strictly like for like. Round 2 has 0 `unknown` verdicts counted.
+
+The two installs differ by 0.5 points (1 cell) on the same code; round 1 differed by 7.5 points and the original
+by 9.5. Two installs are not a confidence interval and both ran in the same 10 minute window from the same
+network, so quote 82% as "about 82% on this host, this day", not as a guaranteed figure. Excluding the 19
+`catch_all` verify cells in each install (the domain accepts any mailbox, so the cell does not confirm the
+address) would give 145/200 (72.5%) and 146/200 (73.0%); that is computed from the saved cell files, not a
+script number, and the script counts `catch_all` as filled.
+
+### Per column, filled out of 25
+
+| Column | Original (1 / 2) | Round 1 (1 / 2) | Round 2 install 1 | Round 2 install 2 |
+| --- | --- | --- | --- | --- |
+| Description | 25 / 25 | 25 / 25 | 25 | 25 |
+| LinkedIn | 23 / 22 | 22 / 23 | 25 | 25 |
+| Email | 24 / 13 | 19 / 21 | 25 | 25 |
+| Hiring Signals | 17 / 15 | 15 / 15 | 24 | 23 |
+| Size | 11 / 11 | 11 / 17 | 23 | 23 |
+| Phone | 7 / 2 | 10 / 12 | 19 | 20 |
+| Email Verify | 0 / 0 | 19 / 21 (all `unknown`) | 23 | 24 |
+| HQ Location (research) | 0 / 0 | 0 / 0 | 0 | 0 |
+| **Total** | 107 / 88 | 121 / 134 | **164** | **165** |
+
+### Email Verify now returns real statuses
+
+Root cause of the zero in the original and the all-`unknown` in round 1: the cascade's SMTP verifier was built
+with the empty `Deps` of `NewDeps`, so no SMTP probe was ever sent (fix `9efeb946`). Statuses stored in
+`cell_metadata.verify.status`, counted from `run1_cells.psv` of each install:
+
+| Status | Install 1 | Install 2 |
+| --- | --- | --- |
+| `valid` | 3 | 5 |
+| `catch_all` | 19 | 19 |
+| `invalid` | 1 | 0 |
+| `unknown` (cell empty, `no_mx`, reason shown) | 2 | 1 |
+
+So SMTP port 25 was reachable from this host for most addresses (previously "not measured"; it is now measured
+for this host only). Most results are `catch_all` (19 of 25), which says the domain accepts anything. The 3 empty
+cells are `email_inconclusive` with `why: no_mx`; one of them is `info@notion.so` (a guessed role address) in
+install 1, while install 2 verified a different Notion address as `valid`.
+
+### Time and memory
+
+| Measure | Install 1 | Install 2 |
+| --- | --- | --- |
+| `up` returns | 28 s | 28 s |
+| Run duration | 192 s | 229 s |
+| `up` to run complete | 222 s | 259 s |
+| Image build (separate; install 2 reused cached layers) | 66 s | 11 s |
+| Peak RAM, sum of containers (sampled every 10 s) | 714 MiB | 698 MiB |
+| Browser container peak | 518 MiB | 498 MiB |
+
+### Remaining causes of empty cells (round 2)
+
+Empty cells excluding HQ Location: 11 in install 1, 10 in install 2 (all `status=error` with a reason).
+
+1. **HQ Location needs an LLM key, by design: 25 cells in each install (25 of the 36 and of the 35 empty cells).**
+   Reason on every cell: "No LLM provider is configured: add a key in Settings". Not recoverable without a key.
+2. **Phone: 6 empty in install 1, 5 in install 2.** Reasons install 1: `jsonld_firmographics` response body
+   exceeds 1048576 bytes x3, `ddg_company` no new data x1, `deep_scraper` no data from 0 pages x1,
+   `local_business` no local business data x1. Install 2: `local_business` no data x3, `deep_scraper` x1,
+   `jsonld_firmographics` body over 1 MiB x1. The 1 MiB cap on a response body is a product limit that hides
+   a page from `jsonld_firmographics`; whether the phone is on those pages was not checked.
+3. **Size: 2 empty in each install**: `deep_scraper` "No data extracted from 0 pages" x1 (both), plus
+   `people_data_labs` "not configured" x1 (install 1, a key-requiring provider) or `company_intel` "no company
+   intelligence found" x1 (install 2).
+4. **Hiring: 1 empty (install 1), 2 (install 2)**: `jobspy` `no_jobs_found`, i.e. the source has no jobs for the
+   company; probably a genuine absence, not checked.
+5. **Email Verify: 2 and 1 empty**: SMTP `no_mx` (see above).
+6. **Timeouts are rare now.** Worker log `provider timed out`: 3 in install 1 (`ats_hiring` 2, `email_harvester` 1)
+   and 7 in install 2 (`ats_hiring` 3, `email_harvester` 2, `ddg_company` 1, `deep_scraper` 1), against 137 and 144
+   in round 1 and 80 originally. No empty cell reports a timeout or a cooldown skip. This removes the cause that
+   was largest in round 1.
+7. **External search blocking is still there but no longer costs cells.** Browser log (fetches, install 1 / 2):
+   `search.brave.com` 429 x1 / x1, `www.mojeek.com` 403 x2 / x1, `search.yahoo.com` 200 x113 / x124,
+   `www.startpage.com` 200 x88 / x78. Each of those blocks produced a `backend ... cooling down for 300s` line
+   (7 per install), so the backends are left alone instead of being retried 100 times as in phase 1
+   (brave 105 x 429, mojeek 94 x 403). Which searches the cooldown prevented was not measured.
+
+Guessed addresses: 10 (install 1) and 11 (install 2) of the 25 Email cells are `info@<domain>`-style guesses
+from `ddg_email` with `email_confidence=generic`; they are the reason the second rate is 77.0%.
+
+### What round 2 did not measure
+
+- Any run with an LLM key, paid keys or a proxy; any second host or network; any re-run in round 2.
+- Whether the SMTP results change on another egress (many networks block port 25).
+- Correctness of filled values beyond the guessed-email and `catch_all` checks (no accuracy audit).
+- Which unfilled phone pages hold a phone behind the 1 MiB body cap.
+- Cold image build time.
+
 ## Before the fixes: the phase-1 measurement
 
 Everything below is the measurement of origin/main before the fixes, kept as the baseline.
