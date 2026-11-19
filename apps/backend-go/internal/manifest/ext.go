@@ -365,6 +365,20 @@ func (p PollSpec) total() time.Duration {
 	return t
 }
 
+// CallTimeout is the one rule for how long a whole manifest call may run. An ordinary manifest
+// is bounded by the workspace's per-provider timeout. A manifest with a poll block is bounded by
+// its own budget instead: the first request's timeout plus poll.max_total (at most MaxPollTotal),
+// so a shipped asynchronous vendor works with default settings. Callers still cancel the context
+// they derive from the run, which ends the call early either way. A poll that uses up max_total
+// ends with the error "poll_timeout", which callers record as one timeout.
+func (m Manifest) CallTimeout(providerTimeout time.Duration) time.Duration {
+	if m.Poll == nil {
+		return providerTimeout
+	}
+	first := time.Duration(m.Request.Timeout * float64(time.Second))
+	return first + m.Poll.total()
+}
+
 // runPoll repeats the poll request until done_when or failed_when holds. It returns the final
 // response (data, status) or a Result carrying the error. Every request goes through the same
 // guarded client, URL check and credentials as the first one.

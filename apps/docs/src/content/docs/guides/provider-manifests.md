@@ -247,13 +247,28 @@ poll:
 - A vendor error on the first response (`error_path`) ends the lookup without
   polling.
 
-**Timeouts.** The poll runs inside the caller's deadline. The effective limit
-is the smallest of `poll.max_total` (at most 120 s), the caller's
-`provider_timeout` (default 10 s, 3 to 120) and the 120 s runner cap. With the
-default 10 s, a vendor that needs 30 s reports `timeout`. A workspace that
-uses a slow asynchronous vendor must raise `provider_timeout` in Settings. A
-poll holds one worker slot for its whole duration, so keep `max_total` as small
-as the vendor allows.
+**Timeouts.** One rule, in `Manifest.CallTimeout`:
+
+- An ordinary manifest (no `poll`) is bounded by the workspace's
+  `provider_timeout` (default 10 s, 3 to 120).
+- A manifest with a `poll` block is bounded by its own budget: the first
+  request's `timeout` plus `poll.max_total` (at most 120 s). The workspace
+  `provider_timeout` does not apply to it, so a shipped polling vendor works
+  with default settings.
+- Cancelling the run (job cancelled, caller context done) ends either kind at
+  once; that is an infrastructure error, not a timeout.
+- A poll that uses up `max_total` is recorded as one `timeout` for the
+  provider (it counts once toward the timeout cooldown). A poll that is still
+  running records nothing.
+
+**Worker slots.** A polling lookup holds one provider worker for its whole
+duration, up to `max_total`. Provider workers default to 8 per run, so at most
+8 polling lookups run at once. A 25-row run whose rows all reach a polling
+provider therefore takes about `ceil(25 / 8) = 4` rounds of up to `max_total`
+each (up to 4 x 120 s for Dropcontact) while those workers are busy, and other
+providers in the same run wait for a free worker. Put polling providers last in
+a waterfall: faster providers then fill most rows first and only the leftover
+rows pay the polling wait.
 
 ### Templates
 

@@ -9,8 +9,8 @@
 # least 3 s between two reads) until item status is no longer NONE, SCHEDULED or IN_PROGRESS.
 # FOUND, DEBITED, NOT_FOUND and DEBITED_NOT_FOUND end the lookup; BAD_INPUT,
 # INSUFFICIENT_FUNDS and ABORTED fail it. The whole lookup is capped at 90 s and, in a
-# workbook run, by the workspace provider_timeout setting (default 10 s, maximum 120 s): raise
-# it to about 30 s or more for this provider.
+# workbook run, by its own budget (the first request's timeout plus max_total), not by the
+# workspace provider_timeout setting; a poll that uses up max_total is recorded as one timeout.
 # Input mistakes come back as HTTP 200 with success false and validationErrors, reported as the error.
 # A found address only counts when its certainty is ultra_sure, very_sure or probable.
 # Billing: credits are charged only for results; the price depends on the plan, so

@@ -8,12 +8,14 @@
 # guarantees results, and "on_hold" (the account ran out of credits) fails the lookup. The
 # docs say to branch on status, never on the HTTP code alone, which is what done_when and
 # failed_when do. The poll waits 5 s before each request; the lookup is capped at 120 s and, in
-# a workbook run, by the workspace provider_timeout setting (default 10 s, maximum 120 s).
+# a workbook run, by its own budget (the first request's timeout plus max_total), not by the
+# workspace provider_timeout setting; a poll that uses up max_total is recorded as one timeout.
 # BetterContact submissions are not idempotent (a repeated POST bills twice), and this
 # manifest never retries the POST.
 # A found address only counts when contact_email_address_status is deliverable, catch_all or
 # catch_all_safe (the statuses the docs call safe to send to).
 # Credits depend on the plan, so cost_per_lookup is 0 (unknown).
+# Terms: the BetterContact terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
 manifest_version: "1"
 name: bettercontact_email
 display_name: BetterContact Email Finder

@@ -52,7 +52,9 @@ response:
 input_fields: [first_name, last_name, domain]
 # Optional: asynchronous vendors. The first request returns an id, this block
 # repeats until done_when matches. Write body_template (not body) in poll.request.
-# The effective limit is min(max_total, provider_timeout, 120 s); see the guide.
+# A manifest with a poll block is bounded by its own budget (request timeout plus
+# max_total), not by the workspace provider_timeout; see the guide. Put polling
+# providers last in a waterfall: each lookup holds a provider worker while it polls.
 # poll:
 #   request:
 #     method: GET

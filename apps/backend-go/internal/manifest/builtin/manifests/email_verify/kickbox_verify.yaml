@@ -10,6 +10,7 @@
 # native words (valid, invalid, risky, unknown). Kickbox reports catch-all in the separate
 # accept_all field, which a single mapping cannot read, so catch_all is never produced here.
 # Billing is per credit and tiered, so cost_per_lookup is 0 (unknown).
+# Terms: the Kickbox terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
 manifest_version: "1"
 name: kickbox_verify
 display_name: Kickbox Email Verifier

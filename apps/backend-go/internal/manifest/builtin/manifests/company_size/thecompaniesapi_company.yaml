@@ -10,6 +10,7 @@
 # company size is about.totalEmployees, a range such as 50-200.
 # Credits depend on the plan, so cost_per_lookup is 0 (unknown).
 # Terms: https://www.thecompaniesapi.com/product/terms limits use to internal business purposes.
+# This manifest supports the key holder's own use of their own account only.
 manifest_version: "1"
 name: thecompaniesapi_company
 display_name: The Companies API Company Enrichment

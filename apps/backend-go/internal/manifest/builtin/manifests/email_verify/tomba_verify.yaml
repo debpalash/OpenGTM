@@ -8,6 +8,7 @@
 # catch_all, disposable becomes invalid (as emailverify/cascade.go treats it) and any other
 # word becomes unknown.
 # Billing is per credit and plan dependent, so cost_per_lookup is 0 (unknown).
+# Terms: the Tomba terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
 manifest_version: "1"
 name: tomba_verify
 display_name: Tomba Email Verifier

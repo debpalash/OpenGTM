@@ -11,6 +11,7 @@
 # twice), and this manifest never retries the POST.
 # A result counts when the lead is marked enriched. Credits depend on the plan, so
 # cost_per_lookup is 0 (unknown).
+# Terms: the BetterContact terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
 manifest_version: "1"
 name: bettercontact_phone
 display_name: BetterContact Phone Finder

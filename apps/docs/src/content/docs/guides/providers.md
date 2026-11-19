@@ -63,9 +63,11 @@ The `tomba_*`, `neverbounce_verify`, `emailable_verify`, `kickbox_verify`,
 `thecompaniesapi_company` rows are manifests too. The Tomba ones need two
 credentials (a key and a secret, two Settings cards). `icypeas_email`,
 `dropcontact_email` and `bettercontact_*` are asynchronous: they submit a
-lookup and poll for the result, for up to 90 to 120 seconds. The worker's
-`provider_timeout` defaults to 10 seconds and caps the poll, so raise it in
-Settings (up to 120) before relying on them, or they report `timeout`.
+lookup and poll for the result, for up to 90 to 120 seconds. They run under
+their own `poll.max_total` budget, not the workspace `provider_timeout`, so
+they work with default settings. Each lookup holds one of the 8 provider
+workers while it polls, so put them last in a waterfall (see
+[Provider manifests](/guides/provider-manifests/)).
 
 ## Free and keyless
 

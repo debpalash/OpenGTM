@@ -78,8 +78,8 @@ type Manifest struct {
 	Response          ResponseSpec `json:"response"`
 	// Poll, when set, makes the call asynchronous (Go-only extension): a second request is
 	// repeated until its response says done or failed, and that response is the one mapped.
-	Poll *PollSpec `json:"poll"`
-	InputFields       []string     `json:"input_fields"`
+	Poll        *PollSpec `json:"poll"`
+	InputFields []string  `json:"input_fields"`
 }
 
 type rawRequest struct {

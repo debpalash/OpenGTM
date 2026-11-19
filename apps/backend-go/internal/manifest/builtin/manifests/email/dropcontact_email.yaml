@@ -6,13 +6,15 @@
 # Flow: POST returns request_id. The poll GETs the result: HTTP 200 with success false and
 # error false means "not ready, try again in 30 seconds" (an unknown request_id answers the
 # same way), HTTP 200 with success true carries data, and error true is a failure. The poll
-# waits 30 s before each request, as the docs ask. Dropcontact usually needs a while, so a
-# workspace running this provider needs provider_timeout of about 40 s or more (the default is
-# 10 s, the maximum 120 s); the lookup is capped at 120 s whatever the setting.
+# waits 30 s before each request, as the docs ask. Dropcontact usually needs a while, so the
+# poll runs under its own budget (the first request's timeout plus max_total, at most 120 s of
+# polling), not the workspace provider_timeout; a poll that uses up max_total is recorded as
+# one timeout.
 # The lead is sent as one record (first_name, last_name, company, website, linkedin); the
 # fields it does not have go out as empty strings, which Dropcontact reports as warnings.
 # Only the first found email is mapped. Dropcontact charges credits only for found data; the
 # price depends on the plan, so cost_per_lookup is 0 (unknown).
+# Terms: the Dropcontact terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
 manifest_version: "1"
 name: dropcontact_email
 display_name: Dropcontact Email Finder

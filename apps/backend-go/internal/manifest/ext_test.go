@@ -83,14 +83,14 @@ func TestSuccessWhenMessageIsScrubbed(t *testing.T) {
 
 func TestExtensionConditionsAreValidated(t *testing.T) {
 	bad := []string{
-		`{"path":"status","equals":"x"}`,           // not a $. path
-		`{"path":"$.status"}`,                      // neither equals nor in
-		`{"path":"$.s","equals":"a","in":["b"]}`,   // both
-		`{"equals":"a"}`,                           // no path
-		`{"path":"$.s","equals":""}`,               // empty literal can never match
-		`{"path":"$.s","in":[{"a":1}]}`,            // not comparable
-		`{"status":[99]}`,                          // not an HTTP status
-		`{}`,                                       // empty
+		`{"path":"status","equals":"x"}`,         // not a $. path
+		`{"path":"$.status"}`,                    // neither equals nor in
+		`{"path":"$.s","equals":"a","in":["b"]}`, // both
+		`{"equals":"a"}`,                         // no path
+		`{"path":"$.s","equals":""}`,             // empty literal can never match
+		`{"path":"$.s","in":[{"a":1}]}`,          // not comparable
+		`{"status":[99]}`,                        // not an HTTP status
+		`{}`,                                     // empty
 	}
 	for _, c := range bad {
 		m := mk(t, `{"name":"sw","capability":"email","auth":{"type":"header","param":"X","env_var":"K"},
@@ -553,5 +553,20 @@ func TestExtensionDocsAreSignedOnlyWhenDeclared(t *testing.T) {
 	again, _ := manifest.CanonicalManifest(mk(t, pollManifest))
 	if string(other) == string(again) {
 		t.Error("poll.max_attempts is not covered by the signature")
+	}
+}
+
+func TestCallTimeoutRule(t *testing.T) {
+	ordinary := manifest.Manifest{Request: manifest.RequestSpec{Timeout: 20}}
+	if got := ordinary.CallTimeout(10 * time.Second); got != 10*time.Second {
+		t.Fatalf("ordinary manifest: %v, want the provider timeout", got)
+	}
+	polling := manifest.Manifest{Request: manifest.RequestSpec{Timeout: 20}, Poll: &manifest.PollSpec{MaxTotal: 90}}
+	if got := polling.CallTimeout(10 * time.Second); got != 110*time.Second {
+		t.Fatalf("polling manifest: %v, want request timeout + max_total", got)
+	}
+	huge := manifest.Manifest{Request: manifest.RequestSpec{Timeout: 20}, Poll: &manifest.PollSpec{MaxTotal: 100000}}
+	if got := huge.CallTimeout(10 * time.Second); got != 20*time.Second+manifest.MaxPollTotal {
+		t.Fatalf("max_total is not clamped: %v", got)
 	}
 }
