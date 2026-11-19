@@ -16,7 +16,9 @@ func (f failingLLM) Complete(context.Context, llm.CompleteRequest) (string, erro
 func (f failingLLM) ExtractJSON(context.Context, string, string, int) (map[string]any, error) {
 	return nil, f.err
 }
-func (f failingLLM) AnthropicProvider(context.Context) (llm.Provider, bool) { return llm.Provider{}, false }
+func (f failingLLM) AnthropicProvider(context.Context) (llm.Provider, bool) {
+	return llm.Provider{}, false
+}
 func (f failingLLM) AnthropicTurn(context.Context, llm.AnthropicRequest) (*llm.AnthropicResponse, error) {
 	return nil, f.err
 }

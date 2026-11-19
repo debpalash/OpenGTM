@@ -339,6 +339,9 @@
     },
     {
      "id": "verify_email",
+     "input_columns": [
+      "find_email"
+     ],
      "name": "Email Verify",
      "target_field": "email_verify",
      "type": "waterfall",
@@ -382,7 +385,7 @@
     {
      "id": "research_hq",
      "max_steps": 3,
-     "name": "HQ Location (research)",
+     "name": "HQ Location (research, needs an LLM key)",
      "output_format": "text",
      "prompt": "What city and country is {company} ({website}) headquartered in? Answer with just the city and country.",
      "type": "research",
@@ -390,7 +393,7 @@
     }
    ],
    "completed_rows": 0,
-   "description": "Auto-seeded first-run demo. Every column uses FREE, zero-key providers \u2014 no API keys required. Click any cell to see the provider waterfall.",
+   "description": "Auto-seeded first-run demo. Every column except HQ Location uses free providers that need no API key; HQ Location is an AI research column and stays empty until an LLM key is added in Settings. Click any cell to see the provider waterfall.",
    "filter_criteria": {},
    "id": "demo-zero-key-firstrun",
    "name": "Demo \u2014 Zero-Key Enrichment",

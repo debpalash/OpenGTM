@@ -15,7 +15,9 @@ import (
 func TestRateLimitedProviderGivesASpecificReason(t *testing.T) {
 	e := setup(t, wsA)
 	e.seed(wsA, "wb-rl", "["+colJSON("c1", "rl1")+"]", 1, 0)
-	s := newSim(t, func(_ string, _ int, w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusTooManyRequests) })
+	s := newSim(t, func(_ string, _ int, w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusTooManyRequests)
+	})
 	c := e.claim(wsA, payloadFor(wsA, "wb-rl", map[string]float64{"rl1": 0}, nil))
 	if _, err := workbook.Run(e.ctx, e.deps(s, nil), c); err != nil {
 		t.Fatal(err)
