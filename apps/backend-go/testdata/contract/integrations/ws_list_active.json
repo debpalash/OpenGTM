@@ -162,6 +162,44 @@
           "icon": "linkedin",
           "id": "linkedin_ads",
           "name": "LinkedIn Ads"
+        },
+        {
+          "connected": false,
+          "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
+          "fields": [
+            {
+              "key": "HEYREACH_API_KEY",
+              "label": "API Key",
+              "masked": "",
+              "placeholder": "HeyReach API key",
+              "secret": true,
+              "set": false,
+              "source": "unset",
+              "value": ""
+            }
+          ],
+          "icon": "heyreach",
+          "id": "heyreach",
+          "name": "HeyReach"
+        },
+        {
+          "connected": false,
+          "description": "Add leads to a lemlist email campaign (audience destination).",
+          "fields": [
+            {
+              "key": "LEMLIST_API_KEY",
+              "label": "API Key",
+              "masked": "",
+              "placeholder": "lemlist API key",
+              "secret": true,
+              "set": false,
+              "source": "unset",
+              "value": ""
+            }
+          ],
+          "icon": "lemlist",
+          "id": "lemlist",
+          "name": "lemlist"
         }
       ],
       "workspace_id": "ws-alpha"
