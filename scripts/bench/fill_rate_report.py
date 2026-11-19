@@ -1,5 +1,5 @@
 """Report for scripts/bench/first-run-fill-rate.sh: reads the cells the run left in workbook_enrichments and prints
-the per-column table and three separate fill rates.
+the per-column table and four separate fill rates.
 
   all_filled                 every cell with a value.
   excluding_guessed_emails   all_filled minus the email cells that are a guess, not a find: the value came from
@@ -10,8 +10,12 @@ the per-column table and three separate fill rates.
   excluding_key_columns      cells of columns that need a key by design (AI research / ai_formula / agent columns,
                              which call an LLM) removed from numerator and denominator.
 
-They are three numbers and are never folded into one. Email Verify cells holding the verdict "unknown" are
-counted in all three (the cascade did answer) and also reported on their own.
+  excluding_environment_limited
+                             columns whose cells say this machine cannot do the work (SMTP port 25 blocked) removed
+                             from numerator and denominator, and listed.
+
+They are separate numbers and are never folded into one. A cell counts as filled only when it carries an
+informative value: an Email Verify "unknown" verdict is not one (reported on its own as verify_verdict_unknown).
 
 Inputs in the work directory: runN_cells.psv (column|lead|value|provider|status|error|meta), columns.json
 (workbooks.columns_config), stats.log, provider_stats.psv. Run as a script with the arguments of main().
@@ -28,6 +32,10 @@ ROLE_LOCAL_PARTS = {
     "inquiries", "help", "service", "marketing", "press", "media",
 }
 GUESSING_PROVIDERS = {"ddg_email"}
+# A cell error that says this machine cannot do the work at all, whatever the product does (a blocked outbound port).
+ENV_LIMITED_MARKERS = ("smtp_port_blocked",)
+# Email Verify verdicts that carry information about the address; "unknown" does not.
+INFORMATIVE_VERDICTS = {"valid", "invalid", "catch_all"}
 
 
 def rate(filled, total):
@@ -70,15 +78,18 @@ def build_report(out, commit, rows, lf_filled, status, up_s, up_to_done_s, run_s
     guessed = unknown = 0
     for col, _lead, val, prov, st, err, meta in cells:
         c = per.setdefault(col, {"total": 0, "filled": 0, "providers": collections.Counter(),
-                                 "empty_reasons": collections.Counter()})
+                                 "empty_reasons": collections.Counter(), "env_limited": False})
         c["total"] += 1
-        if val:
+        if any(m in err for m in ENV_LIMITED_MARKERS):
+            c["env_limited"] = True
+        if val and target(col) == "email_verify" and val not in INFORMATIVE_VERDICTS:
+            unknown += 1  # an old-style cell holding "unknown": the cascade could not decide, not a fill
+            c["empty_reasons"]["verdict unknown"] += 1
+        elif val:
             c["filled"] += 1
             c["providers"][prov or "?"] += 1
             if is_guessed_email(target(col), val, prov):
                 guessed += 1
-            if target(col) == "email_verify" and val == "unknown":
-                unknown += 1
         else:
             reason = err or st or "unknown"
             if "cooldown" in meta:
@@ -88,6 +99,9 @@ def build_report(out, commit, rows, lf_filled, status, up_s, up_to_done_s, run_s
     filled = sum(c["filled"] for c in per.values())
     key_total = sum(per[c]["total"] for c in key_cols if c in per)
     key_filled = sum(per[c]["filled"] for c in key_cols if c in per)
+    env_cols = sorted(cid for cid, c in per.items() if c["env_limited"])
+    env_total = sum(per[c]["total"] for c in env_cols)
+    env_filled = sum(per[c]["filled"] for c in env_cols)
 
     peak, mx, cur = 0.0, collections.defaultdict(float), 0.0
     try:
@@ -119,10 +133,13 @@ def build_report(out, commit, rows, lf_filled, status, up_s, up_to_done_s, run_s
                                      "rate": rate(filled - guessed, total)},
         "excluding_key_columns": {"filled": filled - key_filled, "total": total - key_total,
                                   "excluded_columns": key_cols, "rate": rate(filled - key_filled, total - key_total)},
+        "excluding_environment_limited": {"filled": filled - env_filled, "total": total - env_total,
+                                          "excluded_columns": env_cols,
+                                          "rate": rate(filled - env_filled, total - env_total)},
         "verify_verdict_unknown": unknown,
         "lead_field_cells_filled": lf_filled,
         "per_column": {k: {"filled": v["filled"], "total": v["total"], "rate": rate(v["filled"], v["total"]),
-                           "needs_key_by_design": k in key_cols,
+                           "needs_key_by_design": k in key_cols, "environment_limited": v["env_limited"],
                            "filled_by_provider": dict(v["providers"]), "empty_reasons": dict(v["empty_reasons"])}
                        for k, v in per.items()},
         "seconds": {"build": int(build_s), "compose_up": int(up_s), "up_to_run_complete": int(up_to_done_s),
@@ -152,14 +169,18 @@ def render_text(rep):
         fb = ", ".join(f"{p} {n}" for p, n in sorted(v["filled_by_provider"].items(), key=lambda x: -x[1]))
         eb = ", ".join(f"{r} x{n}" for r, n in sorted(v["empty_reasons"].items(), key=lambda x: -x[1]))
         key = " [needs a key by design]" if v["needs_key_by_design"] else ""
+        key += " [environment-limited]" if v.get("environment_limited") else ""
         lines.append(f"{k:<14}{v['filled']:>8}{v['total']:>7}{(v['rate'] or 0) * 100:>6.0f}%  "
                      f"{fb}{' | EMPTY: ' + eb if eb else ''}{key}")
     a, g, k = rep["all_filled"], rep["excluding_guessed_emails"], rep["excluding_key_columns"]
+    e = rep["excluding_environment_limited"]
     lines += [
         f"ALL FILLED: {a['filled']}/{a['total']} = {pct(a)}",
         f"EXCLUDING GUESSED EMAILS: {g['filled']}/{g['total']} = {pct(g)} ({g['guessed_emails']} role-name guesses from ddg_email removed)",
         f"EXCLUDING KEY-REQUIRING COLUMNS: {k['filled']}/{k['total']} = {pct(k)} (columns left out: {', '.join(k['excluded_columns']) or 'none'})",
-        f"Email Verify cells whose verdict is 'unknown' (counted above, the cascade could not decide): {rep['verify_verdict_unknown']}",
+        f"EXCLUDING ENVIRONMENT-LIMITED COLUMNS: {e['filled']}/{e['total']} = {pct(e)} "
+        f"(columns left out, this machine cannot do them: {', '.join(e['excluded_columns']) or 'none'})",
+        f"Email Verify cells with an 'unknown' verdict (not counted as filled anywhere): {rep['verify_verdict_unknown']}",
     ]
     s = rep["seconds"]
     lines.append(f"time: compose up {s['compose_up']} s, up to run complete {s['up_to_run_complete']} s, run 1 {s['run_1']} s "
