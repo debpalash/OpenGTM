@@ -62,14 +62,14 @@ none of it: run `migrate up` and start the Go stack (`docker-compose.md`).
 
 ## Steps
 
-Before anything else, confirm the database is at the Alembic head the Go runner adopts:
+Before anything else, confirm the database is at an Alembic revision the Go runner starts from:
 
 ```sql
-SELECT version_num FROM alembic_version;   -- must be exactly e7b2c4d6f8a0
+SELECT version_num FROM alembic_version;   -- 3f4051627384 (v3.0.0, bridged) or e7b2c4d6f8a0 (adopted)
 ```
 
-Anything else: stop and bring it to that head with the previous release's `alembic upgrade head` (the Go runner
-refuses any other revision).
+For a v3.0.0 database, `opengtm-migrate` bridges it (and `opengtm-migrate import-v3` copies its SQLite stores); see
+`migrations.md`, "Upgrading a v3.0.0 installation". Any other revision is refused.
 
 Run the SQL as the database owner (the `migrate` role): the entity tables are `FORCE ROW LEVEL SECURITY`. Take a
 backup first (`pg_dump -Fc`).

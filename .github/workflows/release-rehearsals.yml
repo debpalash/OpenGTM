@@ -1,9 +1,9 @@
 name: Release rehearsals
 
-# Fresh-install rehearsal and backup/restore drill (scripts/release, docs/operations/release-rehearsals.md).
-# Separate from ci.yml on purpose: building every image (Go services and the Chromium browser service) and
-# running two full stacks takes well over the ~5 minutes a pull request should wait. The upgrade rehearsal is
-# not run here: it fails by design until a Python revision the Go migrator can adopt is available.
+# Fresh-install rehearsal, backup/restore drill and v3.0.0 upgrade rehearsal (scripts/release,
+# docs/operations/release-rehearsals.md). Separate from ci.yml on purpose: building every image (Go services and
+# the Chromium browser service) and running three full stacks takes well over the ~5 minutes a pull request
+# should wait.
 
 on:
   push:
@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   rehearsals:
-    name: Install rehearsal and backup/restore drill
+    name: Install, backup/restore and upgrade rehearsals
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -36,3 +36,10 @@ jobs:
         env:
           REHEARSAL_NO_BUILD: "1"
         run: scripts/release/rehearse-backup-restore.sh
+      - name: Fetch the v3.0.0 tag
+        # The upgrade rehearsal builds a real v3.0.0 install from `git archive v3.0.0`.
+        run: git fetch --depth=1 origin tag v3.0.0
+      - name: Upgrade rehearsal (v3.0.0 to the Go runtime)
+        env:
+          REHEARSAL_NO_BUILD: "1"
+        run: scripts/release/rehearse-upgrade.sh

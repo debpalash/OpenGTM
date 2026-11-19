@@ -8,9 +8,9 @@ the first failure, and removes everything it created.
 |---|---|---|
 | `scripts/release/rehearse-install.sh` | A clean checkout starts with the default Compose stack, first-run setup works through the API, login works, the demo workbook seeds and reads back, the UI and `/healthz` answer. | passes |
 | `scripts/release/rehearse-backup-restore.sh` | A `pg_dump -Fc` backup restores into a fresh stack with identical row counts in every table, the admin logs in with the old password, and a saved provider key still decrypts. | passes |
-| `scripts/release/rehearse-upgrade.sh` | A database built by the Python release (`v3.0.0`) is adopted by the Go migrator and the stack starts on it. | **fails by design**: see "Upgrade from v3.0.0" |
+| `scripts/release/rehearse-upgrade.sh` | A real v3.0.0 installation (built from the tag's own code and migrations, seeded through its API) is bridged by the Go migrator, its SQLite stores are imported, and the same admin logs in and sees every seeded item through the Go API. | passes (run it locally; see "Upgrade from v3.0.0") |
 
-CI runs the first two on every push to `main` and on demand (`.github/workflows/release-rehearsals.yml`). They are
+CI runs all three on every push to `main` and on demand (`.github/workflows/release-rehearsals.yml`). They are
 not in the pull request workflow because building every image and running two stacks takes far longer than the
 ~5 minutes a PR should wait.
 
@@ -102,44 +102,48 @@ and keep it separate from the database dump.
 
 ### `rehearse-upgrade.sh`
 
-Builds a real Python-era database by running the legacy ref's own Alembic (`git archive v3.0.0`, then
-`uv sync --frozen && alembic upgrade head` in a container, with that ref's locked dependencies), then runs the Go
-migrator (the compose `migrate` service) against it, then starts the stack on the result. Run
-`scripts/release/rehearse-upgrade.sh --python-ref <ref>` to use another ref.
+Builds a real v3.0.0 installation in a container from `git archive v3.0.0` with that tag's locked dependencies:
+its Alembic builds the database (head `3f4051627384`), then `scripts/release/v3-seed.py` starts the v3 API and
+creates an admin, a second workspace, a saved provider key, an encrypted workspace secret (HubSpot token), two leads
+in two workspaces and a workbook function through HTTP, and a chat conversation and queue rows with v3's own code,
+leaving its SQLite data directory in a host directory. The script then runs, as an operator would,
+`docker compose run --rm migrate` (bridge, adopt), `migrate import-v3 --dry-run`, `migrate import-v3` twice (the
+second run must insert nothing), starts the stack, logs in with the v3 admin password and checks through the Go API
+that the workspace, the lead (visible only in its own workspace), the function, the conversation and both messages,
+the provider key (masked) and the workspace secret (integration listed, value never echoed) are
+there. `--python-ref <ref>` builds another ref (the checks assume v3.0.0's data model).
 
-## Upgrade from v3.0.0: why it fails today
+The seed follows the default deployment path (the v3 application connects as a non-superuser role), and the script
+fails if any SQLite lead/outreach/signal store appears. It also runs in the CI workflow after the other two, reusing
+their images (about 90 s locally with cached images, including building the v3 Python environment).
 
-Checked on 2026-11-18, by running the script:
+## Upgrade from v3.0.0
 
-```
-PASS build a Python-era database with v3.0.0's own Alembic
-     v3.0.0 built a Python-era database with 69 tables at Alembic revision 3f4051627384
-FAIL Go migrator adopts the Python-era database
-     opengtm-migrate: migrate: refusing: database is at Alembic revision "3f4051627384", but the Go runner can
-     only adopt "e7b2c4d6f8a0". Upgrade it with the legacy tool first (legacy/python at commit 86f41c6 or later:
-     `alembic upgrade e7b2c4d6f8a0`), then run opengtm-migrate again
-```
+The supported path is v3.0.0 directly to 4.x, with no intermediate release. It is forward-only: take and verify a
+backup first (see "Back up"); rolling back means restoring that backup and running the v3.0.0 images. Keep the
+v3.0.0 `SECRET_KEY` (workspace secrets are copied still encrypted). The commands are in the README section "Upgrade
+an existing Python installation" and the mechanism, including the table of what each SQLite store maps to, is in
+`docs/go-port/runbooks/migrations.md`.
 
-- The only published release, v3.0.0, has Alembic head `3f4051627384` (59 revisions). `opengtm-migrate` adopts
-  exactly `e7b2c4d6f8a0` and refuses everything else, by design (`docs/go-port/runbooks/migrations.md`).
-- The Python revisions between the two are not available here. The runbooks point at `legacy/python` commit
-  `86f41c6`; that object is not in this repository, not on any remote ref, and no tag contains
-  `e7b2c4d6f8a0`. `b8bfc57e` (used for the rehearsal described in PR #115) is only on `origin/rewrite/hybrid-platform`
-  and does not contain that revision either.
-- The schema gap is not small: the `e7b2c4d6f8a0` baseline has 20 tables that a v3.0.0 Alembic head does not
-  (`workspaces`, `workspace_members`, `workspace_settings`, `app_settings`, `collection_jobs`, the `chat_*`
-  tables, the SCIM and OIDC tables, and others). They come either from the missing revisions or from the Python
-  application creating them at startup; this was not determined.
-- Beyond the schema, a faithful upgrade fixture also needs Python-era rows: users with Python password hashes,
-  workspaces, workbooks, queued jobs with a NULL `workspace_id`, and an encrypted secret. Those came from running
-  the Python application, which this repository no longer contains.
+Known limits, all reported by `import-v3` rather than hidden:
 
-So, as things stand, **a v3.0.0 installation has no scripted or documented-and-tested path to the Go runtime**. To
-close it, someone has to publish (or restore into the repository history) the Python release at Alembic
-`e7b2c4d6f8a0` and rehearse `v3.0.0 -> that release -> 4.0.0`. Then run `rehearse-upgrade.sh --python-ref <that
-ref>`; the script is expected to pass its adoption step and then continue to the stack checks, which have not been
-exercised on an adopted Python database yet. Seeding Python-era data (users, jobs, secrets) and the tenant/job
-backfill from `docs/go-port/runbooks/15-cutover.md` are not part of the script and still need a staging rehearsal.
+- A default v3.0.0 install keeps leads, outreach history and signals in PostgreSQL, not in SQLite files. Established
+  by running the quick start from the tag (`scripts/install.sh`, then `docker compose up`, the seed service, then a
+  lead and an outreach sequence with an enrolled lead through the API): the api connects as `yupcha_runtime`
+  (a non-superuser, from `APP_DATABASE_URL`), the rows land in `leads` and `outreach_sequences`, and `data/` holds only
+  `workspaces.db`, `data.db` and `chat_history.db`. `signals.db` is documented in the v3.0.0 source as no longer
+  written or read. The bridge upgrades those PostgreSQL rows in place; `import-v3` has nothing to copy for them.
+- v3.0.0 falls back to per-workspace SQLite `leads.db` files (and `outreach.db`/`signals.db`) only when `PG_LEAD_STORE`
+  is off or its database login is a superuser/BYPASSRLS role (the rehearsal hit this when its first seed ran as the
+  database owner). `import-v3` does not copy those files. It therefore **stops before writing anything** when one has
+  rows, naming the file and the v3.0.0 step to run first (`scripts/migrate_sqlite_to_pg.py`, in `apps/api/scripts/`
+  of the v3.0.0 tree); `--skip-unmigrated` imports the rest and leaves those rows behind in the SQLite files.
+  Empty files do not stop it.
+- `enrichment_cache.db` (a provider-result cache with an `expires_at` per row) and `openmemory.db` (an optional
+  third-party memory backend) are not imported and never stop the import; the cache is rebuilt on demand.
+- Pending jobs with no derivable workspace are failed with a reason by the bridge; running jobs are re-queued.
+- Not covered by the rehearsal: SCIM/OIDC rows, per-workspace SQLite stores, and real provider traffic. The
+  integration tests cover the import of the SCIM/OIDC/permission tables from committed fixtures.
 
 ## Operator procedures
 
