@@ -490,6 +490,9 @@ func (rs *runState) persistCellFailure(ctx context.Context, col column, rowID, l
 func (rs *runState) waterfall(ctx context.Context, lead map[string]any, col column, rowID, leadID int64) (cellOutcome, error) {
 	ws, wb := rs.p.WorkspaceID, rs.p.WorkbookID
 	target := col.target()
+	if col.isVerifyColumn() && rs.deps.Verify != nil {
+		return rs.verifyColumn(ctx, lead, col, rowID, leadID)
+	}
 	configured, explicit := col.explicitChain()
 	chain := configured
 	if !explicit {

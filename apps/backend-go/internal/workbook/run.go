@@ -149,7 +149,7 @@ func (rs *runState) runBody(ctx context.Context, started *bool) (Result, error) 
 			if err := rs.checkPyColumn(col); err != nil {
 				return Result{}, err
 			}
-			if rs.legacy && (col.Type == "enrichment" || col.Type == "waterfall") {
+			if rs.legacy && (col.Type == "enrichment" || col.Type == "waterfall") && !(col.isVerifyColumn() && rs.deps.Verify != nil) {
 				if err := checkProviders(col, p); err != nil {
 					return Result{}, err
 				}

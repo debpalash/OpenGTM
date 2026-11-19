@@ -55,6 +55,7 @@ func parseColumns(raw []byte) ([]column, error) {
 		c.Name, _ = m["name"].(string)
 		cols = append(cols, c)
 	}
+	inferVerifyInputs(cols)
 	return cols, nil
 }
 
