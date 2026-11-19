@@ -80,7 +80,7 @@ func TestValidateConfigMatchesVectors(t *testing.T) {
 }
 
 func TestTypes(t *testing.T) {
-	if len(Types) != 12 {
+	if len(Types) != 15 {
 		t.Fatalf("Types = %v", Types)
 	}
 	for _, ty := range []string{"webhook", "slack", "airtable", "google_sheets", "meta_ads"} {

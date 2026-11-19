@@ -7,6 +7,7 @@
  */
 
 import { useState, useMemo, useCallback, useRef, useEffect, useDeferredValue, createContext, useContext } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { useParams, useNavigate, useSearchParams } from "react-router-dom"
 import {
   useTable, tableFeatures, createSortedRowModel, sortFns,
@@ -16,7 +17,6 @@ import {
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { parseClipboardTable, serializeClipboardTable } from "@/lib/workbook-clipboard"
 import { workbookColumnWindow } from "@/lib/workbook-column-window"
-import { documentScale } from "@/lib/ui-scale"
 import { loadedCellProgress, isExecutableColumn } from "@/lib/workbook-progress"
 import {
   useWorkbook, useUpdateLeadField, useUpdateWorkbookRow, useBulkUpdateWorkbookRows,
@@ -440,9 +440,7 @@ function SortableColumnHeader({ id, w, className, children, ...rest }: {
   } = useSortable({ id })
 
   const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform ? {
-      ...transform, x: transform.x / documentScale(), y: transform.y / documentScale(),
-    } : null),
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     width: w,
@@ -509,6 +507,7 @@ function CostChip({ workbookId, isRunning, viewId, search, onClick }: {
 // ── Main Editor Page ─────────────────────────────────────────────────────
 
 export default function WorkbookEditorPage() {
+  const confirm = useConfirm()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -766,12 +765,11 @@ export default function WorkbookEditorPage() {
     e.preventDefault()
     e.stopPropagation()
     const startW = columnWidthsRef.current[colId] || 180
-    const scale = documentScale()
     resizeRef.current = { colId, startX: e.clientX, startW }
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!resizeRef.current) return
-      const diff = (ev.clientX - resizeRef.current.startX) / scale
+      const diff = ev.clientX - resizeRef.current.startX
       const newW = Math.max(80, Math.min(600, resizeRef.current.startW + diff))
       columnWidthsRef.current[resizeRef.current.colId] = newW
       // Direct DOM update — zero React re-renders during drag
@@ -885,8 +883,7 @@ export default function WorkbookEditorPage() {
                 title={col.name}
                 onContextMenu={(e) => {
                   e.preventDefault()
-                  const scale = documentScale()
-                  setCtxMenu({ x: e.clientX / scale, y: e.clientY / scale, colId: col.id })
+                  setCtxMenu({ x: e.clientX, y: e.clientY, colId: col.id })
                 }}
               >
                 <ColumnDragHandle name={col.name} />
@@ -958,13 +955,13 @@ export default function WorkbookEditorPage() {
             const isRerunningCell = cellRunPending
               && cellRunVariables?.rowId === cellRowId
               && cellRunVariables?.colId === col.id
-            const handleRerun = () => {
+            const handleRerun = async () => {
               if (cellRowId == null) {
                 toast.error("This row has no workbook identity")
                 return
               }
               if (col.type === "output") {
-                if (!confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push this row to the destination AGAIN. Continue?`)) return
+                if (!await confirm({ title: `Re-run output column “${col.name}” for this row?`, description: "Output columns run once per row. Force re-running pushes this row to the destination again.", confirmLabel: "Re-run and push" })) return
               }
               runCell({ rowId: cellRowId, colId: col.id, force: true }, {
                 onSuccess: (res) => {
@@ -1087,12 +1084,12 @@ export default function WorkbookEditorPage() {
     setCtxMenu(null)
   }, [runMut])
 
-  const handleForceRunColumn = useCallback((colId: string) => {
+  const handleForceRunColumn = useCallback(async (colId: string) => {
     const col = columns.find(c => c.id === colId)
     if (!col) return
     // Output columns are run-once + side-effecting: force re-pushes EVERY row.
     if (col.type === "output"
-        && !confirm(`"${col.name}" is an output column (runs once per row). Force re-running will push EVERY row to the destination again. Continue?`)) {
+        && !await confirm({ title: `Re-run output column “${col.name}” for every row?`, description: "Output columns run once per row. Force re-running pushes every row to the destination again.", confirmLabel: "Re-run all rows" })) {
       setCtxMenu(null)
       return
     }
@@ -1101,7 +1098,7 @@ export default function WorkbookEditorPage() {
       onError: () => toast.error("Failed to start force re-run"),
     })
     setCtxMenu(null)
-  }, [columns, runMut])
+  }, [columns, runMut, confirm])
 
   // Close context menu on click outside
   useEffect(() => {
@@ -1508,7 +1505,7 @@ export default function WorkbookEditorPage() {
 
         <div className="workbook-toolbar-heading">
           <h1 tabIndex={-1} data-page-title className="text-lg font-semibold truncate">{workbook.name}</h1>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-[13px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Filter className="size-3" />
               {filterDesc}
@@ -1532,13 +1529,13 @@ export default function WorkbookEditorPage() {
 
         {/* Search Bar */}
         <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="Search rows..."
             value={globalFilter}
             onChange={e => { setGlobalFilter(e.target.value); setWorkbookPage(1); setWorkbookCursor(null); setCursorHistory([]); setAllMatchingSelected(false); setRowSelection({}) }}
-            className="w-44 pl-7 pr-2 py-1.5 rounded-md border bg-background text-xs focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground/50"
+            className="h-8 w-52 pl-8 pr-2 rounded-md border bg-background text-sm focus:outline-none focus:ring-1 focus:ring-primary/50 placeholder:text-muted-foreground"
           />
           {globalFilter && (
             <button
@@ -1607,7 +1604,6 @@ export default function WorkbookEditorPage() {
           />
           <Button
             variant="ghost"
-            size="sm"
             onClick={() => fileInputRef.current?.click()}
             title="Import a CSV or Clay table export"
           >
@@ -1617,7 +1613,6 @@ export default function WorkbookEditorPage() {
 
           <Button
             variant="ghost"
-            size="sm"
             onClick={handleExport}
             disabled={exportingCsv}
             title="Export every row matching the current search and saved view"
@@ -1632,7 +1627,6 @@ export default function WorkbookEditorPage() {
 
           <Button
             variant="outline"
-            size="sm"
             onClick={openSourcePanel}
             disabled={sourcePanelLoading}
             aria-busy={sourcePanelLoading}

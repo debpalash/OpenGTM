@@ -284,3 +284,34 @@ func (f fakeManifests) Manifest(_ context.Context, name string) (json.RawMessage
 	}
 	return json.RawMessage(m), "sha", nil
 }
+
+// ManifestAllow records exactly auth.env_var and auth.secondary.env_var. A name that is only
+// templated in the manifest, listed in extra_env, or on the platform deny-list is never served
+// on the worker path: Local.Get answers ErrUnknownCredential.
+func TestManifestAllowSecondaryAndNothingElse(t *testing.T) {
+	a := NewManifestAllow(fakeManifests{
+		"p": `{"auth":{"type":"header","env_var":"P_KEY","secondary":{"type":"query","param":"s","env_var":"P_SECRET"},"extra_env":["P_EXTRA"]},
+		 "request":{"url":"https://a.example/x","headers":{"X":"${env:P_TEMPLATED}"}}}`,
+		"d": `{"auth":{"type":"header","env_var":"D_KEY","secondary":{"type":"query","param":"s","env_var":"SECRET_KEY"}}}`,
+		"e": `{"auth":{"type":"header","env_var":"DATABASE_URL"}}`,
+	})
+	for _, n := range []string{"p", "d", "e"} {
+		if _, _, err := a.Manifest(context.Background(), n); err != nil {
+			t.Fatal(err)
+		}
+	}
+	for env, want := range map[string]bool{
+		"P_KEY": true, "P_SECRET": true, "D_KEY": true,
+		"P_EXTRA": false, "P_TEMPLATED": false, "SECRET_KEY": false, "DATABASE_URL": false, "OTHER": false,
+	} {
+		if a.Allowed(env) != want {
+			t.Errorf("Allowed(%q) = %v, want %v", env, !want, want)
+		}
+	}
+	l := NewLocal(nil, a.Allowed, nil)
+	for _, env := range []string{"P_EXTRA", "P_TEMPLATED", "SECRET_KEY", "DATABASE_URL"} {
+		if _, err := l.Get(context.Background(), "w", env); !errors.Is(err, ErrUnknownCredential) {
+			t.Errorf("Get(%q) err = %v, want ErrUnknownCredential", env, err)
+		}
+	}
+}

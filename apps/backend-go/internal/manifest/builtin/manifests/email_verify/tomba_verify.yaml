@@ -1,0 +1,48 @@
+# Tomba "Email Verifier" -- declarative provider manifest.
+# Docs: https://docs.tomba.io/openapi.md (GET /email-verifier/{email}), https://docs.tomba.io/authentication.md.
+# Auth: X-Tomba-Key (auth.env_var) and X-Tomba-Secret (auth.secondary) headers.
+# Synchronous (the docs ask for a client timeout of at least 180 s; request.timeout is 120 s,
+# the engine maximum, and the run is also bounded by the workspace provider_timeout setting).
+# data.email.status is one of valid, accept_all, invalid, unknown, disposable. value_maps
+# translates it to the words the native verifiers write to email_verify: accept_all becomes
+# catch_all, disposable becomes invalid (as emailverify/cascade.go treats it) and any other
+# word becomes unknown.
+# Billing is per credit and plan dependent, so cost_per_lookup is 0 (unknown).
+# Terms: the Tomba terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
+manifest_version: "1"
+name: tomba_verify
+display_name: Tomba Email Verifier
+author: OpenGTM
+homepage: https://docs.tomba.io/
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: Tomba /email-verifier - email -> valid, catch_all, invalid or unknown.
+default_confidence: 0.85
+cost_per_lookup: 0
+auth:
+  type: header
+  param: X-Tomba-Key
+  env_var: TOMBA_API_KEY
+  secondary:
+    type: header
+    param: X-Tomba-Secret
+    env_var: TOMBA_SECRET_KEY
+request:
+  method: GET
+  url: https://api.tomba.io/v1/email-verifier/{{input.email}}
+  timeout: 120
+response:
+  error_path: errors
+  error_message_path: errors.message
+  mappings:
+    email_verify: "$.data.email.status"
+  value_maps:
+    email_verify:
+      values:
+        valid: valid
+        accept_all: catch_all
+        invalid: invalid
+        disposable: invalid
+        unknown: unknown
+      default: unknown

@@ -40,7 +40,7 @@ type (
 		LeadID          int64
 		IdempotencyKey  string
 	}
-	// CampaignRequest adds one lead to an Instantly or Smartlead campaign.
+	// CampaignRequest adds one lead to an Instantly, Smartlead, HeyReach or lemlist campaign.
 	// TODO(plan10 T20): finalize with the delivery engine.
 	CampaignRequest struct {
 		WorkspaceID string
@@ -58,7 +58,7 @@ type (
 	}
 )
 
-// CRMPusher mirrors crmpush.Push (HubSpot/Salesforce; field_map travels inside cfg).
+// CRMPusher mirrors crmpush.Push (HubSpot/Salesforce/Attio; field_map travels inside cfg).
 // crmpush.Result carries Value, not Summary.
 type CRMPusher interface {
 	Push(ctx context.Context, ws string, cfg, leadData map[string]any, workbookID string, leadID int64) crmpush.Result
@@ -112,6 +112,8 @@ type Ports struct {
 	CRM           CRMPusher
 	Instantly     CampaignAdder
 	Smartlead     CampaignAdder
+	HeyReach      CampaignAdder
+	Lemlist       CampaignAdder
 	Sheets        SheetsUpserter
 	Airtable      AirtableUpserter
 }
@@ -122,12 +124,16 @@ func (p Ports) Supports(destinationType string) bool {
 	switch strings.ToLower(strings.TrimSpace(destinationType)) {
 	case "webhook", "slack":
 		return p.Webhook != nil
-	case "hubspot", "salesforce":
+	case "hubspot", "salesforce", "attio":
 		return p.CRM != nil
 	case "instantly":
 		return p.Instantly != nil
 	case "smartlead":
 		return p.Smartlead != nil
+	case "heyreach":
+		return p.HeyReach != nil
+	case "lemlist":
+		return p.Lemlist != nil
 	case "google_sheets":
 		return p.Sheets != nil
 	case "airtable":

@@ -1,0 +1,14 @@
+{
+  "id": "1",
+  "domain": {
+    "domain": "acme.com"
+  },
+  "about": {
+    "name": "Acme",
+    "totalEmployees": "50-200",
+    "industry": "software"
+  },
+  "descriptions": {
+    "primary": "Acme builds analytical engines."
+  }
+}

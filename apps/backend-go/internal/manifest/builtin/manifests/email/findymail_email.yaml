@@ -1,0 +1,37 @@
+# Findymail "Find from name" -- declarative provider manifest.
+# Docs: https://app.findymail.com/docs/ (POST /api/search/name).
+# Auth: Authorization: Bearer <key>. Synchronous unless webhook_url is sent,
+# and this manifest never sends it.
+# Billing: 1 finder credit when an email is found, free otherwise. The credit
+# price depends on the plan, so cost_per_lookup is 0 (unknown).
+# Failures (402 "Not enough credits", 423 "Subscription is paused", 429) come
+# back as {"error": "..."} with that HTTP status.
+manifest_version: "1"
+name: findymail_email
+display_name: Findymail Email Finder
+author: OpenGTM
+homepage: https://app.findymail.com/docs/
+tags: [email, enrichment, byok]
+capability: email
+capabilities: [email]
+description: Findymail /api/search/name - full name + company domain -> verified work email.
+default_confidence: 0.8
+cost_per_lookup: 0
+auth:
+  type: bearer
+  env_var: FINDYMAIL_API_KEY
+request:
+  method: POST
+  url: https://app.findymail.com/api/search/name
+  headers:
+    Content-Type: application/json
+  body:
+    name: "{{input.full_name}}"
+    domain: "{{input.domain}}"
+  omit_empty: [domain]
+  timeout: 30
+response:
+  error_path: error
+  error_message_path: error
+  mappings:
+    email: "$.contact.email"

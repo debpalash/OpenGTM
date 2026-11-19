@@ -1,0 +1,71 @@
+{
+  "docs": [
+    "https://developer.millionverifier.com/ (Single API: SingleApiResponse and SingleApiResponseBadApiKey)"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.millionverifier.com",
+    "path": "/api/v3/",
+    "query": {
+      "api": "test-key-123",
+      "email": "ada@acme.com"
+    },
+    "headers": {},
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "invalid",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "ok_is_valid",
+      "status": 200,
+      "file": "ok.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "catch_all",
+      "status": 200,
+      "file": "catch_all.json",
+      "fields": {
+        "email_verify": "catch_all"
+      }
+    },
+    {
+      "name": "disposable_is_invalid",
+      "status": 200,
+      "file": "disposable.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": 200,
+      "file": "unknown.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "vendor_error_in_200",
+      "status": 200,
+      "file": "bad_api_key.json",
+      "error": "apikey_not_found"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

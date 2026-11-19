@@ -1,0 +1,49 @@
+# Kickbox single verification -- declarative provider manifest.
+# Docs: https://docs.kickbox.com/docs/single-verification-api.md (GET /v2/verify) and
+# https://docs.kickbox.com/docs/using-the-api.md (key as an "Authorization: Bearer" header).
+# EU-only accounts use api.eu.kickbox.com instead; this manifest targets the standard endpoint.
+# Synchronous (timeout parameter default 6 s, maximum 30 s).
+# The body carries success (false on an authentication or quota failure) and message (the
+# human-readable reason): success_when requires success == true and the message is reported
+# otherwise.
+# result is one of deliverable, undeliverable, risky, unknown; value_maps translates it to the
+# native words (valid, invalid, risky, unknown). Kickbox reports catch-all in the separate
+# accept_all field, which a single mapping cannot read, so catch_all is never produced here.
+# Billing is per credit and tiered, so cost_per_lookup is 0 (unknown).
+# Terms: the Kickbox terms say use is for internal business purposes. This manifest supports the key holder's own use of their own account only; it is not a way to resell or redistribute the vendor's data.
+manifest_version: "1"
+name: kickbox_verify
+display_name: Kickbox Email Verifier
+author: OpenGTM
+homepage: https://docs.kickbox.com/docs/single-verification-api
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: Kickbox /v2/verify - email -> valid, risky, invalid or unknown.
+default_confidence: 0.9
+cost_per_lookup: 0
+auth:
+  type: bearer
+  env_var: KICKBOX_API_KEY
+request:
+  method: GET
+  url: https://api.kickbox.com/v2/verify
+  query:
+    email: "{{input.email}}"
+    timeout: "10000"
+  timeout: 30
+response:
+  error_message_path: message
+  success_when:
+    path: "$.success"
+    equals: true
+  mappings:
+    email_verify: "$.result"
+  value_maps:
+    email_verify:
+      values:
+        deliverable: valid
+        undeliverable: invalid
+        risky: risky
+        unknown: unknown
+      default: unknown

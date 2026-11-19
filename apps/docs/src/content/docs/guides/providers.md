@@ -28,11 +28,46 @@ API key at the vendor's direct price. Keys go in **Settings → API Keys**
 | `leadmagic_company` | company size, description | `LEADMAGIC_API_KEY` | | $0.05 |
 | `leadmagic_mobile` | mobile phone | `LEADMAGIC_API_KEY` | | $0.05 (0 if not found) |
 | `prospeo_mobile` | mobile phone | `PROSPEO_API_KEY` | | $0.10 |
+| `anymail_finder_email` | email ([docs](https://anymailfinder.com/email-finder-api/docs/find-person-email)) | `ANYMAIL_FINDER_API_KEY` | | plan-dependent |
+| `anymail_finder_verify` | email verify | `ANYMAIL_FINDER_API_KEY` | | plan-dependent |
+| `bouncer_verify` | email verify ([docs](https://docs.usebouncer.com/api-reference/real-time/verify-email)) | `BOUNCER_API_KEY` | | volume-tiered |
+| `millionverifier_verify` | email verify ([docs](https://developer.millionverifier.com/)) | `MILLIONVERIFIER_API_KEY` | | plan-dependent |
+| `findymail_email` | email ([docs](https://app.findymail.com/docs/)) | `FINDYMAIL_API_KEY` | | plan-dependent (1 credit) |
+| `findymail_phone` | phone, US numbers only | `FINDYMAIL_API_KEY` | | plan-dependent (10 credits) |
+| `findymail_linkedin` | LinkedIn URL from an email | `FINDYMAIL_API_KEY` | | plan-dependent (1 credit) |
+| `contactout_email` | work email from a LinkedIn URL ([docs](https://api.contactout.com/)) | `CONTACTOUT_API_KEY` | | plan-dependent (1 email credit) |
+| `contactout_phone` | phone from a LinkedIn URL | `CONTACTOUT_API_KEY` | | plan-dependent (1 phone credit) |
+| `tomba_email_finder` | email ([docs](https://docs.tomba.io/openapi.md)) | `TOMBA_API_KEY` and `TOMBA_SECRET_KEY` | | plan-dependent |
+| `tomba_verify` | email verify | `TOMBA_API_KEY` and `TOMBA_SECRET_KEY` | | plan-dependent |
+| `neverbounce_verify` | email verify ([docs](https://developers.neverbounce.com/)) | `NEVERBOUNCE_API_KEY` | | volume-tiered |
+| `emailable_verify` | email verify ([docs](https://emailable.com/docs/api)) | `EMAILABLE_API_KEY` | | volume-tiered |
+| `kickbox_verify` | email verify ([docs](https://docs.kickbox.com/)) | `KICKBOX_API_KEY` | | volume-tiered |
+| `icypeas_email` | email, asynchronous ([docs](https://api-doc.icypeas.com/)) | `ICYPEAS_API_KEY` | | plan-dependent |
+| `dropcontact_email` | email, asynchronous ([docs](https://developer.dropcontact.com/en/reference/)) | `DROPCONTACT_API_KEY` | | plan-dependent |
+| `bettercontact_email` | email, asynchronous ([docs](https://doc.bettercontact.rocks/)) | `BETTERCONTACT_API_KEY` | | plan-dependent |
+| `bettercontact_phone` | phone, asynchronous | `BETTERCONTACT_API_KEY` | | plan-dependent |
+| `thecompaniesapi_company` | company size, description ([docs](https://www.thecompaniesapi.com/api/authentication)) | `THECOMPANIESAPI_API_KEY` | | plan-dependent |
 | `companies_house` | UK register firmographics | `COMPANIES_HOUSE_API_KEY` | free | $0 |
 | `mca_registry` | India MCA register | `DATA_GOV_IN_KEY` | free | $0 |
 
-The last four rows in the first group (`leadmagic_*`, `prospeo_mobile`) are
-[declarative YAML manifests](#adding-a-provider-with-a-yaml-manifest).
+The `leadmagic_*`, `prospeo_mobile`, `anymail_finder_*`, `bouncer_verify`,
+`millionverifier_verify`, `findymail_*` and `contactout_*` rows are
+[declarative YAML manifests](#adding-a-provider-with-a-yaml-manifest). Where the
+vendor does not publish a per-call price, the cost is recorded as 0, which
+means unknown, not free. The three verifiers translate the vendor's result
+words to `valid`, `invalid`, `catch_all`, `risky` or `unknown` before they
+are stored.
+
+The `tomba_*`, `neverbounce_verify`, `emailable_verify`, `kickbox_verify`,
+`icypeas_email`, `dropcontact_email`, `bettercontact_*` and
+`thecompaniesapi_company` rows are manifests too. The Tomba ones need two
+credentials (a key and a secret, two Settings cards). `icypeas_email`,
+`dropcontact_email` and `bettercontact_*` are asynchronous: they submit a
+lookup and poll for the result, for up to 90 to 120 seconds. They run under
+their own `poll.max_total` budget, not the workspace `provider_timeout`, so
+they work with default settings. Each lookup holds one of the 8 provider
+workers while it polls, so put them last in a waterfall (see
+[Provider manifests](/guides/provider-manifests/)).
 
 ## Free and keyless
 
@@ -102,37 +137,52 @@ payloads stay byte-identical.
 
 ## Adding a provider with a YAML manifest
 
-Most REST providers need no code. Drop a manifest under
-`apps/backend-go/internal/manifest/builtin/manifests/<capability>/`:
+A REST provider that needs one synchronous call needs no Go code. Add one YAML
+file under `apps/backend-go/internal/manifest/builtin/manifests/<capability>/`.
+It is embedded in the binary; there is no list to edit. This is the real
+format (the full reference, the testing recipe and the pull request checklist
+are in [Provider manifests](/guides/provider-manifests/)):
 
 ```yaml
+manifest_version: "1"
 name: acme_email
+display_name: Acme Email Finder
+author: your-github-handle
+homepage: https://docs.acme.example/api/email-finder   # the vendor's official docs
+tags: [email, enrichment, byok]
 capability: email
-description: Acme email finder (BYOK; inert until ACME_API_KEY is set)
+capabilities: [email]
+description: Acme /v1/find - full name + company domain -> work email.
 default_confidence: 0.8
-cost_per_lookup: 0.03
+cost_per_lookup: 0.03          # the published price; 0 means unknown
 auth:
-  type: header
+  type: header                 # header | bearer | query | none
   param: X-API-Key
-  env_var: ACME_API_KEY
+  env_var: ACME_API_KEY        # the key is never written in the file
 request:
   method: GET
   url: https://api.acme.example/v1/find
   query:
-    domain: "{website_domain}"
-    name: "{contact_person}"
+    domain: "{{input.domain}}"
+    name: "{{input.full_name}}"
   timeout: 10
 response:
-  error_path: error.message
+  error_path: error            # a truthy value here makes the call fail
+  error_message_path: message
   mappings:
-    email: data.email
-    email_confidence: data.score
-input_fields: [website_domain, contact_person]
+    email: "$.data.email"      # every mapping is a $. path
 ```
 
-The manifest compiler validates it at load, registers it under `name`, and the
-vendor catalog picks up `cost_per_lookup` for estimates. Ship a golden fixture
-with it so its accuracy can be checked, not just its presence.
+Templates are `{{input.field}}` (`company`, `domain`, `website`, `email`,
+`linkedin_url`, `full_name`, `first_name`, `last_name`, `phone`, and more).
+`request.url` must be `https://`. List a parameter in `request.omit_empty` to
+leave it out when the lead has no value, and use `response.value_maps` to
+translate a vendor word. The provider stays inert until the key is set.
+
+A manifest also needs entries in the vendor catalog, the workbook provider
+registry and the settings registry, plus a fixture copied from the vendor's
+docs. Tests tell you which one is missing. The provider manifests page lists
+each file.
 
 ## CompanyEnrich
 

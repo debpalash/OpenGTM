@@ -1,0 +1,19 @@
+{
+ "vendor": "attio",
+ "scenario": "no_token",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "solo@example.com"
+   }
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Attio not connected (set ATTIO_ACCESS_TOKEN)"
+ }
+}

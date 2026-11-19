@@ -43,7 +43,8 @@ second waits, then finds nothing pending.
 | empty `public` schema | **baseline** (version 1): the schema at Alembic `e7b2c4d6f8a0`, `alembic_version` stamped `e7b2c4d6f8a0`, the app role created if missing and granted what Alembic granted (schema `USAGE`, DML on all tables, sequences, default privileges, `EXECUTE` on `outreach_send_by_message_id` with `PUBLIC` revoked) |
 | `alembic_version` = `e7b2c4d6f8a0`, no `goose_db_version` | **adopt**: version 1 is recorded without running the baseline; the app role gets `SELECT` on `goose_db_version` |
 | `goose_db_version` at version >= 1 | apply pending versions (2, 3, ...) |
-| any other Alembic revision (older, empty, several rows) | **refused**, nothing written: "upgrade it with the legacy tool first" |
+| `alembic_version` = `3f4051627384` (the v3.0.0 head), no `goose_db_version` | **bridge**: one transaction applies the DDL of the eight Alembic revisions between `3f4051627384` and `e7b2c4d6f8a0` plus the queue steps (see "Upgrading a v3.0.0 installation"), stamps `e7b2c4d6f8a0`, then **adopts** as above and applies versions 2, 3, ... |
+| any other Alembic revision (older, empty, several rows) | **refused**, nothing written; the message names both supported starting points, `3f4051627384` (v3.0.0) and `e7b2c4d6f8a0` |
 | tables but neither version table | **refused** |
 
 Each version runs in its own transaction (goose); a failure rolls that version back and exits non-zero.
@@ -98,19 +99,63 @@ fresh and adopted databases; later Go migrations never change it. Rules while Py
   at `e7b2c4d6f8a0`; anything else breaks the stamp contract.)
 - The Python `migrate` job (`python -m apps.api.scripts.migrate`) is retired; compose no longer runs it.
 
-## Old Alembic databases
+## Upgrading a v3.0.0 installation
 
-A database below `e7b2c4d6f8a0` is refused. Upgrade it once with the legacy tool, then run
-`opengtm-migrate`:
+`opengtm-migrate` upgrades a v3.0.0 (Python) installation directly, with no intermediate release and no Python:
+back up first (the upgrade is forward-only), keep the same `SECRET_KEY`, then
 
 ```
-cd legacy/python            # at commit 86f41c6 or later
-DATABASE_URL=postgresql+psycopg://owner:...@host/db uv run alembic upgrade e7b2c4d6f8a0
-DATABASE_URL=postgres://owner:...@host/db opengtm-migrate     # adopts
+docker compose run --rm migrate                                      # bridge 3f4051627384 -> baseline, adopt, apply 2..N
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data --dry-run
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data
 ```
 
-Migrating SQLite data to PostgreSQL (`sqlite-to-postgres.md`, plan 01) is a separate one-off Python tool
-and still needs `legacy/python`; it runs Alembic itself, then `opengtm-migrate` adopts the result.
+### The bridge (`internal/migrate/bridge/`)
+
+Runs only when `alembic_version` is exactly `3f4051627384`, in one transaction under the advisory lock. It is the
+SQL Alembic itself renders for `alembic upgrade 3f4051627384:e7b2c4d6f8a0 --sql` (eight pure-DDL revisions: new
+tables, columns, indexes, RLS, grants) with only the transaction control, the `alembic_version` updates and
+`CONCURRENTLY` removed and the role name parameterised, followed by the queue steps of the cutover runbook
+(`processing` -> `pending`; `jobs.workspace_id` filled from the entity or payload; pending rows with no derivable
+tenant failed with a reason; pending `executor='python'` -> `go`). Acceptance: a `pg_dump --schema-only` of a v3.0.0
+database after the bridge equals, line for line, one built by the real Alembic chain to `e7b2c4d6f8a0` plus Go
+migrations 2..N (empty diff; the Go test `TestBridgeUpgradesV3DatabaseToTheBaselineSchema` asserts the same on a
+structural fingerprint). A failure anywhere rolls everything back, leaving the v3.0.0 database untouched.
+
+### `opengtm-migrate import-v3 --data-dir DIR [--dry-run]`
+
+Copies the SQLite stores v3.0.0 keeps under its `data/` directory. SQLite files are read from a private snapshot and
+never modified. Ciphertext (`enc:v1:`) is copied verbatim and never decrypted: **the Go services must run with the
+same `SECRET_KEY` as v3.0.0**, otherwise workspace secrets cannot be read. Each store (SQLite file) is one
+transaction; rows are inserted with `ON CONFLICT DO NOTHING`, so a re-run is a no-op and never reverts a change made
+in the Go app. Row-level-security tables are written per workspace with `app.workspace_id` set. After each store the
+tool counts the source keys now present in PostgreSQL and exits non-zero on any shortfall. `--dry-run` does everything
+and rolls back. Unmapped SQLite tables are listed with row counts under "NOT MIGRATED".
+
+Inventory (v3.0.0 data directory):
+
+| SQLite file / table | PostgreSQL destination |
+|---|---|
+| `workspaces.db`: workspaces, workspace_members, user_active_workspace, workspace_oidc_identities, workspace_scim_tokens, workspace_settings (encrypted secrets, copied verbatim), workspace_member_permissions, workspace_scim_users, workspace_scim_groups, workspace_scim_group_members | same-named tables |
+| `data.db`: settings (provider API keys, plaintext in v3; the internal `__stores_backend` marker is not copied) | `app_settings` |
+| `chat_history.db`: conversations, messages, tool_approvals | `chat_conversations`, `chat_messages`, `chat_tool_approvals` |
+| `functions.db`: functions | `workbook_functions` |
+| `chat_memory.db`: memories | `chat_memories` |
+| `leads.db`, `outreach.db`, `signals.db` (top level and `workspaces/*/leads.db`): written by v3.0.0 only when `PG_LEAD_STORE` is off or its login is a superuser/BYPASSRLS role; a default install has none | **no destination**. A non-empty one makes `import-v3` stop before writing (message names the file and the v3.0.0 step, `scripts/migrate_sqlite_to_pg.py`); `--skip-unmigrated` leaves those rows behind. A default install's leads, outreach and signals are in PostgreSQL and are upgraded in place by the bridge |
+| `enrichment_cache.db` | no destination (a cache with a per-row expiry; rebuilt on demand; never stops the import) |
+| `openmemory.db` | no destination (optional third-party backend; never stops the import) |
+
+Skipped with a count: chat conversations with no workspace or user (invisible in v3.0.0 too) and their messages.
+Everything that was already in PostgreSQL in v3.0.0 (leads, workbooks, outreach, signals, jobs, users, audit)
+is upgraded in place by the bridge and keeps its `workspace_id`; nothing is copied for it.
+
+## Other Alembic databases
+
+Any revision other than `3f4051627384` and `e7b2c4d6f8a0` is refused. Bring such a database to one of them with the
+legacy tool for that release (`alembic upgrade 3f4051627384` or `e7b2c4d6f8a0`), then run `opengtm-migrate`.
+
+Migrating SQLite data to PostgreSQL for installations that never ran the v3.0.0 SQLite-to-Postgres step
+(`sqlite-to-postgres.md`, plan 01) is a separate one-off Python tool and still needs `legacy/python`.
 
 ## Adding a migration
 

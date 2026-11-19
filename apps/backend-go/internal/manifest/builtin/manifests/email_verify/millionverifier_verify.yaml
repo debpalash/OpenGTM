@@ -1,0 +1,47 @@
+# MillionVerifier single verification -- declarative provider manifest.
+# Docs: https://developer.millionverifier.com/ ("Verify an email address in real time").
+# GET https://api.millionverifier.com/api/v3/?api=<key>&email=<email>
+# Auth: the key travels in the "api" query parameter, the only scheme the
+# vendor documents, so it can appear in vendor-side request logs.
+# result is one of ok, catch_all, unknown, error, disposable, invalid.
+# value_maps translates it to the native email_verify words (valid, invalid,
+# catch_all, unknown): ok -> valid, disposable -> invalid (as the native
+# cascade does), any other word -> unknown. A failed call still answers
+# HTTP 200 with result "error" and a non-empty "error" string (for example
+# apikey_not_found); error_path turns that into a failure before any mapping.
+# Credit price depends on the plan, so cost_per_lookup is 0 (unknown).
+manifest_version: "1"
+name: millionverifier_verify
+display_name: MillionVerifier Email Verifier
+author: OpenGTM
+homepage: https://developer.millionverifier.com/
+tags: [email, verification, byok]
+capability: email_verify
+capabilities: [email_verify]
+description: MillionVerifier /api/v3 - email -> ok, catch_all, unknown, disposable or invalid.
+default_confidence: 0.9
+cost_per_lookup: 0
+auth:
+  type: query
+  param: api
+  env_var: MILLIONVERIFIER_API_KEY
+request:
+  method: GET
+  url: https://api.millionverifier.com/api/v3/
+  query:
+    email: "{{input.email}}"
+  timeout: 30
+response:
+  error_path: error
+  error_message_path: error
+  mappings:
+    email_verify: "$.result"
+  value_maps:
+    email_verify:
+      values:
+        ok: valid
+        invalid: invalid
+        disposable: invalid
+        catch_all: catch_all
+        unknown: unknown
+      default: unknown

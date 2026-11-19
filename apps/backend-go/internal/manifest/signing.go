@@ -348,21 +348,50 @@ func CanonicalManifest(m Manifest) ([]byte, error) {
 	if len(m.Auth.ExtraEnv) > 0 { // signed only when declared, so existing signatures stay valid
 		authTree["extra_env"] = strs(m.Auth.ExtraEnv)
 	}
+	if m.Auth.Secondary != nil { // signed only when declared
+		authTree["secondary"] = m.Auth.Secondary.Doc()
+	}
+	reqTree := map[string]any{
+		"method": m.Request.Method, "url": m.Request.URL, "headers": dyn(m.Request.Headers),
+		"query": dyn(m.Request.Query), "body_template": m.Request.BodyTemplate, "timeout": m.Request.Timeout,
+	}
+	if len(m.Request.OmitEmpty) > 0 { // signed only when declared, so existing signatures stay valid
+		reqTree["omit_empty"] = strs(m.Request.OmitEmpty)
+	}
+	respTree := map[string]any{
+		"error_path": nullable(m.Response.ErrorPath), "error_message_path": nullable(m.Response.ErrorMessagePath),
+		"mappings": maps,
+	}
+	if len(m.Response.ValueMaps) > 0 { // signed only when declared
+		vms := make(map[string]any, len(m.Response.ValueMaps))
+		for field, vm := range m.Response.ValueMaps {
+			vals := make(map[string]any, len(vm.Values))
+			for k, v := range vm.Values {
+				vals[k] = v
+			}
+			var def any
+			if vm.Default != nil {
+				def = *vm.Default
+			}
+			vms[field] = map[string]any{"values": vals, "default": def}
+		}
+		respTree["value_maps"] = vms
+	}
+	if m.Response.SuccessWhen != nil { // signed only when declared
+		respTree["success_when"] = m.Response.SuccessWhen.Doc()
+	}
 	tree := map[string]any{
 		"manifest_version": m.ManifestVersion, "name": m.Name, "display_name": m.DisplayName,
 		"author": m.Author, "homepage": m.Homepage, "license": m.License, "tags": strs(m.Tags),
 		"capability": m.Capability, "capabilities": strs(m.Capabilities), "description": m.Description,
 		"default_confidence": m.DefaultConfidence, "cost_per_lookup": m.CostPerLookup,
-		"auth": authTree,
-		"request": map[string]any{
-			"method": m.Request.Method, "url": m.Request.URL, "headers": dyn(m.Request.Headers),
-			"query": dyn(m.Request.Query), "body_template": m.Request.BodyTemplate, "timeout": m.Request.Timeout,
-		},
-		"response": map[string]any{
-			"error_path": nullable(m.Response.ErrorPath), "error_message_path": nullable(m.Response.ErrorMessagePath),
-			"mappings": maps,
-		},
+		"auth":         authTree,
+		"request":      reqTree,
+		"response":     respTree,
 		"input_fields": strs(m.InputFields),
+	}
+	if m.Poll != nil { // signed only when declared
+		tree["poll"] = m.Poll.Doc()
 	}
 	var b bytes.Buffer
 	if err := dumpValue(&b, tree); err != nil {

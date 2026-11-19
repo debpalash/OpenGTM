@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from "react"
+import { usePrompt } from "@/components/dialog-provider"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
@@ -86,6 +87,7 @@ function fromAudienceFilters(filters: Record<string, unknown>): LeadFilters {
 }
 
 export default function LeadsPage() {
+  const prompt = usePrompt()
   const navigate = useNavigate()
   const [f, setF] = useState<LeadFilters>(EMPTY_FILTERS)
   const setFilter = (k: keyof LeadFilters, v: string) => setF(prev => ({ ...prev, [k]: v }))
@@ -371,7 +373,7 @@ export default function LeadsPage() {
   }
 
   const saveCurrentSegment = async () => {
-    const name = window.prompt("Name this audience:")?.trim()
+    const name = (await prompt({ title: "Save audience", description: "Name this audience so you can reapply these filters later.", label: "Audience name", confirmLabel: "Save audience" }))?.trim()
     if (!name) return
     try {
       const audience = await createAudience.mutateAsync({ name, filters: toAudienceFilters(f) })

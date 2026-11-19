@@ -1,0 +1,89 @@
+{
+  "docs": [
+    "https://docs.tomba.io/openapi.md (GET /email-verifier, the address in the path)",
+    "https://docs.tomba.io/authentication.md",
+    "https://docs.tomba.io/error-handling.md",
+    "(response bodies are built from the documented data.email fields)"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.tomba.io",
+    "path": "/v1/email-verifier/ada@acme.com",
+    "query": {},
+    "headers": {
+      "X-Tomba-Key": "test-key-123",
+      "X-Tomba-Secret": "test-secret-456"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "valid",
+      "status": 200,
+      "file": "valid.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "accept_all_is_catch_all",
+      "status": 200,
+      "file": "accept_all.json",
+      "fields": {
+        "email_verify": "catch_all"
+      }
+    },
+    {
+      "name": "invalid",
+      "status": 200,
+      "file": "invalid.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "disposable_is_invalid",
+      "status": 200,
+      "file": "disposable.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": 200,
+      "file": "unknown.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "unlisted_word_is_unknown",
+      "status": 200,
+      "file": "other.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "errors_object_in_200",
+      "status": 200,
+      "file": "errors200.json",
+      "error": "The email is not valid."
+    },
+    {
+      "name": "auth_failed_is_400",
+      "status": 400,
+      "file": "error400.json",
+      "error": "http_400"
+    }
+  ],
+  "credential": "test-key-123",
+  "secondary_credential": "test-secret-456",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

@@ -4,7 +4,6 @@
 <p align="center">
   <a href="https://opengtm.palash.dev">Docs</a> ·
   <a href="#run-it">Install</a> ·
-  <a href="#co-maintainer-wanted">Co-maintainer wanted</a> ·
   <a href="https://github.com/debpalash/OpenGTM/releases">Releases</a> ·
   <a href="LICENSE">AGPL-3.0</a>
 </p>
@@ -81,16 +80,6 @@ The preview keeps import and enrichment as separate actions.
 
 </details>
 
-## Co-maintainer wanted
-
-We're looking for a co-maintainer to help shape OpenGTM, review pull requests,
-ship releases, and build a faster enrichment backend. Experience with **Go,
-PostgreSQL, browser automation, or provider integrations** is especially welcome.
-
-Interested? [Join contributor and design-partner onboarding](https://github.com/debpalash/OpenGTM/issues/122)
-with a short introduction and the areas you'd like to own. Focused contributions
-are welcome too; start with [CONTRIBUTING.md](CONTRIBUTING.md).
-
 ## Run it
 
 You need **Git, Docker with Compose v2, and roughly 4 GB of available RAM**.
@@ -121,6 +110,17 @@ or set `SETUP_TOKEN` in `.env` before the first start. No default admin account
 exists, and setup closes for good once an admin is created. The installer
 generates database, runtime-role, signing and service-token secrets, then starts
 the stack. It leaves an existing `.env` untouched.
+
+### Low-memory install
+
+The browser service (Chromium) is the heaviest part. Skip it with the lite
+override: `docker compose -f docker-compose.yml -f docker-compose.lite.yml up -d --build`.
+Measured idle after start, empty database: about 396 MiB across the default
+stack's containers versus about 113 MiB in lite mode, and 2.43 GB versus 0.52 GB of
+images. Lite mode cannot run lead collection jobs or page scraping (they fail with
+a "browser service" error); everything else works. Numbers, caveats and the list
+of what is unavailable are in the
+[Docker guide](https://opengtm.palash.dev/self-hosting/docker/#low-memory-install).
 
 ### On a server
 
@@ -169,12 +169,28 @@ explains the services and scaling.
 
 ### Upgrade an existing Python installation
 
-Take and verify a database and data-directory backup before cutover. The Go
-migration runner adopts the exact Alembic revision `e7b2c4d6f8a0`; older schemas
-must be upgraded with the previous Python release first. Drain Python workers,
-backfill pending jobs, and rehearse restoring the previous release before a
-production cutover. Follow the [cutover runbook](docs/go-port/runbooks/15-cutover.md)
-and [migration guide](docs/go-port/runbooks/migrations.md).
+A v3.0.0 installation upgrades directly to the Go runtime; no intermediate release and no Python are needed. The
+upgrade is forward-only, so take and verify a database and data-directory backup first, keep the same `SECRET_KEY`
+(workspace secrets are copied still encrypted), and stop the Python services (let the Python worker drain). Then, from the new release
+checkout with the existing `.env` and volumes:
+
+```bash
+docker compose up -d postgres
+docker compose run --rm migrate                      # bridges the v3.0.0 schema, then applies the Go migrations
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data --dry-run
+docker compose run --rm -v /path/to/v3/data:/v3data:ro migrate import-v3 --data-dir /v3data
+docker compose up -d --build
+```
+
+`import-v3` copies the SQLite stores (workspaces and members, workspace secrets, provider keys, chat history,
+workbook functions, chat memories), never modifies them and can be re-run. Leads, outreach and signals of a default
+install are in PostgreSQL and are upgraded in place by the migrator. If your v3.0.0 had `PG_LEAD_STORE` off, or
+connected as a superuser, it kept them in `leads.db`/`outreach.db`/`signals.db`: `import-v3` then stops without
+writing anything; move them with v3.0.0's `scripts/migrate_sqlite_to_pg.py` first (or pass `--skip-unmigrated` to
+leave them behind).
+Sign in with your existing v3.0.0 account. `scripts/release/rehearse-upgrade.sh` rehearses exactly this on a throwaway
+v3.0.0 install. See the [migration guide](docs/go-port/runbooks/migrations.md) and the
+[cutover runbook](docs/go-port/runbooks/15-cutover.md).
 
 ### Operate it
 

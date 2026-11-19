@@ -27,10 +27,12 @@
   outline: none;
   margin: 0;
 }
-.workbench-heading h1:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
-  border-radius: 4px;
+/* Route changes move focus to the page title so screen readers announce it.
+ * A programmatic focus on a non-interactive heading draws no box; real
+ * controls keep their own focus rings. */
+h1[tabindex="-1"]:focus,
+h1[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 .workbench-description {
   margin: 2px 0 0;
@@ -57,8 +59,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  min-height: 40px;
-  padding: 4px var(--gtm-content-inset);
+  min-height: var(--gtm-toolbar-height);
+  padding: 6px var(--gtm-content-inset);
   border-bottom: 1px solid var(--border);
   background: var(--gtm-surface);
   flex-shrink: 0;
@@ -143,7 +145,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border-radius: 6px;
+  border-radius: var(--gtm-radius-tag);
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 20px;
@@ -215,7 +217,7 @@
 .workbench-panel {
   background: var(--gtm-surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--gtm-radius-card);
   overflow: hidden;
   box-shadow: var(--gtm-shadow-card);
 }
@@ -243,8 +245,11 @@
   border-radius: 6px;
 }
 .gtm-checkbox-target input {
+  /* 16px box, padded to a 24px rendered hit area (WCAG 2.5.8) without growing it. */
+  box-sizing: content-box;
   width: 16px;
   height: 16px;
+  padding: calc((var(--gtm-target-min) - 16px) / 2);
   accent-color: var(--gtm-accent);
   cursor: pointer;
 }
@@ -319,4 +324,16 @@
   border-radius: 8px;
   font-size: 0.8125rem;
   line-height: 1.6;
+}
+
+/* One control height per toolbar: buttons, selects and icon buttons in page
+ * headers and toolbars are 32px, so size="sm" and default never mix in a row.
+ * Compact (28px) controls remain available inside tables and panels. */
+:is(.workbench-header-actions, .workbench-toolbar, .workbook-toolbar-actions) :is([data-slot="button"], [data-slot="select-trigger"]):not(.h-auto) {
+  height: var(--gtm-control-md);
+  min-height: var(--gtm-control-md);
+}
+:is(.workbench-header-actions, .workbench-toolbar, .workbook-toolbar-actions) [data-slot="button"][class*="size-7"],
+:is(.workbench-header-actions, .workbench-toolbar, .workbook-toolbar-actions) [data-slot="button"][class*="size-8"] {
+  width: var(--gtm-icon-button);
 }

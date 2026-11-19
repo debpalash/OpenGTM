@@ -1,0 +1,50 @@
+{
+  "docs": [
+    "https://anymailfinder.com/email-finder-api/docs/verify-email",
+    "https://api.anymailfinder.com/openapi.json (schemas Api51VerifyEmailResponseSuccessDto, Api51ErrorResponseDto; bodies are built from the schema)"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "api.anymailfinder.com",
+    "path": "/v5.1/verify-email",
+    "query": {},
+    "headers": {
+      "Authorization": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "email": "ada@acme.com"
+    }
+  },
+  "responses": [
+    {
+      "name": "valid",
+      "status": 200,
+      "file": "valid.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "risky",
+      "status": 200,
+      "file": "risky.json",
+      "fields": {
+        "email_verify": "risky"
+      }
+    },
+    {
+      "name": "vendor_error",
+      "status": 401,
+      "file": "error.json",
+      "error": "http_401"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

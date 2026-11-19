@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { useNavigate } from "react-router-dom"
 import {
   CheckCircle2, XCircle, Clock, Loader2, ChevronDown,
@@ -277,6 +278,7 @@ export interface TaskDetailCardProps {
 }
 
 export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) {
+  const confirm = useConfirm()
   const navigate = useNavigate()
   const [job, setJob] = useState<JobDetail | null>(null)
   const [leads, setLeads] = useState<JobLead[]>([])
@@ -549,7 +551,7 @@ export function TaskDetailCard({ jobId, compact = false }: TaskDetailCardProps) 
             <FileX2 className="size-3" />
           </Button>
           <Button variant="ghost" size="sm" className="h-6 text-xs gap-0.5 px-1.5 text-destructive hover:text-destructive" onClick={async () => {
-            if (!confirm(`Delete "${job.query}" and all its leads?`)) return
+            if (!await confirm({ title: `Delete task “${job.query}”?`, description: "Its leads are deleted too. This cannot be undone.", confirmLabel: "Delete task and leads", destructive: true })) return
             await fetch(`/api/jobs/${job.id}?keep_leads=false`, { method: "DELETE" })
             queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
             queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })

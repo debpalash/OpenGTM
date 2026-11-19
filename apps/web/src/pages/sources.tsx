@@ -1,4 +1,6 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/design-system/primitives"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -164,6 +166,7 @@ export default function SourcesPage() {
     }
   })
   const sources = query.data ?? []
+  const navigate = useNavigate()
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState("all")
   const [toggling, setToggling] = useState<Set<string>>(new Set())
@@ -278,16 +281,16 @@ export default function SourcesPage() {
             onChange={(event) => setSearch(event.target.value)}
           />
         </div>
-        <select
-          aria-label="Filter source status"
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-          className="h-9 rounded-md border border-input px-3 text-sm"
-        >
-          <option value="all">All statuses</option>
-          <option value="enabled">Enabled</option>
-          <option value="disabled">Disabled</option>
-        </select>
+        <Select value={status} onValueChange={(value) => value && setStatus(value)}>
+          <SelectTrigger aria-label="Filter source status" className="min-w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent alignItemWithTrigger={false} align="start">
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="enabled">Enabled</SelectItem>
+            <SelectItem value="disabled">Disabled</SelectItem>
+          </SelectContent>
+        </Select>
         <span role="status" className="text-xs text-muted-foreground">
           {query.data
             ? `${visible.length} shown · ${activeCount} of ${sources.length} enabled`
@@ -299,10 +302,33 @@ export default function SourcesPage() {
       ) : query.isError ? (
         <ErrorState error={query.error} retry={() => void query.refetch()} />
       ) : !visible.length ? (
-        <ViewState
-          title="No matching sources"
-          description="Try another name or change the status filter."
-        />
+        sources.length === 0 ? (
+          <ViewState
+            title="No data sources yet"
+            description="Data sources are where your agents discover and enrich records. None are available in this workspace yet; provider keys and integrations are managed in Admin settings."
+            action={
+              <Button variant="outline" onClick={() => navigate("/settings")}>
+                Open settings
+              </Button>
+            }
+          />
+        ) : (
+          <ViewState
+            title="No matching sources"
+            description="Try another name or change the status filter."
+            action={
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setSearch("")
+                  setStatus("all")
+                }}
+              >
+                Clear search and filters
+              </Button>
+            }
+          />
+        )
       ) : null}
       <div className="p-3 md:p-4 space-y-4">
         {orderedCategories.map((category) => {

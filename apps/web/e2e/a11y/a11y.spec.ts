@@ -17,7 +17,8 @@ const MOBILE = { width: 390, height: 844 }
 
 const desktopRoutes = [
   "/overview", "/chat", "/companies", "/people", "/workbooks", `/workbooks/${workbookId}`,
-  "/audiences", "/signals", "/outreach", "/analytics", "/settings", "/sources", "/automations"
+  "/audiences", "/signals", "/outreach", "/analytics", "/settings", "/sources", "/automations",
+  "/agents", "/watches", "/campaigns", "/templates", "/search", "/notifications"
 ]
 const mobileRoutes = ["/companies", "/chat", `/workbooks/${workbookId}`, "/settings"]
 

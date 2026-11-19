@@ -1,0 +1,157 @@
+{
+  "docs": [
+    "https://api-doc.icypeas.com/openapi.json (POST /email-search, POST /bulk-single-searchs/read)",
+    "https://api-doc.icypeas.com/how-it-works.md",
+    "https://api-doc.icypeas.com/statuses.md"
+  ],
+  "request": {
+    "method": "POST",
+    "host": "app.icypeas.com",
+    "path": "/api/email-search",
+    "query": {},
+    "headers": {
+      "Authorization": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "firstname": "Ada",
+      "lastname": "Lovelace",
+      "domainOrCompany": "acme.com"
+    }
+  },
+  "poll": {
+    "method": "POST",
+    "host": "app.icypeas.com",
+    "path": "/api/bulk-single-searchs/read",
+    "query": {},
+    "headers": {
+      "Authorization": "test-key-123",
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "mode": "single",
+      "id": "5f9d1b2c8a1e4b0012ab34cd"
+    }
+  },
+  "responses": [
+    {
+      "name": "hit_after_waiting",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "in_progress.json"
+        },
+        {
+          "status": 200,
+          "file": "found.json"
+        }
+      ],
+      "fields": {
+        "email": "ada@acme.com"
+      }
+    },
+    {
+      "name": "probable_counts",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "probable.json"
+        }
+      ],
+      "fields": {
+        "email": "ada@acme.com"
+      }
+    },
+    {
+      "name": "not_found_is_a_miss",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "not_found.json"
+        }
+      ],
+      "error": "no_data"
+    },
+    {
+      "name": "undeliverable_certainty_is_a_miss",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "undeliverable.json"
+        }
+      ],
+      "error": "no_data"
+    },
+    {
+      "name": "insufficient_funds_fails",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 200,
+          "file": "funds.json"
+        }
+      ],
+      "error": "poll_failed"
+    },
+    {
+      "name": "validation_errors_in_200",
+      "steps": [
+        {
+          "status": 200,
+          "file": "validation.json"
+        }
+      ],
+      "error": "validation_required"
+    },
+    {
+      "name": "bad_key_is_401",
+      "steps": [
+        {
+          "status": 401,
+          "file": "unauthorized.json"
+        }
+      ],
+      "error": "http_401"
+    },
+    {
+      "name": "rate_limit_on_poll_is_429",
+      "steps": [
+        {
+          "status": 200,
+          "file": "submit.json"
+        },
+        {
+          "status": 429,
+          "file": "rate.json"
+        }
+      ],
+      "error": "http_429"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

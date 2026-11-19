@@ -1,0 +1,7 @@
+{
+  "errors": {
+    "type": "authentication_failed",
+    "message": "Authentication failed.",
+    "code": 400
+  }
+}

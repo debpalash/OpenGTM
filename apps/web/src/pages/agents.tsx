@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react"
+import { useConfirm } from "@/components/dialog-provider"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
 import {
@@ -176,7 +177,7 @@ function ResearchPlaybooksPanel() {
           <div className="flex gap-1"><Input aria-label="Maximum profiles" type="number" min={1} max={1000} value={maxMembers} onChange={e => setMaxMembers(Math.max(1, Math.min(1000, Number(e.target.value))))} className="h-8 w-20" /><Button size="sm" className="h-8" disabled={!selectedId || !audienceId || launch.isPending} onClick={run}><Send className="mr-1 size-3" />Run</Button></div>
         </div>
         {selectedId && <div className="flex flex-wrap items-center gap-2 rounded-md border p-2 text-xs"><CalendarClock className="size-4 text-muted-foreground" /><label className="flex items-center gap-2"><input type="checkbox" checked={scheduleEnabled} onChange={e => setScheduleEnabled(e.target.checked)} className="size-4" /> Recurring</label><Input aria-label="Schedule interval minutes" type="number" min={15} max={10080} value={scheduleMinutes} onChange={e => setScheduleMinutes(Math.max(15, Math.min(10080, Number(e.target.value))))} disabled={!scheduleEnabled} className="h-8 w-28" /><span className="text-muted-foreground">minutes · current audience</span><Button size="sm" variant="outline" className="ml-auto h-8" disabled={scheduleEnabled && !audienceId || patchPlaybook.isPending} onClick={saveSchedule}>{patchPlaybook.isPending && <Loader2 className="size-3 animate-spin" />} Save schedule</Button>{selectedPlaybook?.next_run_at && <span className="w-full text-xs text-muted-foreground">Next run {new Date(selectedPlaybook.next_run_at).toLocaleString()}</span>}</div>}
-        <div className="rounded-md border p-2"><div className="mb-2 flex items-center justify-between"><p className="text-xs font-medium">Compose multi-step playbook</p><Button size="sm" variant="ghost" className="h-7" disabled={steps.length >= 8} onClick={() => setSteps(current => [...current, { key: `step_${Date.now()}`, name: `Step ${current.length + 1}`, prompt_template: "Research the next question using prior step outputs and cite evidence.", output_format: "text" as const }])}><Plus className="size-3" /> Step</Button></div><Input value={name} onChange={e => setName(e.target.value)} placeholder="Playbook name" className="mb-2 h-8" /><div className="max-h-80 space-y-2 overflow-y-auto">{steps.map((step, index) => <div key={`${step.key}-${index}`} className="rounded-md border bg-muted/20 p-2"><div className="mb-1 flex items-center gap-2"><GripVertical className="size-3 text-muted-foreground" /><Input aria-label={`Step ${index + 1} name`} value={step.name} onChange={e => setSteps(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, name: e.target.value } : item))} className="h-7" /><code className="text-xs text-muted-foreground">{`{${step.key}}`}</code>{steps.length > 1 && <Button aria-label={`Remove step ${index + 1}`} size="sm" variant="ghost" className="size-7 p-0" onClick={() => setSteps(current => current.filter((_, itemIndex) => itemIndex !== index))}><Trash2 className="size-3" /></Button>}</div><Textarea value={step.prompt_template} onChange={e => setSteps(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, prompt_template: e.target.value } : item))} rows={2} className="text-xs" /></div>)}</div><div className="mt-2 flex items-center justify-between"><p className="text-xs text-muted-foreground">Reference profile fields and prior outputs by {"{key}"}. $0.10 total cap/profile.</p><Button size="sm" variant="outline" disabled={!name.trim() || create.isPending || steps.some(step => !step.name.trim() || step.prompt_template.trim().length < 10)} onClick={add}>Create {steps.length}-step play</Button></div></div>
+        <div className="rounded-md border p-2"><div className="mb-2 flex items-center justify-between"><p className="text-xs font-medium">Compose multi-step playbook</p><Button size="sm" variant="ghost" className="h-7" disabled={steps.length >= 8} onClick={() => setSteps(current => [...current, { key: `step_${Date.now()}`, name: `Step ${current.length + 1}`, prompt_template: "Research the next question using prior step outputs and cite evidence.", output_format: "text" as const }])}><Plus className="size-3" /> Step</Button></div><Input value={name} onChange={e => setName(e.target.value)} placeholder="Playbook name" className="mb-2 h-8" /><div className="max-h-80 space-y-2 overflow-y-auto">{steps.map((step, index) => <div key={`${step.key}-${index}`} className="rounded-md border bg-muted/20 p-2"><div className="mb-1 flex items-center gap-2"><GripVertical className="size-3 text-muted-foreground" /><Input aria-label={`Step ${index + 1} name`} value={step.name} onChange={e => setSteps(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, name: e.target.value } : item))} className="h-7" /><code className="text-xs text-muted-foreground">{`{${step.key}}`}</code>{steps.length > 1 && <Button aria-label={`Remove step ${index + 1}`} size="sm" variant="ghost" className="size-7 p-0" onClick={() => setSteps(current => current.filter((_, itemIndex) => itemIndex !== index))}><Trash2 className="size-3" /></Button>}</div><Textarea aria-label={`Step ${index + 1} prompt`} value={step.prompt_template} onChange={e => setSteps(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, prompt_template: e.target.value } : item))} rows={2} className="text-xs" /></div>)}</div><div className="mt-2 flex items-center justify-between"><p className="text-xs text-muted-foreground">Reference profile fields and prior outputs by {"{key}"}. $0.10 total cap/profile.</p><Button size="sm" variant="outline" disabled={!name.trim() || create.isPending || steps.some(step => !step.name.trim() || step.prompt_template.trim().length < 10)} onClick={add}>Create {steps.length}-step play</Button></div></div>
       </CardContent></Card>
       <Card><CardContent className="p-3"><div className="mb-2 flex items-center gap-2"><div className="flex flex-1 gap-2 overflow-x-auto">{runRows.map(run => <button key={run.id} onClick={() => setSelectedRunId(run.id)} className={cn("shrink-0 rounded-md border px-2 py-1 text-xs", selectedRunId === run.id && "border-primary bg-primary/5")}><span className="font-medium">{run.status}</span> · {run.succeeded}/{run.attempted}</button>)}{runs.hasNextPage && <Button size="sm" variant="ghost" className="h-7 shrink-0 text-xs" disabled={runs.isFetchingNextPage} onClick={() => runs.fetchNextPage()}>{runs.isFetchingNextPage && <Loader2 className="mr-1 size-3 animate-spin" />}Older runs</Button>}</div>{selectedRun && ["pending", "running"].includes(selectedRun.status) && <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" disabled={cancelRun.isPending} onClick={cancelSelectedRun}>{cancelRun.isPending ? <Loader2 className="mr-1 size-3 animate-spin" /> : <StopCircle className="mr-1 size-3" />}Cancel</Button>}{selectedRun && ["failed", "completed_with_errors", "cancelled"].includes(selectedRun.status) && <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" disabled={retryRun.isPending} onClick={retrySelectedRun}>{retryRun.isPending ? <Loader2 className="mr-1 size-3 animate-spin" /> : <RefreshCw className="mr-1 size-3" />}Retry unfinished</Button>}</div><div className="max-h-48 space-y-2 overflow-y-auto">{resultRows.map(result => <div key={result.id} className="rounded-md border p-2"><div className="flex items-center gap-2"><a href={`/leads/${result.lead_id}`} className="text-xs font-medium hover:underline">Lead {result.lead_id}</a><ExternalLink className="size-3" /><Badge variant={result.status === "success" ? "default" : "secondary"} className="text-xs">{result.status}</Badge></div><p className="mt-1 line-clamp-3 whitespace-pre-wrap text-xs text-muted-foreground">{result.value || result.error || "Waiting…"}</p></div>)}{results.hasNextPage && <Button size="sm" variant="outline" className="w-full" disabled={results.isFetchingNextPage} onClick={() => results.fetchNextPage()}>{results.isFetchingNextPage && <Loader2 className="mr-1 size-3 animate-spin" />}Load more results</Button>}{selectedRunId && !results.isLoading && !resultRows.length && <p className="py-8 text-center text-xs text-muted-foreground">Results will appear as profiles complete.</p>}{!selectedRunId && <p className="py-8 text-center text-xs text-muted-foreground">Run a playbook to inspect evidence-backed profile results.</p>}</div></CardContent></Card>
     </div>}
@@ -249,6 +250,7 @@ function TaskCard({ job }: { job: Job; onClick: () => void }) {
 // ── Main Page ────────────────────────────────────────────────────
 
 export default function AgentsPage() {
+  const confirm = useConfirm()
   const navigate = useNavigate()
   const [view, setView] = useState<"list" | "cards">(() => {
     return (localStorage.getItem("task-view") as "list" | "cards") || "list"
@@ -338,7 +340,7 @@ export default function AgentsPage() {
                 <DropdownMenuItem onClick={async () => {
                   const empty = jobs?.filter(j => j.status === "done" && j.leads_found === 0) || []
                   if (!empty.length) { toast.info("No empty tasks to clear"); return }
-                  if (!confirm(`Delete ${empty.length} completed tasks with 0 leads?`)) return
+                  if (!await confirm({ title: `Delete ${empty.length} completed tasks with 0 leads?`, confirmLabel: `Delete ${empty.length} tasks`, destructive: true })) return
                   await Promise.all(empty.map(j => fetch(`/api/jobs/${j.id}?keep_leads=false`, { method: "DELETE" })))
                   queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
                   toast.success(`Cleared ${empty.length} empty tasks`)
@@ -349,7 +351,7 @@ export default function AgentsPage() {
                 <DropdownMenuItem onClick={async () => {
                   const done = jobs?.filter(j => j.status === "done") || []
                   if (!done.length) { toast.info("No completed tasks"); return }
-                  if (!confirm(`Remove ${done.length} completed tasks? Leads will be kept.`)) return
+                  if (!await confirm({ title: `Remove ${done.length} completed tasks?`, description: "Their leads will be kept.", confirmLabel: `Remove ${done.length} tasks` })) return
                   await Promise.all(done.map(j => fetch(`/api/jobs/${j.id}?keep_leads=true`, { method: "DELETE" })))
                   queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
                   toast.success(`Cleared ${done.length} completed tasks (leads kept)`)
@@ -361,7 +363,7 @@ export default function AgentsPage() {
                 <DropdownMenuItem
                   className="text-destructive focus:text-destructive"
                   onClick={async () => {
-                    if (!confirm(`DELETE ALL ${jobs?.length} tasks and their leads? This cannot be undone.`)) return
+                    if (!await confirm({ title: `Delete all ${jobs?.length} tasks and their leads?`, description: "This cannot be undone.", confirmLabel: "Delete all tasks", destructive: true })) return
                     await Promise.all((jobs || []).map(j => fetch(`/api/jobs/${j.id}?keep_leads=false`, { method: "DELETE" })))
                     queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
                     queryClient.invalidateQueries({ queryKey: queryKeys.leads.all })
@@ -384,7 +386,7 @@ export default function AgentsPage() {
               onKeyDown={(e) => e.key === "Enter" && handleCollect()}
               className="h-8 w-52 text-xs"
             />
-            <Button size="sm" className="h-8 px-2.5" onClick={handleCollect} disabled={collect.isPending}>
+            <Button size="sm" className="h-8 px-2.5" aria-label="Start collection" onClick={handleCollect} disabled={collect.isPending}>
               {collect.isPending ? <Loader2 className="size-3.5 animate-spin" /> : <Play className="size-3.5" />}
             </Button>
           </div>
@@ -462,13 +464,15 @@ function FilterChip({ label, count, active, onClick }: {
 // ── Task Actions Menu ────────────────────────────────────────────
 
 function TaskActionsMenu({ job }: { job: Job }) {
+  const confirm = useConfirm()
   const isActive = job.status === "running" || job.status === "pending"
   const isFailed = job.status === "failed" || job.status === "cancelled"
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="size-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
+        aria-label={`Actions for task ${job.query}`}
+        className="size-7 p-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 data-popup-open:opacity-100 transition-opacity inline-flex items-center justify-center rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer"
         onClick={(e: React.MouseEvent) => e.stopPropagation()}
       >
         <MoreHorizontal className="size-4" />
@@ -499,9 +503,9 @@ function TaskActionsMenu({ job }: { job: Job }) {
           Remove Task (Keep Leads)
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={(e) => {
+          onClick={async (e) => {
             e.stopPropagation()
-            if (confirm(`Delete task "${job.query}" and all its leads?`)) {
+            if (await confirm({ title: `Delete task “${job.query}”?`, description: "Its leads are deleted too. This cannot be undone.", confirmLabel: "Delete task and leads", destructive: true })) {
               deleteJob(job.id, false)
             }
           }}

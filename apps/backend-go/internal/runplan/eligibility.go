@@ -240,7 +240,9 @@ func Eligible(cols []colgraph.Col, idx map[string]manifest.Entry, cfg Config) (b
 				return false, problem
 			}
 			for env := range manifest.AllowedEnvNames(m) {
-				if env != m.Auth.EnvVar { // the credential endpoint serves only auth.env_var
+				// The credential endpoint serves only auth.env_var and auth.secondary.env_var; any other
+				// name (extra_env) is undeclared environment and stays ineligible (issue #114).
+				if env != m.Auth.EnvVar && (m.Auth.Secondary == nil || env != m.Auth.Secondary.EnvVar) {
 					return false, ReasonManifestExtraEnv
 				}
 			}

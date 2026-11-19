@@ -1,6 +1,7 @@
 package manifest
 
 import (
+	"net/url"
 	"regexp"
 	"strings"
 )
@@ -50,6 +51,33 @@ func expandEnv(text string, env func(string) string) string {
 // Substituted values (lead data) and defaults are written verbatim, so a lead
 // field containing "${env:SECRET}" can never exfiltrate a secret.
 func RenderString(s string, ctx map[string]any, env func(string) string) string {
+	return renderString(s, ctx, env, nil)
+}
+
+// renderURL is RenderString for request.url: every substituted lead value is escaped for the
+// part of the URL it lands in (path segment before "?", query component after it), so a value
+// cannot add path segments, a query string, a fragment or a ".." element. Defaults and
+// manifest text are written as authored.
+func renderURL(s string, ctx map[string]any, env func(string) string) string {
+	return renderString(s, ctx, env, func(val string, at int) string {
+		if q := strings.IndexAny(s, "?#"); q >= 0 && at > q {
+			return url.QueryEscape(val)
+		}
+		return escapePathValue(val)
+	})
+}
+
+// escapePathValue escapes v for one URL path segment: "/", "?", "#", "%" and spaces are
+// percent-encoded, and dot-only segments ("." and "..") are encoded so they cannot traverse.
+func escapePathValue(v string) string {
+	e := url.PathEscape(v)
+	if strings.Trim(e, ".") == "" && e != "" {
+		return strings.ReplaceAll(e, ".", "%2E")
+	}
+	return strings.ReplaceAll(e, "..", ".%2E")
+}
+
+func renderString(s string, ctx map[string]any, env func(string) string, esc func(val string, at int) string) string {
 	var b strings.Builder
 	last := 0
 	for _, m := range varRE.FindAllStringSubmatchIndex(s, -1) {
@@ -63,7 +91,11 @@ func RenderString(s string, ctx map[string]any, env func(string) string) string 
 			}
 			b.WriteString(strings.Trim(pyStrip(def), `'"`))
 		} else {
-			b.WriteString(pyStr(val))
+			v := pyStr(val)
+			if esc != nil {
+				v = esc(v, m[0])
+			}
+			b.WriteString(v)
 		}
 	}
 	b.WriteString(expandEnv(s[last:], env))

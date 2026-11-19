@@ -3,6 +3,8 @@
 //	DATABASE_URL=... opengtm-migrate [up]   apply pending migrations (default)
 //	DATABASE_URL=... opengtm-migrate status list embedded versions and whether each is applied
 //	opengtm-migrate version                 print the embedded versions (no database)
+//	DATABASE_URL=... opengtm-migrate import-v3 --data-dir DIR [--dry-run] [--allow-missing-workspaces]
+//	                                        copy the SQLite stores of a v3.0.0 installation into PostgreSQL
 //
 // DATABASE_URL must carry owner credentials (DDL, CREATE ROLE when the app role is
 // missing); a SQLAlchemy "postgresql+psycopg://" URL is accepted. Environment, as
@@ -29,7 +31,7 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/migrate"
 )
 
-const usage = "usage: opengtm-migrate [up|status|version]"
+const usage = "usage: opengtm-migrate [up|status|version|import-v3 --data-dir DIR [--dry-run]]"
 
 func main() {
 	if err := run(os.Args[1:], os.Getenv, os.Stdout); err != nil {
@@ -70,6 +72,9 @@ func optionsFromEnv(getenv func(string) string) (migrate.Options, error) {
 }
 
 func run(args []string, getenv func(string) string, out io.Writer) error {
+	if len(args) > 0 && args[0] == "import-v3" {
+		return runImportV3(args[1:], getenv, out)
+	}
 	cmd := "up"
 	if len(args) > 0 {
 		cmd = args[0]

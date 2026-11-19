@@ -146,7 +146,7 @@ function RecordCell({
               .join("")
               .toUpperCase() || "?"}
           </span>
-          <span>{recordName(record)}</span>
+          <span title={recordName(record)}>{recordName(record)}</span>
           <ArrowUpRight aria-hidden="true" />
         </button>
       )

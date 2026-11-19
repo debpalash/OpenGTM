@@ -11,8 +11,10 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/credentials"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/manifest"
@@ -244,5 +246,107 @@ func TestManifestURLGuardRefusesBeforeNetwork(t *testing.T) {
 	}
 	if p, _ := r.Precheck(context.Background(), "ws1", "leadmagic_mobile", in.Lead); p == "" {
 		t.Fatal("precheck passed a blocked URL")
+	}
+}
+
+// pollConnector writes an unsigned connector that submits a lookup and polls for it.
+func pollConnector(t *testing.T, maxTotal int) func() map[string]manifest.Entry {
+	t.Helper()
+	_, trust, err := builtin.Paths()
+	if err != nil {
+		t.Fatal(err)
+	}
+	dir := t.TempDir()
+	yaml := `manifest_version: "1"
+name: slow_vendor
+capability: email
+default_confidence: 0.7
+auth:
+  type: header
+  param: X-Key
+  env_var: SLOWVENDOR_API_KEY
+request:
+  method: POST
+  url: https://slow.vendor.example/submit
+  body:
+    company: "{{input.company}}"
+poll:
+  request:
+    method: GET
+    url: https://slow.vendor.example/status/{{response.id}}
+  interval: 1
+  max_attempts: 60
+  max_total: ` + strconv.Itoa(maxTotal) + `
+  done_when: {path: $.status, equals: done}
+response:
+  mappings:
+    email: "$.email"
+`
+	if err := os.WriteFile(filepath.Join(dir, "slow_vendor.yaml"), []byte(yaml), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	env := map[string]string{credentials.ConnectorManifestsEnv: dir, credentials.ConnectorTrustStoreEnv: trust, credentials.ConnectorPolicyEnv: "optional"}
+	return credentials.ConnectorIndex(func(k string) (string, bool) { v, ok := env[k]; return v, ok }, nil)
+}
+
+// slowVendor answers the submit request with an id and every poll with "running" until `after`
+// has passed since the submit, then "done".
+func slowVendor(t *testing.T, after time.Duration) *vendorSim {
+	t.Helper()
+	var start time.Time
+	var mu sync.Mutex
+	return newVendorSim(t, func(_ string, body map[string]any) string {
+		mu.Lock()
+		defer mu.Unlock()
+		if body != nil { // the submit request carries a JSON body; polls are GETs
+			start = time.Now()
+			return `{"id":"job1"}`
+		}
+		if time.Since(start) < after {
+			return `{"status":"running"}`
+		}
+		return `{"status":"done","email":"a@slow.vendor.example"}`
+	})
+}
+
+// A polling manifest is bounded by its own poll.max_total, not by the workspace provider timeout:
+// with the default 10 s provider timeout (timeout argument 0) a vendor that needs 12 s succeeds.
+func TestPollingManifestSucceedsUnderDefaultProviderTimeout(t *testing.T) {
+	if testing.Short() {
+		t.Skip("takes about 13 s of real time")
+	}
+	sim := slowVendor(t, 12*time.Second)
+	r := providerrun.New(providerrun.Deps{HTTP: sim.client(), Secrets: wsSecrets{"ws1": {"SLOWVENDOR_API_KEY": "k"}},
+		Manifests: pollConnector(t, 30), URLCheck: func(string) error { return nil }})
+	in := providers.Input{Lead: map[string]any{"company": "Acme"}, Field: "email"}
+	start := time.Now()
+	out, err := r.Run(context.Background(), "ws1", "slow_vendor", in, 0)
+	if err != nil || out.Error != "" || out.Value != "a@slow.vendor.example" {
+		t.Fatalf("output %+v %v", out, err)
+	}
+	if el := time.Since(start); el < 12*time.Second {
+		t.Fatalf("finished after %v, before the vendor was done", el)
+	}
+}
+
+// A poll that legitimately uses up max_total is one "timeout"; a cancelled context ends the poll
+// as an infrastructure error, never as a timeout.
+func TestPollingManifestTimeoutAndCancellation(t *testing.T) {
+	sim := slowVendor(t, time.Hour)
+	r := providerrun.New(providerrun.Deps{HTTP: sim.client(), Secrets: wsSecrets{"ws1": {"SLOWVENDOR_API_KEY": "k"}},
+		Manifests: pollConnector(t, 2), URLCheck: func(string) error { return nil }})
+	in := providers.Input{Lead: map[string]any{"company": "Acme"}, Field: "email"}
+	out, err := r.Run(context.Background(), "ws1", "slow_vendor", in, 0)
+	if err != nil || out.Error != "timeout" {
+		t.Fatalf("exhausted poll: %+v %v", out, err)
+	}
+	if n := len(sim.calls()); n < 2 || n > 4 {
+		t.Fatalf("a 2 s poll made %d requests", n)
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	time.AfterFunc(300*time.Millisecond, cancel)
+	if out, err := r.Run(ctx, "ws1", "slow_vendor", in, 0); err == nil {
+		t.Fatalf("cancelled poll returned %+v, want an error", out)
 	}
 }

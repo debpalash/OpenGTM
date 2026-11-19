@@ -1,0 +1,21 @@
+{
+ "vendor": "attio",
+ "scenario": "invalid_email_shape",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "nope"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "Lead has no email — required for Attio person"
+ }
+}

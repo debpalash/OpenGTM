@@ -1,0 +1,49 @@
+{
+  "docs": [
+    "https://api.contactout.com/ (Contact Info API - Single from LinkedIn Profile)",
+    "The docs show a placeholder ('phone number 1'); the fixture uses an example number in the documented shape. The empty-arrays body is built from the documented field list."
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.contactout.com",
+    "path": "/v1/people/linkedin",
+    "query": {
+      "profile": "https://www.linkedin.com/in/ada-lovelace",
+      "include_phone": "true",
+      "email_type": "none"
+    },
+    "headers": {
+      "token": "test-key-123"
+    },
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "hit",
+      "status": 200,
+      "file": "hit.json",
+      "fields": {
+        "phone": "+14155550100"
+      }
+    },
+    {
+      "name": "no_phone",
+      "status": 200,
+      "file": "no_phone.json",
+      "error": "no_data"
+    },
+    {
+      "name": "vendor_error",
+      "status": 404,
+      "file": "error.json",
+      "error": "http_404"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

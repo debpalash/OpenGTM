@@ -1,0 +1,20 @@
+{
+ "vendor": "lemlist",
+ "scenario": "add_no_key",
+ "call": {
+  "function": "add_lead_to_campaign",
+  "args": {
+   "campaign_id": "cam_abc123",
+   "lead": {
+    "email": "a@b.co"
+   }
+  }
+ },
+ "secrets": {},
+ "http_exchanges": [],
+ "sleeps": [],
+ "result": {
+  "success": false,
+  "error": "lemlist not connected (set LEMLIST_API_KEY)"
+ }
+}

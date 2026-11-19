@@ -153,6 +153,7 @@ func RegisterAll(r *httpx.Router, d Deps) {
 	RegisterRecords(r, d)
 	RegisterAnalytics(r, d)
 	RegisterSystem(r, d)
+	RegisterOnboarding(r, d)
 	RegisterLeads(r, d)
 	RegisterSignals(r, d)
 	RegisterEvents(r, d)

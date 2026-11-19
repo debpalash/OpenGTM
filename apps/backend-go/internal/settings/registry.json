@@ -156,6 +156,18 @@
       "icon": "🌊",
       "openai_compatible": true
     },
+    "openai": {
+      "name": "OpenAI",
+      "env_key": "OPENAI_API_KEY",
+      "env_url": "OPENAI_BASE_URL",
+      "env_model": "OPENAI_MODEL",
+      "default_url": "https://api.openai.com/v1",
+      "default_model": "gpt-6-luna",
+      "docs": "https://platform.openai.com/api-keys",
+      "free_tier": "Paid (gpt-6-luna: $0.10 / $0.50 per 1M tok)",
+      "icon": "🧠",
+      "openai_compatible": true
+    },
     "custom_openai": {
       "name": "Custom OpenAI Compatible",
       "env_key": "CUSTOM_OPENAI_API_KEY",
@@ -224,6 +236,134 @@
       "capability": "Company / people research, profile lookup and workforce",
       "free_tier": "Paid credits; each action is opt-in",
       "docs": "https://docs.companyenrich.com/reference",
+      "icon": "🏢"
+    },
+    "anymail_finder": {
+      "name": "Anymail Finder",
+      "env_key": "ANYMAIL_FINDER_API_KEY",
+      "capability": "Email Finder + Verifier",
+      "free_tier": "Paid, API key required",
+      "docs": "https://anymailfinder.com/email-finder-api/docs",
+      "icon": "📬"
+    },
+    "bouncer": {
+      "name": "Bouncer",
+      "env_key": "BOUNCER_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.usebouncer.com/",
+      "icon": "🛡"
+    },
+    "millionverifier": {
+      "name": "MillionVerifier",
+      "env_key": "MILLIONVERIFIER_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developer.millionverifier.com/",
+      "icon": "✅"
+    },
+    "findymail": {
+      "name": "Findymail",
+      "env_key": "FINDYMAIL_API_KEY",
+      "capability": "Email, Phone + LinkedIn Finder",
+      "free_tier": "Paid, API key required",
+      "docs": "https://app.findymail.com/docs/",
+      "icon": "🔎"
+    },
+    "contactout": {
+      "name": "ContactOut",
+      "env_key": "CONTACTOUT_API_KEY",
+      "capability": "Email + Phone from LinkedIn",
+      "free_tier": "Paid, API key required",
+      "docs": "https://api.contactout.com/",
+      "icon": "👤"
+    },
+    "leadmagic": {
+      "name": "LeadMagic",
+      "env_key": "LEADMAGIC_API_KEY",
+      "capability": "Email, Mobile + Company Finder",
+      "free_tier": "Paid, API key required",
+      "docs": "https://leadmagic.io",
+      "icon": "🧲"
+    },
+    "prospeo": {
+      "name": "Prospeo",
+      "env_key": "PROSPEO_API_KEY",
+      "capability": "Email + Mobile Finder",
+      "free_tier": "75 credits/month",
+      "docs": "https://prospeo.io",
+      "icon": "🔭"
+    },
+    "tomba": {
+      "name": "Tomba",
+      "env_key": "TOMBA_API_KEY",
+      "capability": "Email Finder + Verifier (API key)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.tomba.io/authentication",
+      "icon": "📧"
+    },
+    "tomba_secret": {
+      "name": "Tomba Secret",
+      "env_key": "TOMBA_SECRET_KEY",
+      "capability": "Secret for the Tomba API key",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.tomba.io/authentication",
+      "icon": "🔐"
+    },
+    "neverbounce": {
+      "name": "NeverBounce",
+      "env_key": "NEVERBOUNCE_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developers.neverbounce.com/",
+      "icon": "🛡"
+    },
+    "emailable": {
+      "name": "Emailable",
+      "env_key": "EMAILABLE_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://emailable.com/docs/api",
+      "icon": "📮"
+    },
+    "kickbox": {
+      "name": "Kickbox",
+      "env_key": "KICKBOX_API_KEY",
+      "capability": "Email Verification",
+      "free_tier": "Paid, API key required",
+      "docs": "https://docs.kickbox.com/",
+      "icon": "🥊"
+    },
+    "icypeas": {
+      "name": "Icypeas",
+      "env_key": "ICYPEAS_API_KEY",
+      "capability": "Email Finder (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://api-doc.icypeas.com/",
+      "icon": "🧊"
+    },
+    "dropcontact": {
+      "name": "Dropcontact",
+      "env_key": "DROPCONTACT_API_KEY",
+      "capability": "Email Finder (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://developer.dropcontact.com/en/reference/",
+      "icon": "💧"
+    },
+    "bettercontact": {
+      "name": "BetterContact",
+      "env_key": "BETTERCONTACT_API_KEY",
+      "capability": "Email + Phone Waterfall (asynchronous)",
+      "free_tier": "Paid, API key required",
+      "docs": "https://doc.bettercontact.rocks/",
+      "icon": "🤝"
+    },
+    "thecompaniesapi": {
+      "name": "The Companies API",
+      "env_key": "THECOMPANIESAPI_API_KEY",
+      "capability": "Company Size + Description",
+      "free_tier": "Paid, API key required",
+      "docs": "https://www.thecompaniesapi.com/api/authentication",
       "icon": "🏢"
     }
   },
@@ -335,6 +475,48 @@
           "label": "Marketing API Access Token",
           "secret": true,
           "placeholder": "AQX..."
+        }
+      ]
+    },
+    {
+      "id": "heyreach",
+      "name": "HeyReach",
+      "icon": "heyreach",
+      "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
+      "fields": [
+        {
+          "key": "HEYREACH_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "HeyReach API key"
+        }
+      ]
+    },
+    {
+      "id": "lemlist",
+      "name": "lemlist",
+      "icon": "lemlist",
+      "description": "Add leads to a lemlist email campaign (audience destination).",
+      "fields": [
+        {
+          "key": "LEMLIST_API_KEY",
+          "label": "API Key",
+          "secret": true,
+          "placeholder": "lemlist API key"
+        }
+      ]
+    },
+    {
+      "id": "attio",
+      "name": "Attio",
+      "icon": "attio",
+      "description": "Upsert leads as Attio people, linked to their company (audience destination).",
+      "fields": [
+        {
+          "key": "ATTIO_ACCESS_TOKEN",
+          "label": "Access Token",
+          "secret": true,
+          "placeholder": "Attio access token"
         }
       ]
     }
@@ -564,6 +746,32 @@
         "free": true
       }
     ],
+    "openai": [
+      {
+        "id": "gpt-6-luna",
+        "name": "GPT-6 Luna",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.1-terra",
+        "name": "GPT-6.1 Terra",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.2-sol",
+        "name": "GPT-6.2 Sol",
+        "context": 1050000,
+        "free": false
+      },
+      {
+        "id": "gpt-6.2-astra",
+        "name": "GPT-6.2 Astra",
+        "context": 1050000,
+        "free": false
+      }
+    ],
     "github_models": [
       {
         "id": "gpt-4o",
@@ -663,31 +871,51 @@
     "ABSTRACT_API_KEY",
     "AIRTABLE_TOKEN",
     "ANTHROPIC_API_KEY",
+    "ANYMAIL_FINDER_API_KEY",
     "APOLLO_API_KEY",
+    "ATTIO_ACCESS_TOKEN",
+    "BETTERCONTACT_API_KEY",
+    "BOUNCER_API_KEY",
     "CEREBRAS_API_KEY",
     "CLOUDFLARE_API_KEY",
     "COHERE_API_KEY",
     "COMPANYENRICH_API_KEY",
+    "CONTACTOUT_API_KEY",
     "CUSTOM_OPENAI_API_KEY",
+    "DROPCONTACT_API_KEY",
+    "EMAILABLE_API_KEY",
+    "FINDYMAIL_API_KEY",
     "GITHUB_MODELS_API_KEY",
     "GOOGLE_ADS_ACCESS_TOKEN",
     "GOOGLE_ADS_DEVELOPER_TOKEN",
     "GOOGLE_AI_API_KEY",
     "GOOGLE_SHEETS_TOKEN",
     "GROQ_API_KEY",
+    "HEYREACH_API_KEY",
     "HUBSPOT_TOKEN",
     "HUGGINGFACE_API_KEY",
     "HUNTER_API_KEY",
+    "ICYPEAS_API_KEY",
     "IPINFO_TOKEN",
+    "KICKBOX_API_KEY",
+    "LEADMAGIC_API_KEY",
+    "LEMLIST_API_KEY",
     "LINKEDIN_ACCESS_TOKEN",
     "META_ACCESS_TOKEN",
+    "MILLIONVERIFIER_API_KEY",
     "MISTRAL_API_KEY",
+    "NEVERBOUNCE_API_KEY",
     "NUMVERIFY_API_KEY",
     "NVIDIA_API_KEY",
+    "OPENAI_API_KEY",
     "OPENROUTER_API_KEY",
+    "PROSPEO_API_KEY",
     "SALESFORCE_ACCESS_TOKEN",
     "SAMBANOVA_API_KEY",
     "SCAVIO_API_KEY",
-    "SILICONFLOW_API_KEY"
+    "SILICONFLOW_API_KEY",
+    "THECOMPANIESAPI_API_KEY",
+    "TOMBA_API_KEY",
+    "TOMBA_SECRET_KEY"
   ]
 }

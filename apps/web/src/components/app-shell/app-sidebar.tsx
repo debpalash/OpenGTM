@@ -1,14 +1,16 @@
 import { type FormEvent, useEffect, useRef, useState } from "react"
+import { roleLabel } from "@/lib/role-label"
+import { useConfirm } from "@/components/dialog-provider"
 import { NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
   ArrowUp, Building2, Check, ChevronRight, ChevronsUpDown, Keyboard, LogOut, Monitor, Moon,
-  MoreHorizontal, Search, Settings, SquarePen, Sun, Trash2,
+  MoreHorizontal, Search, SquarePen, Sun, Trash2,
 } from "lucide-react"
 import { toast } from "sonner"
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel,
   SidebarGroupContent, SidebarHeader, SidebarInput, SidebarMenu, SidebarMenuAction,
-  SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
+  SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
 } from "@/components/ui/sidebar"
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel,
@@ -24,7 +26,8 @@ import { useTheme, type ThemePreference } from "@/design-system/theme/use-theme"
 import { useUIScale, type UIScalePreference } from "@/design-system/theme/use-ui-scale"
 import { deleteConversation } from "@/lib/api"
 import { queryClient, queryKeys } from "@/lib/query-client"
-import { NAVIGATION_GROUPS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
+import { NAVIGATION_AREAS, isNavigationActive, OPEN_COMMAND_MENU_EVENT, OPEN_SHORTCUTS_EVENT } from "./navigation"
+import { NavAreas, useAreaDisclosure } from "./nav-areas"
 import "./shell.css"
 
 const RECENT_LIMIT = 8
@@ -32,6 +35,7 @@ const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigat
 const initials = (name: string) => name.split(/[\s._-]+/).filter(Boolean).slice(0, 2).map(part => part[0]!.toUpperCase()).join("") || "?"
 
 export function AppSidebar() {
+  const confirm = useConfirm()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [params] = useSearchParams()
@@ -44,7 +48,7 @@ export function AppSidebar() {
   const [switching, setSwitching] = useState(false)
   const [chatSearch, setChatSearch] = useState("")
   const [historyOpen, setHistoryOpen] = useState(true)
-  const [closedGroups, setClosedGroups] = useState(() => new Set<string>())
+  const disclosure = useAreaDisclosure(pathname)
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newChatDraft, setNewChatDraft] = useState("")
   const newChatInput = useRef<HTMLInputElement>(null)
@@ -52,6 +56,7 @@ export function AppSidebar() {
   const matching = (conversations ?? []).filter(chat => chat.title.toLowerCase().includes(chatSearch.toLowerCase()))
   const recent = chatSearch ? matching : matching.slice(0, RECENT_LIMIT)
   const activeWorkspace = workspaces.find(workspace => workspace.id === activeWorkspaceId)
+  const iconOnly = state === "collapsed" && !isMobile
   const closeMobile = () => { if (isMobile) setOpenMobile(false) }
   const go = (to: string) => { navigate(to); closeMobile() }
 
@@ -81,8 +86,8 @@ export function AppSidebar() {
     finally { setSwitching(false) }
   }
 
-  async function removeChat(id: string) {
-    if (!confirm("Delete this conversation?")) return
+  async function removeChat(id: string, title: string) {
+    if (!await confirm({ title: `Delete conversation “${title || "Untitled chat"}”?`, description: "This cannot be undone.", confirmLabel: "Delete conversation", destructive: true })) return
     try {
       await deleteConversation(id)
       await queryClient.invalidateQueries({ queryKey: queryKeys.conversations.all })
@@ -134,40 +139,37 @@ export function AppSidebar() {
 
     <SidebarContent>
       <nav aria-label="Primary navigation">
-        {NAVIGATION_GROUPS.map(group => <SidebarGroup key={group.label}>
-          <SidebarGroupLabel render={group.label === "Workspace" ? undefined : <button type="button" aria-expanded={!closedGroups.has(group.label)} onClick={() => setClosedGroups(previous => { const next = new Set(previous); if (next.has(group.label)) next.delete(group.label); else next.add(group.label); return next })} />}>
-            {group.label}{group.label !== "Workspace" && <ChevronRight aria-hidden="true" className={`ml-auto size-3.5 transition-transform ${closedGroups.has(group.label) ? "" : "rotate-90"}`} />}
-          </SidebarGroupLabel>
-          {(!closedGroups.has(group.label) || state === "collapsed") && <SidebarGroupContent><SidebarMenu>
-            {group.items.map(item => <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
-                render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
-                <item.icon aria-hidden="true" /><span>{item.label}</span>
+        <SidebarGroup><SidebarMenu>
+          {NAVIGATION_AREAS.filter(area => area.placement === "top").map(area => area.pages[0]!).map(item => <SidebarMenuItem key={item.to}>
+            <SidebarMenuButton isActive={isNavigationActive(pathname, item.to)} tooltip={item.label}
+              className={item.to === "/chat" ? "gtm-nav-assistant" : undefined}
+              render={<NavLink to={item.to} />} onClick={() => { setNewChatOpen(false); closeMobile() }}>
+              <item.icon aria-hidden="true" /><span>{item.label}</span>
+            </SidebarMenuButton>
+            {item.to === "/chat" && <>
+              <SidebarMenuAction aria-label="New chat" aria-expanded={newChatOpen} aria-controls="sidebar-new-chat"
+                onClick={toggleNewChat} title="New chat">
+                <SquarePen aria-hidden="true" />
+              </SidebarMenuAction>
+              <SidebarMenuButton tooltip="New chat" aria-label="New chat"
+                className="mt-1 hidden group-data-[collapsible=icon]:flex!" onClick={toggleNewChat}>
+                <SquarePen aria-hidden="true" /><span>New chat</span>
               </SidebarMenuButton>
-              {item.to === "/chat" && <>
-                <SidebarMenuAction aria-label="New chat" aria-expanded={newChatOpen} aria-controls="sidebar-new-chat"
-                  onClick={toggleNewChat} title="New chat">
-                  <SquarePen aria-hidden="true" />
-                </SidebarMenuAction>
-                <SidebarMenuButton tooltip="New chat" aria-label="New chat"
-                  className="mt-1 hidden group-data-[collapsible=icon]:flex!" onClick={toggleNewChat}>
-                  <SquarePen aria-hidden="true" /><span>New chat</span>
-                </SidebarMenuButton>
-                {newChatOpen && <form id="sidebar-new-chat" onSubmit={openNewChat}
-                    className="flex items-center gap-1 px-2 pb-2 pt-1 group-data-[collapsible=icon]:hidden">
-                  <SidebarInput ref={newChatInput} aria-label="New chat prompt" placeholder="Ask anything…" required
-                    value={newChatDraft} onChange={event => setNewChatDraft(event.target.value)}
-                    onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); setNewChatOpen(false); setNewChatDraft("") } }} />
-                  <button type="submit" aria-label="Open new chat" title="Open new chat" disabled={!newChatDraft.trim()}
-                    className="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:opacity-40">
-                    <ArrowUp className="size-4" aria-hidden="true" />
-                  </button>
-                </form>}
-              </>}
-              {item.to === "/agents" && activeJobs > 0 && <SidebarMenuBadge aria-label={`${activeJobs} active tasks`}>{activeJobs}</SidebarMenuBadge>}
-            </SidebarMenuItem>)}
-          </SidebarMenu></SidebarGroupContent>}
-        </SidebarGroup>)}
+              {newChatOpen && <form id="sidebar-new-chat" onSubmit={openNewChat}
+                  className="flex items-center gap-1 px-2 pb-2 pt-1 group-data-[collapsible=icon]:hidden">
+                <SidebarInput ref={newChatInput} aria-label="New chat prompt" placeholder="Ask anything…" required
+                  value={newChatDraft} onChange={event => setNewChatDraft(event.target.value)}
+                  onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); setNewChatOpen(false); setNewChatDraft("") } }} />
+                <button type="submit" aria-label="Open new chat" title="Open new chat" disabled={!newChatDraft.trim()}
+                  className="flex size-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground hover:opacity-85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sidebar-ring disabled:opacity-40">
+                  <ArrowUp className="size-4" aria-hidden="true" />
+                </button>
+              </form>}
+            </>}
+          </SidebarMenuItem>)}
+        </SidebarMenu></SidebarGroup>
+        <NavAreas areas={NAVIGATION_AREAS.filter(area => area.placement === "main")} pathname={pathname}
+          iconOnly={iconOnly} disclosure={disclosure} activeTasks={activeJobs} onNavigate={() => { setNewChatOpen(false); closeMobile() }} />
       </nav>
 
       <SidebarGroup role="region" aria-label="Recent chats navigation" className="group-data-[collapsible=icon]:hidden">
@@ -192,7 +194,7 @@ export function AppSidebar() {
                 <MoreHorizontal aria-hidden="true" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="right" align="start">
-                <DropdownMenuItem variant="destructive" onClick={() => void removeChat(chat.id)}>
+                <DropdownMenuItem variant="destructive" onClick={() => void removeChat(chat.id, chat.title)}>
                   <Trash2 aria-hidden="true" />Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -205,6 +207,10 @@ export function AppSidebar() {
 
     {/* Account menu (shadcn "nav user") */}
     <SidebarFooter>
+      <nav aria-label="Admin navigation">
+        <NavAreas areas={NAVIGATION_AREAS.filter(area => area.placement === "footer")} pathname={pathname}
+          iconOnly={iconOnly} disclosure={disclosure} activeTasks={0} onNavigate={closeMobile} />
+      </nav>
       <SidebarMenu><SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger title="Account menu" render={<SidebarMenuButton size="lg" className="data-popup-open:bg-sidebar-accent" />}>
@@ -213,15 +219,12 @@ export function AppSidebar() {
             </Avatar>
             <span className="grid min-w-0 flex-1 text-left leading-tight">
               <span className="truncate text-sm font-medium">{user?.username ?? "Signed out"}</span>
-              <span className="truncate text-xs capitalize text-muted-foreground">{user?.role ?? ""}</span>
+              <span className="truncate text-xs text-muted-foreground">{roleLabel(user?.role)}</span>
             </span>
             <ChevronsUpDown className="ml-auto size-4 opacity-50" aria-hidden="true" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" side={isMobile ? "top" : "right"} sideOffset={8} className="gtm-account-menu min-w-64">
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => go("/leads")}><MoreHorizontal aria-hidden="true" />Legacy data</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => go("/settings")}><Settings aria-hidden="true" />Settings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => go("/agency")}><Building2 aria-hidden="true" />Manage workspaces</DropdownMenuItem>
               <DropdownMenuItem onClick={() => window.dispatchEvent(new Event(OPEN_SHORTCUTS_EVENT))}>
                 <Keyboard aria-hidden="true" />Keyboard shortcuts<DropdownMenuShortcut>?</DropdownMenuShortcut>
               </DropdownMenuItem>
@@ -242,13 +245,13 @@ export function AppSidebar() {
               </DropdownMenuRadioGroup>
             </DropdownMenuGroup>
             <DropdownMenuSub>
-              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs text-muted-foreground">{uiScale.percent}%</span></DropdownMenuSubTrigger>
+              <DropdownMenuSubTrigger><Monitor aria-hidden="true" />UI scale<span className="ml-auto text-xs">{uiScale.percent}%</span></DropdownMenuSubTrigger>
               <DropdownMenuSubContent className="gtm-account-menu min-w-56" sideOffset={6}>
                 <DropdownMenuRadioGroup value={uiScale.preference}
                   onValueChange={value => uiScale.setPreference(value as UIScalePreference)}>
-                  <DropdownMenuRadioItem value="auto">Auto · fit window</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="85">Compact · 85%</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="100">Comfortable · 100%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="auto">Default · 100%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="90">Compact · 90%</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="110">Large · 110%</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuSubContent>
             </DropdownMenuSub>

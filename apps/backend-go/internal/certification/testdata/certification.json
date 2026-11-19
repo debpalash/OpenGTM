@@ -8059,6 +8059,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -8159,6 +8175,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -9095,6 +9145,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -9195,6 +9261,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -10092,6 +10192,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -10192,6 +10308,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -11089,6 +11239,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -11189,6 +11355,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -12652,6 +12852,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -12752,6 +12968,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -13421,6 +13671,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -13521,6 +13787,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -13989,6 +14289,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14089,6 +14405,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -14220,6 +14570,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14320,6 +14686,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -14451,6 +14851,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14551,6 +14967,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -14730,6 +15180,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -14830,6 +15296,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"
@@ -15009,6 +15509,22 @@
      "certification": null
     },
     {
+     "id": "attio",
+     "category": "crm",
+     "capabilities": [
+      "outbound"
+     ],
+     "required_checks": [
+      "authentication",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
      "id": "warehouse_http",
      "category": "warehouse",
      "capabilities": [
@@ -15109,6 +15625,40 @@
     },
     {
      "id": "smartlead",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "heyreach",
+     "category": "sequencer",
+     "capabilities": [
+      "campaign_enroll"
+     ],
+     "required_checks": [
+      "authentication",
+      "campaign_enrollment",
+      "external_write",
+      "idempotency",
+      "retry_recovery",
+      "tenant_isolation"
+     ],
+     "maturity": "beta",
+     "certification": null
+    },
+    {
+     "id": "lemlist",
      "category": "sequencer",
      "capabilities": [
       "campaign_enroll"

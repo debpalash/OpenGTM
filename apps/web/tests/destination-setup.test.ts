@@ -76,8 +76,11 @@ test("every supported type builds an explicit enablement choice and its own conf
     },
     hubspot: {},
     salesforce: {},
+    attio: {},
     instantly: { campaign_id: "campaign1" },
     smartlead: { campaign_id: "campaign2" },
+    heyreach: { campaign_id: "235", linkedin_account_id: "123" },
+    lemlist: { campaign_id: "cam_abc" },
     google_sheets: { spreadsheet_id: "sheet1" },
     airtable: { base_id: "base1", table: "People" },
     slack: { webhook_secret_ref: "slack" },
@@ -257,6 +260,22 @@ test("catalog validation never invents availability or supported certification",
       types: [{ ...type, maturity: "supported", certification: certificate }]
     })[0]!.maturity
   ).toBe("supported")
+})
+
+test("HeyReach and lemlist are known catalog types with their own config fields", () => {
+  for (const id of ["heyreach", "lemlist"]) {
+    const t = { ...type, id, category: "sequencer", capabilities: ["campaign_enroll"] }
+    expect(validateSetupCatalog({ types: [t] })).toEqual([t])
+  }
+  const hr = destinationInput(
+    "aud",
+    draft("heyreach", { campaign_id: "235", linkedin_account_id: "123" })
+  )
+  expect(hr.destination_type).toBe("heyreach")
+  expect(hr.config).toEqual({ campaign_id: "235", linkedin_account_id: "123" })
+  const ll = destinationInput("aud", draft("lemlist", { campaign_id: "cam_abc" }))
+  expect(ll.config).toEqual({ campaign_id: "cam_abc" })
+  expect(() => destinationInput("aud", draft("heyreach", { campaign_id: "235" }))).toThrow()
 })
 
 test("creation review detects scope, target, schedule, membership and certification changes", () => {

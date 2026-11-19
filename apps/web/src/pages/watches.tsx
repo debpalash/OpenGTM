@@ -282,19 +282,13 @@ function WatchRow({
 
   return (
     <div
-      role="button"
-      tabIndex={0}
       onClick={() => onOpen(watch.id)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault()
-          onOpen(watch.id)
-        }
-      }}
       className="group flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2.5 text-xs transition-colors hover:bg-muted/50"
     >
       <StatusDot status={watch.enabled ? "enabled" : "disabled"} />
-      <span className="min-w-0 flex-1 truncate font-medium">{watch.target}</span>
+      {/* The row is clickable for pointer users; this button is the keyboard and
+          screen-reader entry point (its click bubbles to the row handler). */}
+      <button type="button" className="min-w-0 flex-1 truncate text-left font-medium">{watch.target}</button>
       <Badge variant="secondary" className="shrink-0 text-xs">
         {KIND_LABELS[watch.kind]}
       </Badge>
@@ -302,7 +296,7 @@ function WatchRow({
         {watch.interval}
       </span>
       {watch.enabled && nextPoll && (
-        <span className="shrink-0 text-xs text-muted-foreground/70">
+        <span className="shrink-0 text-xs text-muted-foreground">
           {nextPoll}
         </span>
       )}
@@ -318,10 +312,12 @@ function WatchRow({
       )}
 
       <DropdownMenu>
-        <DropdownMenuTrigger onClick={(e) => e.stopPropagation()}>
-          <span className="rounded p-1 opacity-0 transition-colors hover:bg-muted group-hover:opacity-100">
-            <MoreHorizontal className="size-4" />
-          </span>
+        <DropdownMenuTrigger
+          aria-label={`Actions for ${watch.target}`}
+          onClick={(e) => e.stopPropagation()}
+          className="inline-flex size-7 items-center justify-center rounded opacity-0 transition-colors hover:bg-muted focus-visible:opacity-100 group-hover:opacity-100 data-popup-open:opacity-100"
+        >
+          <MoreHorizontal className="size-4" aria-hidden="true" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem

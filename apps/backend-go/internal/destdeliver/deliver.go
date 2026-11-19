@@ -310,12 +310,12 @@ func (d *Deliverer) deliver(ctx context.Context, dest Destination, leadID int, s
 			return notWired(dest.Type)
 		}
 		return d.webhook(ctx, dest, leadID, snapshot, mapped, idem, sec)
-	case "hubspot", "salesforce":
+	case "hubspot", "salesforce", "attio":
 		if d.ports.CRM == nil {
 			return notWired(dest.Type)
 		}
 		return d.crm(ctx, dest, leadID, snapshot)
-	case "instantly", "smartlead":
+	case "instantly", "smartlead", "heyreach", "lemlist":
 		return d.campaign(ctx, dest, leadID, mapped, sec)
 	case "google_sheets":
 		return d.sheets(ctx, dest, leadID, mapped, sec)

@@ -15,6 +15,9 @@ type AuthSpec struct {
 	EnvVar string `json:"env_var"`
 	// ExtraEnv lists additional ${env:NAME} variables the manifest may template.
 	ExtraEnv []string `json:"extra_env"`
+	// Secondary is an optional second credential (Go-only extension; absent = none), for vendors
+	// that want a key plus a secret. It is resolved like env_var and is never readable by templates.
+	Secondary *SecondaryAuth `json:"secondary"`
 }
 
 // RequestSpec mirrors RequestSpec. Header/query values and the body template
@@ -27,6 +30,9 @@ type RequestSpec struct {
 	Query        map[string]any `json:"query"`
 	BodyTemplate any            `json:"body_template"`
 	Timeout      float64        `json:"timeout"` // seconds
+	// OmitEmpty names headers, query parameters and top-level body keys that are left out of the
+	// request when their rendered value is the empty string (Go-only extension; absent = none).
+	OmitEmpty []string `json:"omit_empty"`
 }
 
 // ResponseSpec mirrors ResponseSpec.
@@ -34,6 +40,22 @@ type ResponseSpec struct {
 	ErrorPath        string            `json:"error_path"`
 	ErrorMessagePath string            `json:"error_message_path"`
 	Mappings         map[string]string `json:"mappings"`
+	// ValueMaps translates the projected value of a mapped field (Go-only extension; absent =
+	// values pass through unchanged).
+	ValueMaps map[string]ValueMap `json:"value_maps"`
+	// SuccessWhen, when set, must hold for the response to count as a hit (Go-only extension): a
+	// 200 whose status field says otherwise becomes a miss or an error.
+	SuccessWhen *Cond `json:"success_when"`
+}
+
+// ValueMap translates one mapped field's value. Values maps the vendor's text (exact,
+// case-sensitive match on the value as text) to the text to store. Default, when set, is stored
+// for any vendor value not in Values; when nil an unlisted value passes through. Both sides are
+// literals: they are never rendered as templates. A missing or empty vendor value is not mapped
+// (the field stays absent and the result is no_data).
+type ValueMap struct {
+	Values  map[string]string `json:"values"`
+	Default *string           `json:"default"`
 }
 
 // Manifest mirrors ProviderManifest.model_dump(mode="json"). Decode it from
@@ -54,7 +76,10 @@ type Manifest struct {
 	Auth              AuthSpec     `json:"auth"`
 	Request           RequestSpec  `json:"request"`
 	Response          ResponseSpec `json:"response"`
-	InputFields       []string     `json:"input_fields"`
+	// Poll, when set, makes the call asynchronous (Go-only extension): a second request is
+	// repeated until its response says done or failed, and that response is the one mapped.
+	Poll        *PollSpec `json:"poll"`
+	InputFields []string  `json:"input_fields"`
 }
 
 type rawRequest struct {
@@ -64,6 +89,7 @@ type rawRequest struct {
 	Query        map[string]json.RawMessage `json:"query"`
 	BodyTemplate json.RawMessage            `json:"body_template"`
 	Timeout      *float64                   `json:"timeout"`
+	OmitEmpty    []string                   `json:"omit_empty"`
 }
 
 // UnmarshalJSON applies the Pydantic defaults (method POST, timeout 20.0) and
@@ -73,7 +99,7 @@ func (r *RequestSpec) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &raw); err != nil {
 		return err
 	}
-	out := RequestSpec{Method: "POST", URL: raw.URL, Timeout: 20.0}
+	out := RequestSpec{Method: "POST", URL: raw.URL, Timeout: 20.0, OmitEmpty: raw.OmitEmpty}
 	if raw.Method != nil {
 		out.Method = *raw.Method
 	}
@@ -130,4 +156,7 @@ type Result struct {
 	DurationMS float64
 	Error      string
 	HTTPStatus int
+	// Requests is how many HTTP requests the lookup made (the submit plus any poll requests). The
+	// caller still treats it as one lookup for cost and budget.
+	Requests int
 }

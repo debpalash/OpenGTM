@@ -1,0 +1,80 @@
+{
+  "docs": [
+    "https://developers.neverbounce.com/reference/single-check",
+    "https://developers.neverbounce.com/reference/authentication"
+  ],
+  "request": {
+    "method": "GET",
+    "host": "api.neverbounce.com",
+    "path": "/v4.2/single/check",
+    "query": {
+      "key": "test-key-123",
+      "email": "ada@acme.com"
+    },
+    "headers": {},
+    "body": null
+  },
+  "responses": [
+    {
+      "name": "valid",
+      "status": 200,
+      "file": "valid.json",
+      "fields": {
+        "email_verify": "valid"
+      }
+    },
+    {
+      "name": "invalid",
+      "status": 200,
+      "file": "invalid.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "disposable_is_invalid",
+      "status": 200,
+      "file": "disposable.json",
+      "fields": {
+        "email_verify": "invalid"
+      }
+    },
+    {
+      "name": "catchall_is_catch_all",
+      "status": 200,
+      "file": "catchall.json",
+      "fields": {
+        "email_verify": "catch_all"
+      }
+    },
+    {
+      "name": "unknown",
+      "status": 200,
+      "file": "unknown.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "unlisted_word_is_unknown",
+      "status": 200,
+      "file": "other.json",
+      "fields": {
+        "email_verify": "unknown"
+      }
+    },
+    {
+      "name": "non_success_status_is_a_miss",
+      "status": 200,
+      "file": "auth_failure.json",
+      "error": "no_data"
+    }
+  ],
+  "credential": "test-key-123",
+  "lead": {
+    "website": "https://www.acme.com/about",
+    "contact_person": "Ada Lovelace",
+    "email": "ada@acme.com",
+    "linkedin_url": "https://www.linkedin.com/in/ada-lovelace"
+  }
+}

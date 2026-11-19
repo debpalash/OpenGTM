@@ -14,7 +14,7 @@ export default function SetupPage() {
       </div>
     )
   }
-  if (user) return <Navigate to="/chat" replace />
+  if (user) return <Navigate to="/overview" replace />
   if (!setupRequired) return <Navigate to="/login" replace />
   return <LoginPage setup />
 }

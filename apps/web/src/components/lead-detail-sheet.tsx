@@ -1,4 +1,5 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet"
+import { useConfirm } from "@/components/dialog-provider"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -56,6 +57,7 @@ function signals(lead: Lead): { channel: Channel; label: string; active: boolean
 }
 
 export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDelete }: Props) {
+  const confirm = useConfirm()
   if (!lead) return null
 
   const handleStatus = async (status: string) => {
@@ -64,7 +66,7 @@ export function LeadDetailSheet({ lead, open, onOpenChange, onStatusChange, onDe
   }
 
   const handleDelete = async () => {
-    if (!confirm(`Delete ${lead.company}?`)) return
+    if (!await confirm({ title: `Delete lead “${lead.company}”?`, description: "This cannot be undone.", confirmLabel: "Delete lead", destructive: true })) return
     await deleteLead(lead.id)
     onDelete()
   }

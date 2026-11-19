@@ -1,0 +1,83 @@
+{
+ "vendor": "attio",
+ "scenario": "upsert_full",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "id": 11,
+    "company": "Acme 01",
+    "email": "info@acme01.example.com",
+    "phone": "+1 (555) 010-0101",
+    "website": "https://www.Acme01.example.com/pricing?x=1",
+    "city": "Austin",
+    "contact_person": "Ada King Lovelace",
+    "contact_title": "CTO",
+    "linkedin_url": "https://www.linkedin.com/in/ada",
+    "score": 80
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"info@acme01.example.com\"],\"name\":{\"first_name\":\"Ada\",\"last_name\":\"King Lovelace\",\"full_name\":\"Ada King Lovelace\"},\"phone_numbers\":[\"+1 (555) 010-0101\"],\"job_title\":\"CTO\",\"linkedin\":\"https://www.linkedin.com/in/ada\",\"company\":[{\"target_object\":\"companies\",\"match\":{\"domains\":[\"acme01.example.com\"]},\"if_unmatched\":\"create\",\"create\":{\"name\":\"Acme 01\"}}]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "info@acme01.example.com"
+       ],
+       "name": {
+        "first_name": "Ada",
+        "last_name": "King Lovelace",
+        "full_name": "Ada King Lovelace"
+       },
+       "phone_numbers": [
+        "+1 (555) 010-0101"
+       ],
+       "job_title": "CTO",
+       "linkedin": "https://www.linkedin.com/in/ada",
+       "company": [
+        {
+         "target_object": "companies",
+         "match": {
+          "domains": [
+           "acme01.example.com"
+          ]
+         },
+         "if_unmatched": "create",
+         "create": {
+          "name": "Acme 01"
+         }
+        }
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 200,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"id\":{\"workspace_id\":\"w1\",\"object_id\":\"o1\",\"record_id\":\"9c1f2a60-0000-4000-8000-000000000001\"},\"created_at\":\"2026-11-19T00:00:00.000000000Z\",\"web_url\":\"https://app.attio.com/x\",\"values\":{}}}"
+   }
+  }
+ ],
+ "sleeps": [],
+ "result": {
+  "success": true,
+  "action": "upserted",
+  "attio_id": "9c1f2a60-0000-4000-8000-000000000001"
+ }
+}

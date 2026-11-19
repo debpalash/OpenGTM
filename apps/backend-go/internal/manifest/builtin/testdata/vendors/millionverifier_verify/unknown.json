@@ -1,0 +1,14 @@
+{
+  "email": "test@example.com",
+  "quality": "",
+  "result": "unknown",
+  "resultcode": 3,
+  "subresult": "unknown",
+  "free": false,
+  "role": false,
+  "didyoumean": "bademail@gmail.com",
+  "credits": 3454,
+  "executiontime": 2,
+  "error": "",
+  "livemode": true
+}

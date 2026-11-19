@@ -288,6 +288,18 @@ func checkManifest(m manifest.Manifest, names map[string]bool) string {
 	if m.Auth.Type != "none" && m.Auth.EnvVar == "" {
 		return "authenticated connectors require auth.env_var"
 	}
+	for field := range m.Response.ValueMaps {
+		if _, mapped := m.Response.Mappings[field]; !mapped {
+			return "response.value_maps names a field that is not in response.mappings"
+		}
+	}
+	// Go-only extensions (auth.secondary, response.success_when, poll): refused with the engine's reason.
+	if m.Poll != nil && !strings.HasPrefix(m.Poll.Request.URL, "https://") {
+		return "connector poll URL must use HTTPS"
+	}
+	if p := manifest.ExtensionProblem(m); p != "" {
+		return p
+	}
 	return ""
 }
 

@@ -7,7 +7,7 @@
  * views refetches scoped rows and never mutates their data.
  */
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState, type ComponentProps } from "react"
 import { AlertDialog, Button, Dialog, Input, Menu } from "@/design-system/primitives"
 import {
   Check, ChevronDown, Eye, Filter as FilterIcon, Layers3, Pencil, Plus, Save, Trash2, X,
@@ -93,7 +93,10 @@ const NO_VALUE_OPS: ViewFilterOp[] = ["empty", "not_empty"]
 const DropdownMenu = Menu.Root
 const DropdownMenuContent = Menu.Popup
 const DropdownMenuGroup = Menu.Group
-const DropdownMenuItem = Menu.Item
+// Twenty's item does not lay out raw icon + label children; keep them in one row.
+const DropdownMenuItem = ({ className, ...props }: ComponentProps<typeof Menu.Item>) => (
+  <Menu.Item {...props} className={[ "flex items-center gap-2", typeof className === "string" ? className : "" ].join(" ")} />
+)
 const DropdownMenuLabel = Menu.GroupLabel
 const DropdownMenuSeparator = Menu.Separator
 const DropdownMenuTrigger = Menu.Trigger
@@ -217,7 +220,7 @@ export function WorkbookViewBar({
     <div className="flex items-center gap-1">
       {/* ── View switcher ── */}
       <DropdownMenu>
-        <DropdownMenuTrigger ref={viewTrigger} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border bg-background text-xs font-medium hover:bg-accent transition-colors max-w-44">
+        <DropdownMenuTrigger ref={viewTrigger} className="inline-flex h-8 items-center gap-1.5 px-2.5 rounded-md border bg-background text-sm font-medium hover:bg-accent transition-colors max-w-52">
           <Layers3 className="size-3.5 text-muted-foreground shrink-0" />
           <span className="truncate">{activeView ? activeView.name : activeViewId ? "Selected view unavailable" : "All rows"}</span>
           <ChevronDown className="size-3 text-muted-foreground shrink-0" />

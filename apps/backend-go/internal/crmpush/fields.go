@@ -1,5 +1,5 @@
 // Package crmpush is output._push_crm: push one workbook row to the workspace's
-// CRM (HubSpot or Salesforce), updating by external id when the row came from a
+// CRM (HubSpot, Salesforce or Attio), updating by external id when the row came from a
 // CRM import and creating otherwise.
 package crmpush
 

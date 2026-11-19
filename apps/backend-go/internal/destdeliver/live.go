@@ -15,15 +15,17 @@ import (
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crm"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/crmpush"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/airtable"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/heyreach"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/instantly"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/intkit"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/lemlist"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/sheets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/integrations/smartlead"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/secrets"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/wbcrud"
 )
 
-// Live delivery ports for the plan 07 destination types (hubspot, salesforce, instantly, smartlead, google_sheets,
+// Live delivery ports for the plan 07 destination types (hubspot, salesforce, attio, instantly, smartlead, heyreach, lemlist, google_sheets,
 // airtable), built on the same integration and CRM clients the workbook output columns use (Python
 // destinations/engine._deliver called the same services/integrations functions).
 //
@@ -32,7 +34,7 @@ import (
 // operator's key (post-port rule; Python fell back to both). All traffic goes through LiveConfig.HTTP, which in
 // production is the SSRF-guarded egress client; vendor error text is scrubbed of the credential by the clients.
 //
-// Rate limits: a vendor 429 (Instantly, Smartlead, Sheets, Airtable) is retried up to RateLimitRetries times with
+// Rate limits: a vendor 429 (Instantly, Smartlead, HeyReach, lemlist, Sheets, Airtable) is retried up to RateLimitRetries times with
 // exponential backoff (1 s, 2 s, 4 s) inside the delivery timeout; Python failed the member at once. A 429 means the
 // request was not applied, and every call is an idempotent upsert or a campaign add the vendor dedupes, so a retry
 // cannot duplicate. The CRM clients already retry 429 honouring Retry-After (crm.RequestWithRetry).
@@ -59,9 +61,11 @@ func NewLivePorts(c LiveConfig) Ports {
 		l.sleep = ctxSleep
 	}
 	p := Ports{
-		CRM:       crmLive{r: c.Secrets, d: crmpush.Deps{HubSpot: &crm.HubSpot{HTTP: c.HTTP, Secrets: c.Secrets}, Salesforce: &crm.Salesforce{HTTP: c.HTTP, Secrets: c.Secrets}, Pool: c.Pool, Log: c.Log}},
+		CRM:       crmLive{r: c.Secrets, d: crmpush.Deps{HubSpot: &crm.HubSpot{HTTP: c.HTTP, Secrets: c.Secrets}, Salesforce: &crm.Salesforce{HTTP: c.HTTP, Secrets: c.Secrets}, Attio: &crm.Attio{HTTP: c.HTTP, Secrets: c.Secrets}, Pool: c.Pool, Log: c.Log}},
 		Instantly: instantlyLive{live: l, c: instantly.New(c.HTTP, s)},
 		Smartlead: smartleadLive{live: l, c: smartlead.New(c.HTTP, s)},
+		HeyReach:  heyreachLive{live: l, c: heyreach.New(c.HTTP, s)},
+		Lemlist:   lemlistLive{live: l, c: lemlist.New(c.HTTP, s)},
 		Sheets:    sheetsLive{live: l, c: sheets.New(c.HTTP, s)},
 		Airtable:  airtableLive{live: l, c: airtable.New(c.HTTP, s)},
 	}
@@ -118,6 +122,7 @@ var crmKeys = map[string]struct {
 }{
 	"hubspot":    {"HubSpot", []string{"HUBSPOT_TOKEN"}},
 	"salesforce": {"Salesforce", []string{"SALESFORCE_INSTANCE_URL", "SALESFORCE_ACCESS_TOKEN"}},
+	"attio":      {"Attio", []string{"ATTIO_ACCESS_TOKEN"}},
 }
 
 func (c crmLive) Push(ctx context.Context, ws string, cfg, lead map[string]any, wb string, leadID int64) crmpush.Result {
@@ -263,6 +268,31 @@ func (a smartleadLive) AddLead(ctx context.Context, r CampaignRequest) (Result, 
 	lead := toObj(r.Payload)
 	return a.deliver(ctx, "", func() (*intkit.Obj, error) {
 		return a.c.AddLeadToCampaign(ctx, r.WorkspaceID, cfgStr(r.Config, "campaign_id"), lead, settings)
+	})
+}
+
+type heyreachLive struct {
+	*live
+	c *heyreach.Client
+}
+
+// AddLead adds the mapped lead to the HeyReach campaign sent from config.linkedin_account_id.
+func (a heyreachLive) AddLead(ctx context.Context, r CampaignRequest) (Result, error) {
+	lead := toObj(r.Payload)
+	return a.deliver(ctx, "", func() (*intkit.Obj, error) {
+		return a.c.AddLeadToCampaign(ctx, r.WorkspaceID, cfgStr(r.Config, "campaign_id"), cfgStr(r.Config, "linkedin_account_id"), lead)
+	})
+}
+
+type lemlistLive struct {
+	*live
+	c *lemlist.Client
+}
+
+func (a lemlistLive) AddLead(ctx context.Context, r CampaignRequest) (Result, error) {
+	lead := toObj(r.Payload)
+	return a.deliver(ctx, "", func() (*intkit.Obj, error) {
+		return a.c.AddLeadToCampaign(ctx, r.WorkspaceID, cfgStr(r.Config, "campaign_id"), lead)
 	})
 }
 

@@ -2,9 +2,10 @@ import { createBrowserRouter, RouterProvider, Outlet, Routes, Route, Navigate, L
 import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { DialogProvider } from "@/components/dialog-provider"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
-import { getPageTitle } from "@/components/app-shell/navigation"
+import { getBreadcrumbRoot, getPageTitle } from "@/components/app-shell/navigation"
 import { ArrowUpRight, BellRing, Circle, LoaderCircle } from "lucide-react"
 import { useSSE, useLLMUsage } from "@/lib/hooks"
 import { CommandMenu } from "@/components/command-menu"
@@ -50,14 +51,16 @@ function NotificationBell() {
   const items = query.data ?? []
   const critical = items.filter(item => item.severity === "critical").length
   const urgent = items.length - critical
+  const shown = items.length > 99 ? "99+" : String(items.length)
+  // The accessible name starts with the visible count (WCAG 2.5.3 label in name).
   const label = query.isPending ? "Loading notifications" : query.isError
-    ? "Notifications unavailable" : `Notifications: ${critical} critical, ${urgent} urgent`
+    ? "Notifications unavailable" : `${shown} notifications: ${critical} critical, ${urgent} urgent`
 
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger render={<button type="button" className="gtm-notification-trigger" aria-label={label} />}>
       <span className="gtm-notification-symbol"><BellRing className="size-[18px]" aria-hidden="true" /></span>
       <span className="gtm-notification-count" data-severity={critical ? "critical" : urgent ? "urgent" : undefined}>
-        {query.isPending ? "…" : query.isError ? "!" : items.length > 99 ? "99+" : items.length}
+        {query.isPending ? "…" : query.isError ? "!" : shown}
       </span>
     </PopoverTrigger>
     <PopoverContent align="end" sideOffset={10} className="w-[min(410px,calc(100vw-24px))] gap-0 overflow-hidden p-0">
@@ -92,7 +95,7 @@ function NotificationBell() {
   </Popover>
 }
 
-function PageHeader({ title }: { title: string }) {
+function PageHeader({ title, area }: { title: string; area: string }) {
   const { data: usage } = useLLMUsage()
   const { connected } = useSSE()
   const activeProvider = usage?.providers?.[0]
@@ -100,7 +103,7 @@ function PageHeader({ title }: { title: string }) {
   return (
     <header className="gtm-material-toolbar gtm-topbar sticky top-0 z-20 flex h-[var(--gtm-toolbar-height)] shrink-0 items-center gap-3 border-b border-[var(--t-border-color-medium)] px-4">
       <SidebarTrigger className="-ml-1 text-muted-foreground" />
-      <nav aria-label="Breadcrumb" className="gtm-breadcrumb"><span>Workspace</span><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
+      <nav aria-label="Breadcrumb" className="gtm-breadcrumb"><span>{area}</span><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav>
 
       <div className="flex-1" />
 
@@ -175,7 +178,7 @@ function AppContent() {
 
   return (
     <SidebarInset id="main-content" tabIndex={-1} className="gtm-launch h-screen overflow-hidden flex flex-col" data-sky={isChatHome || undefined}>
-      <PageHeader title={getPageTitle(location.pathname)} />
+      <PageHeader title={getPageTitle(location.pathname)} area={getBreadcrumbRoot(location.pathname)} />
       <div className="flex-1 min-h-0 overflow-y-auto relative">
         {/* Keyed by top-level section: switching sections plays the page
             transition; navigation within a section does not remount. */}
@@ -303,7 +306,9 @@ const router = createBrowserRouter([
 export default function App() {
   return (
     <TooltipProvider>
-      <RouterProvider router={router} />
+      <DialogProvider>
+        <RouterProvider router={router} />
+      </DialogProvider>
     </TooltipProvider>
   )
 }

@@ -153,6 +153,60 @@
           "icon": "linkedin",
           "id": "linkedin_ads",
           "name": "LinkedIn Ads"
+        },
+        {
+          "connected": false,
+          "description": "Add leads to a HeyReach LinkedIn campaign (audience destination).",
+          "fields": [
+            {
+              "key": "HEYREACH_API_KEY",
+              "label": "API Key",
+              "masked": "",
+              "placeholder": "HeyReach API key",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "heyreach",
+          "id": "heyreach",
+          "name": "HeyReach"
+        },
+        {
+          "connected": false,
+          "description": "Add leads to a lemlist email campaign (audience destination).",
+          "fields": [
+            {
+              "key": "LEMLIST_API_KEY",
+              "label": "API Key",
+              "masked": "",
+              "placeholder": "lemlist API key",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "lemlist",
+          "id": "lemlist",
+          "name": "lemlist"
+        },
+        {
+          "connected": false,
+          "description": "Upsert leads as Attio people, linked to their company (audience destination).",
+          "fields": [
+            {
+              "key": "ATTIO_ACCESS_TOKEN",
+              "label": "Access Token",
+              "masked": "",
+              "placeholder": "Attio access token",
+              "secret": true,
+              "set": false,
+              "value": ""
+            }
+          ],
+          "icon": "attio",
+          "id": "attio",
+          "name": "Attio"
         }
       ]
     },

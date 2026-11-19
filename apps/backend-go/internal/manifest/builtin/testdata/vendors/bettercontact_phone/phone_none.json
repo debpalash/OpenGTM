@@ -1,0 +1,31 @@
+{
+  "id": "fefbc2203558eb3adcea",
+  "status": "terminated",
+  "credits_consumed": 1,
+  "credits_left": 330,
+  "summary": {
+    "total": 1,
+    "valid": 1,
+    "catch_all": 0,
+    "undeliverable": 0,
+    "not_found": 0
+  },
+  "data": [
+    {
+      "enriched": false,
+      "contact_id": 128374651,
+      "custom_fields": [],
+      "contact_first_name": "Ada",
+      "contact_last_name": "Lovelace",
+      "contact_full_name": "Ada Lovelace",
+      "contact_linkedin_profile_url": "https://www.linkedin.com/in/ada-lovelace",
+      "contact_email_address": null,
+      "contact_email_address_status": "not_found",
+      "contact_email_address_provider": null,
+      "contact_phone_number": null,
+      "contact_phone_number_provider": null,
+      "company_name": "Acme",
+      "company_domain": "acme.com"
+    }
+  ]
+}

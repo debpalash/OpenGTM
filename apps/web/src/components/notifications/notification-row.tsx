@@ -36,7 +36,6 @@ export function NotificationRow({ notification, compact = false, onNavigate }: N
     onClick={onNavigate}
     className={`gtm-notification-row${compact ? " gtm-notification-row--compact" : ""}`}
     data-severity={notification.severity}
-    aria-label={`Open ${source.label.toLowerCase()}: ${notification.title} (${notification.severity})`}
   >
     <span className="gtm-notification-row__icon" aria-hidden="true"><Icon size={18} /></span>
     <span className="gtm-notification-row__body">

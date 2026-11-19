@@ -1,0 +1,37 @@
+# The Companies API "Enrich from domain" -- declarative provider manifest.
+# Docs: https://www.thecompaniesapi.com/api/authentication and the OpenAPI spec of
+# https://api.thecompaniesapi.com (GET /v2/companies/{domain}, schema CompanyV2).
+# Auth: the documented header form is "Authorization: Basic <API token>" with the raw token
+# (not base64): the authentication page and its examples show exactly that, and the OpenAPI
+# spec lists the Authorization header as the API key location. The token never goes in the
+# URL; the "token" query-parameter form the docs also allow is not used. auth.value keeps the
+# literal "Basic " prefix and takes the token from the environment.
+# Synchronous. An unknown domain is HTTP 404 (companyNotFound), reported as http_404. The
+# company size is about.totalEmployees, a range such as 50-200.
+# Credits depend on the plan, so cost_per_lookup is 0 (unknown).
+# Terms: https://www.thecompaniesapi.com/product/terms limits use to internal business purposes.
+# This manifest supports the key holder's own use of their own account only.
+manifest_version: "1"
+name: thecompaniesapi_company
+display_name: The Companies API Company Enrichment
+author: OpenGTM
+homepage: https://www.thecompaniesapi.com/api/authentication
+tags: [company, firmographics, byok]
+capability: company_size
+capabilities: [company_size, description]
+description: The Companies API /v2/companies/{domain} - domain -> employee range and description.
+default_confidence: 0.75
+cost_per_lookup: 0
+auth:
+  type: header
+  param: Authorization
+  value: "Basic ${env:THECOMPANIESAPI_API_KEY}"
+  env_var: THECOMPANIESAPI_API_KEY
+request:
+  method: GET
+  url: https://api.thecompaniesapi.com/v2/companies/{{input.domain}}
+  timeout: 20
+response:
+  mappings:
+    company_size: "$.about.totalEmployees"
+    description: "$.descriptions.primary"

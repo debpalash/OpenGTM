@@ -1,0 +1,25 @@
+{
+  "status_code": 200,
+  "profile": {
+    "url": "https://www.linkedin.com/in/example-person",
+    "email": [
+      "jane@example.org",
+      "jane@personal.example"
+    ],
+    "work_email": [
+      "jane@example.org"
+    ],
+    "work_email_status": {
+      "jane@example.org": "Verified"
+    },
+    "personal_email": [
+      "jane@personal.example"
+    ],
+    "phone": [
+      "+14155550100"
+    ],
+    "github": [
+      "github_name"
+    ]
+  }
+}

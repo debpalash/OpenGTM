@@ -195,6 +195,20 @@
         },
         {
           "api_key_masked": "",
+          "base_url": "https://api.openai.com/v1",
+          "configured": false,
+          "default_model": "gpt-6-luna",
+          "docs_url": "https://platform.openai.com/api-keys",
+          "free_tier": "Paid (gpt-6-luna: $0.10 / $0.50 per 1M tok)",
+          "icon": "\ud83e\udde0",
+          "id": "openai",
+          "is_default": false,
+          "model": "gpt-6-luna",
+          "name": "OpenAI",
+          "openai_compatible": true
+        },
+        {
+          "api_key_masked": "",
           "base_url": "",
           "configured": false,
           "default_model": "",

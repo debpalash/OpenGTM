@@ -1,0 +1,36 @@
+# ──────────────────────────────────────────────────────────────────
+# Low-memory override (OPT-IN). The default `docker compose up` is unchanged and still starts the browser service.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.lite.yml up -d --build
+#   (or set COMPOSE_FILE=docker-compose.yml:docker-compose.lite.yml in .env so plain `docker compose ...` uses it)
+#
+# What it does: does not start the `browser` service (Playwright + Chromium, a 1.9 GB image) and tells the Go
+# services there is none (BROWSER_SERVICE_URL empty). Everything else is identical: postgres, redis, migrate,
+# api-go (API + web UI), worker-go, scheduler-go, nginx.
+#
+# What does not work without it (checked by running this override):
+#   - collect, bulk_enrich, source_health_check and workbook collection-query jobs: the worker logs "collect
+#     pipeline not wired" at start and each such job ends `failed` with "collect cannot run: BROWSER_SERVICE_URL /
+#     BROWSER_SERVICE_TOKEN not set" (POST /api/collect still answers 200 and enqueues it).
+#   - POST /api/v2/scraper/scrape answers {"status":"error","error":"browser service is not available"}.
+#   - Google Maps and LinkedIn roster discovery and the headless-browser tier of web fetch (same code path).
+# Not affected: everything that does not render pages (keyed/API providers, LLM columns, CSV import, workbooks,
+# outreach, the UI). See docs/go-port/runbooks/docker-compose.md, "Low-memory install".
+#
+# To go back: drop the second -f (or COMPOSE_FILE) and run `docker compose up -d`.
+# ──────────────────────────────────────────────────────────────────
+x-no-browser-env: &no-browser-env
+  BROWSER_SERVICE_URL: ""
+
+services:
+  browser:
+    # Only started when asked for by name or with --profile browser; nothing depends on it.
+    profiles: ["browser"]
+  api-go:
+    environment: *no-browser-env
+  worker-go:
+    environment: *no-browser-env
+  scheduler-go:
+    environment: *no-browser-env
+  mcp:
+    environment: *no-browser-env

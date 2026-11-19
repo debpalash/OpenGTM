@@ -1,8 +1,9 @@
+import { PageHeader } from "@/design-system/patterns/workbench"
 import React, { useState } from "react"
 import { toast } from "sonner"
 import {
   MessageSquare, Zap, Users, Send, Copy, RefreshCw,
-  Mail, Sparkles, CheckCircle2,
+  Mail, CheckCircle2,
 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -89,25 +90,18 @@ export default function CampaignsPage() {
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <div>
-        <h2 className="text-lg font-semibold flex items-center gap-2">
-          <Sparkles className="size-5" />
-          Campaigns
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Generate AI-personalized outreach emails from your scored leads.
-        </p>
-      </div>
-
-      <Separator />
-
+    <div className="flex flex-col">
+      <PageHeader
+        title="Campaigns"
+        description="Generate AI-personalized outreach emails from your scored leads."
+      />
+      <div className="space-y-4 p-4">
       {/* Controls */}
       <div className="grid gap-3 md:grid-cols-3">
         <div className="space-y-2">
           <label className="text-sm font-medium">Target Tier</label>
           <Select value={selectedTier} onValueChange={(v) => setSelectedTier(v ?? "")}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Target tier">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -124,7 +118,7 @@ export default function CampaignsPage() {
         <div className="space-y-2">
           <label className="text-sm font-medium">Tone</label>
           <Select value={tone} onValueChange={(v) => setTone(v ?? "")}>
-            <SelectTrigger>
+            <SelectTrigger aria-label="Tone">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -272,6 +266,7 @@ export default function CampaignsPage() {
           </Card>
         </div>
       )}
+      </div>
     </div>
   )
 }

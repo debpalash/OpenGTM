@@ -1,0 +1,134 @@
+{
+ "vendor": "attio",
+ "scenario": "rate_limited_exhausted",
+ "call": {
+  "function": "push_lead_as_person",
+  "args": {
+   "lead": {
+    "email": "solo@example.com"
+   }
+  }
+ },
+ "secrets": {
+  "ATTIO_ACCESS_TOKEN": "ctk_attio_alpha_0001"
+ },
+ "http_exchanges": [
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status_code\":429,\"type\":\"rate_limit_error\",\"code\":\"rate_limit\",\"message\":\"slow down\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status_code\":429,\"type\":\"rate_limit_error\",\"code\":\"rate_limit\",\"message\":\"slow down\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status_code\":429,\"type\":\"rate_limit_error\",\"code\":\"rate_limit\",\"message\":\"slow down\"}"
+   }
+  },
+  {
+   "request": {
+    "method": "PUT",
+    "url": "https://api.attio.com/v2/objects/people/records?matching_attribute=email_addresses",
+    "headers": {
+     "authorization": "Bearer {{secret:ATTIO_ACCESS_TOKEN}}",
+     "content-type": "application/json"
+    },
+    "body": "{\"data\":{\"values\":{\"email_addresses\":[\"solo@example.com\"]}}}",
+    "json": {
+     "data": {
+      "values": {
+       "email_addresses": [
+        "solo@example.com"
+       ]
+      }
+     }
+    }
+   },
+   "response": {
+    "status": 429,
+    "headers": {
+     "content-type": "application/json"
+    },
+    "body": "{\"status_code\":429,\"type\":\"rate_limit_error\",\"code\":\"rate_limit\",\"message\":\"slow down\"}"
+   }
+  }
+ ],
+ "sleeps": [
+  1,
+  2,
+  4
+ ],
+ "result": {
+  "success": false,
+  "error": "HTTP 429: Attio rate limit (25 writes per second)"
+ }
+}

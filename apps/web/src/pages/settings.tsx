@@ -1,4 +1,5 @@
 import { PageHeader } from "@/design-system/patterns/workbench"
+import { useConfirm } from "@/components/dialog-provider"
 import { ProviderIcon } from "@/features/settings/provider-icon"
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
@@ -202,18 +203,20 @@ function SsoPolicyCard() {
 }
 
 function ScimProvisioningCard() {
+  const confirm = useConfirm()
   const [status, setStatus] = useState<{ configured: boolean; base_path: string; token_prefix?: string; created_at?: number; expires_at?: number; last_used_at?: number; expired?: boolean } | null>(null)
   const [token, setToken] = useState("")
   const [busy, setBusy] = useState(false)
   const load = () => fetch("/api/governance/scim-token").then(async response => { if (!response.ok) throw new Error("Could not load SCIM configuration"); setStatus(await response.json()) })
   useEffect(() => { load().catch(error => toast.error(error.message)) }, [])
   const rotate = async () => { setBusy(true); try { const response = await fetch("/api/governance/scim-token", { method: "POST" }); if (!response.ok) throw new Error("Could not rotate SCIM token"); const data = await response.json(); setToken(data.token); await load(); toast.success("SCIM token rotated") } catch (error) { toast.error(error instanceof Error ? error.message : "Could not rotate token") } finally { setBusy(false) } }
-  const revoke = async () => { if (!window.confirm("Revoke the current SCIM token? Directory sync will stop immediately.")) return; setBusy(true); try { const response = await fetch("/api/governance/scim-token", { method: "DELETE" }); if (!response.ok) throw new Error("Could not revoke SCIM token"); setToken(""); await load(); toast.success("SCIM token revoked") } catch (error) { toast.error(error instanceof Error ? error.message : "Could not revoke token") } finally { setBusy(false) } }
+  const revoke = async () => { if (!await confirm({ title: "Revoke the SCIM token?", description: "Directory sync will stop immediately.", confirmLabel: "Revoke token", destructive: true })) return; setBusy(true); try { const response = await fetch("/api/governance/scim-token", { method: "DELETE" }); if (!response.ok) throw new Error("Could not revoke SCIM token"); setToken(""); await load(); toast.success("SCIM token revoked") } catch (error) { toast.error(error instanceof Error ? error.message : "Could not revoke token") } finally { setBusy(false) } }
   if (!status) return <Skeleton className="h-40 w-full" />
   return <Card><CardHeader><div className="flex items-start justify-between gap-3"><div><CardTitle className="flex items-center gap-2 text-sm"><UserPlus className="size-4" /> SCIM 2.0 provisioning</CardTitle><CardDescription>Provision and deactivate workspace members from your identity directory. The workspace-scoped bearer token is shown once and expires automatically.</CardDescription></div><Badge variant={status.configured ? "default" : "secondary"}>{status.expired ? "Expired" : status.configured ? "Configured" : "Disabled"}</Badge></div></CardHeader><CardContent className="space-y-3"><div className="rounded-md border bg-muted/20 p-3 text-xs"><span className="text-muted-foreground">Base URL</span><code className="mt-1 block">{window.location.origin}{status.base_path}</code>{status.token_prefix && <p className="mt-2 text-muted-foreground">Current token starts with <code>{status.token_prefix}…</code>{status.created_at ? ` · rotated ${new Date(status.created_at * 1000).toLocaleString()}` : ""}{status.expires_at ? ` · ${status.expired ? "expired" : "expires"} ${new Date(status.expires_at * 1000).toLocaleString()}` : ""}{status.last_used_at ? ` · last used ${new Date(status.last_used_at * 1000).toLocaleString()}` : " · never used"}</p>}</div>{token && <div className="rounded-md border border-amber-400/40 bg-amber-50 p-3 text-xs text-amber-950"><strong>Copy this token now. It cannot be retrieved again.</strong><div className="mt-2 flex gap-2"><Input aria-label="New SCIM bearer token" readOnly value={token} className="font-mono" /><Button aria-label="Copy SCIM token" size="icon" variant="outline" onClick={() => navigator.clipboard.writeText(token).then(() => toast.success("Token copied"))}><Copy className="size-3" /></Button></div></div>}<div className="flex gap-2"><Button size="sm" onClick={rotate} disabled={busy}>{busy && <Loader2 className="size-3 animate-spin" />}{status.configured ? "Rotate token" : status.expired ? "Replace expired token" : "Create token"}</Button>{status.token_prefix && <Button size="sm" variant="destructive" onClick={revoke} disabled={busy}>Revoke</Button>}</div></CardContent></Card>
 }
 
 function WorkspaceAccessCard() {
+  const confirm = useConfirm()
   const [data, setData] = useState<{ permissions: RbacPermission[]; members: RbacMember[] } | null>(null)
   const [saving, setSaving] = useState("")
   const [username, setUsername] = useState("")
@@ -252,7 +255,7 @@ function WorkspaceAccessCard() {
     finally { setSaving("") }
   }
   const removeMember = async (member: RbacMember) => {
-    if (!window.confirm(`Remove ${member.username} from this workspace?`)) return
+    if (!await confirm({ title: `Remove ${member.username} from this workspace?`, confirmLabel: "Remove member", destructive: true })) return
     setSaving(`remove:${member.user_id}`)
     try {
       const response = await fetch(`/api/governance/members/${member.user_id}`, { method: "DELETE" })

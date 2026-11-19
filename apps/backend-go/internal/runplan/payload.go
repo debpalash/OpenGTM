@@ -23,6 +23,53 @@ type kv struct {
 	v any
 }
 type ordered []kv
+
+// with appends k only when cond holds: Go-only manifest keys are emitted when declared, so the
+// payload of every other manifest stays byte-equal to Python's.
+func (o ordered) with(cond bool, k string, v any) ordered {
+	if !cond {
+		return o
+	}
+	return append(o, kv{k, v})
+}
+
+func valueMapsDoc(in map[string]manifest.ValueMap) map[string]any {
+	out := make(map[string]any, len(in))
+	for field, vm := range in {
+		vals := make(map[string]any, len(vm.Values))
+		for k, v := range vm.Values {
+			vals[k] = v
+		}
+		var def any
+		if vm.Default != nil {
+			def = *vm.Default
+		}
+		out[field] = map[string]any{"values": vals, "default": def}
+	}
+	return out
+}
+
+func secondaryDoc(s *manifest.SecondaryAuth) any {
+	if s == nil {
+		return nil
+	}
+	return s.Doc()
+}
+
+func condDoc(c *manifest.Cond) any {
+	if c == nil {
+		return nil
+	}
+	return c.Doc()
+}
+
+func pollDoc(p *manifest.PollSpec) any {
+	if p == nil {
+		return nil
+	}
+	return p.Doc()
+}
+
 type raw []byte
 
 func writeValue(b *bytes.Buffer, v any) error {
@@ -133,7 +180,7 @@ func manifestDoc(m manifest.Manifest) ordered {
 			{"param", nullable(m.Auth.Param)},
 			{"value", nullable(m.Auth.Value)},
 			{"env_var", nullable(m.Auth.EnvVar)},
-		}},
+		}.with(m.Auth.Secondary != nil, "secondary", secondaryDoc(m.Auth.Secondary))},
 		{"request", ordered{
 			{"method", m.Request.Method},
 			{"url", m.Request.URL},
@@ -141,14 +188,15 @@ func manifestDoc(m manifest.Manifest) ordered {
 			{"query", sortedMap(m.Request.Query)},
 			{"body_template", m.Request.BodyTemplate},
 			{"timeout", m.Request.Timeout},
-		}},
+		}.with(len(m.Request.OmitEmpty) > 0, "omit_empty", strs(m.Request.OmitEmpty))},
 		{"response", ordered{
 			{"error_path", nullable(m.Response.ErrorPath)},
 			{"error_message_path", nullable(m.Response.ErrorMessagePath)},
 			{"mappings", mappings},
-		}},
+		}.with(len(m.Response.ValueMaps) > 0, "value_maps", valueMapsDoc(m.Response.ValueMaps)).
+			with(m.Response.SuccessWhen != nil, "success_when", condDoc(m.Response.SuccessWhen))},
 		{"input_fields", strs(m.InputFields)},
-	}
+	}.with(m.Poll != nil, "poll", pollDoc(m.Poll))
 }
 
 // providerNames is dict.fromkeys(n for c in columns for n in _provider_chain(c)).

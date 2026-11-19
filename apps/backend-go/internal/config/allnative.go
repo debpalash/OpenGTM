@@ -29,7 +29,7 @@ const allNativeKey = "GO_ALL_NATIVE"
 
 // goDestTypesAll is every destination type (destvalidate). Since the cutover the worker runs every
 // audience_destination_sync job; a type without a Go delivery port fails permanently there.
-const goDestTypesAll = "webhook,slack,hubspot,salesforce,instantly,smartlead,google_sheets,airtable,meta_ads,google_ads,linkedin_ads,warehouse_http"
+const goDestTypesAll = "webhook,slack,hubspot,salesforce,attio,instantly,smartlead,heyreach,lemlist,google_sheets,airtable,meta_ads,google_ads,linkedin_ads,warehouse_http"
 
 func on(keys ...string) []NativeFlag {
 	out := make([]NativeFlag, len(keys))
