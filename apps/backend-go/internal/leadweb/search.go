@@ -183,10 +183,19 @@ func (s *Searcher) WebSearch(ctx context.Context, query string, maxResults int, 
 	if hits := s.searx.Search(ctx, query, maxResults); len(hits) > 0 {
 		return hits, nil
 	}
-	out, err := s.browser.Search(ctx, browserclient.SearchRequest{Query: query, MaxResults: maxResults,
-		Backends: []string{}, Timeout: 30 * time.Second})
-	if err == nil && out.Error == "" {
-		return toHits(out.Hits), nil
+	// The keyless backends share one backoff with Text/News: while it cools down they are not asked again.
+	if s.backoff == nil || !s.backoff.Blocked(ddgsHost) {
+		out, err := s.browser.Search(ctx, browserclient.SearchRequest{Query: query, MaxResults: maxResults,
+			Backends: []string{}, Timeout: 30 * time.Second})
+		if err == nil && out.Error == "" {
+			if s.backoff != nil {
+				s.backoff.RecordSuccess(ddgsHost)
+			}
+			return toHits(out.Hits), nil
+		}
+		if err == nil && s.backoff != nil && (out.Error == "rate_limited" || out.Error == "timeout") {
+			s.backoff.Record(ddgsHost, true)
+		}
 	}
 	if raiseErrors {
 		return nil, ErrSearchFailed
