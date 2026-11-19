@@ -13,6 +13,8 @@ node_modules/
 apps/web/dist/
 apps/web/playwright-report/
 apps/web/test-results/
+apps/web/test-results-real/
+apps/web/e2e-real-out/
 
 # ── Build output / local run state (Makefile) ───────────────
 /bin/
