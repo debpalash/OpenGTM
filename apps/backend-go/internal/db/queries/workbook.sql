@@ -114,11 +114,13 @@ LIMIT 1;
 
 -- name: RecordProviderAttempt :exec
 -- Port of planner.record_attempt: one atomic additive upsert. The cooldown policy lives in internal/cooldown:
--- a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts (the run is
--- consecutive_timeouts, reset by any attempt that did not time out).
+-- a rate limit cools down at once; a timeout only after timeout_threshold consecutive timeouts. The run
+-- (consecutive_timeouts) is reset by any attempt that did not time out, and a timeout only extends it when the call
+-- started at or after the finish of the previously counted timeout (last_timeout_at): calls launched together that
+-- all time out are one event.
 INSERT INTO provider_stats
   (provider, field, attempts, hits, total_confidence, total_latency_ms, total_cost_usd,
-   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts)
+   cooldown_until, updated_at, accuracy_samples, consecutive_timeouts, last_timeout_at)
 VALUES (sqlc.arg(provider)::text, sqlc.arg(field)::text, 1,
   CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
   CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(confidence)::float8 ELSE 0.0 END,
@@ -129,7 +131,8 @@ VALUES (sqlc.arg(provider)::text, sqlc.arg(field)::text, 1,
        WHEN sqlc.arg(timed_out)::bool AND 1 >= sqlc.arg(timeout_threshold)::int
        THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int) END,
   (now() AT TIME ZONE 'UTC'), 0,
-  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN 1 ELSE 0 END)
+  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN 1 ELSE 0 END,
+  CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool THEN sqlc.arg(finished_at)::timestamp END)
 ON CONFLICT (provider, field) DO UPDATE SET
   attempts = COALESCE(provider_stats.attempts, 0) + 1,
   hits = COALESCE(provider_stats.hits, 0) + CASE WHEN sqlc.arg(success)::bool THEN 1 ELSE 0 END,
@@ -137,11 +140,21 @@ ON CONFLICT (provider, field) DO UPDATE SET
   total_latency_ms = COALESCE(provider_stats.total_latency_ms, 0.0) + sqlc.arg(latency_ms)::float8,
   total_cost_usd = COALESCE(provider_stats.total_cost_usd, 0.0) + CASE WHEN sqlc.arg(success)::bool THEN sqlc.arg(cost_usd)::float8 ELSE 0.0 END,
   updated_at = (now() AT TIME ZONE 'UTC'),
-  consecutive_timeouts = CASE WHEN sqlc.arg(timed_out)::bool AND NOT sqlc.arg(rate_limited)::bool
-       THEN provider_stats.consecutive_timeouts + 1 ELSE 0 END,
+  consecutive_timeouts = CASE
+       WHEN NOT sqlc.arg(timed_out)::bool OR sqlc.arg(rate_limited)::bool THEN 0
+       WHEN provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at
+       THEN provider_stats.consecutive_timeouts + 1
+       ELSE provider_stats.consecutive_timeouts END,
+  last_timeout_at = CASE
+       WHEN NOT sqlc.arg(timed_out)::bool OR sqlc.arg(rate_limited)::bool THEN NULL
+       WHEN provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at
+       THEN sqlc.arg(finished_at)::timestamp
+       ELSE provider_stats.last_timeout_at END,
   cooldown_until = CASE WHEN sqlc.arg(rate_limited)::bool
        THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(rate_limit_seconds)::int)
-       WHEN sqlc.arg(timed_out)::bool AND provider_stats.consecutive_timeouts + 1 >= sqlc.arg(timeout_threshold)::int
+       WHEN sqlc.arg(timed_out)::bool
+            AND (provider_stats.last_timeout_at IS NULL OR sqlc.arg(started_at)::timestamp >= provider_stats.last_timeout_at)
+            AND provider_stats.consecutive_timeouts + 1 >= sqlc.arg(timeout_threshold)::int
        THEN (now() AT TIME ZONE 'UTC') + make_interval(secs => sqlc.arg(timeout_seconds)::int)
        ELSE provider_stats.cooldown_until END;
 

@@ -5,12 +5,14 @@ import (
 	"errors"
 	"log/slog"
 	"sort"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/cooldown"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/db/gen"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/providers"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/tenancy"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/vendorcatalog"
 )
@@ -160,6 +162,7 @@ type attemptRecord struct {
 	latencyMS       float64
 	rateLimited     bool
 	timedOut        bool
+	started         time.Time
 }
 
 // recordAttempts ports the telemetry flush in enrich_cell: one short
@@ -175,6 +178,7 @@ func (p planner) recordAttempts(ctx context.Context, pool *pgxpool.Pool, workspa
 			if err := cooldown.Record(ctx, q, cooldown.Attempt{
 				Provider: a.provider, Field: a.field, Success: a.success, Confidence: a.confidence,
 				LatencyMS: a.latencyMS, CostUSD: p.cost(a.provider), RateLimited: a.rateLimited, TimedOut: a.timedOut,
+				TargetSite: providers.ClassOfName(a.provider) == providers.ClassTargetSite, StartedAt: a.started, FinishedAt: time.Now(),
 			}); err != nil {
 				return err
 			}

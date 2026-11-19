@@ -797,6 +797,7 @@ type ProviderStat struct {
 	AccuracySamples     pgtype.Int4
 	AccuracyUpdatedAt   pgtype.Timestamp
 	ConsecutiveTimeouts int32
+	LastTimeoutAt       pgtype.Timestamp
 }
 
 type RecordExternalIdentity struct {

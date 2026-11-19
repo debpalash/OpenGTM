@@ -58,7 +58,7 @@ func (r manifestRunner) Run(ctx context.Context, _ string, provider string, in p
 		}
 		out.Value = res.Fields[in.Field]
 	}
-	rec := attemptRecord{provider: provider, field: in.Field, latencyMS: float64(time.Since(start)) / float64(time.Millisecond), timedOut: timedOut}
+	rec := attemptRecord{provider: provider, field: in.Field, latencyMS: float64(time.Since(start)) / float64(time.Millisecond), timedOut: timedOut, started: start}
 	if !timedOut {
 		rec.success = res.Success && len(res.Fields) > 0
 		rec.confidence = res.Confidence

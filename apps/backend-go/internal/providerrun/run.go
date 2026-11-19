@@ -206,7 +206,7 @@ func (r *Runner) run(ctx context.Context, workspaceID, provider string, in provi
 	success := out.Error == "" && out.Extra != nil && out.Extra.Len() > 0
 	rateLimited = !timedOut && cooldown.LooksRateLimited(out.Error)
 	r.record(ctx, workspaceID, provider, in.Field, success, out.Confidence,
-		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut)
+		float64(time.Since(start))/float64(time.Millisecond), rateLimited, timedOut, start)
 	if out.Error == "" {
 		r.cachePut(ctx, workspaceID, provider, in, out)
 	}
@@ -388,7 +388,7 @@ func firstNonEmpty(ss ...string) string {
 // record is the planner.record_attempt upsert in its own short transaction. It
 // must outlive a cancelled call context, and a failure is logged and swallowed
 // so telemetry can never fail a call.
-func (r *Runner) record(ctx context.Context, ws, provider, field string, success bool, conf, latencyMS float64, rateLimited, timedOut bool) {
+func (r *Runner) record(ctx context.Context, ws, provider, field string, success bool, conf, latencyMS float64, rateLimited, timedOut bool, started time.Time) {
 	if r.d.Pool == nil {
 		return
 	}
@@ -398,6 +398,7 @@ func (r *Runner) record(ctx context.Context, ws, provider, field string, success
 		return cooldown.Record(lctx, gen.New(tx), cooldown.Attempt{
 			Provider: provider, Field: field, Success: success, Confidence: conf,
 			LatencyMS: latencyMS, CostUSD: r.d.Cost(provider), RateLimited: rateLimited, TimedOut: timedOut,
+			TargetSite: providers.ClassOfName(provider) == providers.ClassTargetSite, StartedAt: started, FinishedAt: time.Now(),
 		})
 	})
 	if err != nil {
