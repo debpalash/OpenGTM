@@ -80,6 +80,9 @@ func (w cellWrite) overlayCell() map[string]any {
 	if len(w.Skipped) > 0 {
 		cell["skipped_providers"] = w.skippedJSON()
 	}
+	if a, ok := w.Meta["attempts"]; ok {
+		cell["attempts"] = a
+	}
 	return cell
 }
 
