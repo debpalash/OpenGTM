@@ -6,6 +6,10 @@ import { installFetchInterceptor } from "./lib/auth"
 import App from "./App"
 import { ThemeProvider } from "./design-system/theme/theme-provider"
 import "./index.css"
+import { reloadForNewBuild } from "@/lib/stale-build"
+
+// Vite fires this when a page file from an older build is gone.
+window.addEventListener("vite:preloadError", () => { reloadForNewBuild() })
 
 // Attach Authorization + X-Workspace-Id to every API request, and funnel 401s
 // through the auth context's logout handler. Must run before any fetch fires.
