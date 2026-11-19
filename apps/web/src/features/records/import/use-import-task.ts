@@ -1,3 +1,4 @@
+import { randomId, sha256Hex } from "@/lib/insecure-context"
 import { useEffect, useRef, useState } from "react"
 import { getActiveWorkspace, getToken } from "@/lib/auth"
 import {
@@ -39,7 +40,7 @@ export function useImportTask(
   const [request, setRequest] = useState<RecordImport>(() => ({
     record_type: kind,
     source: recovery?.source || "clay:prospects",
-    idempotency_key: recovery?.key || crypto.randomUUID()
+    idempotency_key: recovery?.key || randomId()
   }))
   const [rawRows, setRawRows] = useState("")
   const [filename, setFilename] = useState("")
@@ -155,13 +156,7 @@ export function useImportTask(
           throw new Error("JSON must be an array of row objects.")
         rows = value
       }
-      const digest = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(text)
-      )
-      const fingerprint = Array.from(new Uint8Array(digest), (v) =>
-        v.toString(16).padStart(2, "0")
-      ).join("")
+      const fingerprint = await sha256Hex(text)
       if (recovery && recovery.hash !== fingerprint)
         throw new Error(
           `An earlier batch is unresolved. Reselect ${recovery.filename}, or check its batch status before starting another file.`
@@ -178,7 +173,7 @@ export function useImportTask(
       setRequest({
         record_type: kind,
         source: recovery?.source || request.source,
-        idempotency_key: recovery?.key || crypto.randomUUID(),
+        idempotency_key: recovery?.key || randomId(),
         ...(json ? { rows } : { csv: text })
       })
     })
@@ -275,7 +270,7 @@ export function useImportTask(
     setRequest({
       record_type: kind,
       source: request.source,
-      idempotency_key: crypto.randomUUID()
+      idempotency_key: randomId()
     })
     setRawRows("")
     setFilename("")

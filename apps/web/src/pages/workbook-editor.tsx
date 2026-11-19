@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/insecure-context"
 /**
  * Workbook Editor — Hybrid model.
  *
@@ -332,7 +333,7 @@ function EditableCell({
         <button
           onClick={(e) => {
             e.stopPropagation()
-            navigator.clipboard.writeText(displayValue)
+            copyText(displayValue)
             toast.success("Copied", { duration: 1200 })
           }}
           className="hidden group-hover/cell:inline-flex p-0.5 rounded hover:bg-muted shrink-0"
@@ -1252,7 +1253,7 @@ export default function WorkbookEditorPage() {
           String(gridCellValue(range.top + rowOffset, range.left + columnOffset))
         )
       ))
-      navigator.clipboard.writeText(text)
+      copyText(text)
         .then(() => toast.success("Copied selection", { duration: 1200 }))
         .catch(() => toast.error("Clipboard access was denied"))
       return

@@ -3,6 +3,7 @@ import { Fragment, lazy, Suspense, useState, useEffect } from "react"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { DialogProvider } from "@/components/dialog-provider"
+import { RouteError } from "@/components/route-error"
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-shell/app-sidebar"
 import { getBreadcrumbRoot, getPageTitle } from "@/components/app-shell/navigation"
@@ -288,6 +289,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <AuthRoot />,
+    errorElement: <RouteError />,
     children: [
       { index: true, element: <Navigate to="/overview" replace /> },
       { path: "login", element: <LoginRoute /> },

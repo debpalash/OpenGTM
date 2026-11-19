@@ -1,3 +1,4 @@
+import { copyText } from "@/lib/insecure-context"
 import { PageHeader } from "@/design-system/patterns/workbench"
 import React, { useState } from "react"
 import { toast } from "sonner"
@@ -83,7 +84,7 @@ export default function CampaignsPage() {
   }
 
   const copyEmail = (idx: number, email: GeneratedEmail) => {
-    navigator.clipboard.writeText(`Subject: ${email.subject}\n\n${email.body}`)
+    copyText(`Subject: ${email.subject}\n\n${email.body}`)
     setCopied(idx)
     toast.success("Copied to clipboard")
     setTimeout(() => setCopied(null), 2000)

@@ -1,3 +1,4 @@
+import { copyText as copyToClipboard } from "@/lib/insecure-context"
 import { useState } from "react"
 import { Globe, Loader2, Copy, ExternalLink, Mail, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -46,7 +47,7 @@ export default function ScraperPage() {
   }
 
   const copyText = (text: string) => {
-    navigator.clipboard.writeText(text)
+    void copyToClipboard(text)
   }
 
   return (

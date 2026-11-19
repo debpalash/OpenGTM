@@ -1,3 +1,4 @@
+import { randomId, copyText } from "@/lib/insecure-context"
 import { useState, useRef, useEffect, useCallback } from "react"
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import {
@@ -256,7 +257,7 @@ function CopyBtn({ content }: { content: string }) {
       icon={copied ? <Check className="size-3.5 text-emerald-500" /> : <Copy className="size-3.5" />}
       label={copied ? "Copied!" : "Copy"}
       onClick={() => {
-        navigator.clipboard.writeText(content)
+        copyText(content)
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
       }}
@@ -419,7 +420,7 @@ export default function ChatPage() {
         const partial = partialContent
         if (partial.trim()) {
           setOptimisticMessages(prev => [...prev, {
-            id: crypto.randomUUID(),
+            id: randomId(),
             conversation_id: currentConvId || "",
             role: "assistant",
             content: partial,
@@ -448,7 +449,7 @@ export default function ChatPage() {
     if (!text || isLoading) return
 
     const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: randomId(),
       conversation_id: activeConvId || "",
       role: "user",
       content: text,
@@ -476,7 +477,7 @@ export default function ChatPage() {
     historyBefore.push({ role: "user", content: text })
 
     const editedMsg: ChatMessage = {
-      id: crypto.randomUUID(),
+      id: randomId(),
       conversation_id: activeConvId || "",
       role: "user",
       content: text,
