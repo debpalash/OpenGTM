@@ -132,22 +132,12 @@ function EnrichButton({ icon, label, desc, loading, disabled, onClick }: {
 }
 
 // ── Timeline Item ───────────────────────────────────────────────
-// ── Favicon Helper ──────────────────────────────────────────────
-function CompanyAvatar({ company, website }: { company: string; website?: string }) {
-  let domain: string | undefined
-  if (website) {
-    try { domain = new URL(website.startsWith("http") ? website : `https://${website}`).hostname.replace("www.", "") } catch {}
-  }
+// ── Company avatar (initials; no third-party favicon service) ──────────────────────────────────────────────
+function CompanyAvatar({ company }: { company: string }) {
   const initials = (company || "?").split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase()
-  const [imgFailed, setImgFailed] = useState(false)
   return (
     <div className="size-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden border">
-      {domain && !imgFailed ? (
-        <img src={`https://www.google.com/s2/favicons?domain=${domain}&sz=32`} alt="" className="size-7"
-          onError={() => setImgFailed(true)} />
-      ) : (
-        <span className="text-xs font-bold text-muted-foreground">{initials}</span>
-      )}
+      <span className="text-xs font-bold text-muted-foreground">{initials}</span>
     </div>
   )
 }
@@ -165,9 +155,12 @@ function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: strin
   const mapInstanceRef = useRef<L.Map | null>(null)
   const [loading, setLoading] = useState(true)
   const [failed, setFailed] = useState(false)
+  // Geocoding goes to nominatim.openstreetmap.org and tiles to tile.openstreetmap.org, which tells them the
+  // address of the lead. So nothing is requested until the user asks for the map.
+  const [enabled, setEnabled] = useState(false)
 
   useEffect(() => {
-    if (!show || !query || !mapRef.current) return
+    if (!show || !query || !enabled || !mapRef.current) return
     const controller = new AbortController()
     const queries = [query, ...fallbackQueries].filter(Boolean)
 
@@ -197,9 +190,17 @@ function LeafletMap({ query, show, label, fallbackQueries = [] }: { query: strin
     }
     geocodeAndRender()
     return () => { controller.abort(); if (mapInstanceRef.current) { mapInstanceRef.current.remove(); mapInstanceRef.current = null } }
-  }, [query, show, label, fallbackQueries.join(",")])
+  }, [query, show, enabled, label, fallbackQueries.join(",")])
 
   if (!show || !query) return null
+  if (!enabled) {
+    return (
+      <button type="button" onClick={() => setEnabled(true)}
+        className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+        <ExternalLink className="size-2.5" /> Show map (loads openstreetmap.org)
+      </button>
+    )
+  }
   return (
     <div className="space-y-1.5">
       <div className="rounded-lg overflow-hidden border shadow-sm relative">
@@ -302,7 +303,7 @@ export default function LeadDetailPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <CompanyAvatar company={lead.company} website={lead.website} />
+            <CompanyAvatar company={lead.company} />
             <div className="flex-1 min-w-0">
               <h1 className="text-xl font-bold tracking-tight truncate">{lead.company}</h1>
               <div className="flex items-center gap-2 mt-0.5 flex-wrap text-sm text-muted-foreground">

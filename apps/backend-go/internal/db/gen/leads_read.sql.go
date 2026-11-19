@@ -27,7 +27,7 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
        OR collection_job_id = ANY($10::text[])
        OR source = ANY($11::text[]))
   AND ($12::text IS NULL
-       OR specialization ILIKE '%' || $12::text || '%')
+       OR specialization ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($13::bool IS NULL
        OR $13::bool = (email IS NOT NULL AND email <> ''))
   AND ($14::bool IS NULL
@@ -38,11 +38,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($17::int4 IS NULL OR score <= $17::int4)
   AND ($18::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', $18::text)
-       OR company ILIKE '%' || $18::text || '%'
-       OR city ILIKE '%' || $18::text || '%'
-       OR specialization ILIKE '%' || $18::text || '%'
-       OR notes ILIKE '%' || $18::text || '%'
-       OR description ILIKE '%' || $18::text || '%')
+       OR company ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
 `
 
 type CountLeadsFilteredParams struct {
@@ -534,7 +534,7 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
        OR collection_job_id = ANY($10::text[])
        OR source = ANY($11::text[]))
   AND ($12::text IS NULL
-       OR specialization ILIKE '%' || $12::text || '%')
+       OR specialization ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND ($13::bool IS NULL
        OR $13::bool = (email IS NOT NULL AND email <> ''))
   AND ($14::bool IS NULL
@@ -545,11 +545,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($17::int4 IS NULL OR score <= $17::int4)
   AND ($18::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', $18::text)
-       OR company ILIKE '%' || $18::text || '%'
-       OR city ILIKE '%' || $18::text || '%'
-       OR specialization ILIKE '%' || $18::text || '%'
-       OR notes ILIKE '%' || $18::text || '%'
-       OR description ILIKE '%' || $18::text || '%')
+       OR company ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace($18::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
 ORDER BY score DESC, id DESC
 LIMIT $20::bigint OFFSET $19::bigint
 `

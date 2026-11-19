@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs"
 import { fileURLToPath } from "node:url"
 import { expect, test } from "@playwright/test"
 import { workbookId } from "./fixtures/data"
-import { installMocks, runAxe } from "./helpers"
+import { externalRequests, installMocks, runAxe } from "./helpers"
 
 type Theme = "light" | "dark"
 type Counts = Record<string, number>
@@ -54,6 +54,8 @@ for (const c of cases) {
     // A page in its error state is not what real users see: a fixture is missing or has a stale shape
     // (unmatched endpoints answer `[]`). Capture the real shape with e2e/real and add it to fixtures/real-shapes.ts.
     await expect(page.getByText(/temporarily unavailable|returned an invalid response|could not be verified/i)).toHaveCount(0)
+    // No third-party requests on page view (the mock aborts them, but they are still attempts to leave).
+    expect(externalRequests(page), `${c.route} contacted another origin`).toEqual([])
 
     const violations = await runAxe(page)
     const gated: Counts = {}
@@ -117,4 +119,14 @@ test("/analytics | 503 unavailable | light | 1440x1000", async ({ page }) => {
   const base = loadBaseline()["/analytics | light | 1440x1000"] ?? {}
   const regressions = Object.entries(gated).filter(([id, n]) => (base[id] ?? 0) < n).map(([id, n]) => `${id}: ${n}`)
   expect(regressions, "New serious/critical a11y violations on /analytics 503").toEqual([])
+})
+
+test("the login page contacts no other origin", async ({ page }) => {
+  await installMocks(page, "light")
+  await page.addInitScript(() => localStorage.removeItem("yupcha_token"))
+  await page.goto("/login")
+  await expect(page.getByLabel("Username")).toBeVisible()
+  await page.waitForLoadState("networkidle")
+  await page.waitForTimeout(500)
+  expect(externalRequests(page), "/login contacted another origin").toEqual([])
 })

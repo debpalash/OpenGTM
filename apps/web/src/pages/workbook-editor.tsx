@@ -116,18 +116,12 @@ function CellStatus({ status, error }: { status?: string; error?: string | null 
   return null
 }
 
-// ── Favicon helper ─────────────────────────────────────────────────────
+// ── Domain mark ────────────────────────────────────────────────────────
+// A local icon, not a favicon fetched from a third-party service: that would send every domain in the
+// workbook to that service on page view.
 function Favicon({ domain }: { domain?: string }) {
   if (!domain) return null
-  return (
-    <img
-      src={`https://www.google.com/s2/favicons?domain=${domain}&sz=16`}
-      alt=""
-      className="size-4 rounded shrink-0"
-      loading="lazy"
-      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-    />
-  )
+  return <Globe aria-hidden="true" className="size-4 shrink-0 text-muted-foreground" />
 }
 
 // ── Column Progress Bar ────────────────────────────────────────────────
