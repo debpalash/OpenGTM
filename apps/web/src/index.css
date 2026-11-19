@@ -197,7 +197,7 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--t-border-color-strong);
+  background: var(--gtm-border-control);
   border: 2px solid transparent;
   border-radius: 999px;
   background-clip: padding-box;
@@ -326,12 +326,12 @@
 
 .workbook-grid .gtm-checkbox-target input { width:24px; height:24px; }
 
-.analytics-data-tables { font-size:.8125rem; padding:12px 16px; border:1px solid var(--border); border-radius:var(--gtm-radius-card); }
+.analytics-data-tables { font-size:.8125rem; padding:12px 16px; background:var(--gtm-surface); border-radius:var(--gtm-radius-card); }
 .analytics-data-tables summary { cursor:pointer; min-height:24px; color:var(--gtm-link); }
 .analytics-data-tables>div { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr)); gap:24px; margin-top:20px; }
 .analytics-data-tables h2 { font-size:.875rem; font-weight:600; margin-bottom:12px; }
 .analytics-data-tables table { width:100%; border-collapse:collapse; text-align:left; }
-.analytics-data-tables th,.analytics-data-tables td { padding:8px; border-bottom:1px solid var(--border); font-variant-numeric:tabular-nums; }
+.analytics-data-tables th,.analytics-data-tables td { padding:8px; font-variant-numeric:tabular-nums; }
 .analytics-data-tables th,.analytics-data-tables p { color:var(--muted-foreground); font-weight:400; }
 
 /* Workstation density keeps controls readable and leaves room for the data. */
