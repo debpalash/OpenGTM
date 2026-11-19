@@ -36,7 +36,7 @@ var noDataTexts = []string{"no_data", "no_answer", "no_email_to_verify", "upstre
 
 var needsSetupMarkers = []string{
 	"no llm provider is configured", "browser_service_unavailable", "no_providers_selected", "no_default_providers",
-	"smtp_port_blocked", "api key is not configured", "missing api key",
+	"smtp_port_blocked", "provider_key_missing",
 }
 
 // OfCell classifies a stored cell by its status and error text.

@@ -29,6 +29,9 @@ func classifyProviderError(errText string) string {
 	if strings.Contains(strings.ToLower(errText), "browser service") || strings.Contains(strings.ToLower(errText), "browser not available") {
 		return "browser_unavailable"
 	}
+	if lower := strings.ToLower(errText); strings.Contains(lower, "key configured") || strings.Contains(lower, "no api key") {
+		return "needs_key"
+	}
 	return ""
 }
 
@@ -40,8 +43,40 @@ func failureReason(cause string, providers []string) string {
 		return "rate_limited: " + list + " answered with a rate limit and is paused for a few minutes"
 	case "browser_unavailable":
 		return "browser_service_unavailable: " + list + " needs the browser service, which could not be reached; check that it is running"
+	case "needs_key":
+		return "provider_key_missing: " + list + " needs an API key; add it in Settings"
 	}
 	return ""
+}
+
+// emptyCellReason is the error of a cell that no provider filled, from what the attempts say: "" when every
+// provider simply found nothing (the cell is then plain no_data), a needs-setup reason when each provider that ran
+// needed a key, and provider_error when a provider failed (an HTTP 5xx, an auth failure, a crash), because then
+// "nothing found" would be a guess.
+func emptyCellReason(notes []attemptNote) string {
+	var failedProviders []string
+	allNeedKey := true
+	first := ""
+	for _, n := range notes {
+		if n.Outcome != "error" {
+			allNeedKey = false
+			continue
+		}
+		failedProviders = append(failedProviders, n.Provider)
+		if classifyProviderError(n.Error) != "needs_key" {
+			allNeedKey = false
+			if first == "" {
+				first = n.Provider + ": " + n.Error
+			}
+		}
+	}
+	if len(failedProviders) == 0 {
+		return ""
+	}
+	if allNeedKey {
+		return failureReason("needs_key", failedProviders)
+	}
+	return "provider_error: " + first
 }
 
 // coolingDownReason is the cell error when every selected provider was skipped.

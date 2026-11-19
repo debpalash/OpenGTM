@@ -737,6 +737,11 @@ loop:
 			return cellOutcome{Success: true, Value: v}, nil
 		}
 	}
+	if resultValue == "" && (resultError == "" || resultError == "no_data") {
+		if reason := emptyCellReason(notes); reason != "" {
+			resultError = truncRunes(reason, maxErrorRunes)
+		}
+	}
 	r := cellResult{Has: resultValue != "", Value: resultValue,
 		Provider: resultProvider, Err: resultError, Skipped: skipped}
 	if resultConfidence != 0 {
