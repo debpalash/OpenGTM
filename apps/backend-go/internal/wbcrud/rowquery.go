@@ -13,6 +13,7 @@ import (
 
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/canonjson"
 	"github.com/debpalash/OpenGTM/apps/backend-go/internal/httpx"
+	"github.com/debpalash/OpenGTM/apps/backend-go/internal/sqllike"
 )
 
 // Row query engine: _workbook_value_expression / _workbook_rows_query and the
@@ -88,10 +89,7 @@ func valueExpression(cols []Column, columnID string, a *argBuilder) (string, boo
 }
 
 // likeEscape is SQLAlchemy's autoescape=True with escape character "/".
-func likeEscape(s string) string {
-	r := strings.NewReplacer("/", "//", "%", "/%", "_", "/_")
-	return r.Replace(s)
-}
+func likeEscape(s string) string { return sqllike.Escape(s, '/') }
 
 func containsSQL(expr, needleParam string) string {
 	return expr + ` LIKE '%' || ` + needleParam + ` || '%' ESCAPE '/'`

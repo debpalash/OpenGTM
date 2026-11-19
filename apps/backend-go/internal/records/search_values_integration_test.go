@@ -14,6 +14,7 @@ func TestSearchMatchesFieldValuesNotKeys(t *testing.T) {
 	ctx := context.Background()
 	mustRecord(t, s, ws, Company, Write{Company: map[string]any{"name": "Stripe", "domain": "stripe.test", "industry": "Payments"}}, "manual", "")
 	mustRecord(t, s, ws, Company, Write{Company: map[string]any{"name": "Notion", "domain": "notion.test", "industry": "Software"}}, "manual", "")
+	mustRecord(t, s, ws, Company, Write{Company: map[string]any{"name": "Acme", "domain": "acme.example", "industry": "50%_off"}}, "manual", "")
 	for _, c := range []struct {
 		search string
 		want   int
@@ -23,7 +24,13 @@ func TestSearchMatchesFieldValuesNotKeys(t *testing.T) {
 		{"stripe", 1},   // name and domain value
 		{"payments", 1}, // a non-name value (field search still works)
 		{".test", 2},    // a value both share
-		{"", 2},         // no search lists everything
+		{"", 3},         // no search lists everything
+		{"50%_o", 1},    // wildcard characters match themselves in a stored value
+		{"%", 1},        // a literal percent sign: only the one value that holds it
+		{"_", 1},        // a literal underscore, not "any character"
+		{"str%e", 0},    // would match "stripe" as a wildcard
+		{"s_ripe", 0},   // would match "stripe" as a wildcard
+		{`\`, 0},        // the escape character itself
 	} {
 		got, err := s.ListFiltered(ctx, ws, Company, ListOptions{Search: c.search, Limit: 100})
 		if err != nil || got.Total != int64(c.want) || len(got.Records) != c.want {

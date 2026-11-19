@@ -2015,10 +2015,8 @@
    },
    "page": 1,
    "page_size": 100,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing",
-    "Gamma Talent",
     "Eta 100% Match"
    ]
   },
@@ -2028,10 +2026,8 @@
    },
    "page": 1,
    "page_size": 3,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing",
-    "Gamma Talent",
     "Eta 100% Match"
    ]
   },
@@ -2041,7 +2037,7 @@
    },
    "page": 2,
    "page_size": 3,
-   "total": 3,
+   "total": 1,
    "companies": []
   },
   {
@@ -2050,7 +2046,7 @@
    },
    "page": 5,
    "page_size": 3,
-   "total": 3,
+   "total": 1,
    "companies": []
   },
   {
@@ -2059,7 +2055,7 @@
    },
    "page": 99,
    "page_size": 3,
-   "total": 3,
+   "total": 1,
    "companies": []
   },
   {
@@ -2068,10 +2064,8 @@
    },
    "page": 0,
    "page_size": 3,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing",
-    "Gamma Talent",
     "Eta 100% Match"
    ]
   },
@@ -2081,10 +2075,9 @@
    },
    "page": -2,
    "page_size": 2,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing",
-    "Gamma Talent"
+    "Eta 100% Match"
    ]
   },
   {
@@ -2093,9 +2086,9 @@
    },
    "page": 1,
    "page_size": 0,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing"
+    "Eta 100% Match"
    ]
   },
   {
@@ -2104,10 +2097,8 @@
    },
    "page": 2,
    "page_size": 1,
-   "total": 3,
-   "companies": [
-    "Gamma Talent"
-   ]
+   "total": 1,
+   "companies": []
   },
   {
    "filter": {
@@ -2115,9 +2106,9 @@
    },
    "page": 1,
    "page_size": -5,
-   "total": 3,
+   "total": 1,
    "companies": [
-    "Acme Staffing"
+    "Eta 100% Match"
    ]
   },
   {
@@ -2126,22 +2117,8 @@
    },
    "page": 1,
    "page_size": 100,
-   "total": 13,
-   "companies": [
-    "Kappa Zero",
-    "Epsilon Search",
-    "Acme Staffing",
-    "Iota O'Brien & Sons",
-    "Gamma Talent",
-    "Beta Recruit",
-    "Theta Tie 4",
-    "Theta Tie 3",
-    "Theta Tie 2",
-    "Theta Tie 1",
-    "Delta HR",
-    "Eta 100% Match",
-    "Zeta Works"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2149,12 +2126,8 @@
    },
    "page": 1,
    "page_size": 3,
-   "total": 13,
-   "companies": [
-    "Kappa Zero",
-    "Epsilon Search",
-    "Acme Staffing"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2162,12 +2135,8 @@
    },
    "page": 2,
    "page_size": 3,
-   "total": 13,
-   "companies": [
-    "Iota O'Brien & Sons",
-    "Gamma Talent",
-    "Beta Recruit"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2175,10 +2144,8 @@
    },
    "page": 5,
    "page_size": 3,
-   "total": 13,
-   "companies": [
-    "Zeta Works"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2186,7 +2153,7 @@
    },
    "page": 99,
    "page_size": 3,
-   "total": 13,
+   "total": 0,
    "companies": []
   },
   {
@@ -2195,12 +2162,8 @@
    },
    "page": 0,
    "page_size": 3,
-   "total": 13,
-   "companies": [
-    "Kappa Zero",
-    "Epsilon Search",
-    "Acme Staffing"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2208,11 +2171,8 @@
    },
    "page": -2,
    "page_size": 2,
-   "total": 13,
-   "companies": [
-    "Kappa Zero",
-    "Epsilon Search"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2220,10 +2180,8 @@
    },
    "page": 1,
    "page_size": 0,
-   "total": 13,
-   "companies": [
-    "Kappa Zero"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2231,10 +2189,8 @@
    },
    "page": 2,
    "page_size": 1,
-   "total": 13,
-   "companies": [
-    "Epsilon Search"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {
@@ -2242,10 +2198,8 @@
    },
    "page": 1,
    "page_size": -5,
-   "total": 13,
-   "companies": [
-    "Kappa Zero"
-   ]
+   "total": 0,
+   "companies": []
   },
   {
    "filter": {

@@ -33,11 +33,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND ($11::text IS NULL OR company_size = $11::text)
   AND ($12::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', $12::text)
-       OR company ILIKE '%' || $12::text || '%'
-       OR city ILIKE '%' || $12::text || '%'
-       OR specialization ILIKE '%' || $12::text || '%'
-       OR notes ILIKE '%' || $12::text || '%'
-       OR description ILIKE '%' || $12::text || '%')
+       OR company ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace($12::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
 ORDER BY
          CASE WHEN $13::text = 'score DESC' THEN score END DESC,
          CASE WHEN $13::text = 'score ASC' THEN score END ASC,

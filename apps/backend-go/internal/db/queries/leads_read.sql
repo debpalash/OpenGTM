@@ -17,7 +17,7 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
        OR collection_job_id = ANY(@job_ids::text[])
        OR source = ANY(@job_sources::text[]))
   AND (sqlc.narg('specialization')::text IS NULL
-       OR specialization ILIKE '%' || sqlc.narg('specialization')::text || '%')
+       OR specialization ILIKE '%' || replace(replace(replace(sqlc.narg('specialization')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('has_email')::bool IS NULL
        OR sqlc.narg('has_email')::bool = (email IS NOT NULL AND email <> ''))
   AND (sqlc.narg('has_phone')::bool IS NULL
@@ -28,11 +28,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('max_score')::int4 IS NULL OR score <= sqlc.narg('max_score')::int4)
   AND (sqlc.narg('search')::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', sqlc.narg('search')::text)
-       OR company ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR city ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR specialization ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR notes ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR description ILIKE '%' || sqlc.narg('search')::text || '%');
+       OR company ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\');
 
 -- name: QueryLeadsPage :many
 SELECT id, company, website, email, email_confidence, email_provider, phone, phone_provider, contact_person, contact_title, city, state, address, specialization, company_size, employee_count_exact, description, revenue_range, founded_year, industry_tags, technologies, technographics, funding_stage, company_size_basis, linkedin_url, twitter_url, facebook_url, secondary_emails, secondary_phones, decision_makers, glassdoor_rating, hiring_signals, enrichment_attempts, enrichment_waterfall, field_provenance, source, source_url, collection_job_id, workspace_id, score, score_tier, status, yupcha_value_prop, company_need, notes, created_at, updated_at, last_enriched_at
@@ -49,7 +49,7 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
        OR collection_job_id = ANY(@job_ids::text[])
        OR source = ANY(@job_sources::text[]))
   AND (sqlc.narg('specialization')::text IS NULL
-       OR specialization ILIKE '%' || sqlc.narg('specialization')::text || '%')
+       OR specialization ILIKE '%' || replace(replace(replace(sqlc.narg('specialization')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
   AND (sqlc.narg('has_email')::bool IS NULL
        OR sqlc.narg('has_email')::bool = (email IS NOT NULL AND email <> ''))
   AND (sqlc.narg('has_phone')::bool IS NULL
@@ -60,11 +60,11 @@ WHERE workspace_id = current_setting('app.workspace_id', true)
   AND (sqlc.narg('max_score')::int4 IS NULL OR score <= sqlc.narg('max_score')::int4)
   AND (sqlc.narg('search')::text IS NULL
        OR search_tsv @@ websearch_to_tsquery('english', sqlc.narg('search')::text)
-       OR company ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR city ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR specialization ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR notes ILIKE '%' || sqlc.narg('search')::text || '%'
-       OR description ILIKE '%' || sqlc.narg('search')::text || '%')
+       OR company ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR city ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR specialization ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR notes ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\'
+       OR description ILIKE '%' || replace(replace(replace(sqlc.narg('search')::text, '\', '\\'), '%', '\%'), '_', '\_') || '%' ESCAPE '\')
 ORDER BY score DESC, id DESC
 LIMIT @page_limit::bigint OFFSET @page_offset::bigint;
 

@@ -127,6 +127,20 @@ func TestListLeadsFilters(t *testing.T) {
 	}
 }
 
+// % and _ typed in the search box are literal characters, not LIKE wildcards: "%" used to match every lead and
+// "a_p" matched "Alpha".
+func TestListLeadsSearchTreatsWildcardsLiterally(t *testing.T) {
+	e := listSetup(t)
+	for _, search := range []string{"%", "_", "al%a", "a_p", `\`, "plumb%pes", "plumb_ng"} {
+		if got := e.list(t, e.wsA, leadsread.ListParams{Search: search, Limit: 500}); len(got) != 0 {
+			t.Errorf("search %q matched %v, want nothing", search, got)
+		}
+	}
+	if got := e.list(t, e.wsA, leadsread.ListParams{Search: "alph", Limit: 500}); !reflect.DeepEqual(got, []string{"Alpha"}) {
+		t.Errorf("plain search regressed: %v", got)
+	}
+}
+
 func TestListLeadsOrderAllowList(t *testing.T) {
 	e := listSetup(t)
 	def := e.list(t, e.wsA, leadsread.ListParams{Limit: 500})
