@@ -43,7 +43,7 @@ function Metric({ label, value, sub, icon: Icon, color = "text-primary", delta }
       <div className="flex items-baseline gap-1.5">
         <span className="text-xl font-bold tracking-tight tabular-nums">{value}</span>
         {delta !== undefined && delta !== 0 && (
-          <span className={`text-xs font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-emerald-500" : "text-red-400"}`}>
+          <span className={`text-xs font-medium flex items-center gap-0.5 ${delta >= 0 ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400"}`}>
             {delta >= 0 ? <ArrowUp className="size-2.5" /> : <ArrowDown className="size-2.5" />}{delta >= 0 ? "+" : ""}{delta}
             <span className="text-muted-foreground">wk</span>
           </span>
