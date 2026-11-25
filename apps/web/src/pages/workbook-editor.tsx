@@ -29,7 +29,7 @@ import {
   useAddWorkbookColumn,
 } from "@/lib/workbook-hooks"
 import type { ColumnConfig, WorkbookLeadRow, EnrichmentOverlay, Provenance, AiColumnPreset, CostInfo, RunCostEstimate, WorkbookView } from "@/lib/workbook-api"
-import { exportWorkbookCsv, fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn } from "@/lib/workbook-api"
+import { exportWorkbookCsv, fetchAiColumnPresets, fetchRunEstimate, fetchWorkbookCost, generateColumn, issueWorkbookIngestToken } from "@/lib/workbook-api"
 import {
   ArrowLeft, Plus, Download, Upload,
   Sparkles, Type, Layers, Brain, GitBranch, Send, Globe,
@@ -562,6 +562,22 @@ export default function WorkbookEditorPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [csvImportDraft, setCsvImportDraft] = useState<CsvImportDraft | null>(null)
   const [showSourcePanel, setShowSourcePanel] = useState(false)
+  const [showIngestTokenDialog, setShowIngestTokenDialog] = useState(false)
+  const [ingestToken, setIngestToken] = useState<string | null>(null)
+  const [issuingIngestToken, setIssuingIngestToken] = useState(false)
+  const [ingestTokenError, setIngestTokenError] = useState<string | null>(null)
+  const issueIngestToken = async () => {
+    if (!id || issuingIngestToken) return
+    setIssuingIngestToken(true)
+    setIngestTokenError(null)
+    try {
+      setIngestToken(await issueWorkbookIngestToken(id))
+    } catch (error) {
+      setIngestTokenError(error instanceof Error ? error.message : "Could not create the ingest token.")
+    } finally {
+      setIssuingIngestToken(false)
+    }
+  }
   const [SourceEnginePanel, setSourceEnginePanel] = useState<typeof SourceEnginePanelType | null>(null)
   const [sourcePanelLoading, setSourcePanelLoading] = useState(false)
   const sourcePanelLoadingRef = useRef(false)
@@ -1643,6 +1659,39 @@ export default function WorkbookEditorPage() {
             onOpenChange={setShowSourcePanel}
             onChanged={() => refetch()}
           />}
+
+          <Button variant="outline" onClick={() => setShowIngestTokenDialog(true)} title="Connect an external source to this workbook">
+            <Webhook /> Ingest token
+          </Button>
+          <Dialog.Root open={showIngestTokenDialog} onOpenChange={(open) => {
+            setShowIngestTokenDialog(open)
+            if (!open) { setIngestToken(null); setIngestTokenError(null) }
+          }}>
+            <Dialog.Popup size="lg">
+              <Dialog.Header><Dialog.Title>Workbook ingest token</Dialog.Title></Dialog.Header>
+              <Dialog.Body>
+                {ingestToken ? (
+                  <div className="space-y-3">
+                    <p className="text-sm">Copy this token now. It will not be shown again. Store it in the sending application's secure connection settings.</p>
+                    <DesignInput aria-label="New workbook ingest token" value={ingestToken} readOnly onFocus={e => e.target.select()} />
+                    <DesignButton onClick={async () => {
+                      if (await copyText(ingestToken)) toast.success("Token copied")
+                      else toast.error("Copy failed. Select and copy the token manually.")
+                    }}><Copy className="size-4" /> Copy token</DesignButton>
+                  </div>
+                ) : (
+                  <p className="text-sm">Create a token for sending rows into this workbook. Any earlier ingest token for this workbook will stop working immediately.</p>
+                )}
+                {ingestTokenError && <p role="alert" className="mt-3 text-sm text-destructive">{ingestTokenError}</p>}
+              </Dialog.Body>
+              <Dialog.Footer>
+                <Dialog.Close render={<DesignButton disabled={issuingIngestToken} />}>{ingestToken ? "Done" : "Cancel"}</Dialog.Close>
+                {!ingestToken && <DesignButton onClick={() => void issueIngestToken()} disabled={issuingIngestToken}>
+                  {issuingIngestToken ? "Creating…" : "Create or rotate token"}
+                </DesignButton>}
+              </Dialog.Footer>
+            </Dialog.Popup>
+          </Dialog.Root>
 
           <WorkbookRunReview key={id} workbookId={id!} initiallyOpen={searchParams.get("review")==="1"} viewId={activeViewId}
             viewName={activeView?.name || "All rows"} search={deferredGlobalFilter}
