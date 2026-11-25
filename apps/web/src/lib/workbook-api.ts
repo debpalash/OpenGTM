@@ -9,6 +9,24 @@ import { authQuery } from "./auth"
 
 const API = ""
 
+/** Issue a one-time workbook token for external row ingestion. Previous tokens are revoked. */
+export async function issueWorkbookIngestToken(workbookId: string): Promise<string> {
+  const res = await fetch(`${API}/api/v2/workbooks/${encodeURIComponent(workbookId)}/ingest-token`, {
+    method: "POST",
+  })
+  if (!res.ok) {
+    if (res.status === 404) throw new Error("Workbook ingestion is unavailable or this workbook was not found.")
+    if (res.status === 401 || res.status === 403) throw new Error("You need workbook edit access to create an ingest token.")
+    throw new Error("Could not create the ingest token. Please try again.")
+  }
+  const data: unknown = await res.json()
+  if (!data || typeof data !== "object" || !("token" in data) ||
+      typeof data.token !== "string" || !data.token.startsWith("wbi_")) {
+    throw new Error("The server did not return a valid ingest token.")
+  }
+  return data.token
+}
+
 // ── Types ────────────────────────────────────────────────────────────────
 
 // Per-fact provenance for an enriched cell (license/freshness/source).
