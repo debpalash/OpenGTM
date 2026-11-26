@@ -339,6 +339,22 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string,
 			return
 		}
 	}
+	if object, ok := doc.(*wbcrud.Obj); ok {
+		if probe, found := object.Get("probe_update_scope"); found {
+			rows, rowsFound := object.Get("rows")
+			list, rowsAreList := rows.([]any)
+			if probe != true || mode != "update" || !rowsFound || !rowsAreList || len(list) != 0 {
+				httpx.Detail(w, http.StatusUnprocessableEntity, "scope probe requires an empty update batch")
+				return
+			}
+			httpx.WriteJSON(w, http.StatusOK, map[string]any{
+				"capability": "scoped_duplicate_update",
+				"update_fields": updateFields,
+				"wrote_rows": false,
+			})
+			return
+		}
+	}
 	var req wbcrud.AddRowsRequest
 	req, errs = wbcrud.ParseAddRows(doc) // rows min 1, dedupe default true, plan 04 row and key caps
 	if errs != nil {

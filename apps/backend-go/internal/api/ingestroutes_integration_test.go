@@ -310,7 +310,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 	}
 	_ = json.Unmarshal([]byte(body), &appendToken)
 	update := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":61}],"on_duplicate":"update"}`
-	probe := `{"rows":[],"dedupe":true,"on_duplicate":"update"}`
+	probe := `{"rows":[],"dedupe":true,"on_duplicate":"update","probe_update_scope":true}`
 	if code, body := e.post(base+"rows/ingest", probe, tokHdr(appendToken.Token)); code != 403 {
 		t.Fatalf("append-only token passed update probe: %d %s", code, body)
 	}
@@ -329,7 +329,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 	if len(scoped.UpdateFields) != 1 || scoped.UpdateFields[0] != "Intel Score" {
 		t.Fatalf("wrong token scope: %s", body)
 	}
-	if code, body := e.post(base+"rows/ingest", probe, tokHdr(scoped.Token)); code != 422 {
+	if code, body := e.post(base+"rows/ingest", probe, tokHdr(scoped.Token)); code != 200 || !strings.Contains(body, `"capability":"scoped_duplicate_update"`) || !strings.Contains(body, `"wrote_rows":false`) {
 		t.Fatalf("scoped token failed no-write probe: %d %s", code, body)
 	}
 	code, body = e.post(base+"rows/ingest", update, tokHdr(scoped.Token))
