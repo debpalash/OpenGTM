@@ -3308,7 +3308,8 @@ CREATE TABLE public.workbook_ingest_tokens (
     prefix character varying(20) NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     revoked_at timestamp with time zone,
-    created_by integer
+    created_by integer,
+    allowed_update_fields text[] DEFAULT '{}'::text[] NOT NULL
 );
 
 --

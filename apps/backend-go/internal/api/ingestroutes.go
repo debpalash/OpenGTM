@@ -6,11 +6,14 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
+	"encoding/json"
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -42,6 +45,55 @@ var ingestHookFor = func(d Deps) automationhook.Hook {
 }
 
 var errIngestIdemConflict = errors.New("ingest: idempotency key recorded concurrently")
+var errIngestAmbiguousIdentity = errors.New("ingest: multiple existing rows share one identity")
+var errIngestUpdatePayload = errors.New("ingest: update rows need a domain and only token-granted fields")
+
+var ingestUpdateFieldName = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9 _-]{0,63}$`)
+var ingestIdentityFields = map[string]struct{}{
+	"company": {}, "website": {}, "domain": {}, "id": {}, "row_id": {}, "lead_id": {},
+}
+
+// The editor chooses the exact row fields an ingest token may refresh. Existing tokens and
+// tokens minted without this option stay append-only. Identity fields are never token-updatable.
+func parseIngestUpdateScope(r *http.Request) ([]string, error) {
+	const maxScopeBody = 8192
+	data, err := io.ReadAll(io.LimitReader(r.Body, maxScopeBody+1))
+	if err != nil || len(data) > maxScopeBody {
+		return nil, errors.New("invalid update scope")
+	}
+	if len(strings.TrimSpace(string(data))) == 0 {
+		return nil, nil
+	}
+	var body struct {
+		UpdateFields []string `json:"update_fields"`
+	}
+	dec := json.NewDecoder(strings.NewReader(string(data)))
+	dec.DisallowUnknownFields()
+	if err := dec.Decode(&body); err != nil {
+		return nil, errors.New("invalid update scope")
+	}
+	if err := dec.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
+		return nil, errors.New("invalid update scope")
+	}
+	if len(body.UpdateFields) > 24 {
+		return nil, errors.New("too many update fields")
+	}
+	seen := map[string]struct{}{}
+	for _, field := range body.UpdateFields {
+		key := strings.ToLower(field)
+		if !ingestUpdateFieldName.MatchString(field) {
+			return nil, errors.New("invalid update field name")
+		}
+		if _, blocked := ingestIdentityFields[key]; blocked {
+			return nil, errors.New("identity fields cannot be updated")
+		}
+		if _, duplicate := seen[key]; duplicate {
+			return nil, errors.New("duplicate update field")
+		}
+		seen[key] = struct{}{}
+	}
+	return body.UpdateFields, nil
+}
 
 // registerIngest registers POST /api/v2/workbooks/{workbook_id}/ingest-token (require_editor) and
 // .../rows/ingest (session with tables.write, or a per-workbook ingest token).
@@ -123,6 +175,11 @@ func (h ingestRoutes) createToken(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusNotFound, ingestDisabledDetail)
 		return
 	}
+	updateFields, scopeErr := parseIngestUpdateScope(r)
+	if scopeErr != nil {
+		httpx.Detail(w, http.StatusUnprocessableEntity, scopeErr.Error())
+		return
+	}
 	wc, _ := identity.WorkspaceFrom(r.Context())
 	buf := make([]byte, 32)
 	if _, err := rand.Read(buf); err != nil {
@@ -146,12 +203,16 @@ func (h ingestRoutes) createToken(w http.ResponseWriter, r *http.Request) {
 		}
 		created, err = q.InsertIngestToken(r.Context(), gen.InsertIngestTokenParams{
 			ID: wbcrud.NewID(), WorkspaceID: wc.WorkspaceID, WorkbookID: wbID, TokenHash: hashIngestToken(raw), Prefix: prefix, CreatedBy: pgtype.Int4{Int32: wc.User.ID, Valid: true}})
+		if err != nil || len(updateFields) == 0 {
+			return err
+		}
+		_, err = tx.Exec(r.Context(), `UPDATE workbook_ingest_tokens SET allowed_update_fields = $1 WHERE id = $2 AND workspace_id = $3`, updateFields, created.ID, wc.WorkspaceID)
 		return err
 	})
 	switch {
 	case err == nil:
 		httpx.WriteJSON(w, http.StatusOK, ingestTokenResponse{Token: raw, ID: created.ID, Prefix: prefix, WorkbookID: wbID,
-			WorkspaceID: wc.WorkspaceID, CreatedAt: pyIsoUTC(created.CreatedAt.Time), Rotated: rotated})
+			WorkspaceID: wc.WorkspaceID, CreatedAt: pyIsoUTC(created.CreatedAt.Time), Rotated: rotated, UpdateFields: updateFields})
 	case errors.Is(err, wbcrud.ErrNotFound):
 		httpx.Detail(w, http.StatusNotFound, wbcrud.NotFoundDetail)
 	default:
@@ -168,29 +229,32 @@ type ingestTokenResponse struct {
 	WorkspaceID string `json:"workspace_id"`
 	CreatedAt   string `json:"created_at"`
 	Rotated     int64  `json:"rotated"`
+	UpdateFields []string `json:"update_fields,omitempty"`
 }
 
 // resolveIngestToken is resolve_ingest_token: the workspace a token may ingest into for workbookID. Failures
 // carry the service's strings; the stored hash is re-compared in constant time on top of the indexed lookup.
-func (h ingestRoutes) resolveIngestToken(ctx context.Context, raw, workbookID string) (ws string, detail string, err error) {
+func (h ingestRoutes) resolveIngestToken(ctx context.Context, raw, workbookID string) (ws string, updateFields []string, detail string, err error) {
 	presented := hashIngestToken(raw)
-	tok, err := gen.New(h.d.Pool).GetIngestTokenByHash(ctx, presented)
+	var tokenHash, tokenWorkbookID, tokenWorkspaceID string
+	var revokedAt pgtype.Timestamptz
+	err = h.d.Pool.QueryRow(ctx, `SELECT token_hash, workbook_id, workspace_id, revoked_at, allowed_update_fields FROM workbook_ingest_tokens WHERE token_hash = $1 LIMIT 1`, presented).Scan(&tokenHash, &tokenWorkbookID, &tokenWorkspaceID, &revokedAt, &updateFields)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return "", "invalid ingest token", nil
+		return "", nil, "invalid ingest token", nil
 	}
 	if err != nil {
-		return "", "", err
+		return "", nil, "", err
 	}
-	if !ingestHashEqual(tok.TokenHash, presented) {
-		return "", "invalid ingest token", nil
+	if !ingestHashEqual(tokenHash, presented) {
+		return "", nil, "invalid ingest token", nil
 	}
-	if tok.RevokedAt.Valid {
-		return "", "ingest token revoked", nil
+	if revokedAt.Valid {
+		return "", nil, "ingest token revoked", nil
 	}
-	if tok.WorkbookID != workbookID { // a token is bound to exactly one workbook
-		return "", "ingest token not valid for this workbook", nil
+	if tokenWorkbookID != workbookID { // a token is bound to exactly one workbook
+		return "", nil, "ingest token not valid for this workbook", nil
 	}
-	return tok.WorkspaceID, "", nil
+	return tokenWorkspaceID, updateFields, "", nil
 }
 
 // ── ingest ───────────────────────────────────────────────────────────────────
@@ -212,7 +276,7 @@ func (h ingestRoutes) ingest(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusUnauthorized, "Missing credentials")
 		return
 	}
-	ws, detail, err := h.resolveIngestToken(r.Context(), raw, r.PathValue("workbook_id"))
+	ws, updateFields, detail, err := h.resolveIngestToken(r.Context(), raw, r.PathValue("workbook_id"))
 	if err != nil {
 		h.fail(w, "resolve token", err)
 		return
@@ -221,7 +285,7 @@ func (h ingestRoutes) ingest(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusUnauthorized, detail)
 		return
 	}
-	h.withBudget(w, r, ws)
+	h.withBudget(w, r, ws, updateFields)
 }
 
 func (h ingestRoutes) sessionIngest(w http.ResponseWriter, r *http.Request) {
@@ -239,17 +303,17 @@ func (h ingestRoutes) sessionIngest(w http.ResponseWriter, r *http.Request) {
 		httpx.Detail(w, http.StatusForbidden, "Insufficient workspace role")
 		return
 	}
-	h.withBudget(w, r, wc.WorkspaceID)
+	h.withBudget(w, r, wc.WorkspaceID, nil)
 }
 
 // withBudget applies plan 04's upload byte budget (503 when full) and body cap before the body is read.
-func (h ingestRoutes) withBudget(w http.ResponseWriter, r *http.Request, ws string) {
+func (h ingestRoutes) withBudget(w http.ResponseWriter, r *http.Request, ws string, updateFields []string) {
 	withBodyBudget(sharedBudget(h.d.Flags.ImportMemoryBudgetMB), maxRowsBody, func(w http.ResponseWriter, r *http.Request) {
-		h.process(w, r, ws)
+		h.process(w, r, ws, updateFields)
 	})(w, r)
 }
 
-func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string) {
+func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string, updateFields []string) {
 	doc, errs, ok := readRowsDoc(w, r)
 	if !ok {
 		return
@@ -261,6 +325,27 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string)
 	if errs != nil {
 		httpx.ValidationError(w, errs...)
 		return
+	}
+	mode := "skip"
+	if object, ok := doc.(*wbcrud.Obj); ok {
+		if value, found := object.Get("on_duplicate"); found {
+			var isString bool
+			mode, isString = value.(string)
+			if !isString || (mode != "skip" && mode != "update") {
+				httpx.Detail(w, http.StatusUnprocessableEntity, "on_duplicate must be skip or update")
+				return
+			}
+		}
+	}
+	if mode == "update" {
+		if len(updateFields) == 0 {
+			httpx.Detail(w, http.StatusForbidden, "ingest token has no update scope")
+			return
+		}
+		if !req.Dedupe {
+			httpx.Detail(w, http.StatusUnprocessableEntity, "update mode requires dedupe")
+			return
+		}
 	}
 	if len(req.Rows) > maxIngestRows {
 		httpx.Detail(w, http.StatusRequestEntityTooLarge, fmt.Sprintf("too many rows: %d > %d per request", len(req.Rows), maxIngestRows))
@@ -275,7 +360,7 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string)
 	var replay bool
 	err := h.svc.WithTx(r.Context(), ws, func(tx pgx.Tx) error {
 		var err error
-		body, replay, err = h.apply(r.Context(), tx, ws, wbID, req, idem)
+		body, replay, err = h.apply(r.Context(), tx, ws, wbID, req, idem, mode == "update", updateFields)
 		return err
 	})
 	if errors.Is(err, errIngestIdemConflict) { // a concurrent request recorded this key first: replay its result
@@ -295,6 +380,10 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string)
 		_, _ = w.Write(body)
 	case errors.Is(err, wbcrud.ErrNotFound):
 		httpx.Detail(w, http.StatusNotFound, wbcrud.NotFoundDetail)
+	case errors.Is(err, errIngestAmbiguousIdentity):
+		httpx.Detail(w, http.StatusConflict, "multiple workbook rows match one company domain")
+	case errors.Is(err, errIngestUpdatePayload):
+		httpx.Detail(w, http.StatusUnprocessableEntity, "update rows need a company domain and only token-granted fields")
 	default:
 		h.fail(w, "rows", err)
 	}
@@ -304,6 +393,7 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string)
 type ingestResult struct {
 	WorkbookID        string   `json:"workbook_id"`
 	Added             int      `json:"added"`
+	Updated           int      `json:"updated,omitempty"`
 	SkippedDuplicates int      `json:"skipped_duplicates"`
 	SkippedEmpty      int      `json:"skipped_empty"`
 	TotalRows         int      `json:"total_rows"`
@@ -386,9 +476,53 @@ func ingestRowEmpty(row *wbcrud.Obj) bool {
 	return true
 }
 
+// A duplicate may be refreshed only when exactly one existing row has the same registrable
+// domain. Company names alone are not a safe update key, and ambiguous matches fail the batch.
+func ingestIdentityRows(ctx context.Context, tx pgx.Tx, workbookID string) (map[string][]int64, error) {
+	rows, err := tx.Query(ctx, `SELECT id,
+		CASE WHEN json_typeof(data->'website') = 'string' THEN data->>'website' END,
+		CASE WHEN json_typeof(data->'domain') = 'string' THEN data->>'domain' END,
+		CASE WHEN json_typeof(data->'company') = 'string' THEN data->>'company' END
+		FROM workbook_rows WHERE workbook_id = $1`, workbookID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	found := map[string][]int64{}
+	for rows.Next() {
+		var id int64
+		var website, domain, company *string
+		if err := rows.Scan(&id, &website, &domain, &company); err != nil {
+			return nil, err
+		}
+		row := wbcrud.NewObj()
+		if website != nil { row.Set("website", *website) }
+		if domain != nil { row.Set("domain", *domain) }
+		if company != nil { row.Set("company", *company) }
+		if identity := wbcrud.RowIdentity(row); identity != "" {
+			found[identity] = append(found[identity], id)
+		}
+	}
+	return found, rows.Err()
+}
+
+func ingestUpdatePatch(row *wbcrud.Obj, updateFields []string) (*wbcrud.Obj, error) {
+	allowed := make(map[string]struct{}, len(updateFields))
+	for _, field := range updateFields { allowed[field] = struct{}{} }
+	patch := wbcrud.NewObj()
+	for _, key := range row.Keys() {
+		if _, identity := ingestIdentityFields[strings.ToLower(key)]; identity { continue }
+		if _, ok := allowed[key]; !ok { return nil, errIngestUpdatePayload }
+		value, _ := row.Get(key)
+		if value == nil || value == "" { return nil, errIngestUpdatePayload }
+		patch.Set(key, value)
+	}
+	return patch, nil
+}
+
 // apply runs inside the caller's workspace transaction: replay lookup, map, dedupe, insert, total, idempotency
 // record, row-added hook. It returns the response body and whether it is a stored replay.
-func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req wbcrud.AddRowsRequest, idem string) ([]byte, bool, error) {
+func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req wbcrud.AddRowsRequest, idem string, updateDuplicates bool, updateFields []string) ([]byte, bool, error) {
 	wb, err := h.svc.Owned(ctx, tx, ws, wbID, true) // FOR UPDATE: positions and totals stay consistent
 	if err != nil {
 		return nil, false, err
@@ -419,24 +553,50 @@ func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req
 		mapped = append(mapped, row)
 	}
 	skippedDupes := 0
+	updated := 0
 	if req.Dedupe && len(mapped) > 0 {
-		seen, err := wbcrud.ExistingIdentities(ctx, tx, wbID)
-		if err != nil {
-			return nil, false, err
-		}
-		kept := mapped[:0:0]
-		for _, row := range mapped {
-			id := wbcrud.RowIdentity(row)
-			if id != "" {
-				if _, dup := seen[id]; dup {
+		if updateDuplicates {
+			seen, err := ingestIdentityRows(ctx, tx, wbID)
+			if err != nil { return nil, false, err }
+			batchSeen := map[string]struct{}{}
+			kept := mapped[:0:0]
+			for _, row := range mapped {
+				identity := wbcrud.RowIdentity(row)
+				if !strings.HasPrefix(identity, "d:") { return nil, false, errIngestUpdatePayload }
+				patch, err := ingestUpdatePatch(row, updateFields)
+				if err != nil { return nil, false, err }
+				if _, duplicate := batchSeen[identity]; duplicate {
 					skippedDupes++
 					continue
 				}
-				seen[id] = struct{}{}
+				batchSeen[identity] = struct{}{}
+				matches := seen[identity]
+				if len(matches) > 1 { return nil, false, errIngestAmbiguousIdentity }
+				if len(matches) == 1 {
+					if patch.Len() == 0 { skippedDupes++; continue }
+					command, err := tx.Exec(ctx, `UPDATE workbook_rows SET data = (data::jsonb || $1::jsonb)::json, updated_at = (now() AT TIME ZONE 'utc') WHERE id = $2 AND workbook_id = $3 AND workspace_id = $4`, wbcrud.PyDumps(patch, false), matches[0], wbID, ws)
+					if err != nil { return nil, false, err }
+					if command.RowsAffected() != 1 { return nil, false, wbcrud.ErrNotFound }
+					updated++
+					continue
+				}
+				kept = append(kept, row)
 			}
-			kept = append(kept, row)
+			mapped = kept
+		} else {
+			seen, err := wbcrud.ExistingIdentities(ctx, tx, wbID)
+			if err != nil { return nil, false, err }
+			kept := mapped[:0:0]
+			for _, row := range mapped {
+				id := wbcrud.RowIdentity(row)
+				if id != "" {
+					if _, dup := seen[id]; dup { skippedDupes++; continue }
+					seen[id] = struct{}{}
+				}
+				kept = append(kept, row)
+			}
+			mapped = kept
 		}
-		mapped = kept
 	}
 	ids := []int64{}
 	if len(mapped) > 0 {
@@ -475,7 +635,7 @@ func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req
 		keys = append(keys, k)
 	}
 	sort.Strings(keys) // UTF-8 byte order is code-point order, like Python's sorted(str)
-	res := ingestResult{WorkbookID: wbID, Added: len(ids), SkippedDuplicates: skippedDupes, SkippedEmpty: skippedEmpty,
+	res := ingestResult{WorkbookID: wbID, Added: len(ids), Updated: updated, SkippedDuplicates: skippedDupes, SkippedEmpty: skippedEmpty,
 		TotalRows: int(total), RowIDs: ids, UnmappedKeys: keys}
 	body, err := wbcrud.MarshalNoEscape(res)
 	if err != nil {

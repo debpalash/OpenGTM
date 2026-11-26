@@ -16,7 +16,7 @@ import (
 // RequiredGoSchemaVersion is the goose migration version (internal/migrate) the
 // Go api/worker/mcp require at startup: goose_db_version must be at least this.
 // It always equals the latest migration (TestLatestVersionCoversRequired): bump it with every new migration.
-const RequiredGoSchemaVersion int64 = 7
+const RequiredGoSchemaVersion int64 = 8
 
 // RequiredGoSchemaRevision is the Alembic revision the Go baseline (migration 1)
 // reproduces. The Go runner stamps it into alembic_version and adopts databases

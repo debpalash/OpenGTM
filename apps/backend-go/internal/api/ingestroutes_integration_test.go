@@ -293,6 +293,70 @@ func TestIngestTokenRotationRevokesPrevious(t *testing.T) {
 	}
 }
 
+func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
+	e, hook := newIngestEnv(t, true)
+	base := ingestBase + "wb-ingest-empty/"
+	owner := e.session("alice", "ws-alpha")
+	seed := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":50,"Owner Notes":"Keep"}]}`
+	if code, body := e.post(base+"rows/ingest", seed, owner); code != 200 {
+		t.Fatalf("seed: %d %s", code, body)
+	}
+	code, body := e.post(base+"ingest-token", "", owner)
+	if code != 200 { t.Fatalf("append token: %d %s", code, body) }
+	var appendToken struct{ Token string `json:"token"` }
+	_ = json.Unmarshal([]byte(body), &appendToken)
+	update := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":61}],"on_duplicate":"update"}`
+	if code, body := e.post(base+"rows/ingest", update, tokHdr(appendToken.Token)); code != 403 {
+		t.Fatalf("append-only token updated a row: %d %s", code, body)
+	}
+	code, body = e.post(base+"ingest-token", `{"update_fields":["Intel Score"]}`, owner)
+	if code != 200 { t.Fatalf("scoped token: %d %s", code, body) }
+	var scoped struct {
+		Token string `json:"token"`
+		UpdateFields []string `json:"update_fields"`
+	}
+	_ = json.Unmarshal([]byte(body), &scoped)
+	if len(scoped.UpdateFields) != 1 || scoped.UpdateFields[0] != "Intel Score" {
+		t.Fatalf("wrong token scope: %s", body)
+	}
+	code, body = e.post(base+"rows/ingest", update, tokHdr(scoped.Token))
+	if code != 200 || !strings.Contains(body, `"updated":1`) || !strings.Contains(body, `"added":0`) {
+		t.Fatalf("refresh: %d %s", code, body)
+	}
+	if got := dbString(t, `SELECT data->>'Intel Score' || ':' || data->>'Owner Notes' FROM workbook_rows WHERE workbook_id='wb-ingest-empty'`); got != "61:Keep" {
+		t.Errorf("scoped update changed wrong fields: %s", got)
+	}
+	if e.count(t, "wb-ingest-empty") != "1" || len(hook.calls) != 1 {
+		t.Errorf("refresh added rows or fired row-added hook")
+	}
+	bad := `{"rows":[{"company":"Acme","website":"https://acme.io","Owner Notes":"Erase"}],"on_duplicate":"update"}`
+	if code, body := e.post(base+"rows/ingest", bad, tokHdr(scoped.Token)); code != 422 {
+		t.Fatalf("out-of-scope field accepted: %d %s", code, body)
+	}
+	if got := dbString(t, `SELECT data->>'Owner Notes' FROM workbook_rows WHERE workbook_id='wb-ingest-empty'`); got != "Keep" {
+		t.Errorf("out-of-scope field changed: %s", got)
+	}
+}
+
+func TestIngestScopedRefreshRejectsAmbiguousDomain(t *testing.T) {
+	e, _ := newIngestEnv(t, true)
+	base := ingestBase + "wb-ingest-empty/"
+	owner := e.session("alice", "ws-alpha")
+	seed := `{"rows":[{"company":"First","website":"https://same.io","Intel Score":50},{"company":"Second","website":"https://same.io","Intel Score":50}],"dedupe":false}`
+	if code, body := e.post(base+"rows/ingest", seed, owner); code != 200 { t.Fatalf("seed: %d %s", code, body) }
+	code, body := e.post(base+"ingest-token", `{"update_fields":["Intel Score"]}`, owner)
+	if code != 200 { t.Fatalf("mint: %d %s", code, body) }
+	var scoped struct{ Token string `json:"token"` }
+	_ = json.Unmarshal([]byte(body), &scoped)
+	update := `{"rows":[{"company":"Same","website":"https://same.io","Intel Score":70}],"on_duplicate":"update"}`
+	if code, body := e.post(base+"rows/ingest", update, tokHdr(scoped.Token)); code != 409 {
+		t.Fatalf("ambiguous domain updated rows: %d %s", code, body)
+	}
+	if got := dbString(t, `SELECT count(*)::text FROM workbook_rows WHERE workbook_id='wb-ingest-empty' AND data->>'Intel Score'='50'`); got != "2" {
+		t.Errorf("ambiguous refresh changed data: %s", got)
+	}
+}
+
 func TestIngestWithSessionNeedsTablesWrite(t *testing.T) {
 	e, _ := newIngestEnv(t, true)
 	body := `{"rows":[{"company":"Session Co"}]}`
