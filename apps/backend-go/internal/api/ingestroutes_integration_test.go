@@ -297,7 +297,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 	e, hook := newIngestEnv(t, true)
 	base := ingestBase + "wb-ingest-empty/"
 	owner := e.session("alice", "ws-alpha")
-	seed := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":50,"Owner Notes":"Keep"}]}`
+	seed := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":50,"ICP Band":"B","Owner Notes":"Keep"}]}`
 	if code, body := e.post(base+"rows/ingest", seed, owner); code != 200 {
 		t.Fatalf("seed: %d %s", code, body)
 	}
@@ -309,7 +309,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 		Token string `json:"token"`
 	}
 	_ = json.Unmarshal([]byte(body), &appendToken)
-	update := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":61}],"on_duplicate":"update"}`
+	update := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":61,"ICP Band":null}],"on_duplicate":"update"}`
 	probe := `{"rows":[],"dedupe":true,"on_duplicate":"update","probe_update_scope":true}`
 	if code, body := e.post(base+"rows/ingest", probe, tokHdr(appendToken.Token)); code != 403 {
 		t.Fatalf("append-only token passed update probe: %d %s", code, body)
@@ -317,7 +317,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 	if code, body := e.post(base+"rows/ingest", update, tokHdr(appendToken.Token)); code != 403 {
 		t.Fatalf("append-only token updated a row: %d %s", code, body)
 	}
-	code, body = e.post(base+"ingest-token", `{"update_fields":["Intel Score"]}`, owner)
+	code, body = e.post(base+"ingest-token", `{"update_fields":["Intel Score","ICP Band"]}`, owner)
 	if code != 200 {
 		t.Fatalf("scoped token: %d %s", code, body)
 	}
@@ -326,7 +326,7 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 		UpdateFields []string `json:"update_fields"`
 	}
 	_ = json.Unmarshal([]byte(body), &scoped)
-	if len(scoped.UpdateFields) != 1 || scoped.UpdateFields[0] != "Intel Score" {
+	if len(scoped.UpdateFields) != 2 || scoped.UpdateFields[0] != "Intel Score" || scoped.UpdateFields[1] != "ICP Band" {
 		t.Fatalf("wrong token scope: %s", body)
 	}
 	if code, body := e.post(base+"rows/ingest", probe, tokHdr(scoped.Token)); code != 200 || !strings.Contains(body, `"capability":"scoped_duplicate_update"`) || !strings.Contains(body, `"wrote_rows":false`) {
@@ -338,6 +338,9 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 	}
 	if got := dbString(t, `SELECT data->>'Intel Score' || ':' || data->>'Owner Notes' FROM workbook_rows WHERE workbook_id='wb-ingest-empty'`); got != "61:Keep" {
 		t.Errorf("scoped update changed wrong fields: %s", got)
+	}
+	if got := dbString(t, `SELECT coalesce(data->>'ICP Band', 'CLEARED') FROM workbook_rows WHERE workbook_id='wb-ingest-empty'`); got != "CLEARED" {
+		t.Errorf("scoped null did not clear obsolete ICP band: %s", got)
 	}
 	if e.count(t, "wb-ingest-empty") != "1" || len(hook.calls) != 1 {
 		t.Errorf("refresh added rows or fired row-added hook")

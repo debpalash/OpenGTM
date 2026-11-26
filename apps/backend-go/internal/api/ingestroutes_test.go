@@ -39,6 +39,14 @@ func TestIngestUpdatePatchKeepsOnlyGrantedFields(t *testing.T) {
 	if _, found := patch.Get("website"); found {
 		t.Error("identity field entered update patch")
 	}
+	row.Set("ICP Band", nil)
+	patch, err = ingestUpdatePatch(row, []string{"Intel Score", "ICP Band"})
+	if err != nil {
+		t.Fatalf("scoped null did not clear an obsolete field: %v", err)
+	}
+	if value, found := patch.Get("ICP Band"); !found || value != nil {
+		t.Error("scoped null was not retained in update patch")
+	}
 	row.Set("Owner Notes", "Erase")
 	if _, err := ingestUpdatePatch(row, []string{"Intel Score"}); err == nil {
 		t.Error("out-of-scope field entered update patch")
