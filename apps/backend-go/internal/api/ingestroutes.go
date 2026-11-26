@@ -348,9 +348,9 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string,
 				return
 			}
 			httpx.WriteJSON(w, http.StatusOK, map[string]any{
-				"capability": "scoped_duplicate_update",
+				"capability":    "scoped_duplicate_update",
 				"update_fields": updateFields,
-				"wrote_rows": false,
+				"wrote_rows":    false,
 			})
 			return
 		}
