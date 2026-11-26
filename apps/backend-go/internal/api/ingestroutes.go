@@ -526,7 +526,10 @@ func ingestUpdatePatch(row *wbcrud.Obj, updateFields []string) (*wbcrud.Obj, err
 			return nil, errIngestUpdatePayload
 		}
 		value, _ := row.Get(key)
-		if value == nil || value == "" {
+		if value == nil {
+			return nil, errIngestUpdatePayload
+		}
+		if text, isText := value.(string); isText && text == "" {
 			return nil, errIngestUpdatePayload
 		}
 		patch.Set(key, value)
