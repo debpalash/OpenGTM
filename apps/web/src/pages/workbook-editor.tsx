@@ -564,6 +564,7 @@ export default function WorkbookEditorPage() {
   const [showSourcePanel, setShowSourcePanel] = useState(false)
   const [showIngestTokenDialog, setShowIngestTokenDialog] = useState(false)
   const [ingestToken, setIngestToken] = useState<string | null>(null)
+  const [ingestUpdateFields, setIngestUpdateFields] = useState("")
   const [issuingIngestToken, setIssuingIngestToken] = useState(false)
   const [ingestTokenError, setIngestTokenError] = useState<string | null>(null)
   const issueIngestToken = async () => {
@@ -571,7 +572,8 @@ export default function WorkbookEditorPage() {
     setIssuingIngestToken(true)
     setIngestTokenError(null)
     try {
-      setIngestToken(await issueWorkbookIngestToken(id))
+      const fields = ingestUpdateFields.split(",").map(field => field.trim()).filter(Boolean)
+      setIngestToken(await issueWorkbookIngestToken(id, fields))
     } catch (error) {
       setIngestTokenError(error instanceof Error ? error.message : "Could not create the ingest token.")
     } finally {
@@ -1665,7 +1667,7 @@ export default function WorkbookEditorPage() {
           </Button>
           <Dialog.Root open={showIngestTokenDialog} onOpenChange={(open) => {
             setShowIngestTokenDialog(open)
-            if (!open) { setIngestToken(null); setIngestTokenError(null) }
+            if (!open) { setIngestToken(null); setIngestTokenError(null); setIngestUpdateFields("") }
           }}>
             <Dialog.Popup size="lg">
               <Dialog.Header><Dialog.Title>Workbook ingest token</Dialog.Title></Dialog.Header>
@@ -1680,7 +1682,16 @@ export default function WorkbookEditorPage() {
                     }}><Copy className="size-4" /> Copy token</DesignButton>
                   </div>
                 ) : (
-                  <p className="text-sm">Create a token for sending rows into this workbook. Any earlier ingest token for this workbook will stop working immediately.</p>
+                  <div className="space-y-3">
+                    <p className="text-sm">Create a token for sending rows into this workbook. Any earlier ingest token for this workbook will stop working immediately.</p>
+                    <label className="block space-y-1 text-sm">
+                      <span>Fields this token may refresh on a matching company (optional)</span>
+                      <DesignInput aria-label="Fields this token may refresh" value={ingestUpdateFields}
+                        onChange={e => setIngestUpdateFields(e.target.value)}
+                        placeholder="Intent Score, Active Topics, ICP Band" />
+                    </label>
+                    <p className="text-xs text-muted-foreground">Separate exact field names with commas. Leave blank for an append-only token. Company identity fields cannot be refreshed. A refresh changes only these fields; other row values are kept.</p>
+                  </div>
                 )}
                 {ingestTokenError && <p role="alert" className="mt-3 text-sm text-destructive">{ingestTokenError}</p>}
               </Dialog.Body>

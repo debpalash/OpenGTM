@@ -10,13 +10,19 @@ import { authQuery } from "./auth"
 const API = ""
 
 /** Issue a one-time workbook token for external row ingestion. Previous tokens are revoked. */
-export async function issueWorkbookIngestToken(workbookId: string): Promise<string> {
+export async function issueWorkbookIngestToken(workbookId: string, updateFields: string[] = []): Promise<string> {
   const res = await fetch(`${API}/api/v2/workbooks/${encodeURIComponent(workbookId)}/ingest-token`, {
     method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ update_fields: updateFields }),
   })
   if (!res.ok) {
     if (res.status === 404) throw new Error("Workbook ingestion is unavailable or this workbook was not found.")
     if (res.status === 401 || res.status === 403) throw new Error("You need workbook edit access to create an ingest token.")
+    if (res.status === 422) {
+      const problem = await res.json().catch(() => null)
+      throw new Error(typeof problem?.detail === "string" ? problem.detail : "Check the update field names and try again.")
+    }
     throw new Error("Could not create the ingest token. Please try again.")
   }
   const data: unknown = await res.json()
