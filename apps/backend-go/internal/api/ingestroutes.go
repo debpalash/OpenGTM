@@ -318,10 +318,6 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string,
 	if !ok {
 		return
 	}
-	var req wbcrud.AddRowsRequest
-	if errs == nil {
-		req, errs = wbcrud.ParseAddRows(doc) // rows min 1, dedupe default true, plan 04 row and key caps
-	}
 	if errs != nil {
 		httpx.ValidationError(w, errs...)
 		return
@@ -342,6 +338,14 @@ func (h ingestRoutes) process(w http.ResponseWriter, r *http.Request, ws string,
 			httpx.Detail(w, http.StatusForbidden, "ingest token has no update scope")
 			return
 		}
+	}
+	var req wbcrud.AddRowsRequest
+	req, errs = wbcrud.ParseAddRows(doc) // rows min 1, dedupe default true, plan 04 row and key caps
+	if errs != nil {
+		httpx.ValidationError(w, errs...)
+		return
+	}
+	if mode == "update" {
 		if !req.Dedupe {
 			httpx.Detail(w, http.StatusUnprocessableEntity, "update mode requires dedupe")
 			return
