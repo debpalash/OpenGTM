@@ -6,8 +6,8 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/base64"
-	"encoding/json"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -222,13 +222,13 @@ func (h ingestRoutes) createToken(w http.ResponseWriter, r *http.Request) {
 
 // ingestTokenResponse is the one-time creation response (the only place the plaintext appears).
 type ingestTokenResponse struct {
-	Token       string `json:"token"`
-	ID          string `json:"id"`
-	Prefix      string `json:"prefix"`
-	WorkbookID  string `json:"workbook_id"`
-	WorkspaceID string `json:"workspace_id"`
-	CreatedAt   string `json:"created_at"`
-	Rotated     int64  `json:"rotated"`
+	Token        string   `json:"token"`
+	ID           string   `json:"id"`
+	Prefix       string   `json:"prefix"`
+	WorkbookID   string   `json:"workbook_id"`
+	WorkspaceID  string   `json:"workspace_id"`
+	CreatedAt    string   `json:"created_at"`
+	Rotated      int64    `json:"rotated"`
 	UpdateFields []string `json:"update_fields,omitempty"`
 }
 
@@ -496,9 +496,15 @@ func ingestIdentityRows(ctx context.Context, tx pgx.Tx, workbookID string) (map[
 			return nil, err
 		}
 		row := wbcrud.NewObj()
-		if website != nil { row.Set("website", *website) }
-		if domain != nil { row.Set("domain", *domain) }
-		if company != nil { row.Set("company", *company) }
+		if website != nil {
+			row.Set("website", *website)
+		}
+		if domain != nil {
+			row.Set("domain", *domain)
+		}
+		if company != nil {
+			row.Set("company", *company)
+		}
 		if identity := wbcrud.RowIdentity(row); identity != "" {
 			found[identity] = append(found[identity], id)
 		}
@@ -508,13 +514,21 @@ func ingestIdentityRows(ctx context.Context, tx pgx.Tx, workbookID string) (map[
 
 func ingestUpdatePatch(row *wbcrud.Obj, updateFields []string) (*wbcrud.Obj, error) {
 	allowed := make(map[string]struct{}, len(updateFields))
-	for _, field := range updateFields { allowed[field] = struct{}{} }
+	for _, field := range updateFields {
+		allowed[field] = struct{}{}
+	}
 	patch := wbcrud.NewObj()
 	for _, key := range row.Keys() {
-		if _, identity := ingestIdentityFields[strings.ToLower(key)]; identity { continue }
-		if _, ok := allowed[key]; !ok { return nil, errIngestUpdatePayload }
+		if _, identity := ingestIdentityFields[strings.ToLower(key)]; identity {
+			continue
+		}
+		if _, ok := allowed[key]; !ok {
+			return nil, errIngestUpdatePayload
+		}
 		value, _ := row.Get(key)
-		if value == nil || value == "" { return nil, errIngestUpdatePayload }
+		if value == nil || value == "" {
+			return nil, errIngestUpdatePayload
+		}
 		patch.Set(key, value)
 	}
 	return patch, nil
@@ -557,26 +571,41 @@ func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req
 	if req.Dedupe && len(mapped) > 0 {
 		if updateDuplicates {
 			seen, err := ingestIdentityRows(ctx, tx, wbID)
-			if err != nil { return nil, false, err }
+			if err != nil {
+				return nil, false, err
+			}
 			batchSeen := map[string]struct{}{}
 			kept := mapped[:0:0]
 			for _, row := range mapped {
 				identity := wbcrud.RowIdentity(row)
-				if !strings.HasPrefix(identity, "d:") { return nil, false, errIngestUpdatePayload }
+				if !strings.HasPrefix(identity, "d:") {
+					return nil, false, errIngestUpdatePayload
+				}
 				patch, err := ingestUpdatePatch(row, updateFields)
-				if err != nil { return nil, false, err }
+				if err != nil {
+					return nil, false, err
+				}
 				if _, duplicate := batchSeen[identity]; duplicate {
 					skippedDupes++
 					continue
 				}
 				batchSeen[identity] = struct{}{}
 				matches := seen[identity]
-				if len(matches) > 1 { return nil, false, errIngestAmbiguousIdentity }
+				if len(matches) > 1 {
+					return nil, false, errIngestAmbiguousIdentity
+				}
 				if len(matches) == 1 {
-					if patch.Len() == 0 { skippedDupes++; continue }
+					if patch.Len() == 0 {
+						skippedDupes++
+						continue
+					}
 					command, err := tx.Exec(ctx, `UPDATE workbook_rows SET data = (data::jsonb || $1::jsonb)::json, updated_at = (now() AT TIME ZONE 'utc') WHERE id = $2 AND workbook_id = $3 AND workspace_id = $4`, wbcrud.PyDumps(patch, false), matches[0], wbID, ws)
-					if err != nil { return nil, false, err }
-					if command.RowsAffected() != 1 { return nil, false, wbcrud.ErrNotFound }
+					if err != nil {
+						return nil, false, err
+					}
+					if command.RowsAffected() != 1 {
+						return nil, false, wbcrud.ErrNotFound
+					}
 					updated++
 					continue
 				}
@@ -585,12 +614,17 @@ func (h ingestRoutes) apply(ctx context.Context, tx pgx.Tx, ws, wbID string, req
 			mapped = kept
 		} else {
 			seen, err := wbcrud.ExistingIdentities(ctx, tx, wbID)
-			if err != nil { return nil, false, err }
+			if err != nil {
+				return nil, false, err
+			}
 			kept := mapped[:0:0]
 			for _, row := range mapped {
 				id := wbcrud.RowIdentity(row)
 				if id != "" {
-					if _, dup := seen[id]; dup { skippedDupes++; continue }
+					if _, dup := seen[id]; dup {
+						skippedDupes++
+						continue
+					}
 					seen[id] = struct{}{}
 				}
 				kept = append(kept, row)

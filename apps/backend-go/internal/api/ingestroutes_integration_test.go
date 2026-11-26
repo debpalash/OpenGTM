@@ -302,17 +302,23 @@ func TestIngestScopedDuplicateRefreshPreservesOtherFields(t *testing.T) {
 		t.Fatalf("seed: %d %s", code, body)
 	}
 	code, body := e.post(base+"ingest-token", "", owner)
-	if code != 200 { t.Fatalf("append token: %d %s", code, body) }
-	var appendToken struct{ Token string `json:"token"` }
+	if code != 200 {
+		t.Fatalf("append token: %d %s", code, body)
+	}
+	var appendToken struct {
+		Token string `json:"token"`
+	}
 	_ = json.Unmarshal([]byte(body), &appendToken)
 	update := `{"rows":[{"company":"Acme","website":"https://acme.io","Intel Score":61}],"on_duplicate":"update"}`
 	if code, body := e.post(base+"rows/ingest", update, tokHdr(appendToken.Token)); code != 403 {
 		t.Fatalf("append-only token updated a row: %d %s", code, body)
 	}
 	code, body = e.post(base+"ingest-token", `{"update_fields":["Intel Score"]}`, owner)
-	if code != 200 { t.Fatalf("scoped token: %d %s", code, body) }
+	if code != 200 {
+		t.Fatalf("scoped token: %d %s", code, body)
+	}
 	var scoped struct {
-		Token string `json:"token"`
+		Token        string   `json:"token"`
 		UpdateFields []string `json:"update_fields"`
 	}
 	_ = json.Unmarshal([]byte(body), &scoped)
@@ -343,10 +349,16 @@ func TestIngestScopedRefreshRejectsAmbiguousDomain(t *testing.T) {
 	base := ingestBase + "wb-ingest-empty/"
 	owner := e.session("alice", "ws-alpha")
 	seed := `{"rows":[{"company":"First","website":"https://same.io","Intel Score":50},{"company":"Second","website":"https://same.io","Intel Score":50}],"dedupe":false}`
-	if code, body := e.post(base+"rows/ingest", seed, owner); code != 200 { t.Fatalf("seed: %d %s", code, body) }
+	if code, body := e.post(base+"rows/ingest", seed, owner); code != 200 {
+		t.Fatalf("seed: %d %s", code, body)
+	}
 	code, body := e.post(base+"ingest-token", `{"update_fields":["Intel Score"]}`, owner)
-	if code != 200 { t.Fatalf("mint: %d %s", code, body) }
-	var scoped struct{ Token string `json:"token"` }
+	if code != 200 {
+		t.Fatalf("mint: %d %s", code, body)
+	}
+	var scoped struct {
+		Token string `json:"token"`
+	}
 	_ = json.Unmarshal([]byte(body), &scoped)
 	update := `{"rows":[{"company":"Same","website":"https://same.io","Intel Score":70}],"on_duplicate":"update"}`
 	if code, body := e.post(base+"rows/ingest", update, tokHdr(scoped.Token)); code != 409 {
